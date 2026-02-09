@@ -4,6 +4,7 @@ dist
 .DS_Store
 *.log
 .vercel
+backup/
 
 # Dev/debug scripts
 reset-localhost.html
@@ -17,3 +18,4 @@ public/_redirects
 # Test/verification scripts
 test_*.js
 verify_*.js
+.env*.local

@@ -1,6 +1,42 @@
 {
     "rewrites": [
         {
+            "source": "/api/assistant",
+            "destination": "/api/assistant"
+        },
+        {
+            "source": "/api/bootstrap",
+            "destination": "/api/logs"
+        },
+        {
+            "source": "/api/log",
+            "destination": "/api/logs"
+        },
+        {
+            "source": "/api/logs/:path*",
+            "destination": "/api/logs"
+        },
+        {
+            "source": "/api/community/:path*",
+            "destination": "/api/community"
+        },
+        {
+            "source": "/api/meals/:path*",
+            "destination": "/api/meals"
+        },
+        {
+            "source": "/api/meals",
+            "destination": "/api/meals"
+        },
+        {
+            "source": "/api/food-logs/:path*",
+            "destination": "/api/meals"
+        },
+        {
+            "source": "/api/food-logs",
+            "destination": "/api/meals"
+        },
+        {
             "source": "/((?!api/).*)",
             "destination": "/index.html"
         }
