@@ -177,7 +177,7 @@ function MainLayout() {
                     Community
                 </button>
             </nav>
-            <DebugView />
+            {import.meta.env.DEV && <DebugView />}
         </>
     )
 }
@@ -248,7 +248,7 @@ function App() {
                 <OfflineBanner isOnline={isOnline} />
                 <AuthenticatedApp />
                 <InstallPrompt />
-                <DebugPanel />
+                {import.meta.env.DEV && <DebugPanel />}
             </AuthProvider>
         </ErrorBoundary>
     )

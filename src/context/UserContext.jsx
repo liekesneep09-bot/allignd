@@ -376,168 +376,228 @@ export function UserProvider({ children }) {
       // 1. Prepare Profile Object
       // Ensure numbers are numbers
       const cleanProfile = {
-        // 1. Prepare Profile Object
-        const cleanProfile = {
-          ...user,
-          ...profileData,
-          weight_kg: Number(profileData.weight || user.weight),
-          height_cm: Number(profileData.height || user.height),
-          age: Number(profileData.age || user.age),
-          goal: profileData.goal || user.goal,
-          training_days_per_week: Number(profileData.trainingFrequency || user.trainingFrequency || 0),
-          lifestyle_level: profileData.lifestyle_level || user.lifestyle_level || 'sedentary',
-          steps_range: profileData.steps_range || user.steps_range || 'lt4k'
-        };
+        ...user,
+        ...profileData,
+        weight_kg: Number(profileData.weight || user.weight),
+        height_cm: Number(profileData.height || user.height),
+        age: Number(profileData.age || user.age),
+        goal: profileData.goal || user.goal,
+        training_days_per_week: Number(profileData.trainingFrequency || user.trainingFrequency || 0),
+        lifestyle_level: profileData.lifestyle_level || user.lifestyle_level || 'sedentary',
+        steps_range: profileData.steps_range || user.steps_range || 'lt4k'
+      };
 
-        // 2. Calculate Targets (Range Based)
-        const targets = calculateTargetRanges(cleanProfile);
-        if(!targets) throw new Error("Failed to calculate targets");
+      // 2. Calculate Targets (Range Based)
+      const targets = calculateTargetRanges(cleanProfile);
+      if (!targets) throw new Error("Failed to calculate targets");
 
-        console.log("Calculated Targets:", targets);
+      console.log("Calculated Targets:", targets);
 
-        // 3. Save to Supabase
-        // A. Update Profile
-        const { error: profileError } = await supabase.from('profiles').upsert({
-          id: authUser.id,
-          // Nutrition/Body Fields
-          weight: cleanProfile.weight_kg,
-          height: cleanProfile.height_cm,
-          age: cleanProfile.age,
-          goal: cleanProfile.goal,
-          training_days_per_week: cleanProfile.training_days_per_week,
-          lifestyle_level: cleanProfile.lifestyle_level,
-          steps_range: cleanProfile.steps_range,
+      // 3. Save to Supabase
+      // A. Update Profile
+      const { error: profileError } = await supabase.from('profiles').upsert({
+        id: authUser.id,
+        // Nutrition/Body Fields
+        weight: cleanProfile.weight_kg,
+        height: cleanProfile.height_cm,
+        age: cleanProfile.age,
+        goal: cleanProfile.goal,
+        training_days_per_week: cleanProfile.training_days_per_week,
+        lifestyle_level: cleanProfile.lifestyle_level,
+        steps_range: cleanProfile.steps_range,
 
-          // Preserve other fields
-          cycle_start: cleanProfile.cycleStart,
-          cycle_length: cleanProfile.cycleLength,
-          period_length: cleanProfile.periodLength,
-          updated_at: new Date().toISOString()
-        });
+        // Preserve other fields
+        cycle_start: cleanProfile.cycleStart,
+        cycle_length: cleanProfile.cycleLength,
+        period_length: cleanProfile.periodLength,
+        updated_at: new Date().toISOString()
+      });
 
-        if(profileError) throw profileError;
+      if (profileError) throw profileError;
 
-        // B. Save Computed Targets
-        const { error: targetError } = await supabase.from('computed_targets').upsert({
-          user_id: authUser.id,
-          tdee_estimate: targets.tdee_estimate,
-          calorie_target_min: targets.calorie_target_min,
-          calorie_target_max: targets.calorie_target_max,
-          protein_g_min: targets.protein_g_min,
-          protein_g_max: targets.protein_g_max,
-          fat_g_min: targets.fat_g_min,
-          fat_g_max: targets.fat_g_max,
-          carbs_g_min: targets.carbs_g_min,
-          carbs_g_max: targets.carbs_g_max,
-          updated_at: new Date().toISOString()
-        });
+      // B. Save Computed Targets
+      const { error: targetError } = await supabase.from('computed_targets').upsert({
+        user_id: authUser.id,
+        tdee_estimate: targets.tdee_estimate,
+        calorie_target_min: targets.calorie_target_min,
+        calorie_target_max: targets.calorie_target_max,
+        protein_g_min: targets.protein_g_min,
+        protein_g_max: targets.protein_g_max,
+        fat_g_min: targets.fat_g_min,
+        fat_g_max: targets.fat_g_max,
+        carbs_g_min: targets.carbs_g_min,
+        carbs_g_max: targets.carbs_g_max,
+        updated_at: new Date().toISOString()
+      });
 
-        if(targetError) throw targetError;
+      if (targetError) throw targetError;
 
-        // 4. Update Local State
-        setUser(prev => ({
-          ...prev,
-          ...cleanProfile,
-          macroTargets: {
-            calories: targets.calorie_target_min,
-            caloriesMax: targets.calorie_target_max,
-            proteinMin: targets.protein_g_min,
-            proteinMax: targets.protein_g_max,
-            fatMin: targets.fat_g_min,
-            fatMax: targets.fat_g_max,
-            carbsMin: targets.carbs_g_min,
-            carbsMax: targets.carbs_g_max
-          },
-          nutritionDebug: {
-            tdee: targets.tdee_estimate
-          }
-        }));
+      // 4. Update Local State
+      setUser(prev => ({
+        ...prev,
+        ...cleanProfile,
+        macroTargets: {
+          calories: targets.calorie_target_min,
+          caloriesMax: targets.calorie_target_max,
+          proteinMin: targets.protein_g_min,
+          proteinMax: targets.protein_g_max,
+          fatMin: targets.fat_g_min,
+          fatMax: targets.fat_g_max,
+          carbsMin: targets.carbs_g_min,
+          carbsMax: targets.carbs_g_max
+        },
+        nutritionDebug: {
+          tdee: targets.tdee_estimate
+        }
+      }));
 
-  return targets;
+      return targets;
 
-} catch (err) {
-  console.error("Save & Calculate Error:", err);
-  throw err;
-}
+    } catch (err) {
+      console.error("Save & Calculate Error:", err);
+      throw err;
+    }
   };
 
-const completeOnboarding = async () => {
-  setIsOnboarded(true)
-  localStorage.setItem('cyclus_onboarded', 'true')
+  const completeOnboarding = async () => {
+    setIsOnboarded(true)
+    localStorage.setItem('cyclus_onboarded', 'true')
 
-  // Sync to Supabase
-  if (authUser) {
-    await supabase.from('profiles').upsert({
-      id: authUser.id,
-      is_onboarded: true,
-      onboarding_completed_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    })
+    // Sync to Supabase
+    if (authUser) {
+      await supabase.from('profiles').upsert({
+        id: authUser.id,
+        is_onboarded: true,
+        onboarding_completed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+    }
   }
-}
 
-// NEW: Explicitly Reset Onboarding (Keep data, just redo setup)
-const resetOnboarding = async () => {
-  setIsOnboarded(false)
-  localStorage.removeItem('cyclus_onboarded')
+  // NEW: Explicitly Reset Onboarding (Keep data, just redo setup)
+  const resetOnboarding = async () => {
+    setIsOnboarded(false)
+    localStorage.removeItem('cyclus_onboarded')
 
-  if (authUser?.id) {
-    await supabase.from('profiles').update({
-      is_onboarded: false,
-      updated_at: new Date().toISOString()
-    }).eq('id', authUser.id)
+    if (authUser?.id) {
+      await supabase.from('profiles').update({
+        is_onboarded: false,
+        updated_at: new Date().toISOString()
+      }).eq('id', authUser.id)
+    }
   }
-}
 
-// Soft Reset: Clear stats but keep Account (Name, Email, Password)
-const resetData = () => {
-  // Note: This logic might need to clear actual localStorage keys if "reset" means "wipe data"
-  // For now keeping UI reset behavior
-  setUser(prev => ({
-    ...prev,
-    cycleStart: null,
-    cycleLength: 28,
-    periodLength: 5,
-    isMenstruatingNow: false,
-    lastCheckInDate: null,
-    age: '',
-    height: '',
-    weight: '',
-    goal: 'maintain',
-    logs: {},
-    foodLogs: [],
-    movementLogs: []
-  }))
-  setIsOnboarded(false)
-  localStorage.removeItem('cyclus_onboarded')
-}
+  // Soft Reset: Clear stats but keep Account (Name, Email, Password)
+  const resetData = () => {
+    // Note: This logic might need to clear actual localStorage keys if "reset" means "wipe data"
+    // For now keeping UI reset behavior
+    setUser(prev => ({
+      ...prev,
+      cycleStart: null,
+      cycleLength: 28,
+      periodLength: 5,
+      isMenstruatingNow: false,
+      lastCheckInDate: null,
+      age: '',
+      height: '',
+      weight: '',
+      goal: 'maintain',
+      logs: {},
+      foodLogs: [],
+      movementLogs: []
+    }))
+    setIsOnboarded(false)
+    localStorage.removeItem('cyclus_onboarded')
+  }
 
-// NEW: Log Food with Auto-Calculation
-// Supports both regular foods (foodId + grams) and configurable foods (configData)
-const logFood = async (foodId, grams, dateStrOrConfigData, configData) => {
-  const today = getLocalDateStr()
+  // NEW: Log Food with Auto-Calculation
+  // Supports both regular foods (foodId + grams) and configurable foods (configData)
+  const logFood = async (foodId, grams, dateStrOrConfigData, configData) => {
+    const today = getLocalDateStr()
 
-  // Handle configurable food (when grams is null and configData is passed)
-  if (grams === null && typeof dateStrOrConfigData === 'object') {
-    const config = dateStrOrConfigData
-    const targetDate = today
+    // Handle configurable food (when grams is null and configData is passed)
+    if (grams === null && typeof dateStrOrConfigData === 'object') {
+      const config = dateStrOrConfigData
+      const targetDate = today
 
+      const newLog = {
+        id: crypto.randomUUID(), // Use real UUID
+        user_id: authUser.id,
+        date: targetDate, // YYYY-MM-DD
+        foodId: foodId, // 'config-ID'
+        name: config.foodName,
+        grams: null,
+        quantity: config.quantity,
+        item_type: 'product', // or 'recipe' if needed
+        configId: config.configId,
+        selectedVariants: config.selectedVariants,
+        kcal: config.calculatedMacros.kcal,
+        p: config.calculatedMacros.protein,
+        c: config.calculatedMacros.carbs,
+        f: config.calculatedMacros.fat,
+        fiber: config.calculatedMacros.fiber
+      }
+
+      // 1. Optimistic UI
+      setUser(prev => ({
+        ...prev,
+        foodLogs: [...(prev.foodLogs || []), newLog]
+      }))
+
+      // 2. Persist to DB
+      try {
+        const { error } = await supabase.from('food_logs').insert({
+          id: newLog.id,
+          user_id: newLog.user_id,
+          date: newLog.date,
+          food_id: newLog.foodId,
+          name: newLog.name,
+          quantity: newLog.quantity,
+          item_type: 'product',
+          config_id: newLog.configId,
+          selected_variants: newLog.selectedVariants,
+          kcal: newLog.kcal,
+          protein: newLog.p,
+          carbs: newLog.c,
+          fat: newLog.f
+        })
+        if (error) throw error
+      } catch (e) {
+        console.error("Failed to log food:", e)
+        alert(`Fout bij opslaan: ${e.message || JSON.stringify(e)}`)
+        // Rollback optimistic update
+        setUser(prev => ({
+          ...prev,
+          foodLogs: prev.foodLogs.filter(l => l.id !== newLog.id)
+        }))
+      }
+      return
+    }
+
+    // Handle regular food (foodId + grams)
+    const targetDate = (typeof dateStrOrConfigData === 'string') ? dateStrOrConfigData : today
+    // Fix: Handle both string and number inputs for IDs
+    const food = user.foods.find(f => String(f.id) === String(foodId))
+
+    if (!food) {
+      console.error("Food not found for ID:", foodId)
+      return
+    }
+
+    const factor = grams / 100
     const newLog = {
-      id: crypto.randomUUID(), // Use real UUID
+      id: crypto.randomUUID(),
       user_id: authUser.id,
-      date: targetDate, // YYYY-MM-DD
-      foodId: foodId, // 'config-ID'
-      name: config.foodName,
-      grams: null,
-      quantity: config.quantity,
-      item_type: 'product', // or 'recipe' if needed
-      configId: config.configId,
-      selectedVariants: config.selectedVariants,
-      kcal: config.calculatedMacros.kcal,
-      p: config.calculatedMacros.protein,
-      c: config.calculatedMacros.carbs,
-      f: config.calculatedMacros.fat,
-      fiber: config.calculatedMacros.fiber
+      date: targetDate,
+      foodId: food.id,
+      name: food.name_nl,
+      grams: parseInt(grams),
+      quantity: 1,
+      item_type: 'product',
+      kcal: Math.round(food.kcal_100 * factor),
+      p: parseFloat((food.protein_100 * factor).toFixed(1)),
+      c: parseFloat((food.carbs_100 * factor).toFixed(1)),
+      f: parseFloat((food.fat_100 * factor).toFixed(1))
     }
 
     // 1. Optimistic UI
@@ -554,10 +614,9 @@ const logFood = async (foodId, grams, dateStrOrConfigData, configData) => {
         date: newLog.date,
         food_id: newLog.foodId,
         name: newLog.name,
-        quantity: newLog.quantity,
+        grams: newLog.grams,
+        quantity: 1,
         item_type: 'product',
-        config_id: newLog.configId,
-        selected_variants: newLog.selectedVariants,
         kcal: newLog.kcal,
         protein: newLog.p,
         carbs: newLog.c,
@@ -573,491 +632,430 @@ const logFood = async (foodId, grams, dateStrOrConfigData, configData) => {
         foodLogs: prev.foodLogs.filter(l => l.id !== newLog.id)
       }))
     }
-    return
   }
 
-  // Handle regular food (foodId + grams)
-  const targetDate = (typeof dateStrOrConfigData === 'string') ? dateStrOrConfigData : today
-  // Fix: Handle both string and number inputs for IDs
-  const food = user.foods.find(f => String(f.id) === String(foodId))
-
-  if (!food) {
-    console.error("Food not found for ID:", foodId)
-    return
-  }
-
-  const factor = grams / 100
-  const newLog = {
-    id: crypto.randomUUID(),
-    user_id: authUser.id,
-    date: targetDate,
-    foodId: food.id,
-    name: food.name_nl,
-    grams: parseInt(grams),
-    quantity: 1,
-    item_type: 'product',
-    kcal: Math.round(food.kcal_100 * factor),
-    p: parseFloat((food.protein_100 * factor).toFixed(1)),
-    c: parseFloat((food.carbs_100 * factor).toFixed(1)),
-    f: parseFloat((food.fat_100 * factor).toFixed(1))
-  }
-
-  // 1. Optimistic UI
-  setUser(prev => ({
-    ...prev,
-    foodLogs: [...(prev.foodLogs || []), newLog]
-  }))
-
-  // 2. Persist to DB
-  try {
-    const { error } = await supabase.from('food_logs').insert({
-      id: newLog.id,
-      user_id: newLog.user_id,
-      date: newLog.date,
-      food_id: newLog.foodId,
-      name: newLog.name,
-      grams: newLog.grams,
-      quantity: 1,
-      item_type: 'product',
-      kcal: newLog.kcal,
-      protein: newLog.p,
-      carbs: newLog.c,
-      fat: newLog.f
-    })
-    if (error) throw error
-  } catch (e) {
-    console.error("Failed to log food:", e)
-    alert(`Fout bij opslaan: ${e.message || JSON.stringify(e)}`)
-    // Rollback optimistic update
+  // NEW: Delete Log
+  const deleteFoodLog = async (logId) => {
+    // 1. Update State
     setUser(prev => ({
       ...prev,
-      foodLogs: prev.foodLogs.filter(l => l.id !== newLog.id)
+      foodLogs: prev.foodLogs.filter(log => log.id !== logId)
     }))
+
+    // 2. Persist
+    // 2. Persist
+    try {
+      const { error } = await supabase.from('food_logs').delete().eq('id', logId)
+      if (error) throw error
+    } catch (e) {
+      console.error("Failed to delete log", e)
+      alert("Kon item niet verwijderen: " + e.message)
+      // No easy rollback for delete yet without refetch
+    }
   }
-}
 
-// NEW: Delete Log
-const deleteFoodLog = async (logId) => {
-  // 1. Update State
-  setUser(prev => ({
-    ...prev,
-    foodLogs: prev.foodLogs.filter(log => log.id !== logId)
-  }))
-
-  // 2. Persist
-  // 2. Persist
-  try {
-    const { error } = await supabase.from('food_logs').delete().eq('id', logId)
-    if (error) throw error
-  } catch (e) {
-    console.error("Failed to delete log", e)
-    alert("Kon item niet verwijderen: " + e.message)
-    // No easy rollback for delete yet without refetch
-  }
-}
-
-// NEW: Add Custom Food
-const addCustomFood = async (food) => {
-  // 1. Optimistic
-  setUser(prev => ({
-    ...prev,
-    foods: [...prev.foods, food]
-  }))
-
-  // 2. Persist
-  try {
-    await supabase.from('custom_foods').insert({
-      id: food.id,
-      user_id: authUser.id,
-      name_nl: food.name_nl,
-      kcal_100: food.kcal_100,
-      protein_100: food.protein_100,
-      carbs_100: food.carbs_100,
-      fat_100: food.fat_100,
-      unit_type: food.unit_type
-    })
-  } catch (e) {
-    console.error("Failed to add custom food", e)
-  }
-}
-
-// NEW: Log Movement
-const logMovement = (dateStr, status) => {
-
-  // 1. Update State
-  setUser(prev => {
-    const others = prev.movementLogs.filter(l => l.date !== dateStr) || []
-    return {
+  // NEW: Add Custom Food
+  const addCustomFood = async (food) => {
+    // 1. Optimistic
+    setUser(prev => ({
       ...prev,
-      movementLogs: [...others, { date: dateStr, status }]
-    }
-  })
+      foods: [...prev.foods, food]
+    }))
 
-  // 2. Persist to Day Log
-  try {
-    if (!authUser?.id) return
-    const dayData = loadDayLog(dateStr, authUser.id)
-    dayData.movement = {
-      status: status, // 'moved' | 'rest'
-      updatedAt: new Date().toISOString()
-    }
-    saveDayLog(dateStr, dayData, authUser.id)
-    syncDayLogToCloud(dateStr, dayData) // Sync
-  } catch (e) { console.error(e) }
-}
-
-// NEW: Log Menstruation (Start of new cycle)
-const logMenstruation = (dateStr = new Date().toISOString()) => {
-  const today = new Date(dateStr)
-  today.setHours(0, 0, 0, 0)
-
-  // 1. Close previous cycle
-  const prevStart = new Date(user.cycleStart)
-  prevStart.setHours(0, 0, 0, 0)
-
-  const diffTime = today - prevStart
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
-  // Only save history if it's a reasonable length (e.g. > 10 days) to avoid accidental double clicks
-  let newHistory = user.cycleHistory || []
-  if (diffDays > 10) {
-    // Determine what the period length was for this closing cycle
-    const periodLen = user.currentPeriodLength !== null && user.currentPeriodLength !== undefined
-      ? user.currentPeriodLength
-      : user.periodLength
-
-    newHistory = [
-      { startDate: user.cycleStart, endDate: dateStr, length: diffDays, periodLength: periodLen },
-      ...newHistory
-    ]
-  }
-
-  // 2. Calculate new average length (Adaptive for Cycle AND Period)
-  let newLen = user.cycleLength
-  let newPeriodLen = user.periodLength
-
-  if (newHistory.length > 0) {
-    // Average Cycle Length: ROLLING AVERAGE (Last 5 confirmed cycles)
-    // This allows the app to adapt faster to recent changes.
-    const recentHistory = newHistory.slice(0, 5)
-
-    // Filter out outliers (e.g. missed periods > 45 days) before averaging
-    const validCycles = recentHistory.filter(c => c.length >= 21 && c.length <= 45)
-
-    if (validCycles.length > 0) {
-      const totalLen = validCycles.reduce((sum, c) => sum + c.length, 0)
-      newLen = Math.round(totalLen / validCycles.length)
-      // newLen = Math.max(21, Math.min(45, newLen)) // Clamp implied
-    } else {
-      // Fallback to existing length if recent history is all outliers
-      newLen = user.cycleLength
-    }
-
-    // Average Period Length (only if recorded in history)
-    const validPeriodHist = recentHistory.filter(c => c.periodLength)
-    if (validPeriodHist.length > 0) {
-      const totalPeriod = validPeriodHist.reduce((sum, c) => sum + c.periodLength, 0)
-      newPeriodLen = Math.round(totalPeriod / validPeriodHist.length)
-      newPeriodLen = Math.max(2, Math.min(10, newPeriodLen)) // Clamp 2-10 days
+    // 2. Persist
+    try {
+      await supabase.from('custom_foods').insert({
+        id: food.id,
+        user_id: authUser.id,
+        name_nl: food.name_nl,
+        kcal_100: food.kcal_100,
+        protein_100: food.protein_100,
+        carbs_100: food.carbs_100,
+        fat_100: food.fat_100,
+        unit_type: food.unit_type
+      })
+    } catch (e) {
+      console.error("Failed to add custom food", e)
     }
   }
 
-  // 4. Persist to Day Log (Explicit Status)
-  try {
-    if (authUser?.id) {
+  // NEW: Log Movement
+  const logMovement = (dateStr, status) => {
+
+    // 1. Update State
+    setUser(prev => {
+      const others = prev.movementLogs.filter(l => l.date !== dateStr) || []
+      return {
+        ...prev,
+        movementLogs: [...others, { date: dateStr, status }]
+      }
+    })
+
+    // 2. Persist to Day Log
+    try {
+      if (!authUser?.id) return
       const dayData = loadDayLog(dateStr, authUser.id)
-      dayData.menstruation = { status: 'yes', updatedAt: new Date().toISOString() }
+      dayData.movement = {
+        status: status, // 'moved' | 'rest'
+        updatedAt: new Date().toISOString()
+      }
       saveDayLog(dateStr, dayData, authUser.id)
-      syncDayLogToCloud(dateStr, dayData)
+      syncDayLogToCloud(dateStr, dayData) // Sync
+    } catch (e) { console.error(e) }
+  }
+
+  // NEW: Log Menstruation (Start of new cycle)
+  const logMenstruation = (dateStr = new Date().toISOString()) => {
+    const today = new Date(dateStr)
+    today.setHours(0, 0, 0, 0)
+
+    // 1. Close previous cycle
+    const prevStart = new Date(user.cycleStart)
+    prevStart.setHours(0, 0, 0, 0)
+
+    const diffTime = today - prevStart
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+    // Only save history if it's a reasonable length (e.g. > 10 days) to avoid accidental double clicks
+    let newHistory = user.cycleHistory || []
+    if (diffDays > 10) {
+      // Determine what the period length was for this closing cycle
+      const periodLen = user.currentPeriodLength !== null && user.currentPeriodLength !== undefined
+        ? user.currentPeriodLength
+        : user.periodLength
+
+      newHistory = [
+        { startDate: user.cycleStart, endDate: dateStr, length: diffDays, periodLength: periodLen },
+        ...newHistory
+      ]
     }
-  } catch (e) { console.error(e) }
 
-  // 3. Update User
-  updateUser({
-    isMenstruatingNow: true,
-    cycleStart: dateStr,
-    // cycleLength: newLen, // DISABLED: Keep manual setting (user.cycleLength)
-    periodLength: newPeriodLen,
-    currentPeriodLength: null,
-    lastCheckInDate: null,
-    cycleHistory: newHistory,
-    // Add to logs
-    menstruationLogs: [...user.menstruationLogs.filter(l => l.date !== dateStr), { date: dateStr, status: 'yes' }]
-  })
-}
+    // 2. Calculate new average length (Adaptive for Cycle AND Period)
+    let newLen = user.cycleLength
+    let newPeriodLen = user.periodLength
 
-// NEW: Daily Confirmations
-const confirmPeriodToday = () => {
-  const day = currentDay // derived from state (linear count)
-  const todayStr = getLocalDateStr()
+    if (newHistory.length > 0) {
+      // Average Cycle Length: ROLLING AVERAGE (Last 5 confirmed cycles)
+      // This allows the app to adapt faster to recent changes.
+      const recentHistory = newHistory.slice(0, 5)
 
-  // LOGIC: Is this a NEW cycle or continuing an existing one?
-  // If day > 5 (arbitrary buffer) and we are not currently menstruating according to state (or just late cycle),
-  // and user clicks "Yes", it's likely a new period.
-  // If day <= 5, we assume it's the same period.
+      // Filter out outliers (e.g. missed periods > 45 days) before averaging
+      const validCycles = recentHistory.filter(c => c.length >= 21 && c.length <= 45)
 
-  // Better logic: If day > periodLength + buffer (e.g. 10), treat as NEW cycle start.
-  // OR: If user.isMenstruatingNow is FALSE and day > 5, treat as start.
+      if (validCycles.length > 0) {
+        const totalLen = validCycles.reduce((sum, c) => sum + c.length, 0)
+        newLen = Math.round(totalLen / validCycles.length)
+        // newLen = Math.max(21, Math.min(45, newLen)) // Clamp implied
+      } else {
+        // Fallback to existing length if recent history is all outliers
+        newLen = user.cycleLength
+      }
 
-  // Strict Rule: If we are deep in the cycle (e.g. day 25) and user says "Menstruation", it is Day 1.
-  // If we are on day 3 and user says "Menstruation", it is still Day 3 (continuation).
+      // Average Period Length (only if recorded in history)
+      const validPeriodHist = recentHistory.filter(c => c.periodLength)
+      if (validPeriodHist.length > 0) {
+        const totalPeriod = validPeriodHist.reduce((sum, c) => sum + c.periodLength, 0)
+        newPeriodLen = Math.round(totalPeriod / validPeriodHist.length)
+        newPeriodLen = Math.max(2, Math.min(10, newPeriodLen)) // Clamp 2-10 days
+      }
+    }
 
-  const isNewCycle = day > 10 // Simple heuristic: after day 10, bleeding = new period.
+    // 4. Persist to Day Log (Explicit Status)
+    try {
+      if (authUser?.id) {
+        const dayData = loadDayLog(dateStr, authUser.id)
+        dayData.menstruation = { status: 'yes', updatedAt: new Date().toISOString() }
+        saveDayLog(dateStr, dayData, authUser.id)
+        syncDayLogToCloud(dateStr, dayData)
+      }
+    } catch (e) { console.error(e) }
 
-  if (isNewCycle) {
-    logPeriodStart(todayStr)
-  } else {
-    // Just log confirmation for today, no cycle reset
-    // Persist to Day Log
+    // 3. Update User
+    updateUser({
+      isMenstruatingNow: true,
+      cycleStart: dateStr,
+      // cycleLength: newLen, // DISABLED: Keep manual setting (user.cycleLength)
+      periodLength: newPeriodLen,
+      currentPeriodLength: null,
+      lastCheckInDate: null,
+      cycleHistory: newHistory,
+      // Add to logs
+      menstruationLogs: [...user.menstruationLogs.filter(l => l.date !== dateStr), { date: dateStr, status: 'yes' }]
+    })
+  }
+
+  // NEW: Daily Confirmations
+  const confirmPeriodToday = () => {
+    const day = currentDay // derived from state (linear count)
+    const todayStr = getLocalDateStr()
+
+    // LOGIC: Is this a NEW cycle or continuing an existing one?
+    // If day > 5 (arbitrary buffer) and we are not currently menstruating according to state (or just late cycle),
+    // and user clicks "Yes", it's likely a new period.
+    // If day <= 5, we assume it's the same period.
+
+    // Better logic: If day > periodLength + buffer (e.g. 10), treat as NEW cycle start.
+    // OR: If user.isMenstruatingNow is FALSE and day > 5, treat as start.
+
+    // Strict Rule: If we are deep in the cycle (e.g. day 25) and user says "Menstruation", it is Day 1.
+    // If we are on day 3 and user says "Menstruation", it is still Day 3 (continuation).
+
+    const isNewCycle = day > 10 // Simple heuristic: after day 10, bleeding = new period.
+
+    if (isNewCycle) {
+      logPeriodStart(todayStr)
+    } else {
+      // Just log confirmation for today, no cycle reset
+      // Persist to Day Log
+      try {
+        if (authUser?.id) {
+          const dayData = loadDayLog(todayStr, authUser.id)
+          dayData.menstruation = { status: 'yes', updatedAt: new Date().toISOString() }
+          saveDayLog(todayStr, dayData, authUser.id)
+          syncDayLogToCloud(todayStr, dayData)
+        }
+      } catch (e) { console.error(e) }
+
+      updateUser({
+        isMenstruatingNow: true,
+        lastCheckInDate: todayStr,
+        menstruationLogs: [...user.menstruationLogs.filter(l => l.date !== todayStr), { date: todayStr, status: 'yes' }]
+      })
+    }
+  }
+
+  const endPeriodToday = () => {
+    // If user says "Stopped", it means yesterday was last day.
+    // So length = currentDay - 1.
+    const day = currentDay
+    const todayStr = getLocalDateStr()
+    const newLen = Math.max(0, day - 1)
+
+    // Persist 'no' status for today
     try {
       if (authUser?.id) {
         const dayData = loadDayLog(todayStr, authUser.id)
-        dayData.menstruation = { status: 'yes', updatedAt: new Date().toISOString() }
+        dayData.menstruation = { status: 'no', updatedAt: new Date().toISOString() }
         saveDayLog(todayStr, dayData, authUser.id)
         syncDayLogToCloud(todayStr, dayData)
       }
     } catch (e) { console.error(e) }
 
     updateUser({
-      isMenstruatingNow: true,
+      isMenstruatingNow: false,
+      currentPeriodLength: newLen,
       lastCheckInDate: todayStr,
-      menstruationLogs: [...user.menstruationLogs.filter(l => l.date !== todayStr), { date: todayStr, status: 'yes' }]
+      menstruationLogs: [...user.menstruationLogs.filter(l => l.date !== todayStr), { date: todayStr, status: 'no' }]
     })
   }
-}
 
-const endPeriodToday = () => {
-  // If user says "Stopped", it means yesterday was last day.
-  // So length = currentDay - 1.
-  const day = currentDay
-  const todayStr = getLocalDateStr()
-  const newLen = Math.max(0, day - 1)
+  // Manual Phase Correction - sets manual override flag
+  const adjustCyclePhase = (targetPhase) => {
+    const effectiveCycleLength = user.cycleStats?.learnedCycleLength || user.cycleLength
+    const newStartDate = calculateStartDateFromPhase(targetPhase, effectiveCycleLength, user.bleedingLengthDays || user.periodLength)
+    const dateStr = newStartDate.toISOString()
 
-  // Persist 'no' status for today
-  try {
-    if (authUser?.id) {
-      const dayData = loadDayLog(todayStr, authUser.id)
-      dayData.menstruation = { status: 'no', updatedAt: new Date().toISOString() }
-      saveDayLog(todayStr, dayData, authUser.id)
-      syncDayLogToCloud(todayStr, dayData)
+    // Set manual override - this phase will be used until cycle naturally progresses
+    const isMenstruating = targetPhase === 'menstrual'
+
+    updateUser({
+      cycleStart: dateStr,
+      isMenstruatingNow: isMenstruating,
+      manualPhaseOverride: true,
+      manualPhase: targetPhase
+    })
+  }
+
+  // Log Period Start - core of cycle learning system
+  const logPeriodStart = (date) => {
+    const todayStr = date || new Date().toISOString().split('T')[0]
+
+    // Add to history and calculate new stats
+    const { periodStartDates: newStarts } = addPeriodStartToHistory(todayStr, user.periodStartDates || [])
+    const stats = calculateCycleStats(newStarts, user.cycleLength)
+
+    updateUser({
+      periodStartDates: newStarts,
+      cycleLengthHistory: stats.cycleLengthHistory,
+      cycleStats: {
+        learnedCycleLength: stats.learnedCycleLength,
+        variability: stats.variability,
+        confidence: stats.confidence
+      },
+      // Also set cycle start to this date (for backwards compatibility)
+      cycleStart: new Date(todayStr).toISOString(),
+      isMenstruatingNow: true,
+      // Clear manual override when new period is logged
+      manualPhaseOverride: false,
+      manualPhase: null
+    })
+  }
+
+  // Get Cycle Predictions with learning system
+  const getCyclePredictions = () => {
+    const effectiveCycleLength = user.cycleStats?.learnedCycleLength || user.cycleLength
+    const bleedingDays = user.bleedingLengthDays || user.periodLength || 5
+    const confidence = user.cycleStats?.confidence || 'low'
+
+    // Calculate days until next period
+    const nextPeriodDate = predictNextPeriodStart(user.periodStartDates || [], effectiveCycleLength)
+    let daysUntilNext = null
+
+    if (nextPeriodDate) {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const next = new Date(nextPeriodDate)
+      next.setHours(0, 0, 0, 0)
+      daysUntilNext = Math.round((next - today) / (1000 * 60 * 60 * 24))
+    } else {
+      // Fallback to old calculation
+      daysUntilNext = effectiveCycleLength - currentDay + 1
     }
-  } catch (e) { console.error(e) }
 
-  updateUser({
-    isMenstruatingNow: false,
-    currentPeriodLength: newLen,
-    lastCheckInDate: todayStr,
-    menstruationLogs: [...user.menstruationLogs.filter(l => l.date !== todayStr), { date: todayStr, status: 'no' }]
-  })
-}
+    // Get ovulation window (estimated)
+    let ovulationWindow = null
+    if (nextPeriodDate) {
+      ovulationWindow = getOvulationWindow(nextPeriodDate, 14) // 14 day luteal
+    }
 
-// Manual Phase Correction - sets manual override flag
-const adjustCyclePhase = (targetPhase) => {
-  const effectiveCycleLength = user.cycleStats?.learnedCycleLength || user.cycleLength
-  const newStartDate = calculateStartDateFromPhase(targetPhase, effectiveCycleLength, user.bleedingLengthDays || user.periodLength)
-  const dateStr = newStartDate.toISOString()
-
-  // Set manual override - this phase will be used until cycle naturally progresses
-  const isMenstruating = targetPhase === 'menstrual'
-
-  updateUser({
-    cycleStart: dateStr,
-    isMenstruatingNow: isMenstruating,
-    manualPhaseOverride: true,
-    manualPhase: targetPhase
-  })
-}
-
-// Log Period Start - core of cycle learning system
-const logPeriodStart = (date) => {
-  const todayStr = date || new Date().toISOString().split('T')[0]
-
-  // Add to history and calculate new stats
-  const { periodStartDates: newStarts } = addPeriodStartToHistory(todayStr, user.periodStartDates || [])
-  const stats = calculateCycleStats(newStarts, user.cycleLength)
-
-  updateUser({
-    periodStartDates: newStarts,
-    cycleLengthHistory: stats.cycleLengthHistory,
-    cycleStats: {
-      learnedCycleLength: stats.learnedCycleLength,
-      variability: stats.variability,
-      confidence: stats.confidence
-    },
-    // Also set cycle start to this date (for backwards compatibility)
-    cycleStart: new Date(todayStr).toISOString(),
-    isMenstruatingNow: true,
-    // Clear manual override when new period is logged
-    manualPhaseOverride: false,
-    manualPhase: null
-  })
-}
-
-// Get Cycle Predictions with learning system
-const getCyclePredictions = () => {
-  const effectiveCycleLength = user.cycleStats?.learnedCycleLength || user.cycleLength
-  const bleedingDays = user.bleedingLengthDays || user.periodLength || 5
-  const confidence = user.cycleStats?.confidence || 'low'
-
-  // Calculate days until next period
-  const nextPeriodDate = predictNextPeriodStart(user.periodStartDates || [], effectiveCycleLength)
-  let daysUntilNext = null
-
-  if (nextPeriodDate) {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const next = new Date(nextPeriodDate)
-    next.setHours(0, 0, 0, 0)
-    daysUntilNext = Math.round((next - today) / (1000 * 60 * 60 * 24))
-  } else {
-    // Fallback to old calculation
-    daysUntilNext = effectiveCycleLength - currentDay + 1
-  }
-
-  // Get ovulation window (estimated)
-  let ovulationWindow = null
-  if (nextPeriodDate) {
-    ovulationWindow = getOvulationWindow(nextPeriodDate, 14) // 14 day luteal
-  }
-
-  return {
-    nextPeriodIn: Math.max(0, daysUntilNext || 0),
-    nextPeriodDate,
-    ovulationWindow,
-    isFertile: currentPhase === 'ovulatory',
-    confidence,
-    cycleLength: effectiveCycleLength,
-    bleedingDays,
-    isEstimated: true // Always mark ovulation as estimated
-  }
-}
-
-
-
-// NEW: Get Stats for ANY Date
-const getStatsForDate = (dateStr) => {
-  // dateStr should be YYYY-MM-DD
-  const logs = user.foodLogs?.filter(log => log.date === dateStr) || []
-
-  return logs.reduce((acc, log) => ({
-    kcal: acc.kcal + toNum(log.kcal),
-    p: acc.p + toNum(log.p),
-    c: acc.c + toNum(log.c),
-    f: acc.f + toNum(log.f)
-  }), { kcal: 0, p: 0, c: 0, f: 0 })
-}
-
-// Get Phase for ANY Date - prioritizes manual override, uses learned cycle length
-const getPhaseForDate = (dateStr) => {
-  const effectiveCycleLength = user.cycleStats?.learnedCycleLength || user.cycleLength
-  const effectiveBleedingDays = user.bleedingLengthDays || user.periodLength || 5
-  const dayCount = calculateCycleDay(user.cycleStart, effectiveCycleLength, dateStr)
-  const hasValidStart = !!user.cycleStart
-
-  // Check if viewing today
-  const todayStr = new Date().toISOString().split('T')[0]
-  const isViewingToday = dateStr === todayStr
-
-  // PRIORITY: If manual phase override is active and viewing today, use manual phase
-  if (isViewingToday && user.manualPhaseOverride && user.manualPhase) {
     return {
-      phase: user.manualPhase,
+      nextPeriodIn: Math.max(0, daysUntilNext || 0),
+      nextPeriodDate,
+      ovulationWindow,
+      isFertile: currentPhase === 'ovulatory',
+      confidence,
+      cycleLength: effectiveCycleLength,
+      bleedingDays,
+      isEstimated: true // Always mark ovulation as estimated
+    }
+  }
+
+
+
+  // NEW: Get Stats for ANY Date
+  const getStatsForDate = (dateStr) => {
+    // dateStr should be YYYY-MM-DD
+    const logs = user.foodLogs?.filter(log => log.date === dateStr) || []
+
+    return logs.reduce((acc, log) => ({
+      kcal: acc.kcal + toNum(log.kcal),
+      p: acc.p + toNum(log.p),
+      c: acc.c + toNum(log.c),
+      f: acc.f + toNum(log.f)
+    }), { kcal: 0, p: 0, c: 0, f: 0 })
+  }
+
+  // Get Phase for ANY Date - prioritizes manual override, uses learned cycle length
+  const getPhaseForDate = (dateStr) => {
+    const effectiveCycleLength = user.cycleStats?.learnedCycleLength || user.cycleLength
+    const effectiveBleedingDays = user.bleedingLengthDays || user.periodLength || 5
+    const dayCount = calculateCycleDay(user.cycleStart, effectiveCycleLength, dateStr)
+    const hasValidStart = !!user.cycleStart
+
+    // Check if viewing today
+    const todayStr = new Date().toISOString().split('T')[0]
+    const isViewingToday = dateStr === todayStr
+
+    // PRIORITY: If manual phase override is active and viewing today, use manual phase
+    if (isViewingToday && user.manualPhaseOverride && user.manualPhase) {
+      return {
+        phase: user.manualPhase,
+        day: dayCount,
+        confidence: user.cycleStats?.confidence || 'low'
+      }
+    }
+
+    // Normal calculation using learned data
+    const isMenstruating = isViewingToday && user.isMenstruatingNow
+
+    return {
+      phase: getPhaseForDay(dayCount, effectiveCycleLength, effectiveBleedingDays, isMenstruating, hasValidStart),
       day: dayCount,
       confidence: user.cycleStats?.confidence || 'low'
     }
   }
 
-  // Normal calculation using learned data
-  const isMenstruating = isViewingToday && user.isMenstruatingNow
-
-  return {
-    phase: getPhaseForDay(dayCount, effectiveCycleLength, effectiveBleedingDays, isMenstruating, hasValidStart),
-    day: dayCount,
-    confidence: user.cycleStats?.confidence || 'low'
+  // DEPRECATED: Legacy manual log (keeping for compatibility if needed, but UI will stop using it)
+  const logMacros = (macros) => {
+    // No-op or migration logic could go here
+    console.warn("logMacros is deprecated. Use logFood instead.")
   }
-}
 
-// DEPRECATED: Legacy manual log (keeping for compatibility if needed, but UI will stop using it)
-const logMacros = (macros) => {
-  // No-op or migration logic could go here
-  console.warn("logMacros is deprecated. Use logFood instead.")
-}
+  const logout = () => {
+    setIsOnboarded(false)
+    localStorage.removeItem('cyclus_onboarded')
+    // Also sign out from Supabase auth
+    if (signOut) signOut()
+  }
 
-const logout = () => {
-  setIsOnboarded(false)
-  localStorage.removeItem('cyclus_onboarded')
-  // Also sign out from Supabase auth
-  if (signOut) signOut()
-}
+  const deleteAccount = () => {
+    setIsOnboarded(false)
+    localStorage.removeItem('cyclus_onboarded')
+    localStorage.removeItem('cyclus_user')
+    // Reset state to empty
+    setUser({
+      name: '',
+      email: '',
+      password: '',
+      cycleStart: new Date().toISOString(),
+      cycleLength: 28,
+      periodLength: 5,
+      age: '',
+      height: '',
+      weight: '',
+      activity: 1.55,
+      goal: 'maintain',
+      tracking: 'now',
+      logs: {},
+      foodLogs: [],
+      foods: user.foods // Keep seeds
+    })
+  }
 
-const deleteAccount = () => {
-  setIsOnboarded(false)
-  localStorage.removeItem('cyclus_onboarded')
-  localStorage.removeItem('cyclus_user')
-  // Reset state to empty
-  setUser({
-    name: '',
-    email: '',
-    password: '',
-    cycleStart: new Date().toISOString(),
-    cycleLength: 28,
-    periodLength: 5,
-    age: '',
-    height: '',
-    weight: '',
-    activity: 1.55,
-    goal: 'maintain',
-    tracking: 'now',
-    logs: {},
-    foodLogs: [],
-    foods: user.foods // Keep seeds
-  })
-}
+  // 7. Derived Logic (Moved to top)
+  // [REMOVED] - Already declared above
 
-// 7. Derived Logic (Moved to top)
-// [REMOVED] - Already declared above
+  // 8. Context Value
+  const value = useMemo(() => ({
+    user,
+    isOnboarded,
+    hasOnboarded: isOnboarded,
+    isLoading,
+    updateUser,
+    saveProfileAndCalculate, // EXPORTED
+    completeOnboarding,
+    resetOnboarding,
+    resetData,
+    logFood,
+    deleteFoodLog,
+    addCustomFood, // NEW
+    logMovement,
+    logMenstruation,
+    confirmPeriodToday,
+    endPeriodToday,
+    adjustCyclePhase,
+    logPeriodStart,
+    getCyclePredictions,
+    logout,
+    deleteAccount,
+    getStatsForDate,
+    getPhaseForDate,
+    currentDay,
+    currentPhase,
+    isPeriodOverridden: user.currentPeriodLength !== null,
+    targets,
+    movementLogs: user.movementLogs || [],
+    menstruationLogs: user.menstruationLogs || [],
+    // Cycle learning data exports
+    cycleStats: user.cycleStats,
+    periodStartDates: user.periodStartDates || []
+  }), [user, isOnboarded, isLoading, currentDay, currentPhase, targets])
 
-// 8. Context Value
-const value = useMemo(() => ({
-  user,
-  isOnboarded,
-  hasOnboarded: isOnboarded,
-  isLoading,
-  updateUser,
-  saveProfileAndCalculate, // EXPORTED
-  completeOnboarding,
-  resetOnboarding,
-  resetData,
-  logFood,
-  deleteFoodLog,
-  addCustomFood, // NEW
-  logMovement,
-  logMenstruation,
-  confirmPeriodToday,
-  endPeriodToday,
-  adjustCyclePhase,
-  logPeriodStart,
-  getCyclePredictions,
-  logout,
-  deleteAccount,
-  getStatsForDate,
-  getPhaseForDate,
-  currentDay,
-  currentPhase,
-  isPeriodOverridden: user.currentPeriodLength !== null,
-  targets,
-  movementLogs: user.movementLogs || [],
-  menstruationLogs: user.menstruationLogs || [],
-  // Cycle learning data exports
-  cycleStats: user.cycleStats,
-  periodStartDates: user.periodStartDates || []
-}), [user, isOnboarded, isLoading, currentDay, currentPhase, targets])
-
-return (
-  <UserContext.Provider value={value}>
-    {children}
-  </UserContext.Provider>
-)
+  return (
+    <UserContext.Provider value={value}>
+      {children}
+    </UserContext.Provider>
+  )
 }
 
 export function useUser() {

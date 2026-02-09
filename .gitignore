@@ -4,3 +4,16 @@ dist
 .DS_Store
 *.log
 .vercel
+
+# Dev/debug scripts
+reset-localhost.html
+reset_db.js
+public/force-update.html
+public/_redirects
+
+# SQL migrations (keep in separate repo or docs)
+*.sql
+
+# Test/verification scripts
+test_*.js
+verify_*.js
