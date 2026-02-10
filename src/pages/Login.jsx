@@ -126,13 +126,15 @@ export default function Login() {
         )
     }
 
-    // Start Screen (REDESIGN)
+    // Start Screen (RE-RE-DESIGN)
+    // Removed: "Not against it", "White Block"
+    // Added: "Abstract Cycle Line", Large Centered Logo
     if (view === 'start') {
         return (
             <div style={{
                 minHeight: '100vh',
                 position: 'relative',
-                overflow: 'hidden', // Contain blobs
+                overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
                 padding: '2rem',
@@ -140,21 +142,39 @@ export default function Login() {
                 color: 'var(--color-text)'
             }}>
 
-                {/* 1. Visual Hint (Gradient Blob) */}
+                {/* BACKGROUND: Abstract Cycle Line */}
                 <div style={{
                     position: 'absolute',
-                    top: '-10%',
-                    right: '-20%',
-                    width: '350px',
-                    height: '350px',
-                    background: 'radial-gradient(circle, var(--color-primary) 0%, transparent 70%)',
-                    filter: 'blur(60px)',
-                    opacity: 0.15,
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
                     zIndex: 0,
-                    borderRadius: '50%'
-                }}></div>
+                    pointerEvents: 'none',
+                    opacity: 0.6
+                }}>
+                    <svg viewBox="0 0 375 812" style={{ width: '100%', height: '100%' }} preserveAspectRatio="xMidYMid slice">
+                        {/* Soft, flowing cycle-like curve */}
+                        <path
+                            d="M-50,200 C50,100 150,400 375,300"
+                            stroke="var(--color-primary)"
+                            strokeWidth="2"
+                            fill="none"
+                            opacity="0.3"
+                        />
+                        <path
+                            d="M-50,250 C80,350 200,100 450,200"
+                            stroke="var(--color-carbs)" /* Peach hint */
+                            strokeWidth="40"
+                            fill="none"
+                            opacity="0.05"
+                            style={{ filter: 'blur(40px)' }}
+                        />
+                    </svg>
+                </div>
 
-                {/* Content Wrapper */}
+
+                {/* CONTENT: Centered */}
                 <div style={{
                     position: 'relative',
                     zIndex: 1,
@@ -162,59 +182,45 @@ export default function Login() {
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'center', // Centered vertically? Or top bias?
-                    // User said "Visual Hit -> Logo -> Tagline -> Meaning -> Action"
-                    // Center works well for mobile splash.
+                    justifyContent: 'center',
                     width: '100%',
                     maxWidth: '400px',
                     margin: '0 auto',
-                    gap: '2.5rem' // More spacing
+                    gap: '1rem'
                 }}>
 
-                    {/* Logo Area */}
-                    <div style={{ textAlign: 'center' }}>
-                        {/* Visual Hint Arrow? "subtiele visuele hint -> allignd" */}
-                        {/* Maybe just the blob + logo is enough hint */}
-
+                    {/* 1. Large Logo Centered */}
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                         <img
                             src={logo}
                             alt="Allignd"
                             style={{
-                                height: '140px', // Slightly larger?
+                                height: '220px', // Requested "groot"
                                 width: 'auto',
+                                maxWidth: '80%',
                                 marginBottom: '1.5rem',
-                                display: 'block',
-                                margin: '0 auto 1.5rem auto'
+                                objectFit: 'contain'
                             }}
                         />
 
-                        {/* Tagline Redesigned */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                            <span style={{
-                                fontSize: '1.4rem',
-                                fontWeight: '700',
-                                color: 'var(--color-text)',
-                                letterSpacing: '-0.02em',
-                                lineHeight: '1.2'
-                            }}>
-                                Move with your cycle
-                            </span>
-                            <span style={{
-                                fontSize: '1.1rem',
-                                color: 'var(--color-text-muted)',
-                                fontStyle: 'italic',
-                                fontWeight: '400'
-                            }}>
-                                Not against it
-                            </span>
-                        </div>
+                        {/* Tagline: Just the core one */}
+                        <p style={{
+                            fontSize: '1.25rem',
+                            fontWeight: '600',
+                            color: 'var(--color-text)',
+                            letterSpacing: '-0.01em',
+                            textAlign: 'center',
+                            margin: 0
+                        }}>
+                            Move with your cycle
+                        </p>
                     </div>
 
 
                     {/* Actions Area */}
-                    <div style={{ width: '100%', marginTop: 'auto', paddingBottom: '2rem' }}> {/* Push to bottom a bit? Or keep centered? User said "Onderkant rustig laten". Let's stick to center-biased but structured. */}
+                    <div style={{ width: '100%', paddingBottom: '2.5rem' }}>
 
-                        {/* Micro-copy */}
+                        {/* Micro-copy (Kept as requested initially, confirmed in Step 2 unless user hates it now. User only complained about slogan) */}
                         <p style={{
                             textAlign: 'center',
                             fontSize: '0.9rem',
@@ -227,27 +233,27 @@ export default function Login() {
                         </p>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            {/* Primary: Sign Up (Tall, Comfort) */}
+                            {/* Primary: Sign Up (Tall) */}
                             <button
                                 onClick={() => setView('signup')}
                                 style={{
                                     width: '100%',
-                                    padding: '1.25rem', // Taller
-                                    borderRadius: '16px', // Rounder
+                                    padding: '1.25rem',
+                                    borderRadius: '16px',
                                     border: 'none',
                                     background: 'var(--color-primary)',
                                     color: 'white',
                                     fontSize: '1.1rem',
                                     fontWeight: '600',
                                     cursor: 'pointer',
-                                    boxShadow: '0 4px 15px rgba(112, 193, 163, 0.25)', // Subtle shadow
+                                    boxShadow: '0 8px 20px rgba(112, 193, 163, 0.3)', // Enhanced shadow
                                     transition: 'transform 0.1s'
                                 }}
                             >
                                 Meld je aan
                             </button>
 
-                            {/* Secondary: Log In (Ghost/Link) */}
+                            {/* Secondary: Log In (Ghost) */}
                             <button
                                 onClick={() => setView('login')}
                                 style={{
@@ -257,9 +263,9 @@ export default function Login() {
                                     border: 'none',
                                     color: 'var(--color-text)',
                                     fontSize: '1rem',
-                                    fontWeight: '500', // not bold
+                                    fontWeight: '500',
                                     cursor: 'pointer',
-                                    opacity: 0.8 // Slightly faded
+                                    opacity: 0.8
                                 }}
                             >
                                 Log in
