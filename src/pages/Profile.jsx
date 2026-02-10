@@ -1,297 +1,431 @@
-import React, { useState } from 'react'
+
+import React, { useState, useEffect } from 'react'
 import { useUser } from '../context/UserContext'
-import { GOAL_TYPES } from '../logic/nutrition'
+import { IconAccount, IconCalendar } from '../components/Icons'
 
+/**
+ * Modern Profile & Settings Page
+ * - Always editable (no "Edit Mode")
+ * - Smart Save Button (appears on change)
+ * - Clear Sections
+ */
 export default function Profile() {
-    const { user, updateUser, resetOnboarding, resetData, logout, deleteAccount, logMenstruation, adjustCyclePhase } = useUser()
-    const [name, setName] = useState(user.name)
-    const [goal, setGoal] = useState(user.goal)
-    const [resultTempo, setResultTempo] = useState(user.resultTempo || 'average')
+    const {
+        user,
+        saveProfileAndCalculate,
+        logout,
+        deleteAccount,
+        resetOnboarding,
+        logMenstruation,
+        adjustCyclePhase
+    } = useUser()
 
-    // Cycle Settings
-    const [cycleLength, setCycleLength] = useState(user.cycleLength)
-    const [periodLength, setPeriodLength] = useState(user.periodLength || 5)
+    // Local State for Form (initialized from user)
+    const [formData, setFormData] = useState({
+        name: user.name || '',
+        age: user.age || '',
+        height: user.height || '',
+        weight: user.weight || '',
+        targetWeight: user.targetWeight || '', // New Field
+        goal: user.goal || 'maintain',
+        activity: user.activity || 1.375, // Using number logic for now, UI maps to text
+        lifestyle_level: user.lifestyle_level || 'sedentary', // New Logic
+        steps_range: user.steps_range || 'lt4k', // New Logic
+        trainingFrequency: user.training_days_per_week || 0, // Using snake_case default? No, Context maps it.
+        // Cycle
+        cycleLength: user.cycleLength || 28,
+        periodLength: user.periodLength || 5,
+        // Cycle Start for correction
+        cycleStart: user.cycleStart ? new Date(user.cycleStart).toISOString().split('T')[0] : ''
+    })
 
-    const [isEditing, setIsEditing] = useState(false)
-    const [showCorrection, setShowCorrection] = useState(false)
-
-    const handleSave = () => {
-        updateUser({ name, goal, resultTempo, cycleLength: parseInt(cycleLength), periodLength: parseInt(periodLength) })
-        setIsEditing(false)
-    }
-
-    // Action: Redo Onboarding (Explicit Reset)
-    const handleRedoOnboarding = async () => {
-        if (!window.confirm('Weet je het zeker? Je moet de hele onboarding opnieuw doorlopen. Je huidige doelen en gewicht instellingen worden overschreven.')) {
-            return
+    // Update form when user data loads (e.g. initial fetch)
+    useEffect(() => {
+        if (user) {
+            setFormData(prev => ({
+                ...prev,
+                name: user.name || '',
+                age: user.age || '',
+                height: user.height || '',
+                weight: user.weight || '',
+                targetWeight: user.targetWeight || '', // Sync targetWeight
+                goal: user.goal || 'maintain',
+            }))
         }
+    }, [user.name, user.weight, user.targetWeight]) // Watch specific fields
 
-        // 1. Reset flag in DB
-        await updateUser({ is_onboarded: false }) // This will trigger DB update via context
+    const [isDirty, setIsDirty] = useState(false)
+    const [isSaving, setIsSaving] = useState(false)
+    const [showCycleCorrection, setShowCycleCorrection] = useState(false)
 
-        // 2. Reset local flag (force redirect via App.jsx or manual nav)
-        // Ideally App.jsx listens to isOnboarded. If not, we might need to force navigate.
-        // For now, let's assume App.jsx routing handles !isOnboarded -> /onboarding
-        // But we need to update context state first.
-        // The `updateUser` might not update `isOnboarded` state directly if it maps to snake_case.
-        // Let's force it:
-
-        // Actually, UserContext `updateUser` maps specific fields. `is_onboarded` isn't in the map in `UserContext.jsx` update logic!
-        // We need to add a dedicated "resetOnboarding" method in Context or just hack it slightly.
-        // Better: Update UserContext to expose a method `resetOnboarding`.
-
-        // Since I can't edit UserContext in this turn (already did), I will use the `updateUser` functionality 
-        // to set a flag, BUT `updateUser` filters fields.
-
-        // Revised Plan (Self-Correction):
-        // I should have added `resetOnboarding` to UserContext.
-        // But I can simulate it by manually calling resetData() which clears local storage,
-        // BUT resetData() wipes EVERYTHING including food logs potentially? No, it just resets state variables.
-        // The user wants to KEEP history but REDO settings.
-
-        // Let's implement a direct call from here if available, or ask adding it.
-        // Wait, I can just cheat and use `completeOnboarding` in reverse? No.
-
-        // Workaround: Call `resetData()` which sets isOnboarded=false. 
-        // But that clears `user` object too much.
-
-        // Let's use `updateUser` (but wait, `is_onboarded` column isn't in the allowlist in `updateUser`).
-        // I need to go back and fix `UserContext` to allow `is_onboarded` update or add a function.
-        // **Wait**, I am in the `UserContext` refactor phase. I should have added it.
-        // I will add `redoOnboarding` to `UserContext` in the next step.
-        // For now, I'll write the call here assuming it exists.
-
-        // 1. Reset everything
-        await updateUser({ is_onboarded: false })
-        await resetOnboarding()
-
-        // 2. Force Reload to ensure clean slate
-        window.location.href = '/'
+    // Handle Input Change
+    const handleChange = (field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }))
+        setIsDirty(true)
     }
+
+    // Handle Save
+    const handleSave = async () => {
+        setIsSaving(true)
+        try {
+            await saveProfileAndCalculate({
+                ...formData,
+                // Ensure numbers
+                age: Number(formData.age),
+                height: Number(formData.height),
+                weight: Number(formData.weight),
+                targetWeight: Number(formData.targetWeight),
+                trainingFrequency: Number(formData.trainingFrequency),
+            })
+            setIsDirty(false)
+        } catch (e) {
+            console.error(e)
+            alert("Er ging iets mis bij het opslaan.")
+        } finally {
+            setIsSaving(false)
+        }
+    }
+
+    // Goal Options
+    const GOALS = [
+        { value: 'lose_fat', label: 'Vet verliezen', icon: '🔥' },
+        { value: 'recomp', label: 'Afvallen & Spieropbouw', icon: '✨' },
+        { value: 'maintain', label: 'Gewicht behouden', icon: '⚖️' },
+        { value: 'gain_muscle', label: 'Spier opbouwen', icon: '💪' }
+    ]
+
+    // Activity / Lifestyle Options (New System)
+    const LIFESTYLES = [
+        { value: 'sedentary', label: 'Zittend werk / weinig beweging' },
+        { value: 'lightly_active', label: 'Licht actief (staand werk/student)' },
+        { value: 'moderately_active', label: 'Actief (fysiek werk/veel lopen)' },
+        { value: 'very_active', label: 'Zeer actief (zwaar werk/atleet)' }
+    ]
+
+    const STEPS = [
+        { value: 'lt4k', label: 'Minder dan 4.000 stappen' },
+        { value: '4k_8k', label: '4.000 - 8.000 stappen' },
+        { value: '8k_12k', label: '8.000 - 12.000 stappen' },
+        { value: 'gt12k', label: 'Meer dan 12.000 stappen' }
+    ]
 
     return (
-        <div className="container" style={{ paddingBottom: '6rem' }}>
-            <h1 style={{ color: 'var(--color-primary)', marginBottom: '2rem', marginTop: '0' }}>Profiel & Instellingen</h1>
+        <div className="container" style={{ paddingBottom: '8rem' }}>
+            <h1 className="page-title">Jouw Profiel</h1>
 
-            {/* Editing Section */}
-            <div className="card">
-                <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Jouw Gegevens</h2>
+            {/* SECTION 1: PERSONAL */}
+            <section className="card" style={{ marginBottom: '1.5rem' }}>
+                <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <IconAccount opacity={1} /> Persoonlijk
+                </h2>
 
-                <div style={{ marginBottom: '1rem' }}>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>Naam</label>
+                <div className="form-group">
+                    <label>Naam</label>
                     <input
                         type="text"
-                        value={name}
-                        onChange={e => setName(e.target.value)}
-                        disabled={!isEditing}
-                        style={{
-                            width: '100%',
-                            padding: '0.5rem',
-                            border: '1px solid var(--color-border)',
-                            borderRadius: 'var(--radius-sm)',
-                            backgroundColor: isEditing ? '#fff' : 'transparent'
-                        }}
+                        value={formData.name}
+                        onChange={e => handleChange('name', e.target.value)}
+                        placeholder="Je naam"
+                        className="input-field"
                     />
                 </div>
 
-                <div style={{ marginBottom: '1.5rem' }}>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>Doel</label>
-                    <select
-                        value={goal}
-                        onChange={e => setGoal(e.target.value)}
-                        disabled={!isEditing}
-                        style={{
-                            width: '100%',
-                            padding: '0.5rem',
-                            border: '1px solid var(--color-border)',
-                            borderRadius: 'var(--radius-sm)',
-                            backgroundColor: isEditing ? '#fff' : 'transparent'
-                        }}
-                    >
-                        <option value={GOAL_TYPES.LOSE_FAT}>Afvallen</option>
-                        <option value={GOAL_TYPES.RECOMP}>Afvallen + Spier</option>
-                        <option value={GOAL_TYPES.MAINTAIN}>Behoud</option>
-                        <option value={GOAL_TYPES.GAIN}>Spiermassa</option>
-                    </select>
-                </div>
-
-                <div style={{ marginBottom: '1.5rem' }}>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>Tempo</label>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                        {[
-                            { value: 'slow', label: 'Rustig & duurzaam' },
-                            { value: 'average', label: 'Gemiddeld tempo' },
-                            { value: 'fast', label: 'Snel resultaat' }
-                        ].map(opt => (
-                            <button
-                                key={opt.value}
-                                onClick={() => {
-                                    setResultTempo(opt.value)
-                                    updateUser({ resultTempo: opt.value })
-                                }}
-                                style={{
-                                    padding: '0.6rem',
-                                    border: resultTempo === opt.value ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
-                                    borderRadius: '8px',
-                                    background: resultTempo === opt.value ? 'var(--color-surface)' : 'transparent',
-                                    color: resultTempo === opt.value ? 'var(--color-primary)' : 'var(--color-text)',
-                                    fontWeight: resultTempo === opt.value ? '600' : '400',
-                                    width: '100%',
-                                    fontSize: '0.85rem',
-                                    textAlign: 'left',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                {opt.label}
-                            </button>
-                        ))}
-                    </div>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>
-                        Dit beïnvloedt je dagelijkse calorieberekening.
-                    </p>
-                </div>
-
-                {isEditing ? (
-                    <button className="btn btn-primary" onClick={handleSave}>Opslaan</button>
-                ) : (
-                    <button className="btn" style={{ border: '1px solid var(--color-border)' }} onClick={() => setIsEditing(true)}>Wijzigen</button>
-                )}
-            </div>
-
-            {/* Cycle Settings & Correction */}
-            <div className="card" style={{ marginTop: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Mijn cyclus</h2>
-
-                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-                    <div style={{ flex: 1 }}>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>Gemiddelde cyclusduur (dagen)</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div className="form-group">
+                        <label>Leeftijd</label>
                         <input
                             type="number"
-                            value={cycleLength}
-                            onChange={e => setCycleLength(e.target.value)}
-                            disabled={!isEditing}
-                            style={{
-                                width: '100%',
-                                padding: '0.5rem',
-                                border: '1px solid var(--color-border)',
-                                borderRadius: 'var(--radius-sm)',
-                                backgroundColor: isEditing ? '#fff' : 'transparent'
-                            }}
+                            value={formData.age}
+                            onChange={e => handleChange('age', e.target.value)}
+                            className="input-field"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Lengte (cm)</label>
+                        <input
+                            type="number"
+                            value={formData.height}
+                            onChange={e => handleChange('height', e.target.value)}
+                            className="input-field"
+                        />
+                    </div>
+                </div>
+            </section>
+
+            {/* SECTION 2: BODY & GOALS */}
+            <section className="card" style={{ marginBottom: '1.5rem' }}>
+                <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Lichaam & Doelen</h2>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                    <div className="form-group">
+                        <label>Huidig Gewicht (kg)</label>
+                        <input
+                            type="number"
+                            value={formData.weight}
+                            onChange={e => handleChange('weight', e.target.value)}
+                            className="input-field"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Streefgewicht (kg)</label>
+                        <input
+                            type="number"
+                            value={formData.targetWeight}
+                            onChange={e => handleChange('targetWeight', e.target.value)}
+                            className="input-field"
+                            placeholder="Optioneel"
                         />
                     </div>
                 </div>
 
-                {isEditing && (
-                    <div style={{ marginBottom: '1rem' }}>
-                        <button
-                            className="btn"
-                            style={{ fontSize: '0.85rem', padding: '0.5rem', border: '1px solid var(--color-border)' }}
-                            onClick={() => setCycleLength(28)}
-                        >
-                            Cyclus opnieuw instellen (Reset naar 28)
-                        </button>
+                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                    <label>Wat is je hoofddoel?</label>
+                    <div style={{ display: 'grid', gap: '0.5rem' }}>
+                        {GOALS.map(g => (
+                            <button
+                                key={g.value}
+                                onClick={() => handleChange('goal', g.value)}
+                                style={{
+                                    padding: '0.8rem',
+                                    border: formData.goal === g.value ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                    background: formData.goal === g.value ? 'var(--color-surface)' : 'transparent',
+                                    borderRadius: '12px',
+                                    textAlign: 'left',
+                                    color: 'var(--color-text)',
+                                    display: 'flex', alignItems: 'center', gap: '0.8rem',
+                                    fontWeight: formData.goal === g.value ? 600 : 400
+                                }}
+                            >
+                                <span style={{ fontSize: '1.2rem' }}>{g.icon}</span>
+                                {g.label}
+                            </button>
+                        ))}
                     </div>
-                )}
+                </div>
 
+                <div style={{ marginBottom: '1.5rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: 600 }}>Levensstijl</label>
 
-                {!isEditing && (
-                    <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '1rem', marginTop: '1rem' }}>
-                        <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem', color: 'var(--color-text)' }}>Klopt er iets niet?</h3>
-
-                        <button
-                            className="btn btn-primary"
-                            style={{ width: '100%', marginBottom: '0.5rem' }}
-                            onClick={() => {
-                                if (window.confirm("Start dit een nieuwe cyclus?")) {
-                                    logMenstruation()
-                                    alert("Cyclus gestart!")
-                                }
-                            }}
+                    <div className="form-group">
+                        <label style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Hoe actief is je dagelijks leven?</label>
+                        <select
+                            value={formData.lifestyle_level}
+                            onChange={e => handleChange('lifestyle_level', e.target.value)}
+                            className="input-field"
                         >
-                            Ik ben vandaag ongesteld
-                        </button>
+                            {LIFESTYLES.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
+                        </select>
+                    </div>
+
+                    <div className="form-group">
+                        <label style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Gemiddelde stappen per dag</label>
+                        <select
+                            value={formData.steps_range}
+                            onChange={e => handleChange('steps_range', e.target.value)}
+                            className="input-field"
+                        >
+                            {STEPS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                        </select>
+                    </div>
+
+                    <div className="form-group">
+                        <label style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Sportdagen per week</label>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            {[0, 1, 2, 3, 4, 5, 6, 7].map(n => (
+                                <button
+                                    key={n}
+                                    onClick={() => handleChange('trainingFrequency', n)}
+                                    style={{
+                                        width: '36px', height: '36px',
+                                        borderRadius: '50%',
+                                        border: formData.trainingFrequency === n ? 'none' : '1px solid var(--color-border)',
+                                        background: formData.trainingFrequency === n ? 'var(--color-primary)' : 'transparent',
+                                        color: formData.trainingFrequency === n ? '#fff' : 'var(--color-text)',
+                                        fontWeight: 600
+                                    }}
+                                >
+                                    {n}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* SECTION 3: CYCLE */}
+            <section className="card" style={{ marginBottom: '1.5rem' }}>
+                <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <IconCalendar opacity={1} /> Jouw Cyclus
+                </h2>
+
+                <div className="form-group">
+                    <label>Gemiddelde cyclusduur (dagen)</label>
+                    <input
+                        type="number"
+                        value={formData.cycleLength}
+                        // Allow manual override, knowing app learns too
+                        onChange={e => handleChange('cycleLength', e.target.value)}
+                        className="input-field"
+                    />
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.3rem' }}>
+                        De app past dit automatisch aan op basis van je logs.
+                    </p>
+                </div>
+
+                <div style={{ marginTop: '1.5rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
+                    <h3 style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.5rem' }}>Correcties</h3>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                        <div>
+                            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.4rem' }}>
+                                Startdatum laatste menstruatie
+                            </label>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <input
+                                    type="date"
+                                    value={formData.cycleStart}
+                                    onChange={e => handleChange('cycleStart', e.target.value)}
+                                    className="input-field"
+                                />
+                                {/* Explicit Save for Cycle Start because logic is complex */}
+                                <button className="btn"
+                                    style={{ border: '1px solid var(--color-border)', whiteSpace: 'nowrap' }}
+                                    onClick={() => {
+                                        if (formData.cycleStart) {
+                                            logMenstruation(formData.cycleStart)
+                                            alert("Datum gecorrigeerd!")
+                                        }
+                                    }}
+                                >
+                                    Corrigeer
+                                </button>
+                            </div>
+                        </div>
 
                         <button
                             className="btn"
-                            style={{ width: '100%', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
-                            onClick={() => setShowCorrection(!showCorrection)}
+                            style={{
+                                justifyContent: 'flex-start',
+                                border: '1px solid var(--color-border)',
+                                color: 'var(--color-text)',
+                                fontSize: '0.9rem'
+                            }}
+                            onClick={() => setShowCycleCorrection(!showCycleCorrection)}
                         >
-                            {showCorrection ? "Annuleer correctie" : "Pas fase handmatig aan"}
+                            {showCycleCorrection ? "Sluit fase opties" : "Ik zit in een andere fase..."}
                         </button>
 
-                        {showCorrection && (
-                            <div className="fade-in" style={{ marginTop: '1rem', background: 'var(--color-surface)', padding: '1rem', borderRadius: 'var(--radius-md)' }}>
-                                <p style={{ fontSize: '0.85rem', marginBottom: '0.5rem' }}>Selecteer je huidige fase:</p>
-                                <div style={{ display: 'grid', gap: '0.5rem' }}>
-                                    <button className="btn" style={{ fontSize: '0.9rem', justifyContent: 'flex-start' }} onClick={() => { adjustCyclePhase('menstrual'); setShowCorrection(false); alert("Fase aangepast!") }}>🩸 Menstruatie</button>
-                                    <button className="btn" style={{ fontSize: '0.9rem', justifyContent: 'flex-start' }} onClick={() => { adjustCyclePhase('follicular'); setShowCorrection(false); alert("Fase aangepast!") }}>🌱 Folliculaire fase</button>
-                                    <button className="btn" style={{ fontSize: '0.9rem', justifyContent: 'flex-start' }} onClick={() => { adjustCyclePhase('ovulatory'); setShowCorrection(false); alert("Fase aangepast!") }}>🥚 Ovulatie</button>
-                                    <button className="btn" style={{ fontSize: '0.9rem', justifyContent: 'flex-start' }} onClick={() => { adjustCyclePhase('luteal'); setShowCorrection(false); alert("Fase aangepast!") }}>🍂 Luteale fase</button>
-                                </div>
+                        {showCycleCorrection && (
+                            <div className="fade-in" style={{
+                                background: 'var(--color-bg)',
+                                padding: '1rem',
+                                borderRadius: '12px',
+                                display: 'grid', gap: '0.5rem'
+                            }}>
+                                <button className="btn" onClick={() => adjustCyclePhase('menstrual')}>🩸 Menstruatie</button>
+                                <button className="btn" onClick={() => adjustCyclePhase('follicular')}>🌱 Folliculaire fase</button>
+                                <button className="btn" onClick={() => adjustCyclePhase('ovulatory')}>🥚 Ovulatie</button>
+                                <button className="btn" onClick={() => adjustCyclePhase('luteal')}>🍂 Luteale fase</button>
                             </div>
                         )}
                     </div>
-                )}
-            </div>
-
-            {/* Menstruation Data Correction */}
-            <div className="card" style={{ marginTop: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Menstruatie gegevens</h2>
-                <div style={{ marginBottom: '1rem' }}>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>Laatste menstruatie begonnen op</label>
-                    <input
-                        type="date"
-                        defaultValue={user.cycleStart ? new Date(user.cycleStart).toISOString().split('T')[0] : ''}
-                        id="period-date-input"
-                        style={{
-                            width: '100%',
-                            padding: '0.5rem',
-                            border: '1px solid var(--color-border)',
-                            borderRadius: 'var(--radius-sm)',
-                        }}
-                    />
-                    <button
-                        className="btn btn-primary"
-                        style={{ marginTop: '1rem', width: '100%' }}
-                        onClick={() => {
-                            const val = document.getElementById('period-date-input').value
-                            if (val) {
-                                logMenstruation(val)
-                                alert("Datum aangepast!")
-                            }
-                        }}
-                    >
-                        Opslaan
-                    </button>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>
-                        Dit herberekent je huidige fase.
-                    </p>
                 </div>
-            </div>
+            </section>
 
-            {/* Actions Section */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '2rem' }}>
+            {/* SECTION 4: ACCOUNT ACTIONS */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '2rem', opacity: 0.8 }}>
                 <button
-                    onClick={handleRedoOnboarding}
-                    style={{ padding: '1rem', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', color: 'var(--color-text)' }}
+                    onClick={() => {
+                        if (window.confirm("Weet je zeker dat je de onboarding opnieuw wilt doen? Je instellingen worden gereset.")) {
+                            resetOnboarding()
+                            window.location.href = "/" // Force reload
+                        }
+                    }}
+                    style={{ background: 'transparent', border: 'none', color: 'var(--color-text)', textDecoration: 'underline', cursor: 'pointer' }}
                 >
                     Onboarding opnieuw doen
                 </button>
 
                 <button
                     onClick={logout}
-                    style={{ padding: '1rem', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', color: 'var(--color-text)' }}
+                    style={{ background: 'transparent', border: 'none', color: 'var(--color-text)', cursor: 'pointer' }}
                 >
                     Uitloggen
                 </button>
 
                 <button
-                    onClick={() => { if (window.confirm('LET OP: Dit verwijdert al je data definitief. Weet je het zeker?')) deleteAccount() }}
-                    style={{ padding: '1rem', background: 'transparent', border: '1px solid #FFCDD2', borderRadius: 'var(--radius-md)', color: '#D32F2F', marginTop: '1rem' }}
+                    onClick={() => {
+                        if (window.confirm("LET OP: Dit verwijdert defintief je account en data. Dit kan niet ongedaan gemaakt worden.")) {
+                            deleteAccount()
+                        }
+                    }}
+                    style={{ background: 'transparent', border: 'none', color: '#D32F2F', fontSize: '0.8rem', cursor: 'pointer' }}
                 >
                     Account verwijderen
                 </button>
             </div>
+
+            {/* STICKY SAVE BUTTON (Mobile Friendly) */}
+            <div style={{
+                position: 'fixed',
+                bottom: '90px', // Above bottom nav
+                left: '50%',
+                transform: isDirty ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(150%)',
+                transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                zIndex: 100,
+                width: 'auto',
+                pointerEvents: isDirty ? 'auto' : 'none'
+            }}>
+                <button
+                    className="btn btn-primary"
+                    style={{
+                        minWidth: '140px',
+                        boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+                        borderRadius: '100px',
+                        padding: '0.75rem 1.5rem',
+                        fontSize: '0.9rem',
+                        fontWeight: 600,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem'
+                    }}
+                    onClick={handleSave}
+                    disabled={isSaving}
+                >
+                    {isSaving ? "Opslaan..." : (
+                        <>
+                            <span>💾</span> Opslaan
+                        </>
+                    )}
+                </button>
+            </div>
+
+            <style>{`
+                .form-group { margin-bottom: 1rem; }
+                .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
+                .input-field {
+                    width: 100%;
+                    padding: 0.8rem;
+                    border: 1px solid var(--color-border);
+                    border-radius: 12px;
+                    background: transparent;
+                    color: var(--color-text);
+                    font-size: 1rem;
+                    transition: all 0.2s;
+                }
+                .input-field:focus {
+                    border-color: var(--color-primary);
+                    background: var(--color-surface);
+                    outline: none;
+                }
+                .page-title {
+                    color: var(--color-primary);
+                    margin-bottom: 1.5rem;
+                    margin-top: 0;
+                    font-size: 1.8rem;
+                }
+            `}</style>
         </div>
     )
 }

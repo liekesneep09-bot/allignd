@@ -398,7 +398,9 @@ export function UserProvider({ children }) {
       const { error: profileError } = await supabase.from('profiles').upsert({
         id: authUser.id,
         // Nutrition/Body Fields
+        name: cleanProfile.name, // Ensure Name is saved
         weight: cleanProfile.weight_kg,
+        target_weight: cleanProfile.target_weight, // Ensure Target Weight
         height: cleanProfile.height_cm,
         age: cleanProfile.age,
         goal: cleanProfile.goal,
