@@ -142,7 +142,7 @@ export default function Login() {
                 color: 'var(--color-text)'
             }}>
 
-                {/* BACKGROUND: Abstract Cycle Line (Stylized Woman) */}
+                {/* BACKGROUND: Artistic Line Art (Woman with Long Hair) */}
                 <div style={{
                     position: 'absolute',
                     top: 0,
@@ -151,20 +151,34 @@ export default function Login() {
                     height: '100%',
                     zIndex: 0,
                     pointerEvents: 'none',
-                    opacity: 0.15 // Keep it subtle
+                    opacity: 0.15 // Subtle, elegant
                 }}>
                     <svg viewBox="0 0 375 812" style={{ width: '100%', height: '100%' }} preserveAspectRatio="xMidYMid slice">
-                        {/* Stylized Silhouette Line: Head -> Neck -> Spine -> Hip */}
-                        <path
-                            d="M180,100 
-                               C130,100 130,160 160,180 
-                               S220,300 180,450 
-                               S120,600 200,750"
-                            stroke="var(--color-primary)"
-                            strokeWidth="1.5"
-                            fill="none"
-                            strokeLinecap="round"
-                        />
+                        {/* 
+                           Artistic continuous line concept: 
+                           Top bun/head -> Flowing hair strands down -> Curve of back 
+                        */}
+                        <g transform="translate(187.5, 300) scale(1.8)" stroke="var(--color-primary)" fill="none" strokeWidth="1" strokeLinecap="round">
+                            {/* Head & Bun */}
+                            <path d="M-10,-90 C-30,-100 -50,-80 -40,-50 C-40,-30 -20,-20 0,-20" /> {/* Left hair line */}
+                            <path d="M10,-90 C30,-100 50,-80 40,-50 C40,-30 20,-20 0,-20" />   {/* Right hair line */}
+                            <path d="M-15,-85 C-5,-110 5,-110 15,-85" /> {/* Bun top */}
+
+                            {/* Neck & Spine Curve */}
+                            <path d="M0,-20 Q-5,10 0,40 C5,80 -10,120 5,160" strokeWidth="1.2" />
+
+                            {/* Flowing Long Hair (Left) */}
+                            <path d="M-40,-50 C-60,0 -80,50 -60,120 C-50,160 -20,200 -40,240" opacity="0.8" />
+                            <path d="M-20,-20 C-40,20 -50,80 -30,140 C-20,170 0,200 -20,230" opacity="0.6" />
+
+                            {/* Flowing Long Hair (Right) */}
+                            <path d="M40,-50 C60,0 80,50 60,120 C50,160 20,200 40,240" opacity="0.8" />
+                            <path d="M20,-20 C40,20 50,80 30,140 C20,170 0,200 20,230" opacity="0.6" />
+
+                            {/* Shoulder Hint */}
+                            <path d="M-10,0 Q-30,10 -50,20" opacity="0.5" />
+                            <path d="M10,0 Q30,10 50,20" opacity="0.5" />
+                        </g>
                     </svg>
                 </div>
 
