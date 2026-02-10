@@ -374,7 +374,7 @@ export default function Today({ onNavigate }) {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
                     <div style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--color-text)', lineHeight: 1 }}>
-                      {Math.round(toNum(stats.kcal))} <span style={{ fontSize: '1rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>/ {toNum(targets.calories)} - {toNum(targets.caloriesMax)} kcal</span>
+                      {Math.round(toNum(stats.kcal))} <span style={{ fontSize: '1rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>/ {toNum(targets.calories)} kcal</span>
                     </div>
                   </div>
                   <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-calories)', marginTop: '0.25rem' }}>
@@ -403,9 +403,9 @@ export default function Today({ onNavigate }) {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <MacroListItem label="Koolhydraten" current={toNum(stats.c)} target={`${toNum(targets.carbsMin)}-${toNum(targets.carbsMax)}`} color="var(--color-carbs)" />
-                  <MacroListItem label="Vetten" current={toNum(stats.f)} target={`${toNum(targets.fatMin)}-${toNum(targets.fatMax)}`} color="var(--color-fat)" />
-                  <MacroListItem label="Eiwitten" current={toNum(stats.p)} target={`${toNum(targets.proteinMin)}-${toNum(targets.proteinMax)}`} color="var(--color-protein)" />
+                  <MacroListItem label="Koolhydraten" current={toNum(stats.c)} target={toNum(targets.carbsMin)} color="var(--color-carbs)" />
+                  <MacroListItem label="Vetten" current={toNum(stats.f)} target={toNum(targets.fatMin)} color="var(--color-fat)" />
+                  <MacroListItem label="Eiwitten" current={toNum(stats.p)} target={toNum(targets.proteinMin)} color="var(--color-protein)" />
                 </div>
               </div>
 

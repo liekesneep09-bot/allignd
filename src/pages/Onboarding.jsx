@@ -5,7 +5,7 @@ import { GOAL_TYPES } from '../logic/nutrition'
 import logo from '../assets/logo-primary.svg'
 
 export default function Onboarding() {
-    const { updateUser, completeOnboarding, saveProfileAndCalculate, logout } = useUser()
+    const { user, updateUser, completeOnboarding, saveProfileAndCalculate, logout } = useUser()
     const { signUp, user: authUser } = useAuth()
     const [step, setStep] = useState(0) // Start at Step 0 (Welcome)
 
@@ -87,10 +87,10 @@ export default function Onboarding() {
     };
 
     const handleNext = async () => {
-        if (step < 5) {
+        if (step < 6) { // Increased step count to 6
             setStep(step + 1)
         } else {
-            // FINISH STEP (Step 5)
+            // FINISH STEP (Step 6)
             await handleProfileSubmit(formData);
         }
     }
@@ -161,7 +161,7 @@ export default function Onboarding() {
 
             {/* Progress */}
             <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '4px', background: 'var(--color-surface)', zIndex: 20 }}>
-                <div style={{ height: '100%', width: `${Math.min(step, 5) / 5 * 100}%`, background: 'var(--color-primary)', transition: 'width 0.3s' }} />
+                <div style={{ height: '100%', width: `${Math.min(step, 6) / 6 * 100}%`, background: 'var(--color-primary)', transition: 'width 0.3s' }} />
             </div>
 
             <header style={{
@@ -199,13 +199,9 @@ export default function Onboarding() {
                             objectFit: 'contain'
                         }}
                     />
-                    {step <= 5 && <p className="text-muted" style={{ fontSize: '0.8rem', margin: 0 }}>Stap {step} van 5</p>}
+                    {step <= 6 && <p className="text-muted" style={{ fontSize: '0.8rem', margin: 0 }}>Stap {step} van 6</p>}
                 </div>
 
-                {/* Empty Spacer to balance the grid if needed, or just let the center column take space. 
-                    Actually, min-content 1fr min-content works best if the right side has equal width to left.
-                    But since we just want the logo centered, we can use an empty div.
-                */}
                 {/* Logout Button (Top Right) */}
                 <div style={{ width: '60px', display: 'flex', justifyContent: 'flex-end' }}>
                     {authUser && (
@@ -238,7 +234,7 @@ export default function Onboarding() {
                                 <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>Startdatum laatste menstruatie</label>
                                 <input
                                     type="date"
-                                    value={formData.cycleStart ? formData.cycleStart.substr(0, 10) : ''}
+                                    value={formData.cycleStart ? String(formData.cycleStart).substr(0, 10) : ''}
                                     onChange={e => handleChange('cycleStart', e.target.value)}
                                     style={inputStyle}
                                 />
@@ -334,7 +330,7 @@ export default function Onboarding() {
                     </div>
                 )}
 
-                {/* STEP 3: GOAL & ACTIVITY */}
+                {/* STEP 3: DOEL (Split Part 1) */}
                 {step === 3 && (
                     <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                         <div className="text-center">
@@ -355,7 +351,74 @@ export default function Onboarding() {
                             </div>
                         </div>
 
-                        {/* 2. Frequency (0-7) */}
+                        {/* 2. Target Weight */}
+                        <div>
+                            <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' }}>Streefgewicht (optioneel)</label>
+                            <input
+                                type="number"
+                                value={formData.targetWeight}
+                                onChange={e => handleChange('targetWeight', e.target.value)}
+                                placeholder="Bijv. 60"
+                                style={{ ...inputStyle, marginTop: 0 }}
+                            />
+                        </div>
+
+                        {/* 3. Tempo */}
+                        <div>
+                            <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' }}>Tempo</label>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <CompactOption label="Rustig & duurzaam" selected={formData.resultTempo === 'slow'} onClick={() => handleChange('resultTempo', 'slow')} />
+                                <CompactOption label="Gemiddeld tempo" selected={formData.resultTempo === 'average'} onClick={() => handleChange('resultTempo', 'average')} />
+                                <CompactOption label="Snel resultaat" selected={formData.resultTempo === 'fast'} onClick={() => handleChange('resultTempo', 'fast')} />
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* STEP 4: ACTIVITEIT (Split Part 2) */}
+                {step === 4 && (
+                    <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        <div className="text-center">
+                            <h2 style={{ marginBottom: '0.5rem' }}>Hoe beweeg jij?</h2>
+                            <p className="text-muted" style={{ fontSize: '0.9rem' }}>
+                                Dit bepaalt hoeveel energie je dagelijks nodig hebt.
+                            </p>
+                        </div>
+
+                        {/* 1. Lifestyle Level */}
+                        <div>
+                            <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' }}>Werk & leefstijl</label>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <SelectOption
+                                    label="Vooral zittend"
+                                    selected={formData.lifestyle_level === 'sedentary'}
+                                    onClick={() => handleChange('lifestyle_level', 'sedentary')}
+                                />
+                                <SelectOption
+                                    label="Afwisselend"
+                                    selected={formData.lifestyle_level === 'mixed'}
+                                    onClick={() => handleChange('lifestyle_level', 'mixed')}
+                                />
+                                <SelectOption
+                                    label="Vooral staand / fysiek"
+                                    selected={formData.lifestyle_level === 'active'}
+                                    onClick={() => handleChange('lifestyle_level', 'active')}
+                                />
+                            </div>
+                        </div>
+
+                        {/* 2. Steps Range */}
+                        <div>
+                            <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' }}>Dagelijkse stappen</label>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.5rem' }}>
+                                <SelectOption label="Minder dan 4.000 stappen" selected={formData.steps_range === 'lt4k'} onClick={() => handleChange('steps_range', 'lt4k')} />
+                                <SelectOption label="4.000 – 7.000 stappen" selected={formData.steps_range === 'k4_7'} onClick={() => handleChange('steps_range', 'k4_7')} />
+                                <SelectOption label="7.000 – 10.000 stappen" selected={formData.steps_range === 'k7_10'} onClick={() => handleChange('steps_range', 'k7_10')} />
+                                <SelectOption label="Meer dan 10.000 stappen" selected={formData.steps_range === 'gt10k'} onClick={() => handleChange('steps_range', 'gt10k')} />
+                            </div>
+                        </div>
+
+                        {/* 3. Frequency (0-7) */}
                         <div>
                             <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' }}>Kracht/Training (dagen p/w)</label>
                             <div style={{ display: 'flex', gap: '0.25rem', justifyContent: 'space-between' }}>
@@ -380,66 +443,11 @@ export default function Onboarding() {
                                 ))}
                             </div>
                         </div>
-
-                        {/* 3. Lifestyle Level */}
-                        <div>
-                            <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' }}>Werk & leefstijl</label>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                <SelectOption
-                                    label="Vooral zittend"
-                                    selected={formData.lifestyle_level === 'sedentary'}
-                                    onClick={() => handleChange('lifestyle_level', 'sedentary')}
-                                />
-                                <SelectOption
-                                    label="Afwisselend"
-                                    selected={formData.lifestyle_level === 'mixed'}
-                                    onClick={() => handleChange('lifestyle_level', 'mixed')}
-                                />
-                                <SelectOption
-                                    label="Vooral staand / fysiek"
-                                    selected={formData.lifestyle_level === 'active'}
-                                    onClick={() => handleChange('lifestyle_level', 'active')}
-                                />
-                            </div>
-                        </div>
-
-                        {/* 4. Steps Range */}
-                        <div>
-                            <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' }}>Dagelijkse beweging</label>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.5rem' }}>
-                                <SelectOption label="Minder dan 4.000 stappen" selected={formData.steps_range === 'lt4k'} onClick={() => handleChange('steps_range', 'lt4k')} />
-                                <SelectOption label="4.000 – 7.000 stappen" selected={formData.steps_range === 'k4_7'} onClick={() => handleChange('steps_range', 'k4_7')} />
-                                <SelectOption label="7.000 – 10.000 stappen" selected={formData.steps_range === 'k7_10'} onClick={() => handleChange('steps_range', 'k7_10')} />
-                                <SelectOption label="Meer dan 10.000 stappen" selected={formData.steps_range === 'gt10k'} onClick={() => handleChange('steps_range', 'gt10k')} />
-                            </div>
-                        </div>
-
-                        {/* 5. Tempo (Legacy / Pace) */}
-                        <div>
-                            <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' }}>Tempo</label>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                <CompactOption label="Rustig & duurzaam" selected={formData.resultTempo === 'slow'} onClick={() => handleChange('resultTempo', 'slow')} />
-                                <CompactOption label="Gemiddeld tempo" selected={formData.resultTempo === 'average'} onClick={() => handleChange('resultTempo', 'average')} />
-                                <CompactOption label="Snel resultaat" selected={formData.resultTempo === 'fast'} onClick={() => handleChange('resultTempo', 'fast')} />
-                            </div>
-                        </div>
-
-                        {/* 5. Target Weight */}
-                        <div>
-                            <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' }}>Streefgewicht (optioneel)</label>
-                            <input
-                                type="number"
-                                value={formData.targetWeight}
-                                onChange={e => handleChange('targetWeight', e.target.value)}
-                                placeholder="Bijv. 60"
-                                style={{ ...inputStyle, marginTop: 0 }}
-                            />
-                        </div>
                     </div>
                 )}
 
-                {/* STEP 4: ERVARING */}
-                {step === 4 && (
+                {/* STEP 5: ERVARING (Shifted) */}
+                {step === 5 && (
                     <div className="fade-in">
                         <h2 className="text-center" style={{ marginBottom: '1.5rem' }}>Hoeveel ervaring heb je?</h2>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -462,8 +470,8 @@ export default function Onboarding() {
                     </div>
                 )}
 
-                {/* STEP 5: ACCOUNT */}
-                {step === 5 && (
+                {/* STEP 6: ACCOUNT (Shifted) */}
+                {step === 6 && (
                     <div className="fade-in">
                         <h2 className="text-center" style={{ marginBottom: '1.5rem' }}>
                             {authUser ? 'Bijna klaar!' : 'Maak je account aan'}
@@ -519,7 +527,7 @@ export default function Onboarding() {
             <div style={{ marginTop: '2rem', paddingBottom: '2rem' }}>
                 <div style={{ marginTop: '2rem', paddingBottom: '2rem' }}>
                     <button className="btn btn-primary" onClick={handleNext} disabled={!isValid(step, formData, !!authUser)}>
-                        {step === 5 ? (authUser ? 'Profiel Opslaan & Starten' : 'Account aanmaken & Starten') : 'Volgende'}
+                        {step === 6 ? (authUser ? 'Profiel Opslaan & Starten' : 'Account aanmaken & Starten') : 'Volgende'}
                     </button>
                 </div>
             </div>
@@ -588,19 +596,24 @@ const inputStyle = {
 function isValid(step, data, isAuthed) {
     if (step === 1 && !data.cycleStart) return false
     if (step === 2 && (!data.age || !data.height || !data.weight)) return false
-    // Check trainingFrequency (must be present: 0 is valid, so check undefined/null)
-    if (step === 3 && (
-        !data.goal ||
-        data.trainingFrequency === undefined || data.trainingFrequency === null ||
+
+    // Step 3: Goals (Must have goal)
+    if (step === 3 && !data.goal) return false
+
+    // Step 4: Activity (Must have lifestyle, steps, frequency)
+    // Frequency 0 is valid, so check undefined/null
+    if (step === 4 && (
         !data.lifestyle_level ||
-        !data.steps_range
+        !data.steps_range ||
+        data.trainingFrequency === undefined ||
+        data.trainingFrequency === null
     )) return false
 
-    // Step 4 skipped/removed from validation requirement if we removed it, but kept for Experience Level?
-    // User didn't imply removing experience level, so we keep it.
-    if (step === 4 && !data.experienceLevel) return false
+    // Step 5: Experience
+    if (step === 5 && !data.experienceLevel) return false
 
-    if (step === 5) {
+    // Step 6: Account
+    if (step === 6) {
         if (!data.name) return false
         // If NOT authed, we need email and password. If authed, we don't.
         if (!isAuthed && (!data.email || !data.password)) return false

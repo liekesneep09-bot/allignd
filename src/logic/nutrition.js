@@ -36,70 +36,80 @@ export function calculateTargetRanges(profile) {
     // 2. BMR (Mifflin-St Jeor for Women)
     const bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
 
-    // 3. Multiplier
-    const base = 1.2;
-    const trainingFactor = Math.min(trainingDays * 0.05, 0.25);
+    // 3. Activity Multiplier (Granular Composite Score)
+    // We map inputs to a score (0-8) to determine standard activity levels.
 
-    let lifestyleFactor = 0.00;
-    if (lifestyle === LIFESTYLE_LEVELS.MIXED) lifestyleFactor = 0.07;
-    if (lifestyle === LIFESTYLE_LEVELS.ACTIVE) lifestyleFactor = 0.14;
+    let activityScore = 0;
 
-    let stepsFactor = 0.00;
-    if (steps === STEPS_RANGES.K4_7) stepsFactor = 0.05;
-    if (steps === STEPS_RANGES.K7_10) stepsFactor = 0.10;
-    if (steps === STEPS_RANGES.GT10K) stepsFactor = 0.15;
+    // A. Lifestyle
+    if (lifestyle === LIFESTYLE_LEVELS.MIXED) activityScore += 1;
+    if (lifestyle === LIFESTYLE_LEVELS.ACTIVE) activityScore += 2;
 
-    const multiplier = base + trainingFactor + lifestyleFactor + stepsFactor;
+    // B. Steps
+    if (steps === STEPS_RANGES.K4_7) activityScore += 1;
+    if (steps === STEPS_RANGES.K7_10) activityScore += 2;
+    if (steps === STEPS_RANGES.GT10K) activityScore += 3;
+
+    // C. Training
+    if (trainingDays >= 1 && trainingDays <= 3) activityScore += 1;
+    if (trainingDays >= 4 && trainingDays <= 6) activityScore += 2;
+    if (trainingDays >= 7) activityScore += 3;
+
+    // D. Map Score to Multiplier (Standard PAL values)
+    let multiplier = 1.2; // Sedentary (Score 0-1)
+    if (activityScore >= 2) multiplier = 1.375; // Lightly Active
+    if (activityScore >= 4) multiplier = 1.55; // Moderately Active
+    if (activityScore >= 6) multiplier = 1.725; // Very Active
+    if (activityScore >= 8) multiplier = 1.9; // Extra Active
 
     // 4. TDEE
     const tdee = Math.round(bmr * multiplier);
 
-    // 5. Calorie Target Range
+    // 5. Goal Adjustment (Single Value)
     let targetCals = tdee;
-    if (goal === GOAL_TYPES.LOSE_FAT) targetCals = Math.round(tdee * 0.85);
-    if (goal === GOAL_TYPES.RECOMP) targetCals = Math.round(tdee * 0.95);
-    // Maintain = 1.0
-
-    const calMin = targetCals - 150;
-    const calMax = targetCals + 150;
-
-    // 6. Protein Range
-    let pMinFactor = 1.6;
-    let pMaxFactor = 2.0;
 
     if (goal === GOAL_TYPES.LOSE_FAT || goal === GOAL_TYPES.RECOMP) {
-        pMinFactor = 1.8;
-        pMaxFactor = 2.2;
+        // Deficit based on Tempo
+        let deficitFactor = 0.85; // Default Average (-15%)
+        if (profile.resultTempo === 'slow') deficitFactor = 0.90; // -10%
+        if (profile.resultTempo === 'fast') deficitFactor = 0.75; // -25%
+
+        targetCals = Math.round(tdee * deficitFactor);
+    } else if (goal === GOAL_TYPES.GAIN) {
+        targetCals = Math.round(tdee * 1.10); // +10% Surplus
     }
 
-    const pMin = Math.round(weight * pMinFactor);
-    const pMax = Math.round(weight * pMaxFactor);
+    // 6. Macros (Fixed Grams per KG)
+    // Protein: 1.8g (maintain/bulk) - 2.0g (cut)
+    let proteinFactor = 1.8;
+    if (goal === GOAL_TYPES.LOSE_FAT || goal === GOAL_TYPES.RECOMP) {
+        proteinFactor = 2.0;
+    }
+    const protein = Math.round(weight * proteinFactor);
 
-    // 7. Fat Range
-    const fMin = Math.max(Math.round(0.8 * weight), 45);
-    const fMax = fMin + 15;
+    // Fats: 0.9g per kg (Healthy baseline)
+    const fat = Math.round(weight * 0.9);
 
-    // 8. Carbs Range (Rest)
-    // Formula: carbs_g = max(0, round((kcal_total - protein_g*4 - fat_g*9) / 4))
-
-    // Min Carbs: conservative scenario (Low Cal, High P/F)
-    const cMinRaw = (calMin - (pMax * 4) - (fMax * 9)) / 4;
-
-    // Max Carbs: optimistic scenario (High Cal, Low P/F)
-    const cMaxRaw = (calMax - (pMin * 4) - (fMin * 9)) / 4;
-
-    const cMin = Math.max(0, Math.round(cMinRaw));
-    const cMax = Math.max(0, Math.round(cMaxRaw));
+    // Carbs: Remainder
+    // 1g Protein = 4kcal, 1g Fat = 9kcal, 1g Carb = 4kcal
+    const caloriesUsed = (protein * 4) + (fat * 9);
+    const remainingCals = Math.max(0, targetCals - caloriesUsed);
+    const carbs = Math.round(remainingCals / 4);
 
     return {
         tdee_estimate: tdee,
-        calorie_target_min: calMin,
-        calorie_target_max: calMax,
-        protein_g_min: pMin,
-        protein_g_max: pMax,
-        fat_g_min: fMin,
-        fat_g_max: fMax,
-        carbs_g_min: cMin,
-        carbs_g_max: cMax
+        calorie_target: targetCals, // Single Value
+        protein_g: protein,
+        fat_g: fat,
+        carbs_g: carbs,
+        // Legacy range fields (populated with single value for compatibility)
+        calorie_target_min: targetCals,
+        calorie_target_max: targetCals,
+        protein_g_min: protein,
+        protein_g_max: protein,
+        fat_g_min: fat,
+        fat_g_max: fat,
+        carbs_g_min: carbs,
+        carbs_g_max: carbs
     };
 }

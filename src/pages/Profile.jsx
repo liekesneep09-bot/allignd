@@ -61,8 +61,12 @@ export default function Profile() {
         // I will add `redoOnboarding` to `UserContext` in the next step.
         // For now, I'll write the call here assuming it exists.
 
-        resetOnboarding()
-        onNavigate('onboarding')
+        // 1. Reset everything
+        await updateUser({ is_onboarded: false })
+        await resetOnboarding()
+
+        // 2. Force Reload to ensure clean slate
+        window.location.href = '/'
     }
 
     return (
