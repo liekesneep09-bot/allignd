@@ -1,29 +1,64 @@
+
 import React, { useState } from 'react'
 import { useUser } from '../context/UserContext'
 import { RECIPES } from '../data/recipes'
+import { PHASE_CONTENT } from '../data/phases'
 
 export default function Recipes() {
     const { currentPhase } = useUser()
     const data = RECIPES[currentPhase]
+    const phaseContent = PHASE_CONTENT[currentPhase]
 
     if (!data) return <div className="container">Laden...</div>
 
     return (
         <div className="container" style={{ paddingBottom: '90px' }}>
-            <header style={{ marginTop: '0', marginBottom: '2rem' }}>
-                <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Wat je lichaam nu voedt</h2>
-                <p className="text-muted" style={{ lineHeight: '1.6', marginBottom: '1.5rem' }}>{data.description}</p>
+            <header style={{ marginTop: '0', marginBottom: '3.5rem' }}>
+                <h2 style={{ fontSize: '1.5rem', marginBottom: '0.75rem' }}>
+                    Voeding voor jouw fase
+                </h2>
+                <p className="text-muted" style={{ lineHeight: '1.6', marginBottom: '2.5rem' }}>
+                    {data.description}
+                </p>
 
-                {data.focusPoints && (
-                    <div style={{ background: 'var(--color-bg-secondary)', padding: '1rem', borderRadius: '12px' }}>
-                        <p style={{ fontWeight: '600', marginBottom: '0.5rem', fontSize: '0.95rem' }}>
-                            In deze fase kan je lichaam extra baat hebben bij:
-                        </p>
-                        <ul style={{ margin: 0, paddingLeft: '1.2rem', lineHeight: '1.5', fontSize: '0.95rem', color: 'var(--color-text-muted)' }}>
-                            {data.focusPoints.map((point, i) => (
-                                <li key={i}>{point}</li>
+                {/* Nutrition Card (Ivory) - Synced with Today View */}
+                {phaseContent && phaseContent.nutrients && phaseContent.nutrients.length > 0 && (
+                    <div style={{
+                        background: '#FAF9F6', // Ivory
+                        borderRadius: '24px',
+                        padding: '2rem 1.5rem',
+                        border: 'none'
+                    }}>
+                        <h3 style={{
+                            fontSize: '1rem',
+                            fontWeight: '600',
+                            color: 'var(--color-text)',
+                            marginBottom: '1.5rem',
+                            lineHeight: '1.4'
+                        }}>
+                            Voedingsstoffen die je lichaam in deze fase kunnen ondersteunen
+                        </h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                            {phaseContent.nutrients.map((nutrient, index) => (
+                                <div key={index} style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                                    <span style={{
+                                        fontSize: '0.95rem',
+                                        fontWeight: '700',
+                                        color: 'var(--color-text)',
+                                        letterSpacing: '-0.01em'
+                                    }}>
+                                        {nutrient.name}
+                                    </span>
+                                    <span style={{
+                                        fontSize: '0.9rem',
+                                        color: 'var(--color-text-muted)',
+                                        lineHeight: '1.6',
+                                    }}>
+                                        {nutrient.description}
+                                    </span>
+                                </div>
                             ))}
-                        </ul>
+                        </div>
                     </div>
                 )}
             </header>
