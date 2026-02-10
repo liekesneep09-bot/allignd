@@ -54,8 +54,6 @@ export default function Login() {
                 await signIn(email, password)
             } else if (view === 'signup') {
                 const data = await signUp(email, password)
-                // Check if user is created but session is missing (indicates confirmation required)
-                // Supabase returns user but null session if email confirm is ON
                 if (data.user && !data.session) {
                     setShowConfirmation(true)
                 }
@@ -84,227 +82,202 @@ export default function Login() {
     // Confirmation Screen
     if (showConfirmation) {
         return (
-            <div style={{
-                minHeight: '100vh',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '2rem',
-                background: 'var(--color-bg)',
-                color: 'var(--color-text)'
-            }}>
-                <div style={{
-                    width: '100%',
-                    maxWidth: '400px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '1.5rem',
-                    textAlign: 'center'
-                }}>
+            <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: 'var(--color-bg)', color: 'var(--color-text)' }}>
+                <div style={{ width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', textAlign: 'center' }}>
                     <div style={{ fontSize: '3rem' }}>✉️</div>
                     <h1 style={{ fontSize: '1.5rem', fontWeight: '600' }}>Check je inbox</h1>
                     <p style={{ color: 'var(--color-text-muted)', lineHeight: '1.5' }}>
                         We hebben een bevestigingsmail gestuurd naar <strong>{email}</strong>.
                         Klik op de link daarin om je account te activeren.
                     </p>
-
-                    <div style={{
-                        padding: '1rem',
-                        background: 'var(--color-surface)',
-                        borderRadius: '8px',
-                        fontSize: '0.9rem',
-                        color: 'var(--color-text-muted)'
-                    }}>
+                    <div style={{ padding: '1rem', background: 'var(--color-surface)', borderRadius: '8px', fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
                         Tip: Check ook je spam of reclame folder als je hem niet ziet.
                     </div>
-
-                    {successMessage && (
-                        <div style={{ color: 'green', fontSize: '0.9rem' }}>
-                            {successMessage}
-                        </div>
-                    )}
-                    {error && (
-                        <div style={{ color: 'red', fontSize: '0.9rem' }}>
-                            {error}
-                        </div>
-                    )}
-
-                    <button
-                        onClick={handleResend}
-                        disabled={isLoading}
-                        style={{
-                            background: 'none',
-                            border: 'none',
-                            color: 'var(--color-primary)',
-                            cursor: 'pointer',
-                            textDecoration: 'underline',
-                            fontSize: '0.95rem'
-                        }}
-                    >
+                    {successMessage && <div style={{ color: 'green', fontSize: '0.9rem' }}>{successMessage}</div>}
+                    {error && <div style={{ color: 'red', fontSize: '0.9rem' }}>{error}</div>}
+                    <button onClick={handleResend} disabled={isLoading} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', cursor: 'pointer', textDecoration: 'underline', fontSize: '0.95rem' }}>
                         {isLoading ? 'Bezig...' : 'Mail opnieuw sturen'}
                     </button>
-
-                    <button
-                        onClick={async () => {
-                            // 1. Force refresh session from Supabase
-                            setIsLoading(true)
-                            try {
-                                const { data, error } = await supabase.auth.refreshSession()
-                                // If verified, the AuthContext should pick up the change automatically 
-                                // via onAuthStateChange, but we can also check directly
-                                if (data.session && data.user?.email_confirmed_at) {
-                                    // Success
-                                    console.log('User confirmed!')
-                                    handleSubmit({ preventDefault: () => { } }) // Retry login logic
-                                } else {
-                                    // Also try getUser to be sure
-                                    const { data: userData } = await supabase.auth.getUser()
-                                    if (userData.user?.email_confirmed_at) {
-                                        console.log('User confirmed via getUser!')
-                                        handleSubmit({ preventDefault: () => { } })
-                                    } else {
-                                        setError('Nog niet bevestigd. Heb je op de link geklikt?')
-                                    }
-                                }
-                            } catch (err) {
-                                console.error(err)
-                                // Fallback: try login again which will fail if not verified, 
-                                // but keeps UI consistent
+                    <button onClick={async () => {
+                        setIsLoading(true)
+                        try {
+                            const { data } = await supabase.auth.refreshSession()
+                            if (data.session && data.user?.email_confirmed_at) {
                                 handleSubmit({ preventDefault: () => { } })
-                            } finally {
-                                setIsLoading(false)
+                            } else {
+                                const { data: userData } = await supabase.auth.getUser()
+                                if (userData.user?.email_confirmed_at) {
+                                    handleSubmit({ preventDefault: () => { } })
+                                } else {
+                                    setError('Nog niet bevestigd. Heb je op de link geklikt?')
+                                }
                             }
-                        }}
-                        style={{
-                            width: '100%',
-                            padding: '1rem',
-                            borderRadius: '12px',
-                            border: 'none',
-                            background: 'var(--color-primary)',
-                            color: 'white',
-                            fontSize: '1rem',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            marginTop: '0.5rem'
-                        }}
-                    >
+                        } catch (err) {
+                            handleSubmit({ preventDefault: () => { } })
+                        } finally {
+                            setIsLoading(false)
+                        }
+                    }} style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: 'none', background: 'var(--color-primary)', color: 'white', fontSize: '1rem', fontWeight: '600', cursor: 'pointer', marginTop: '0.5rem' }}>
                         Ik heb bevestigd, ga verder
                     </button>
-
-                    <button
-                        onClick={goBack}
-                        style={{
-                            background: 'none',
-                            border: 'none',
-                            color: 'var(--color-text-muted)',
-                            cursor: 'pointer',
-                            fontSize: '0.9rem'
-                        }}
-                    >
-                        Gebruik ander e-mailadres
-                    </button>
+                    <button onClick={goBack} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', fontSize: '0.9rem' }}>Gebruik ander e-mailadres</button>
                 </div>
             </div>
         )
     }
 
-    // Start Screen
+    // Start Screen (REDESIGN)
     if (view === 'start') {
         return (
             <div style={{
                 minHeight: '100vh',
+                position: 'relative',
+                overflow: 'hidden', // Contain blobs
                 display: 'flex',
                 flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
                 padding: '2rem',
                 background: 'var(--color-bg)',
                 color: 'var(--color-text)'
             }}>
+
+                {/* 1. Visual Hint (Gradient Blob) */}
                 <div style={{
-                    width: '100%',
-                    maxWidth: '400px',
+                    position: 'absolute',
+                    top: '-10%',
+                    right: '-20%',
+                    width: '350px',
+                    height: '350px',
+                    background: 'radial-gradient(circle, var(--color-primary) 0%, transparent 70%)',
+                    filter: 'blur(60px)',
+                    opacity: 0.15,
+                    zIndex: 0,
+                    borderRadius: '50%'
+                }}></div>
+
+                {/* Content Wrapper */}
+                <div style={{
+                    position: 'relative',
+                    zIndex: 1,
+                    flex: 1,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    gap: '2rem'
+                    justifyContent: 'center', // Centered vertically? Or top bias?
+                    // User said "Visual Hit -> Logo -> Tagline -> Meaning -> Action"
+                    // Center works well for mobile splash.
+                    width: '100%',
+                    maxWidth: '400px',
+                    margin: '0 auto',
+                    gap: '2.5rem' // More spacing
                 }}>
-                    {/* Logo */}
-                    <img
-                        src={logo}
-                        alt="Allignd"
-                        style={{
-                            height: '120px',
-                            width: 'auto',
-                            marginBottom: '1rem'
-                        }}
-                    />
 
-                    {/* Tagline */}
-                    <p style={{
-                        color: 'var(--color-text-muted)',
-                        fontSize: '1rem',
-                        textAlign: 'center',
-                        marginBottom: '1rem'
-                    }}>
-                        Move with your cycle
-                    </p>
+                    {/* Logo Area */}
+                    <div style={{ textAlign: 'center' }}>
+                        {/* Visual Hint Arrow? "subtiele visuele hint -> allignd" */}
+                        {/* Maybe just the blob + logo is enough hint */}
 
-                    {/* Buttons */}
-                    <div style={{
-                        width: '100%',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '1rem'
-                    }}>
-                        {/* Primary: Sign Up */}
-                        <button
-                            onClick={() => setView('signup')}
+                        <img
+                            src={logo}
+                            alt="Allignd"
                             style={{
-                                width: '100%',
-                                padding: '1rem',
-                                borderRadius: '12px',
-                                border: 'none',
-                                background: 'var(--color-primary)',
-                                color: 'white',
-                                fontSize: '1rem',
-                                fontWeight: '600',
-                                cursor: 'pointer'
+                                height: '140px', // Slightly larger?
+                                width: 'auto',
+                                marginBottom: '1.5rem',
+                                display: 'block',
+                                margin: '0 auto 1.5rem auto'
                             }}
-                        >
-                            Meld je aan
-                        </button>
+                        />
 
-                        {/* Secondary: Log In */}
-                        <button
-                            onClick={() => setView('login')}
-                            style={{
-                                width: '100%',
-                                padding: '1rem',
-                                borderRadius: '12px',
-                                border: '1px solid var(--color-border)',
-                                background: 'transparent',
+                        {/* Tagline Redesigned */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                            <span style={{
+                                fontSize: '1.4rem',
+                                fontWeight: '700',
                                 color: 'var(--color-text)',
-                                fontSize: '1rem',
-                                fontWeight: '500',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            Log in
-                        </button>
+                                letterSpacing: '-0.02em',
+                                lineHeight: '1.2'
+                            }}>
+                                Move with your cycle
+                            </span>
+                            <span style={{
+                                fontSize: '1.1rem',
+                                color: 'var(--color-text-muted)',
+                                fontStyle: 'italic',
+                                fontWeight: '400'
+                            }}>
+                                Not against it
+                            </span>
+                        </div>
+                    </div>
+
+
+                    {/* Actions Area */}
+                    <div style={{ width: '100%', marginTop: 'auto', paddingBottom: '2rem' }}> {/* Push to bottom a bit? Or keep centered? User said "Onderkant rustig laten". Let's stick to center-biased but structured. */}
+
+                        {/* Micro-copy */}
+                        <p style={{
+                            textAlign: 'center',
+                            fontSize: '0.9rem',
+                            color: 'var(--color-text-muted)',
+                            marginBottom: '1.5rem',
+                            fontStyle: 'italic',
+                            opacity: 0.8
+                        }}>
+                            Omdat jouw lichaam geen one-size-fits-all is
+                        </p>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            {/* Primary: Sign Up (Tall, Comfort) */}
+                            <button
+                                onClick={() => setView('signup')}
+                                style={{
+                                    width: '100%',
+                                    padding: '1.25rem', // Taller
+                                    borderRadius: '16px', // Rounder
+                                    border: 'none',
+                                    background: 'var(--color-primary)',
+                                    color: 'white',
+                                    fontSize: '1.1rem',
+                                    fontWeight: '600',
+                                    cursor: 'pointer',
+                                    boxShadow: '0 4px 15px rgba(112, 193, 163, 0.25)', // Subtle shadow
+                                    transition: 'transform 0.1s'
+                                }}
+                            >
+                                Meld je aan
+                            </button>
+
+                            {/* Secondary: Log In (Ghost/Link) */}
+                            <button
+                                onClick={() => setView('login')}
+                                style={{
+                                    width: '100%',
+                                    padding: '1rem',
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: 'var(--color-text)',
+                                    fontSize: '1rem',
+                                    fontWeight: '500', // not bold
+                                    cursor: 'pointer',
+                                    opacity: 0.8 // Slightly faded
+                                }}
+                            >
+                                Log in
+                            </button>
+                        </div>
                     </div>
 
                     {/* Config Warning */}
                     {!isConfigured && (
                         <p style={{
+                            position: 'absolute',
+                            bottom: 10,
                             color: 'var(--color-text-muted)',
                             fontSize: '0.75rem',
                             textAlign: 'center',
-                            marginTop: '1rem'
+                            width: '100%'
                         }}>
-                            ⚠️ Auth niet geconfigureerd. Voeg VITE_SUPABASE_URL en VITE_SUPABASE_ANON_KEY toe aan .env
+                            ⚠️ Auth niet geconfigureerd.
                         </p>
                     )}
                 </div>
@@ -314,171 +287,21 @@ export default function Login() {
 
     // Login / Signup Form
     return (
-        <div style={{
-            minHeight: '100vh',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '2rem',
-            background: 'var(--color-bg)',
-            color: 'var(--color-text)'
-        }}>
-            <div style={{
-                width: '100%',
-                maxWidth: '400px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1.5rem'
-            }}>
-                {/* Back Button */}
-                <button
-                    onClick={goBack}
-                    style={{
-                        alignSelf: 'flex-start',
-                        background: 'none',
-                        border: 'none',
-                        color: 'var(--color-text-muted)',
-                        fontSize: '0.9rem',
-                        cursor: 'pointer',
-                        padding: '0.5rem 0'
-                    }}
-                >
-                    ← Terug
-                </button>
-
-                {/* Title */}
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: 'var(--color-bg)', color: 'var(--color-text)' }}>
+            <div style={{ width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <button onClick={goBack} style={{ alignSelf: 'flex-start', background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.9rem', cursor: 'pointer', padding: '0.5rem 0' }}>← Terug</button>
                 <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-                    <h1 style={{
-                        fontSize: '1.5rem',
-                        fontWeight: '600',
-                        color: 'var(--color-text)',
-                        marginBottom: '0.5rem'
-                    }}>
-                        {view === 'login' ? 'Welkom terug' : 'Account aanmaken'}
-                    </h1>
-                    <p style={{
-                        color: 'var(--color-text-muted)',
-                        fontSize: '0.9rem'
-                    }}>
-                        {view === 'login'
-                            ? 'Log in om verder te gaan'
-                            : 'Vul je gegevens in om te starten'}
-                    </p>
+                    <h1 style={{ fontSize: '1.5rem', fontWeight: '600', color: 'var(--color-text)', marginBottom: '0.5rem' }}>{view === 'login' ? 'Welkom terug' : 'Account aanmaken'}</h1>
+                    <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>{view === 'login' ? 'Log in om verder te gaan' : 'Vul je gegevens in om te starten'}</p>
                 </div>
-
-                {/* Form */}
-                <form onSubmit={handleSubmit} style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '1rem'
-                }}>
-                    <input
-                        type="email"
-                        placeholder="E-mailadres"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        autoComplete="email"
-                        style={{
-                            padding: '0.875rem 1rem',
-                            borderRadius: '8px',
-                            border: '1px solid var(--color-border)',
-                            background: 'var(--color-surface)',
-                            color: 'var(--color-text)',
-                            fontSize: '1rem'
-                        }}
-                    />
-
-                    <input
-                        type="password"
-                        placeholder="Wachtwoord"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        autoComplete={view === 'login' ? 'current-password' : 'new-password'}
-                        style={{
-                            padding: '0.875rem 1rem',
-                            borderRadius: '8px',
-                            border: '1px solid var(--color-border)',
-                            background: 'var(--color-surface)',
-                            color: 'var(--color-text)',
-                            fontSize: '1rem'
-                        }}
-                    />
-
-                    {error && (
-                        <div style={{
-                            padding: '0.75rem 1rem',
-                            borderRadius: '8px',
-                            background: 'rgba(239, 68, 68, 0.1)',
-                            color: '#ef4444',
-                            fontSize: '0.875rem'
-                        }}>
-                            {error}
-                        </div>
-                    )}
-
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        style={{
-                            padding: '0.875rem 1rem',
-                            borderRadius: '8px',
-                            border: 'none',
-                            background: 'var(--color-primary)',
-                            color: 'white',
-                            fontSize: '1rem',
-                            fontWeight: '500',
-                            cursor: isLoading ? 'not-allowed' : 'pointer',
-                            opacity: isLoading ? 0.7 : 1,
-                            marginTop: '0.5rem'
-                        }}
-                    >
-                        {isLoading
-                            ? 'Even geduld...'
-                            : (view === 'login' ? 'Log in' : 'Account aanmaken')}
-                    </button>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <input type="email" placeholder="E-mailadres" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" style={{ padding: '0.875rem 1rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '1rem' }} />
+                    <input type="password" placeholder="Wachtwoord" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={view === 'login' ? 'current-password' : 'new-password'} style={{ padding: '0.875rem 1rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '1rem' }} />
+                    {error && <div style={{ padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', fontSize: '0.875rem' }}>{error}</div>}
+                    <button type="submit" disabled={isLoading} style={{ padding: '0.875rem 1rem', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'white', fontSize: '1rem', fontWeight: '500', cursor: isLoading ? 'not-allowed' : 'pointer', opacity: isLoading ? 0.7 : 1, marginTop: '0.5rem' }}>{isLoading ? 'Even geduld...' : (view === 'login' ? 'Log in' : 'Account aanmaken')}</button>
                 </form>
-
-                {/* Switch Mode */}
-                <div style={{
-                    textAlign: 'center',
-                    color: 'var(--color-text-muted)',
-                    fontSize: '0.875rem',
-                    marginTop: '1rem'
-                }}>
-                    {view === 'login' ? (
-                        <>
-                            Nog geen account?{' '}
-                            <button
-                                onClick={() => { setView('signup'); setError('') }}
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: 'var(--color-primary)',
-                                    cursor: 'pointer',
-                                    textDecoration: 'underline'
-                                }}
-                            >
-                                Meld je aan
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            Heb je al een account?{' '}
-                            <button
-                                onClick={() => { setView('login'); setError('') }}
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: 'var(--color-primary)',
-                                    cursor: 'pointer',
-                                    textDecoration: 'underline'
-                                }}
-                            >
-                                Log in
-                            </button>
-                        </>
-                    )}
+                <div style={{ textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.875rem', marginTop: '1rem' }}>
+                    {view === 'login' ? (<>Nog geen account? <button onClick={() => { setView('signup'); setError('') }} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', cursor: 'pointer', textDecoration: 'underline' }}>Meld je aan</button></>) : (<>Heb je al een account? <button onClick={() => { setView('login'); setError('') }} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', cursor: 'pointer', textDecoration: 'underline' }}>Log in</button></>)}
                 </div>
             </div>
         </div>
