@@ -7,16 +7,14 @@ export const PHASE_CONTENT = {
     colorVar: '--phase-menstrual',
 
     // Collapsible info structure (MVP Copy)
-    validation: 'Het is logisch als je je nu wat rustiger voelt.',
-    explanation: 'Lage hormoonspiegels zorgen ervoor dat je lichaam zich herstelt.',
+    validation: 'Het is logisch als je je nu wat rustiger of kwetsbaarder voelt.',
+    explanation: 'Je hormoonspiegels zijn laag en je lichaam is vooral bezig met herstel.',
     bullets: [
       'Lagere energie of sneller vermoeid',
       'Meer behoefte aan rust, warmte of comfort',
-      'Je lichaam kan gevoeliger aanvoelen',
-      'Mogelijke krampen of ongemak',
-      'Iets minder focus of motivatie'
+      'Regelmatige maaltijden, warm eten en voldoende rust kunnen je lichaam nu ondersteunen.'
     ],
-    phaseClosing: 'Dit is een fase waarin zachter zijn juist helpend is.',
+    phaseClosing: 'Rust nemen is geen achteruitgang, maar herstel.',
 
     // Legacy (kept for compatibility)
     intro: 'Je lichaam is aan het herstellen. Minder energie vandaag is normaal.',
@@ -63,16 +61,16 @@ export const PHASE_CONTENT = {
     colorVar: '--phase-follicular',
 
     // Collapsible info structure (MVP Copy)
-    validation: 'Je merkt misschien dat je energie langzaam terugkomt.',
-    explanation: 'Oestrogeen stijgt, waardoor je lichaam zich weer wat actiever voelt.',
+    validation: 'Je merkt misschien dat je energie langzaam weer terugkomt.',
+    explanation: 'Oestrogeen stijgt, waardoor je lichaam zich lichter en actiever kan voelen.',
     bullets: [
       'Meer helderheid in je hoofd',
       'Minder gevoelig voor prikkels',
       'Meer zin om dingen op te pakken',
-      'Beter slaapritme',
-      'Meer rust rondom eten'
+      'Vaak beter slaapritme en meer rust rondom eten',
+      'Dit is een fijne fase om je ritme weer op te bouwen en iets actiever te worden.'
     ],
-    phaseClosing: 'Dit is een fase waarin dingen weer lichter mogen aanvoelen, in je eigen tempo.',
+    phaseClosing: 'Je hoeft niets te forceren om vooruit te gaan.',
 
     // Legacy (kept for compatibility)
     intro: 'Je energie komt langzaam terug. Je lichaam staat meer open.',
@@ -118,16 +116,17 @@ export const PHASE_CONTENT = {
     colorVar: '--phase-ovulatory',
 
     // Collapsible info structure (MVP Copy)
-    validation: 'Dit is een fase waarin veel vrouwen zich sterker voelen.',
+    validation: 'Dit is een fase waarin veel vrouwen zich krachtig en zelfverzekerd voelen.',
     explanation: 'Hormonen pieken, wat vaak gepaard gaat met meer beschikbare energie.',
     bullets: [
       'Meer kracht en zelfvertrouwen',
       'Focus en beweging voelen vaak makkelijker',
       'Hogere sociale energie',
       'Meer drive of motivatie',
-      'Sommigen ervaren een lichte piek in temperatuur'
+      'Sommigen ervaren een lichte stijging in lichaamstemperatuur',
+      'Deze energie kan prettig zijn om dingen aan te pakken of jezelf iets meer uit te dagen.'
     ],
-    phaseClosing: 'Je mag deze energie gebruiken op een manier die bij jou past.',
+    phaseClosing: 'Gebruik je energie bewust, niet tot uitputting.',
 
     // Legacy (kept for compatibility)
     intro: 'Je lichaam zit in een natuurlijke piek van energie.',
@@ -173,12 +172,13 @@ export const PHASE_CONTENT = {
     colorVar: '--phase-luteal',
 
     // Collapsible info structure (MVP Copy)
-    validation: 'Het is normaal als je je nu iets trager of gevoeliger voelt.',
-    explanation: 'Progesteron stijgt en je lichaam bereidt zich voor op rust.',
+    validation: 'Het is normaal als je je nu wat trager, gevoeliger of sneller vol voelt.',
+    explanation: 'Progesteron stijgt en je lichaam schakelt geleidelijk over naar meer rust en herstel.',
     bullets: [
       'Meer kans op vocht vasthouden of een opgeblazen gevoel',
       'Toename in honger of cravings',
-      'Sneller overprikkeld of minder stressbestendig'
+      'Sneller overprikkeld of minder stressbestendig',
+      'Iets meer structuur in maaltijden, voldoende eten en een lager tempo kunnen nu helpen.'
     ],
     phaseClosing: 'Vertraging zegt niets over je inzet of discipline.',
 

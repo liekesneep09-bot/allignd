@@ -688,7 +688,8 @@ const modalStyles = `
         background: #FFFFFF;
         width: 100%;
         max-width: 480px;
-        padding: 2rem;
+        padding: 1.5rem;
+        padding-bottom: 2rem;
         border-radius: 20px 20px 0 0;
         animation: slideUp 0.3s ease-out;
         max-height: 90vh;

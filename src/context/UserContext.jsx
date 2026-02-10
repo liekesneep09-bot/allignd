@@ -774,7 +774,7 @@ export function UserProvider({ children }) {
     updateUser({
       isMenstruatingNow: true,
       cycleStart: dateStr,
-      // cycleLength: newLen, // DISABLED: Keep manual setting (user.cycleLength)
+      cycleLength: newLen, // ENABLED: App learns from history
       periodLength: newPeriodLen,
       currentPeriodLength: null,
       lastCheckInDate: null,
@@ -877,6 +877,8 @@ export function UserProvider({ children }) {
     updateUser({
       periodStartDates: newStarts,
       cycleLengthHistory: stats.cycleLengthHistory,
+      // Keep main cycleLength in sync with learned stats
+      cycleLength: stats.learnedCycleLength,
       cycleStats: {
         learnedCycleLength: stats.learnedCycleLength,
         variability: stats.variability,

@@ -97,6 +97,8 @@ export const FOOD_DATABASE = [
     { id: 'c23', name_nl: 'Roggebrood', aliases: [], unit_type: 'per_100g', kcal_100: 259, protein_100: 9, carbs_100: 53, fat_100: 3.3 },
     { id: 'c24', name_nl: 'Croissant', aliases: [], unit_type: 'per_100g', kcal_100: 406, protein_100: 8.2, carbs_100: 46, fat_100: 21 },
     { id: 'c25', name_nl: 'Stokbrood (wit)', aliases: ['baguette'], unit_type: 'per_100g', kcal_100: 270, protein_100: 9.5, carbs_100: 55, fat_100: 1.5 },
+    { id: 'c26', name_nl: 'Wrap (wortel)', aliases: ['carrot wrap', 'groentewrap'], unit_type: 'per_100g', kcal_100: 284, protein_100: 5.5, carbs_100: 33, fat_100: 13 },
+    { id: 'c27', name_nl: 'Wrap (volkoren)', aliases: ['whole wheat wrap'], unit_type: 'per_100g', kcal_100: 298, protein_100: 9.3, carbs_100: 47, fat_100: 6.6 },
 
     // --- EIWITBRONNEN (40 items) ---
     { id: 'p1', name_nl: 'Kipfilet – rauw', aliases: ['chicken'], unit_type: 'per_100g', kcal_100: 110, protein_100: 23, carbs_100: 0, fat_100: 2 },

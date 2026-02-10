@@ -42,7 +42,7 @@ export default function Today({ onNavigate }) {
   const todaysLogs = user.foodLogs?.filter(l => l.date === viewDateStr) || []
 
   // Check-in Logic (Only for Today)
-  const showCheckIn = isToday && displayDay <= 10 && user.lastCheckInDate !== todayDateStr
+  const showCheckIn = isToday && user.lastCheckInDate !== todayDateStr
 
   // Movement Logic
   const savedMovement = user.movementLogs?.find(l => l.date === viewDateStr)
@@ -189,24 +189,16 @@ export default function Today({ onNavigate }) {
           </div>
 
           {/* Prediction Subtitle */}
-          {user.cycleStart && (
-            <div style={{
-              fontSize: '0.9rem',
-              color: 'var(--color-text-muted)',
-              marginBottom: '1rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem'
-            }}>
-              <span>
-                Volgende menstruatie:
-                <strong style={{ marginLeft: '4px', color: 'var(--color-text)' }}>
-                  {new Date(new Date(user.cycleStart).setDate(new Date(user.cycleStart).getDate() + user.cycleLength)).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}
-                </strong>
-                <span style={{ fontSize: '0.8rem', opacity: 0.8 }}> (±3d)</span>
-              </span>
-            </div>
-          )}
+          {/* Disclaimer (User Request) */}
+          <div style={{
+            fontSize: '0.8rem',
+            color: 'var(--color-text-muted)',
+            marginBottom: '1rem',
+            fontStyle: 'italic',
+            opacity: 0.7
+          }}>
+            Iedere cyclus en ieder lichaam is anders. Als dit niet herkenbaar is, is dat normaal.
+          </div>
 
           {/* NEW: Missing Date Hint */}
           {/* NEW: Missing Date Hint */}

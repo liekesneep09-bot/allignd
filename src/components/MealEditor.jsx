@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { supabase } from '../utils/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { useUser } from '../context/UserContext'
@@ -261,9 +262,9 @@ export default function MealEditor({ meal, onSave, onClose }) {
                 </div>
             )}
 
-            {/* Ingredient picker modal */}
-            {showPicker && (
-                <div style={styles.pickerOverlay} onClick={() => setShowPicker(false)}>
+            {/* Ingredient picker modal (Portal to escape parent transform/overflow) */}
+            {showPicker && createPortal(
+                <div style={{ ...styles.pickerOverlay, zIndex: 2000 }} onClick={() => setShowPicker(false)}>
                     <div style={styles.pickerModal} onClick={e => e.stopPropagation()}>
                         <div style={styles.pickerHeader}>
                             <h4 style={{ margin: 0 }}>Kies ingredient</h4>
@@ -339,7 +340,8 @@ export default function MealEditor({ meal, onSave, onClose }) {
                             </>
                         )}
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     )
