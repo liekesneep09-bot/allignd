@@ -142,7 +142,7 @@ export default function Login() {
                 color: 'var(--color-text)'
             }}>
 
-                {/* BACKGROUND: Abstract Cycle Line */}
+                {/* BACKGROUND: Abstract Cycle Line (Stylized Woman) */}
                 <div style={{
                     position: 'absolute',
                     top: 0,
@@ -151,24 +151,19 @@ export default function Login() {
                     height: '100%',
                     zIndex: 0,
                     pointerEvents: 'none',
-                    opacity: 0.6
+                    opacity: 0.15 // Keep it subtle
                 }}>
                     <svg viewBox="0 0 375 812" style={{ width: '100%', height: '100%' }} preserveAspectRatio="xMidYMid slice">
-                        {/* Soft, flowing cycle-like curve */}
+                        {/* Stylized Silhouette Line: Head -> Neck -> Spine -> Hip */}
                         <path
-                            d="M-50,200 C50,100 150,400 375,300"
+                            d="M180,100 
+                               C130,100 130,160 160,180 
+                               S220,300 180,450 
+                               S120,600 200,750"
                             stroke="var(--color-primary)"
-                            strokeWidth="2"
+                            strokeWidth="1.5"
                             fill="none"
-                            opacity="0.3"
-                        />
-                        <path
-                            d="M-50,250 C80,350 200,100 450,200"
-                            stroke="var(--color-carbs)" /* Peach hint */
-                            strokeWidth="40"
-                            fill="none"
-                            opacity="0.05"
-                            style={{ filter: 'blur(40px)' }}
+                            strokeLinecap="round"
                         />
                     </svg>
                 </div>
