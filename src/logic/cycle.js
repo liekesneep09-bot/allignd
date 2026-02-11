@@ -109,12 +109,15 @@ export function getPhaseForDay(day, cycleLength = 28, periodLength = 5, isMenstr
     // 2. Standard Logic based on Day
     if (!day || day < 1) return PHASES.FOLLICULAR // Fallback
 
-    // 3. Menstruation Logic (Scientific)
-    // Menstruation is strictly defined by the Bleeding Length from the start date.
-    // It does NOT restart automatically.
-    if (day <= periodLength) {
-        return PHASES.MENSTRUAL
-    }
+    // 3. Menstruation Logic (Strict Manual)
+    // REMOVED: if (day <= periodLength) return PHASES.MENSTRUAL
+    // Rationale: User explicitly requested NO auto-switch to Menstrual.
+    // The phase should only be menstrual if isMenstruatingNow is TRUE (handled in step 0).
+
+    // However, if we are in Day 1-5 but NOT menstruating (e.g. just stopped early), 
+    // we should be Follicular.
+
+    // So we just skip this check.
 
     // 4. Late Cycle Logic / Overdue
     // If day > cycleLength, we are in "Late Luteal".

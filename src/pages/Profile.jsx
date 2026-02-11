@@ -17,6 +17,7 @@ export default function Profile() {
         deleteAccount,
         resetOnboarding,
         logMenstruation,
+        endPeriodToday, // NEW
         adjustCyclePhase
     } = useUser()
 
@@ -287,18 +288,35 @@ export default function Profile() {
                                     onChange={e => handleChange('cycleStart', e.target.value)}
                                     className="input-field"
                                 />
-                                {/* Explicit Save for Cycle Start because logic is complex */}
-                                <button className="btn"
-                                    style={{ border: '1px solid var(--color-border)', whiteSpace: 'nowrap' }}
-                                    onClick={() => {
-                                        if (formData.cycleStart) {
-                                            logMenstruation(formData.cycleStart)
-                                            alert("Datum gecorrigeerd!")
-                                        }
-                                    }}
-                                >
-                                    Corrigeer
-                                </button>
+                                {user.isMenstruatingNow ? (
+                                    <button
+                                        onClick={() => {
+                                            if (window.confirm("Is je menstruatie afgelopen?")) {
+                                                endPeriodToday()
+                                                alert("Menstruatie gestopt.")
+                                            }
+                                        }}
+                                        className="btn"
+                                        style={{ border: '1px solid var(--color-border)', background: '#FFE5E5', color: '#D32F2F', whiteSpace: 'nowrap', cursor: 'pointer' }}
+                                    >
+                                        Stop Menstruatie
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() => {
+                                            if (window.confirm("Is je menstruatie begonnen? Dit start een nieuwe cyclus.")) {
+                                                if (formData.cycleStart) {
+                                                    logMenstruation(formData.cycleStart)
+                                                    alert("Nieuwe cyclus gestart!")
+                                                }
+                                            }
+                                        }}
+                                        className="btn"
+                                        style={{ border: 'none', background: 'var(--color-primary)', color: '#fff', whiteSpace: 'nowrap' }}
+                                    >
+                                        Start (Nieuwe Cyclus)
+                                    </button>
+                                )}
                             </div>
                         </div>
 

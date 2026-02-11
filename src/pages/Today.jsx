@@ -280,54 +280,8 @@ export default function Today({ onNavigate }) {
             </div>
           </div>
 
-          {/* COMPACT CHECK-IN (Always visible if active) */}
-          {showCheckIn && (
-            <div className="fade-in" style={{
-              marginTop: '0.75rem',
-              marginBottom: '0.5rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              background: 'var(--color-bg)',
-              padding: '0.5rem 1rem',
-              borderRadius: '12px',
-              border: '1px solid var(--color-border)'
-            }}>
-              <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>Was je vandaag ongesteld?</span>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button
-                  onClick={(e) => { e.stopPropagation(); confirmPeriodToday() }}
-                  style={{
-                    border: 'none',
-                    background: 'var(--color-primary)',
-                    color: '#FFF',
-                    padding: '0.25rem 0.75rem',
-                    borderRadius: '8px',
-                    fontWeight: '600',
-                    fontSize: '0.8rem',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Ja
-                </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); endPeriodToday() }}
-                  style={{
-                    border: '1px solid var(--color-border)',
-                    background: 'transparent',
-                    color: 'var(--color-text)',
-                    padding: '0.25rem 0.75rem',
-                    borderRadius: '8px',
-                    fontWeight: '500',
-                    fontSize: '0.8rem',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Nee
-                </button>
-              </div>
-            </div>
-          )}
+          {/* COMPACT CHECK-IN REMOVED */}
+
 
           {/* Expanded Phase Info */}
           <div style={{
