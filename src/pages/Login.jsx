@@ -100,20 +100,18 @@ export default function Login() {
                     </button>
                     <button onClick={async () => {
                         setIsLoading(true)
+                        setError('')
                         try {
-                            const { data } = await supabase.auth.refreshSession()
-                            if (data.session && data.user?.email_confirmed_at) {
-                                handleSubmit({ preventDefault: () => { } })
-                            } else {
-                                const { data: userData } = await supabase.auth.getUser()
-                                if (userData.user?.email_confirmed_at) {
-                                    handleSubmit({ preventDefault: () => { } })
-                                } else {
-                                    setError('Nog niet bevestigd. Heb je op de link geklikt?')
-                                }
-                            }
+                            // Try to sign in directly.
+                            // If email is confirmed, this succeeds => AuthContext updates => App redirects.
+                            // If email is NOT confirmed, this throws "Email not confirmed" => We catch it.
+                            await signIn(email, password)
                         } catch (err) {
-                            handleSubmit({ preventDefault: () => { } })
+                            if (err.message.includes('Bevestig eerst') || err.message.includes('not confirmed')) {
+                                setError('Nog niet bevestigd. Heb je op de link geklikt?')
+                            } else {
+                                setError(err.message)
+                            }
                         } finally {
                             setIsLoading(false)
                         }
