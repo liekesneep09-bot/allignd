@@ -142,39 +142,8 @@ export default function Login() {
                 color: 'var(--color-text)'
             }}>
 
-                {/* BACKGROUND: Woman Silhouette (Bun, Spine, Hip) */}
-                <div style={{
-                    position: 'absolute',
-                    top: '5%',
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    zIndex: 0,
-                    pointerEvents: 'none',
-                    opacity: 0.12 // Subtle
-                }}>
-                    <svg viewBox="0 0 375 812" style={{ width: '100%', height: '100%' }} preserveAspectRatio="xMidYMid slice">
-                        <g transform="translate(187, 350) scale(1.6)" stroke="var(--color-text)" fill="none" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-                            {/* Bun */}
-                            <path d="M-10,-145 C-25,-155 -25,-175 -10,-185 C5,-195 25,-185 25,-170 C25,-155 10,-145 0,-145" />
-
-                            {/* Head & Neck */}
-                            <path d="M-20,-140 C-35,-120 -35,-80 -10,-60" /> {/* Left hair/neck */}
-                            <path d="M20,-140 C35,-120 35,-80 10,-60" />   {/* Right hair/neck */}
-
-                            {/* Shoulders */}
-                            <path d="M-10,-60 C-40,-50 -70,-40 -90,-20" /> {/* Left Shoulder */}
-                            <path d="M10,-60 C40,-50 70,-40 90,-20" />    {/* Right Shoulder */}
-
-                            {/* Spine & Back (The stylistic S-curve) */}
-                            <path d="M0,-60 C5,-20 0,20 -10,60 C-20,100 -20,140 0,180 C20,220 40,260 20,300" />
-
-                            {/* Hip Hint */}
-                            <path d="M-20,140 C-50,160 -60,200 -50,240" opacity="0.6" />
-                            <path d="M20,140 C50,160 60,200 50,240" opacity="0.6" />
-                        </g>
-                    </svg>
-                </div>
+                {/* BACKGROUND: Clean/Minimalist - No Illustration */}
+                {/* User requested removal of illustration. Keeps focus purely on Logo + Tagline. */}
 
 
                 {/* CONTENT: Centered */}
