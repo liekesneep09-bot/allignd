@@ -242,33 +242,34 @@ export default function Onboarding() {
 
                             <div>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>Gemiddelde cycluslengte (dagen)</label>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                                    {[21, 24, 26, 28].map(len => (
-                                        <CompactOption
+                                <input
+                                    type="number"
+                                    value={formData.cycleLength}
+                                    onChange={e => handleChange('cycleLength', parseInt(e.target.value) || '')}
+                                    placeholder="Bijv. 28"
+                                    style={inputStyle}
+                                />
+                                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                                    {[26, 28, 30, 32].map(len => (
+                                        <button
                                             key={len}
-                                            label={len.toString()}
-                                            selected={parseInt(formData.cycleLength) === len}
                                             onClick={() => handleChange('cycleLength', len)}
-                                        />
+                                            style={{
+                                                padding: '0.4rem 0.8rem',
+                                                borderRadius: '20px',
+                                                border: formData.cycleLength === len ? 'none' : '1px solid var(--color-border)',
+                                                background: formData.cycleLength === len ? 'var(--color-primary)' : 'transparent',
+                                                color: formData.cycleLength === len ? '#fff' : 'var(--color-text-muted)',
+                                                fontSize: '0.8rem',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            {len} dagen
+                                        </button>
                                     ))}
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
-                                    {[30, 32].map(len => (
-                                        <CompactOption
-                                            key={len}
-                                            label={len.toString()}
-                                            selected={parseInt(formData.cycleLength) === len}
-                                            onClick={() => handleChange('cycleLength', len)}
-                                        />
-                                    ))}
-                                    <CompactOption
-                                        label="Weet niet"
-                                        selected={false} // Visual only, or maybe set a flag? For now acts as 28 default if clicked?
-                                        onClick={() => handleChange('cycleLength', 28)}
-                                    />
                                 </div>
                                 <p className="text-muted" style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>
-                                    {parseInt(formData.cycleLength) === 28 ? "28 dagen (standaard) geselecteerd" : `${formData.cycleLength} dagen geselecteerd`}
+                                    Gemiddeld is 28, maar alles tussen 21 en 35 is normaal.
                                 </p>
                             </div>
 
