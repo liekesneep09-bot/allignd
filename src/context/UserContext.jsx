@@ -477,15 +477,27 @@ export function UserProvider({ children }) {
   }
 
   // NEW: Explicitly Reset Onboarding (Keep data, just redo setup)
+  // Fix: Force reload to ensure clean state
   const resetOnboarding = async () => {
-    setIsOnboarded(false)
-    localStorage.removeItem('cyclus_onboarded')
+    try {
+      if (authUser?.id) {
+        const { error } = await supabase.from('profiles').update({
+          is_onboarded: false,
+          updated_at: new Date().toISOString()
+        }).eq('id', authUser.id)
 
-    if (authUser?.id) {
-      await supabase.from('profiles').update({
-        is_onboarded: false,
-        updated_at: new Date().toISOString()
-      }).eq('id', authUser.id)
+        if (error) throw error
+      }
+
+      setIsOnboarded(false)
+      localStorage.removeItem('cyclus_onboarded')
+
+      // Force reload to clear all context state and re-route to Onboarding
+      window.location.href = '/'
+
+    } catch (e) {
+      console.error("Reset Onboarding Failed:", e)
+      alert("Kon onboarding niet resetten: " + e.message)
     }
   }
 
@@ -510,6 +522,41 @@ export function UserProvider({ children }) {
     }))
     setIsOnboarded(false)
     localStorage.removeItem('cyclus_onboarded')
+  }
+
+  // DELETE ACCOUNT (Real Deletion)
+  const deleteAccount = async () => {
+    try {
+      if (!authUser?.id) return
+
+      // 1. Try to call RPC (Best Case: Deletes Auth User + Cascade)
+      const { error: rpcError } = await supabase.rpc('delete_user_account')
+
+      if (rpcError) {
+        console.warn("RPC delete_user_account failed (likely not exists), falling back to manual delete.", rpcError)
+
+        // 2. Fallback: Delete Profile + Data manually
+        // Note: This leaves the Auth User, but removes all app data.
+        await supabase.from('food_logs').delete().eq('user_id', authUser.id)
+        await supabase.from('custom_foods').delete().eq('user_id', authUser.id)
+        await supabase.from('computed_targets').delete().eq('user_id', authUser.id)
+        await supabase.from('profiles').delete().eq('id', authUser.id)
+      }
+
+      // 3. Clear Local State
+      setIsOnboarded(false)
+      localStorage.clear() // Wipe everything
+
+      // 4. Sign Out
+      await signOut()
+
+      // 5. Hard Reload
+      window.location.href = '/'
+
+    } catch (e) {
+      console.error("Delete Account Failed:", e)
+      alert("Kon account niet verwijderen (probeer opnieuw): " + e.message)
+    }
   }
 
   // NEW: Log Food with Auto-Calculation
