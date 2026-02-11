@@ -51,17 +51,20 @@ export function calculateTargetRanges(profile) {
     if (steps === STEPS_RANGES.K7_10) activityScore += 2;
     if (steps === STEPS_RANGES.GT10K) activityScore += 3;
 
-    // C. Training
-    if (trainingDays >= 1 && trainingDays <= 3) activityScore += 1;
-    if (trainingDays >= 4 && trainingDays <= 6) activityScore += 2;
-    if (trainingDays >= 7) activityScore += 3;
+    // C. Training (Weighted more heavily)
+    if (trainingDays >= 1 && trainingDays <= 2) activityScore += 1;
+    if (trainingDays >= 3 && trainingDays <= 4) activityScore += 2;
+    if (trainingDays >= 5 && trainingDays <= 6) activityScore += 3;
+    if (trainingDays >= 7) activityScore += 4; // High volume
 
     // D. Map Score to Multiplier (Standard PAL values)
     let multiplier = 1.2; // Sedentary (Score 0-1)
+
+    // Adjusted Thresholds
     if (activityScore >= 2) multiplier = 1.375; // Lightly Active
     if (activityScore >= 4) multiplier = 1.55; // Moderately Active
-    if (activityScore >= 6) multiplier = 1.725; // Very Active
-    if (activityScore >= 8) multiplier = 1.9; // Extra Active
+    if (activityScore >= 7) multiplier = 1.725; // Very Active
+    if (activityScore >= 10) multiplier = 1.9; // Extra Active
 
     // 4. TDEE
     const tdee = Math.round(bmr * multiplier);
@@ -78,7 +81,12 @@ export function calculateTargetRanges(profile) {
 
         targetCals = Math.round(tdee * deficitFactor);
     } else if (goal === GOAL_TYPES.GAIN) {
-        targetCals = Math.round(tdee * 1.10); // +10% Surplus
+        // Surplus based on Tempo
+        let surplusFactor = 1.10; // Default Average (+10%)
+        if (profile.resultTempo === 'slow') surplusFactor = 1.05; // +5% (Lean bulk)
+        if (profile.resultTempo === 'fast') surplusFactor = 1.15; // +15% (Aggressive bulk)
+
+        targetCals = Math.round(tdee * surplusFactor);
     }
 
     // 6. Macros (Fixed Grams per KG)
