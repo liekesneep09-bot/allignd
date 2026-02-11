@@ -524,6 +524,14 @@ export function UserProvider({ children }) {
     localStorage.removeItem('cyclus_onboarded')
   }
 
+  // LOGOUT (Simple)
+  const logout = () => {
+    setIsOnboarded(false)
+    localStorage.removeItem('cyclus_onboarded')
+    // Also sign out from Supabase auth
+    if (signOut) signOut()
+  }
+
   // DELETE ACCOUNT (Real Deletion)
   const deleteAccount = async () => {
     try {
@@ -558,6 +566,7 @@ export function UserProvider({ children }) {
       alert("Kon account niet verwijderen (probeer opnieuw): " + e.message)
     }
   }
+
 
   // NEW: Log Food with Auto-Calculation
   // Supports both regular foods (foodId + grams) and configurable foods (configData)
@@ -1032,36 +1041,7 @@ export function UserProvider({ children }) {
     console.warn("logMacros is deprecated. Use logFood instead.")
   }
 
-  const logout = () => {
-    setIsOnboarded(false)
-    localStorage.removeItem('cyclus_onboarded')
-    // Also sign out from Supabase auth
-    if (signOut) signOut()
-  }
 
-  const deleteAccount = () => {
-    setIsOnboarded(false)
-    localStorage.removeItem('cyclus_onboarded')
-    localStorage.removeItem('cyclus_user')
-    // Reset state to empty
-    setUser({
-      name: '',
-      email: '',
-      password: '',
-      cycleStart: new Date().toISOString(),
-      cycleLength: 28,
-      periodLength: 5,
-      age: '',
-      height: '',
-      weight: '',
-      activity: 1.55,
-      goal: 'maintain',
-      tracking: 'now',
-      logs: {},
-      foodLogs: [],
-      foods: user.foods // Keep seeds
-    })
-  }
 
   // 7. Derived Logic (Moved to top)
   // [REMOVED] - Already declared above

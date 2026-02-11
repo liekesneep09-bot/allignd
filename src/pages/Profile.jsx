@@ -287,6 +287,7 @@ export default function Profile() {
                                     value={formData.cycleStart}
                                     onChange={e => handleChange('cycleStart', e.target.value)}
                                     className="input-field"
+                                    style={{ flex: 1, minWidth: '120px' }} // Fix layout
                                 />
                                 {user.isMenstruatingNow ? (
                                     <button
