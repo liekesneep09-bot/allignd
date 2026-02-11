@@ -1,7 +1,8 @@
 export const GOAL_TYPES = {
-    LOSE_FAT: 'cut',
+    LOSE_FAT: 'lose_fat',
     RECOMP: 'recomp',
-    MAINTAIN: 'maintain'
+    MAINTAIN: 'maintain',
+    GAIN: 'gain_muscle'
 };
 
 export const LIFESTYLE_LEVELS = {
@@ -68,7 +69,8 @@ export function calculateTargetRanges(profile) {
     // 5. Goal Adjustment (Single Value)
     let targetCals = tdee;
 
-    if (goal === GOAL_TYPES.LOSE_FAT || goal === GOAL_TYPES.RECOMP) {
+    // Support 'cut' legacy value
+    if (goal === GOAL_TYPES.LOSE_FAT || goal === GOAL_TYPES.RECOMP || goal === 'cut') {
         // Deficit based on Tempo
         let deficitFactor = 0.85; // Default Average (-15%)
         if (profile.resultTempo === 'slow') deficitFactor = 0.90; // -10%
@@ -82,7 +84,7 @@ export function calculateTargetRanges(profile) {
     // 6. Macros (Fixed Grams per KG)
     // Protein: 1.8g (maintain/bulk) - 2.0g (cut)
     let proteinFactor = 1.8;
-    if (goal === GOAL_TYPES.LOSE_FAT || goal === GOAL_TYPES.RECOMP) {
+    if (goal === GOAL_TYPES.LOSE_FAT || goal === GOAL_TYPES.RECOMP || goal === 'cut') {
         proteinFactor = 2.0;
     }
     const protein = Math.round(weight * proteinFactor);
