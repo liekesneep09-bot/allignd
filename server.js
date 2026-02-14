@@ -96,6 +96,43 @@ app.post('/api/assistant', async (req, res) => {
 
 console.log("About to start server...");
 
+
+// Initialize Stripe
+import Stripe from 'stripe';
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+// POST /api/create-checkout-session
+app.post('/api/create-checkout-session', async (req, res) => {
+  try {
+    const { priceId, mode } = req.body;
+
+    if (!priceId) {
+      return res.status(400).json({ error: 'Missing priceId' });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card', 'ideal'],
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      mode: mode || 'subscription',
+      subscription_data: {
+        trial_period_days: 7,
+      },
+      success_url: `${req.headers.origin}/?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.origin}/subscription`,
+    });
+
+    res.json({ url: session.url });
+  } catch (err) {
+    console.error('Stripe Error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 import { createClient } from '@supabase/supabase-js'
 
 // Initialize Supabase

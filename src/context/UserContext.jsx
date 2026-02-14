@@ -474,6 +474,9 @@ export function UserProvider({ children }) {
         updated_at: new Date().toISOString()
       })
     }
+
+    // Redirect to Subscription Paywall
+    window.location.href = '/subscription'
   }
 
   // NEW: Explicitly Reset Onboarding (Keep data, just redo setup)
@@ -759,6 +762,70 @@ export function UserProvider({ children }) {
       }
       saveDayLog(dateStr, dayData, authUser.id)
       syncDayLogToCloud(dateStr, dayData) // Sync
+    } catch (e) { console.error(e) }
+  }
+
+  // NEW: Toggle Period Date (Interactive Calendar)
+  const togglePeriodDate = (dateStr) => {
+    // 1. Check if already logged
+    const existingLog = user.menstruationLogs?.find(l => l.date === dateStr)
+    const newStatus = (existingLog && existingLog.status === 'yes') ? 'no' : 'yes'
+
+    // 2. Update Menstruation Logs
+    let newLogs = user.menstruationLogs?.filter(l => l.date !== dateStr) || []
+    if (newStatus === 'yes') {
+      newLogs.push({ date: dateStr, status: 'yes' })
+    }
+
+    // 3. Recalculate Cycle History based on ALL logs
+    // We need to reconstruct period start dates from the raw logs
+    const sortedLogs = newLogs
+      .filter(l => l.status === 'yes')
+      .map(l => l.date)
+      .sort()
+
+    // Identify start dates (Cluster consecutive days)
+    const newStartDates = []
+    if (sortedLogs.length > 0) {
+      let currentStart = sortedLogs[0]
+      newStartDates.push(currentStart)
+
+      for (let i = 1; i < sortedLogs.length; i++) {
+        const prev = new Date(sortedLogs[i - 1])
+        const curr = new Date(sortedLogs[i])
+        const diffDays = (curr - prev) / (1000 * 60 * 60 * 24)
+
+        // If gap is large (> 10 days), it's a new cycle
+        if (diffDays > 10) {
+          newStartDates.push(sortedLogs[i])
+        }
+      }
+    }
+
+    // 4. Update Stats
+    const stats = calculateCycleStats(newStartDates, user.cycleLength)
+
+    // 5. Update User State
+    updateUser({
+      menstruationLogs: newLogs,
+      periodStartDates: newStartDates,
+      cycleLengthHistory: stats.cycleLengthHistory,
+      cycleLength: stats.learnedCycleLength,
+      cycleStats: {
+        learnedCycleLength: stats.learnedCycleLength,
+        variability: stats.variability,
+        confidence: stats.confidence
+      }
+    })
+
+    // 6. Persist to Day Log
+    try {
+      if (authUser?.id) {
+        const dayData = loadDayLog(dateStr, authUser.id)
+        dayData.menstruation = { status: newStatus, updatedAt: new Date().toISOString() }
+        saveDayLog(dateStr, dayData, authUser.id)
+        syncDayLogToCloud(dateStr, dayData)
+      }
     } catch (e) { console.error(e) }
   }
 
@@ -1062,6 +1129,7 @@ export function UserProvider({ children }) {
     addCustomFood, // NEW
     logMovement,
     logMenstruation,
+    togglePeriodDate, // NEW
     confirmPeriodToday,
     endPeriodToday,
     adjustCyclePhase,

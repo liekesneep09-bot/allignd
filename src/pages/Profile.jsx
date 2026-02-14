@@ -357,7 +357,6 @@ export default function Profile() {
                     onClick={() => {
                         if (window.confirm("Weet je zeker dat je de onboarding opnieuw wilt doen? Je instellingen worden gereset.")) {
                             resetOnboarding()
-                            window.location.href = "/" // Force reload
                         }
                     }}
                     style={{ background: 'transparent', border: 'none', color: 'var(--color-text)', textDecoration: 'underline', cursor: 'pointer' }}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { UserProvider, useUser } from './context/UserContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Onboarding from './pages/Onboarding'
+import Subscription from './pages/Subscription' // NEW
 import Today from './pages/Today'
 import PhaseGuide from './pages/PhaseGuide'
 import Recipes from './pages/Recipes'
@@ -29,6 +30,11 @@ function MainLayout() {
 
     if (!hasOnboarded) {
         return <Onboarding />
+    }
+
+    // Explicit Route Handling for Subscription Paywall
+    if (window.location.pathname === '/subscription') {
+        return <Subscription />
     }
 
     return (
