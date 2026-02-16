@@ -23,8 +23,36 @@ import { IconHome, IconSparkles, IconActivity, IconRecipe, IconCommunity } from 
 import logo from './assets/logo-primary.svg'
 
 function MainLayout() {
-    const { hasOnboarded, isLoading } = useUser()
+    const { hasOnboarded, isLoading, currentPhase } = useUser()
     const [currentView, setCurrentView] = useState('today')
+
+    // Phase colors for background gradient
+    const getPhaseColor = (phase) => {
+        switch (phase) {
+            case 'menstrual': return {
+                bg: 'linear-gradient(to bottom, #FFE5E5 0%, rgba(255,240,240,0.3) 40%, #FFFFFF 100%)',
+                text: '#E57373'
+            }
+            case 'follicular': return {
+                bg: 'linear-gradient(to bottom, #E0F7FA 0%, rgba(224,247,250,0.3) 40%, #FFFFFF 100%)',
+                text: '#26A69A'
+            }
+            case 'ovulatory': return {
+                bg: 'linear-gradient(to bottom, #F3E5F5 0%, rgba(243,229,245,0.3) 40%, #FFFFFF 100%)',
+                text: '#AB47BC'
+            }
+            case 'luteal': return {
+                bg: 'linear-gradient(to bottom, #FFF3E0 0%, rgba(255,243,224,0.3) 40%, #FFFFFF 100%)',
+                text: '#FFA726'
+            }
+            default: return {
+                bg: 'linear-gradient(to bottom, #F5F5F5 0%, #FFFFFF 100%)',
+                text: '#9E9E9E'
+            }
+        }
+    }
+
+    const phaseStyle = getPhaseColor(currentPhase)
 
     if (isLoading) return null // or a loading spinner
 
@@ -45,7 +73,7 @@ function MainLayout() {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                background: 'var(--color-bg)',
+                background: '#FFFFFF',
                 position: 'sticky',
                 top: 0,
                 zIndex: 10
@@ -68,7 +96,11 @@ function MainLayout() {
 
             </header>
 
-            <main>
+            <main style={{
+                background: currentView !== 'today' ? phaseStyle.bg : undefined,
+                minHeight: currentView !== 'today' ? 'calc(100vh - 82px)' : undefined,
+                transition: 'background 0.5s ease'
+            }}>
                 {currentView === 'today' && <Today onNavigate={setCurrentView} />}
                 {currentView === 'assistant' && <Assistant />}
                 {currentView === 'fitness' && <Fitness />}

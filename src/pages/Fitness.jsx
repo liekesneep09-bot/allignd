@@ -3,6 +3,8 @@ import { useUser } from '../context/UserContext'
 import { getFitnessAdvice, BODY_PARTS, getBodyPartExercises, getBodyPartAdvice } from '../data/fitness'
 import { PHASE_CONTENT } from '../data/phases'
 import { IconActivity } from '../components/Icons'
+import { getLocalDateStr } from '../utils/date'
+import { calculateProgress } from '../utils/numbers'
 
 // Focus bullets based on goal + phase (all start with verb, max 6-7 words)
 const FOCUS_BULLETS = {
@@ -98,7 +100,7 @@ const FOCUS_BULLETS = {
 
 // Helper to get this week's logged workouts
 function getThisWeekWorkouts(movementLogs) {
-    if (!movementLogs || movementLogs.length === 0) return 0
+    if (!movementLogs || !Array.isArray(movementLogs) || movementLogs.length === 0) return 0
 
     const now = new Date()
     const dayOfWeek = now.getDay() // 0 = Sunday
@@ -114,8 +116,34 @@ function getThisWeekWorkouts(movementLogs) {
     ).length
 }
 
+// Helper to get this week's days (Mon-Sun) with movement status
+function getWeekDays(movementLogs) {
+    const now = new Date()
+    const dayOfWeek = now.getDay()
+    const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+    const monday = new Date(now)
+    monday.setDate(now.getDate() - mondayOffset)
+    monday.setHours(0, 0, 0, 0)
+
+    const days = []
+    const dayLabels = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo']
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(monday)
+        d.setDate(monday.getDate() + i)
+        const dateStr = d.toISOString().split('T')[0]
+        const log = movementLogs?.find(l => l.date === dateStr)
+        days.push({
+            label: dayLabels[i],
+            dateStr,
+            status: log?.status || null, // 'moved', 'rest', or null
+            isToday: dateStr === getLocalDateStr(new Date())
+        })
+    }
+    return days
+}
+
 export default function Fitness() {
-    const { user, currentPhase } = useUser()
+    const { user, currentPhase, logMovement } = useUser()
     const [selectedBodyPart, setSelectedBodyPart] = useState(null)
 
     // Goal Labels
@@ -131,11 +159,17 @@ export default function Fitness() {
     const phaseKey = currentPhase // menstrual, follicular, ovulatory, luteal
 
     // Week stats
-    const weekWorkouts = useMemo(() => getThisWeekWorkouts(user.movementLogs), [user.movementLogs])
+    const weekWorkouts = useMemo(() => getThisWeekWorkouts(user.movementLogs || []), [user.movementLogs])
     const weekTarget = user.trainingFrequency || 3
 
     // Focus bullets for current goal + phase
     const focusBullets = FOCUS_BULLETS[user.goal]?.[phaseKey] || FOCUS_BULLETS.maintain[phaseKey]
+
+    // Movement log for today
+    const todayStr = getLocalDateStr(new Date())
+    const todayLog = user.movementLogs?.find(l => l.date === todayStr)
+    const todayStatus = todayLog?.status || null
+    const weekDays = useMemo(() => getWeekDays(user.movementLogs || []), [user.movementLogs])
 
     // --- VIEW 1: OVERVIEW ---
     if (!selectedBodyPart) {
@@ -175,6 +209,146 @@ export default function Fitness() {
                     }}>
                         {phaseContent.training.why}
                     </p>
+                </div>
+
+                {/* BEWEGING VANDAAG */}
+                <div style={{
+                    background: 'var(--color-surface)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '1.25rem',
+                    marginBottom: '1.5rem',
+                    border: '1px solid var(--color-border)'
+                }}>
+                    <h2 style={{
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        marginBottom: '0.75rem',
+                        color: 'var(--color-text)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        margin: '0 0 0.75rem 0'
+                    }}>Beweging Vandaag</h2>
+
+                    {todayStatus ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <div style={{
+                                width: '36px',
+                                height: '36px',
+                                borderRadius: '50%',
+                                background: todayStatus === 'moved'
+                                    ? 'rgba(76, 175, 80, 0.15)'
+                                    : 'rgba(158, 158, 158, 0.15)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '1.1rem'
+                            }}>
+                                {todayStatus === 'moved' ? '✓' : '—'}
+                            </div>
+                            <span style={{
+                                fontSize: '0.95rem',
+                                color: 'var(--color-text)',
+                                fontWeight: '500'
+                            }}>
+                                {todayStatus === 'moved' ? 'Je hebt vandaag bewogen 💪' : 'Rustdag — ook goed!'}
+                            </span>
+                            <button
+                                onClick={() => logMovement(todayStr, todayStatus === 'moved' ? 'rest' : 'moved')}
+                                style={{
+                                    marginLeft: 'auto',
+                                    background: 'none',
+                                    color: 'var(--color-primary)',
+                                    fontSize: '0.8rem',
+                                    fontWeight: '500',
+                                    padding: '0.25rem 0.5rem'
+                                }}
+                            >
+                                Wijzig
+                            </button>
+                        </div>
+                    ) : (
+                        <div>
+                            <p style={{
+                                margin: '0 0 0.75rem 0',
+                                fontSize: '0.9rem',
+                                color: 'var(--color-text-muted)',
+                                lineHeight: 1.4
+                            }}>Heb je vandaag bewogen?</p>
+                            <div style={{ display: 'flex', gap: '0.75rem' }}>
+                                <button
+                                    onClick={() => logMovement(todayStr, 'moved')}
+                                    style={{
+                                        flex: 1,
+                                        padding: '0.75rem',
+                                        borderRadius: 'var(--radius-md)',
+                                        border: '2px solid rgba(76, 175, 80, 0.3)',
+                                        background: 'rgba(76, 175, 80, 0.08)',
+                                        color: '#4CAF50',
+                                        fontWeight: '600',
+                                        fontSize: '0.95rem',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.15s'
+                                    }}
+                                >
+                                    Ja ✓
+                                </button>
+                                <button
+                                    onClick={() => logMovement(todayStr, 'rest')}
+                                    style={{
+                                        flex: 1,
+                                        padding: '0.75rem',
+                                        borderRadius: 'var(--radius-md)',
+                                        border: '2px solid rgba(158, 158, 158, 0.3)',
+                                        background: 'rgba(158, 158, 158, 0.08)',
+                                        color: '#9E9E9E',
+                                        fontWeight: '600',
+                                        fontSize: '0.95rem',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.15s'
+                                    }}
+                                >
+                                    Nee
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* WEEK OVERZICHT DOTS */}
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        marginTop: '1rem',
+                        paddingTop: '0.75rem',
+                        borderTop: '1px solid var(--color-border)'
+                    }}>
+                        {weekDays.map(day => (
+                            <div key={day.dateStr} style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: '0.3rem'
+                            }}>
+                                <span style={{
+                                    fontSize: '0.65rem',
+                                    color: day.isToday ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                                    fontWeight: day.isToday ? '700' : '400',
+                                    textTransform: 'uppercase'
+                                }}>{day.label}</span>
+                                <div style={{
+                                    width: '10px',
+                                    height: '10px',
+                                    borderRadius: '50%',
+                                    background: day.status === 'moved'
+                                        ? '#4CAF50'
+                                        : day.status === 'rest'
+                                            ? 'rgba(158, 158, 158, 0.3)'
+                                            : 'rgba(0, 0, 0, 0.06)',
+                                    border: day.isToday ? '2px solid var(--color-primary)' : 'none',
+                                    boxSizing: 'border-box'
+                                }} />
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
                 {/* PAGE TITLE */}

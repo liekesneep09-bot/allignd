@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import { useUser } from '../context/UserContext'
 import { IconAccount, IconCalendar } from './Icons'
-import { getPredictionWindow } from '../logic/cycle-learning'
+import { getFuturePeriodWindows } from '../logic/cycle-learning'
 
 export default function PeriodCalendar({ user, onClose, onSelect }) {
     const { togglePeriodDate } = useUser()
@@ -18,6 +18,19 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
         }
         return list
     }, [])
+
+    // Calculate Predictions (Memoized)
+    const predictedWindows = useMemo(() => {
+        if (!user?.periodStartDates || user.periodStartDates.length === 0) return {}
+
+        return getFuturePeriodWindows(
+            user.periodStartDates,
+            user.cycleStats?.learnedCycleLength || user.cycleLength || 28,
+            user.periodLength || 5,
+            user.cycleStats?.variability || 0,
+            4 // Predict 4 cycles ahead
+        )
+    }, [user?.periodStartDates, user?.cycleStats, user?.cycleLength, user?.periodLength])
 
     // Scroll to today on mount
     React.useEffect(() => {
@@ -112,7 +125,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                     flex: 1,
                     overflowY: 'auto',
                     padding: '1rem',
-                    paddingBottom: '100px' // Space for floating button
+                    paddingBottom: '140px' // Space for fixed legend + button bar
                 }}
             >
                 {months.map((monthDate, index) => (
@@ -120,40 +133,72 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                         key={index}
                         monthDate={monthDate}
                         user={user}
+                        predictedWindows={predictedWindows}
                         onDayClick={handleDayClick}
                         todayRef={index === 12 ? todayRef : null} // Index 12 is "Today" (offset 0)
                     />
                 ))}
+
             </div>
 
-            {/* Floating "Edit / Done" Button */}
+            {/* FIXED BOTTOM: Legenda + Klaar Button */}
             <div style={{
                 position: 'absolute',
-                bottom: '2rem',
+                bottom: '0',
                 left: '0',
                 right: '0',
+                background: '#FFFFFF',
+                borderTop: '1px solid #f0f0f0',
                 display: 'flex',
-                justifyContent: 'center',
-                pointerEvents: 'none' // Allow clicking through container
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: '0.75rem 1.25rem 1.5rem',
+                gap: '0.75rem',
+                zIndex: 10
             }}>
+                {/* Legenda - compact horizontal */}
+                <div style={{
+                    display: 'flex',
+                    gap: '1rem',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    width: '100%'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FF5E7D' }} />
+                        <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Menstruatie</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                        <div style={{ width: 10, height: 10, borderRadius: '50%', border: '2px dashed #FF5E7D', boxSizing: 'border-box' }} />
+                        <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Verwacht</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                        <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#4DB6AC' }} />
+                        <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Gesport</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#f0f0f0' }} />
+                        <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Vandaag</span>
+                    </div>
+                </div>
+
+                {/* Klaar Button */}
                 <button
                     onClick={onClose}
                     style={{
-                        pointerEvents: 'auto',
-                        background: '#FF5E7D', // Flo Pink
+                        background: 'var(--color-primary)',
                         color: '#fff',
                         border: 'none',
-                        padding: '0.8rem 2rem',
+                        padding: '0.8rem 3rem',
                         borderRadius: '30px',
                         fontWeight: '600',
                         fontSize: '1rem',
-                        boxShadow: '0 4px 12px rgba(255, 94, 125, 0.3)',
+                        boxShadow: '0 4px 12px rgba(112, 193, 163, 0.4)',
                         cursor: 'pointer',
-                        transform: 'translateY(0)',
                         transition: 'transform 0.1s'
                     }}
                 >
-                    Pas menstruatie aan
+                    Klaar
                 </button>
             </div>
 
@@ -162,7 +207,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
 }
 
 // Sub-component for a single month
-function MonthGrid({ monthDate, user, onDayClick, todayRef }) {
+function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef }) {
     const year = monthDate.getFullYear()
     const month = monthDate.getMonth()
     const daysInMonth = new Date(year, month + 1, 0).getDate()
@@ -195,10 +240,12 @@ function MonthGrid({ monthDate, user, onDayClick, todayRef }) {
         const log = user.menstruationLogs?.find(l => l.date === dateStr)
         const isPeriod = log?.status === 'yes'
 
-        // 2. Prediction (Simple MVP logic for list view)
-        // We can check if date matches a known prediction range if we passed it down,
-        // but for now let's keep the list lightweight and focused on history/today.
-        const isPredicted = false
+        // 2. Prediction Logic (Visuals)
+        const isPredicted = !isPeriod && predictedWindows[dateStr]
+
+        // 3. Movement Logic
+        const flowLog = user.movementLogs?.find(l => l.date === dateStr)
+        const hasMoved = flowLog?.status === 'moved'
 
         grid.push(
             <div
@@ -207,11 +254,12 @@ function MonthGrid({ monthDate, user, onDayClick, todayRef }) {
                 style={{
                     aspectRatio: '1',
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
                     position: 'relative',
-                    cursor: isFuture ? 'default' : 'pointer',
-                    opacity: isFuture ? 0.4 : 1
+                    cursor: 'pointer',
+                    opacity: 1
                 }}
             >
                 {/* Number */}
@@ -223,13 +271,37 @@ function MonthGrid({ monthDate, user, onDayClick, todayRef }) {
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: '0.9rem',
-                    fontWeight: isToday ? '700' : '400',
+                    fontWeight: isToday || isPeriod ? '700' : '400',
                     background: isPeriod ? '#FF5E7D' : (isToday ? '#f0f0f0' : 'transparent'),
-                    color: isPeriod ? '#fff' : '#2D3436',
-                    border: isPredicted ? '1px dashed #FF5E7D' : 'none'
+                    color: isPeriod ? '#fff' : (isPredicted ? '#FF5E7D' : '#2D3436'),
+                    border: isPredicted ? '2px dashed #FF5E7D' : '2px solid transparent',
+                    boxSizing: 'border-box',
+                    position: 'relative' // For dot positioning
                 }}>
                     {i}
                 </div>
+
+                {/* Workout Dot Indicator */}
+                {hasMoved && !isPeriod && (
+                    <div style={{
+                        width: '5px',
+                        height: '5px',
+                        borderRadius: '50%',
+                        background: '#4DB6AC', // Matching Green/Teal
+                        marginTop: '2px'
+                    }} />
+                )}
+                {/* White Dot on Red Background for Visibility if logged on period day */}
+                {hasMoved && isPeriod && (
+                    <div style={{
+                        position: 'absolute',
+                        bottom: '4px',
+                        width: '4px',
+                        height: '4px',
+                        borderRadius: '50%',
+                        background: '#fff'
+                    }} />
+                )}
             </div>
         )
     }

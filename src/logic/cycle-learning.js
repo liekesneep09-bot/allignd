@@ -247,3 +247,53 @@ export function getPredictionWindow(periodStartDates, cycleLength, confidence = 
         windowSize: halfWindow * 2 + 1
     }
 }
+
+/**
+ * Generates prediction windows for future periods
+ * @param {string[]} periodStartDates 
+ * @param {number} cycleLength 
+ * @param {number} periodLength 
+ * @param {number} variability 
+ * @param {number} numCycles 
+ * @returns {Object.<string, { type: 'prediction' }>} Map of date string to metadata
+ */
+export function getFuturePeriodWindows(periodStartDates = [], cycleLength = 28, periodLength = 5, variability = 0, numCycles = 4) {
+    if (!periodStartDates || periodStartDates.length === 0 || !cycleLength) return {}
+
+    const predictions = {}
+    const lastStart = new Date(periodStartDates[periodStartDates.length - 1])
+
+    // Buffer based on variability (standard deviation)
+    // Minimum 2 days buffer to capture "early/late" feeling
+    // Cap at 5 days to avoid painting half the month green
+    const buffer = Math.min(5, Math.max(2, Math.ceil(variability || 2)))
+
+    for (let i = 1; i <= numCycles; i++) {
+        // Calculate expected start for this future cycle
+        const expectedStart = new Date(lastStart)
+        expectedStart.setDate(lastStart.getDate() + (cycleLength * i))
+
+        // Window Start: Expected Start - Buffer
+        const windowStart = new Date(expectedStart)
+        windowStart.setDate(expectedStart.getDate() - buffer)
+
+        // Window End: Expected Start + Period Length + Buffer
+        // This covers the entire "danger zone" of bleeding
+        const windowEnd = new Date(expectedStart)
+        windowEnd.setDate(expectedStart.getDate() + periodLength + buffer)
+
+        // Fill dates in map
+        const current = new Date(windowStart)
+        while (current <= windowEnd) {
+            const dateStr = current.toISOString().split('T')[0]
+
+            // Only add if not already present (though cycles shouldn't overlap usually)
+            if (!predictions[dateStr]) {
+                predictions[dateStr] = { type: 'prediction' }
+            }
+            current.setDate(current.getDate() + 1)
+        }
+    }
+
+    return predictions
+}

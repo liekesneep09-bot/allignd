@@ -62,16 +62,13 @@ export function UserProvider({ children }) {
     steps_range: 'lt4k',
     tracking: 'now',
     cycleHistory: [], // [{ startDate, endDate, length }] - Legacy
-    logs: {}, // Deprecated legacy logs
+    logs: {}, // Archived logs
 
     // MVP Food Database (Seeded)
     foods: FOOD_DATABASE || [],
 
-    // Food Logs
-    foodLogs: [], // { id, date, foodId, grams, kcal, p, c, f }
-
-    // Movement Logs
-    movementLogs: [], // { date: 'YYYY-MM-DD', status: 'moved' | 'rest' }
+    foodLogs: [], // Array of { id, date, foodId, grams, ... }
+    movementLogs: [], // Array of { id, date, status }
 
     // Menstruation Logs (Explicit Check-ins)
     menstruationLogs: [] // { date, status }
@@ -170,6 +167,7 @@ export function UserProvider({ children }) {
             periodStartDates: profile.period_start_dates || [],
             cycleHistory: profile.cycle_history || [],
             cycleStats: profile.cycle_stats || {},
+            menstruationLogs: profile.menstruation_logs || [], // LOADED
             isMenstruatingNow: false,
             macroTargets: null
           }
@@ -269,6 +267,18 @@ export function UserProvider({ children }) {
           }))
         }
 
+        // B4. Fetch Movement Logs (NEW)
+        const { data: dbMovement } = await supabase
+          .from('movement_logs')
+          .select('*')
+          .eq('user_id', authUser.id)
+
+        // Always set property, default to empty array
+        setUser(prev => ({
+          ...prev,
+          movementLogs: dbMovement ? dbMovement.map(m => ({ date: m.date, status: m.status, id: m.id })) : []
+        }))
+
       } catch (err) {
         console.error('User init/sync failed:', err)
       } finally {
@@ -330,6 +340,9 @@ export function UserProvider({ children }) {
       if (data.periodStartDates !== undefined) updates.period_start_dates = data.periodStartDates
       if (data.cycleHistory !== undefined) updates.cycle_history = data.cycleHistory
       if (data.cycleStats !== undefined) updates.cycle_stats = data.cycleStats
+
+      // Menstruation Logs (Calendar Interactions)
+      if (data.menstruationLogs !== undefined) updates.menstruation_logs = data.menstruationLogs
 
       // Add New Macros if recalculated
       if (newMacros) {
@@ -741,32 +754,54 @@ export function UserProvider({ children }) {
   }
 
   // NEW: Log Movement
-  const logMovement = (dateStr, status) => {
+  const logMovement = async (dateStr, status) => {
+    if (!authUser) return
 
-    // 1. Update State
+    const newLog = {
+      id: crypto.randomUUID(),
+      date: dateStr,
+      status: status,
+      user_id: authUser.id,
+      updated_at: new Date().toISOString()
+    }
+
+    // 1. Optimistic UI Update
     setUser(prev => {
+      // Remove any existing log for this date and add the new one
       const others = prev.movementLogs.filter(l => l.date !== dateStr) || []
       return {
         ...prev,
-        movementLogs: [...others, { date: dateStr, status }]
+        movementLogs: [...others, { date: dateStr, status: status, id: newLog.id }]
       }
     })
 
-    // 2. Persist to Day Log
+    // 2. Persist to DB
     try {
-      if (!authUser?.id) return
-      const dayData = loadDayLog(dateStr, authUser.id)
-      dayData.movement = {
-        status: status, // 'moved' | 'rest'
-        updatedAt: new Date().toISOString()
-      }
-      saveDayLog(dateStr, dayData, authUser.id)
-      syncDayLogToCloud(dateStr, dayData) // Sync
-    } catch (e) { console.error(e) }
+      const { error } = await supabase.from('movement_logs').upsert({
+        id: newLog.id, // Use the generated ID for upsert
+        user_id: newLog.user_id,
+        date: newLog.date,
+        status: newLog.status,
+        updated_at: newLog.updated_at
+      }, { onConflict: 'user_id,date' }) // Conflict on user_id and date to update existing entry
+
+      if (error) throw error
+    } catch (e) {
+      console.error("Failed to log movement to Supabase", e)
+      alert(`Fout bij opslaan van beweging: ${e.message || JSON.stringify(e)}`)
+      // Rollback optimistic update if DB fails
+      setUser(prev => ({
+        ...prev,
+        movementLogs: prev.movementLogs.filter(l => l.id !== newLog.id)
+      }))
+    }
   }
 
   // NEW: Toggle Period Date (Interactive Calendar)
   const togglePeriodDate = (dateStr) => {
+    const todayStr = getLocalDateStr()
+    const isToday = dateStr === todayStr
+
     // 1. Check if already logged
     const existingLog = user.menstruationLogs?.find(l => l.date === dateStr)
     const newStatus = (existingLog && existingLog.status === 'yes') ? 'no' : 'yes'
@@ -805,8 +840,8 @@ export function UserProvider({ children }) {
     // 4. Update Stats
     const stats = calculateCycleStats(newStartDates, user.cycleLength)
 
-    // 5. Update User State
-    updateUser({
+    // 5. Determine State Updates
+    const updates = {
       menstruationLogs: newLogs,
       periodStartDates: newStartDates,
       cycleLengthHistory: stats.cycleLengthHistory,
@@ -816,9 +851,28 @@ export function UserProvider({ children }) {
         variability: stats.variability,
         confidence: stats.confidence
       }
-    })
+    }
 
-    // 6. Persist to Day Log
+    // SPECIAL HANDLING: If we toggle TODAY, we must sync the "isMenstruatingNow" state
+    // This allows the Calendar to control the Phase view immediately
+    if (isToday) {
+      if (newStatus === 'yes') {
+        updates.isMenstruatingNow = true
+        updates.currentPeriodLength = null // Reset any "stopped" override
+        updates.manualPhaseOverride = false // Clear manual overrides
+        updates.manualPhase = null
+      } else {
+        updates.isMenstruatingNow = false
+        // If we turn OFF today, we imply period stopped yesterday
+        updates.currentPeriodLength = Math.max(0, currentDay - 1)
+        updates.manualPhaseOverride = false
+      }
+    }
+
+    // 6. Update User State
+    updateUser(updates)
+
+    // 7. Persist to Day Log
     try {
       if (authUser?.id) {
         const dayData = loadDayLog(dateStr, authUser.id)
@@ -904,6 +958,8 @@ export function UserProvider({ children }) {
       currentPeriodLength: null,
       lastCheckInDate: null,
       cycleHistory: newHistory,
+      manualPhaseOverride: false, // Ensure learning takes precedence
+      manualPhase: null,
       // Add to logs
       menstruationLogs: [...user.menstruationLogs.filter(l => l.date !== dateStr), { date: dateStr, status: 'yes' }]
     })
@@ -970,6 +1026,8 @@ export function UserProvider({ children }) {
       isMenstruatingNow: false,
       currentPeriodLength: newLen,
       lastCheckInDate: todayStr,
+      manualPhaseOverride: false, // CRITICAL: Clear any overrides so phase logic calculates naturally
+      manualPhase: null,
       menstruationLogs: [...user.menstruationLogs.filter(l => l.date !== todayStr), { date: todayStr, status: 'no' }]
     })
   }

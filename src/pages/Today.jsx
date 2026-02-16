@@ -204,19 +204,15 @@ function DayStrip({ selectedDate, onSelect, accentColor }) {
 // --- MAIN COMPONENT ---
 
 export default function Today({ onNavigate }) {
-  const { user, targets, logFood, getStatsForDate, deleteFoodLog, logMenstruation, logMovement, resetOnboarding, isLoading } = useUser()
+  const { user, targets, logFood, getStatsForDate, deleteFoodLog, logMenstruation, logMovement, resetOnboarding, isLoading, endPeriodToday, getPhaseForDate } = useUser()
 
   const [viewDate, setViewDate] = useState(new Date())
   const viewDateStr = getLocalDateStr(viewDate)
   const todayDateStr = getLocalDateStr(new Date())
   const isToday = viewDateStr === todayDateStr
 
-  const { phase: viewPhase } = getCycleDisplayData(
-    user.cycleStart,
-    user.cycleLength,
-    user.periodLength || 5,
-    user.isMenstruatingNow
-  )
+  // Use Centralized Phase Logic from Context (Respects overrides and stops)
+  const { phase: viewPhase } = getPhaseForDate(viewDateStr)
 
   const content = PHASE_CONTENT[viewPhase]
   const stats = getStatsForDate(viewDateStr)
@@ -233,10 +229,26 @@ export default function Today({ onNavigate }) {
 
   const getPhaseColor = (p) => {
     switch (p) {
-      case 'menstrual': return { bg: 'linear-gradient(135deg, #FFE5E5 0%, #FFF0F0 100%)', text: '#E57373', accent: '#FFCDD2' }
-      case 'follicular': return { bg: 'linear-gradient(135deg, #E0F7FA 0%, #E0F2F1 100%)', text: '#4DB6AC', accent: '#B2EBF2' }
-      case 'ovulatory': return { bg: 'linear-gradient(135deg, #F3E5F5 0%, #F8BBD0 100%)', text: '#BA68C8', accent: '#E1BEE7' }
-      case 'luteal': return { bg: 'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)', text: '#FFB74D', accent: '#FFE0B2' }
+      case 'menstrual': return {
+        bg: 'linear-gradient(to bottom, #FFE5E5 0%, rgba(255,240,240,0.5) 60%, rgba(255,255,255,0) 100%)',
+        text: '#E57373',
+        accent: '#FFCDD2'
+      }
+      case 'follicular': return {
+        bg: 'linear-gradient(to bottom, #E0F7FA 0%, rgba(224,247,250,0.5) 60%, rgba(255,255,255,0) 100%)',
+        text: '#26A69A', // Slightly darker for better readability on white
+        accent: '#B2EBF2'
+      }
+      case 'ovulatory': return {
+        bg: 'linear-gradient(to bottom, #F3E5F5 0%, rgba(243,229,245,0.5) 60%, rgba(255,255,255,0) 100%)',
+        text: '#AB47BC',
+        accent: '#E1BEE7'
+      }
+      case 'luteal': return {
+        bg: 'linear-gradient(to bottom, #FFF3E0 0%, rgba(255,243,224,0.5) 60%, rgba(255,255,255,0) 100%)',
+        text: '#FFA726',
+        accent: '#FFE0B2'
+      }
       default: return { bg: '#F5F5F5', text: '#9E9E9E', accent: '#EEEEEE' }
     }
   }
@@ -282,16 +294,14 @@ export default function Today({ onNavigate }) {
   }
 
   return (
-    <div style={{ paddingBottom: '120px', maxWidth: '100%', overflowX: 'hidden', background: 'var(--color-bg)' }}>
+    <div style={{ paddingBottom: '120px', maxWidth: '100%', overflowX: 'hidden', background: '#FFFFFF' }}>
 
-      {/* HEADER SECTION */}
+      {/* HEADER SECTION - Soft Glow */}
       <div style={{
         background: phaseStyle.bg,
-        paddingBottom: '2rem', // Reduced from 3rem
-        paddingTop: '1rem', // Keep comfortable top spacing
-        borderBottomLeftRadius: '24px', // Reduced from 40px
-        borderBottomRightRadius: '24px', // Reduced from 40px
-        marginBottom: '1.5rem', // Reduced from 2rem
+        paddingBottom: '4rem', // Extended overlap for soft fade
+        paddingTop: '1rem',
+        marginBottom: '-2rem', // Negative margin to pull content up into the fade
         position: 'relative',
         transition: 'background 0.5s ease'
       }}>
@@ -332,25 +342,25 @@ export default function Today({ onNavigate }) {
                 title: "Menstruatiefase",
                 normal: "Lagere energie en meer behoefte aan rust zijn normaal in deze fase.",
                 focus: "herstel en basisstructuur.",
-                nutrition: "Ondersteun je lichaam met ijzer, omega-3 en warme maaltijden."
+                nutrition: "In deze fase ondersteunen ijzerrijke voeding, magnesium en omega-3 je herstel en energiebalans."
               },
               follicular: {
                 title: "Folliculaire fase",
                 normal: "Je energie en motivatie bouwen vaak weer op in deze fase.",
                 focus: "opbouwen en progressie.",
-                nutrition: "Kies voor frisse, lichte maaltijden, eiwitten en vezels."
+                nutrition: "Eiwitrijke en vezelrijke voeding helpt je lichaam bij opbouw en nieuwe energie."
               },
               ovulatory: {
                 title: "Ovulatiefase",
                 normal: "Dit is vaak je meest energieke en krachtige periode.",
                 focus: "intensiteit en vertrouwen.",
-                nutrition: "Focus op eiwitten, antioxidanten en goede hydratatie."
+                nutrition: "Antioxidantenrijke en lichte, voedzame maaltijden ondersteunen balans en vitaliteit."
               },
               luteal: {
                 title: "Luteale fase",
                 normal: "Meer honger en lagere motivatie zijn normaal in deze fase.",
                 focus: "consistentie boven intensiteit.",
-                nutrition: "Eet complexe koolhydraten, magnesium en voldoende eiwitten."
+                nutrition: "Complexe koolhydraten, extra eiwitten en magnesium helpen bij stabiliteit en een verzadigd gevoel."
               }
             }
 
@@ -398,22 +408,6 @@ export default function Today({ onNavigate }) {
                   {currentText.normal}
                 </p>
 
-                {/* Focus Chip */}
-                <div style={{
-                  marginTop: '0.5rem',
-                  background: 'rgba(255,255,255,0.6)',
-                  padding: '0.3rem 0.8rem',
-                  borderRadius: '20px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.4rem',
-                  fontSize: '0.85rem',
-                  backdropFilter: 'blur(4px)'
-                }}>
-                  <span style={{ opacity: 0.7 }}>Focus:</span>
-                  <span style={{ fontWeight: '600', color: phaseStyle.text }}>{currentText.focus}</span>
-                </div>
-
                 {/* Integrated Nutrition Text - Minimalist Icon + Line */}
                 <div style={{
                   marginTop: '1rem', // Tighter spacing to section above
@@ -441,6 +435,32 @@ export default function Today({ onNavigate }) {
                     {currentText.nutrition}
                   </div>
                 </div>
+
+                {/* Manual Stop Button for Menstrual Phase */}
+                {viewPhase === 'menstrual' && (
+                  <button
+                    onClick={() => {
+                      console.log("End period clicked")
+                      endPeriodToday()
+                    }}
+                    style={{
+                      marginTop: '1.25rem',
+                      background: 'rgba(255,255,255,0.5)',
+                      border: '1px solid rgba(255,255,255,0.8)',
+                      padding: '0.8rem 1.5rem', // Larger touch target
+                      borderRadius: '30px',
+                      fontSize: '0.9rem',
+                      fontWeight: '600',
+                      color: phaseStyle.text,
+                      cursor: 'pointer',
+                      backdropFilter: 'blur(4px)',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    Menstruatie is gestopt
+                  </button>
+                )}
+
 
               </div>
             )
@@ -563,86 +583,7 @@ export default function Today({ onNavigate }) {
           )}
 
           <section>
-            <div style={{
-              background: 'rgba(112, 193, 163, 0.12)',
-              borderRadius: '24px',
-              padding: '2rem 1.5rem',
-              marginBottom: '0.5rem',
-              border: 'none'
-            }}>
-              <div style={{ marginBottom: '1rem' }}>
-                <h2 style={{
-                  fontSize: '1rem',
-                  color: 'var(--color-primary)',
-                  margin: '0 0 0.5rem 0',
-                  fontWeight: '600'
-                }}>
-                  {content.training ? (content.training.title || 'Beweging die je lichaam nu helpt') : 'Beweging'}
-                </h2>
-                <div style={{ fontSize: '0.95rem', color: 'var(--color-text)', fontWeight: '500' }}>
-                  {content.training ? (content.training.subtitle || content.training.goal) : ''}
-                </div>
-              </div>
-
-              <p style={{ fontSize: '0.95rem', lineHeight: '1.6', color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
-                {content.training ? (content.training.description || content.training.why) : ''}
-              </p>
-
-              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                {trainingActions.map(type => (
-                  <span key={type} className="chip-action" style={{ background: '#FFF' }}>
-                    {type}
-                  </span>
-                ))}
-              </div>
-
-              {showMovementLog && (
-                <div style={{
-                  marginTop: '1.5rem',
-                  paddingTop: '1.25rem',
-                  borderTop: '1px solid var(--color-border)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  flexWrap: 'wrap',
-                  gap: '0.75rem'
-                }}>
-                  <span style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>Heb je vandaag gesport?</span>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button
-                      onClick={() => logMovement(viewDateStr, 'moved')}
-                      style={{
-                        padding: '0.4rem 0.9rem',
-                        fontSize: '0.85rem',
-                        fontWeight: '500',
-                        border: 'none',
-                        background: 'var(--color-primary)',
-                        color: '#fff',
-                        borderRadius: '8px',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Ja
-                    </button>
-                    <button
-                      onClick={() => logMovement(viewDateStr, 'rest')}
-                      style={{
-                        padding: '0.4rem 0.9rem',
-                        fontSize: '0.85rem',
-                        fontWeight: '500',
-                        border: '1px solid var(--color-border)',
-                        background: 'transparent',
-                        color: 'var(--color-text)',
-                        borderRadius: '8px',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Nee / rustdag
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+             {/* Movement Section Removed */}
           </section>
 
         </div>

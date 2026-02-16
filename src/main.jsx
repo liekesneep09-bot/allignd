@@ -9,6 +9,28 @@ if (import.meta.env.DEV) {
     console.log("Supabase URL:", url ? url.substring(0, 15) + "..." : "MISSING")
 }
 
+// GLOBAL ERROR HANDLER FOR DEBUGGING WHITE SCREENS
+window.onerror = function (msg, url, line, col, error) {
+    // Ignore minor resize observation errors
+    if (msg.includes('ResizeObserver')) return;
+
+    alert("CRASH ERROR: " + msg + "\nLine: " + line);
+};
+
+window.onunhandledrejection = function (event) {
+    alert("PROMISE ERROR: " + event.reason);
+};
+
+// FORCE UNREGISTER SERVICE WORKER (Fix for Stale Cache)
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        for (let registration of registrations) {
+            registration.unregister()
+            console.log('Service Worker Unregistered')
+        }
+    })
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
         <App />
