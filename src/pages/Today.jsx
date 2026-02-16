@@ -299,9 +299,9 @@ export default function Today({ onNavigate }) {
       {/* HEADER SECTION - Soft Glow */}
       <div style={{
         background: phaseStyle.bg,
-        paddingBottom: '4rem', // Extended overlap for soft fade
+        paddingBottom: '2.5rem',
         paddingTop: '1rem',
-        marginBottom: '-2rem', // Negative margin to pull content up into the fade
+        marginBottom: '-1rem',
         position: 'relative',
         transition: 'background 0.5s ease'
       }}>
@@ -472,7 +472,7 @@ export default function Today({ onNavigate }) {
       {/* MAIN CONTENT SECTION */}
       <div className="container" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
           {(user.tracking !== 'none') && (
             <section>
@@ -583,7 +583,7 @@ export default function Today({ onNavigate }) {
           )}
 
           <section>
-             {/* Movement Section Removed */}
+            {/* Movement Section Removed */}
           </section>
 
         </div>
