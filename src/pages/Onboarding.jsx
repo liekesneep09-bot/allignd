@@ -111,7 +111,8 @@ export default function Onboarding() {
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
-                textAlign: 'center'
+                textAlign: 'center',
+                background: '#FFFFFF'
             }}>
                 <div style={{ marginBottom: '3rem' }}>
                     <img
@@ -157,7 +158,7 @@ export default function Onboarding() {
 
     // Steps 1-6: Profile Setup (Updated Flow)
     return (
-        <div className="container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: '100px' }}>
+        <div className="container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: '100px', background: '#FFFFFF' }}>
 
             {/* Progress */}
             <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '4px', background: 'var(--color-surface)', zIndex: 20 }}>

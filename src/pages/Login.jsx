@@ -136,9 +136,24 @@ export default function Login() {
                 display: 'flex',
                 flexDirection: 'column',
                 padding: '2rem',
-                background: 'var(--color-bg)',
                 color: 'var(--color-text)'
             }}>
+
+                {/* Animated phase-color background */}
+                <style>{`
+                    @keyframes phaseColors {
+                        0%, 100% { background: linear-gradient(135deg, #FFE5E5 0%, #FFF0F0 50%, #FFFFFF 100%); }
+                        25% { background: linear-gradient(135deg, #E0F7FA 0%, #F0FCFD 50%, #FFFFFF 100%); }
+                        50% { background: linear-gradient(135deg, #F3E5F5 0%, #FAF0FB 50%, #FFFFFF 100%); }
+                        75% { background: linear-gradient(135deg, #FFF3E0 0%, #FFF9F0 50%, #FFFFFF 100%); }
+                    }
+                `}</style>
+                <div style={{
+                    position: 'absolute',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    animation: 'phaseColors 12s ease-in-out infinite',
+                    zIndex: 0
+                }} />
 
                 {/* BACKGROUND: Clean/Minimalist - No Illustration */}
                 {/* User requested removal of illustration. Keeps focus purely on Logo + Tagline. */}
