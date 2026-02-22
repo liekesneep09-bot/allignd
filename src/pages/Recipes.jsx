@@ -14,7 +14,7 @@ const CATEGORIES = [
 // Phase accent colors (matching App.jsx)
 const PHASE_COLORS = {
     menstrual: { accent: '#a86473', accentLight: 'rgba(168,100,115,0.1)', accentMid: 'rgba(168,100,115,0.15)' },
-    follicular: { accent: '#99f0ff', accentLight: 'rgba(153,240,255,0.1)', accentMid: 'rgba(153,240,255,0.15)' },
+    follicular: { accent: '#5bc4d4', accentLight: 'rgba(153,240,255,0.1)', accentMid: 'rgba(153,240,255,0.15)' },
     ovulatory: { accent: '#f5a89c', accentLight: 'rgba(245,168,156,0.1)', accentMid: 'rgba(245,168,156,0.15)' },
     luteal: { accent: '#e2a9f1', accentLight: 'rgba(226,169,241,0.1)', accentMid: 'rgba(226,169,241,0.15)' }
 }

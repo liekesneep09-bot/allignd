@@ -108,6 +108,16 @@ export function AuthProvider({ children }) {
         setUser(null)
     }
 
+    const resetPassword = async (email) => {
+        if (!isSupabaseConfigured()) {
+            throw new Error('Auth is niet geconfigureerd')
+        }
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin
+        })
+        if (error) throw new Error(error.message)
+    }
+
     const value = {
         session,
         user,
@@ -115,6 +125,7 @@ export function AuthProvider({ children }) {
         signIn,
         signUp,
         signOut,
+        resetPassword,
         resendVerificationEmail,
         getAccessToken: () => session?.access_token,
         isConfigured: isSupabaseConfigured()

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { UserProvider, useUser } from './context/UserContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Onboarding from './pages/Onboarding'
-import Subscription from './pages/Subscription' // NEW
+import Subscription from './pages/Subscription'
 import Today from './pages/Today'
 import PhaseGuide from './pages/PhaseGuide'
 import Recipes from './pages/Recipes'
@@ -18,8 +18,9 @@ import ErrorBoundary from './components/ErrorBoundary'
 import ConfigErrorScreen from './components/ConfigErrorScreen'
 import DebugPanel from './components/DebugPanel'
 import { supabaseConfigError } from './utils/supabaseClient'
+import AuthCallback from './components/AuthCallback'
 
-import { IconHome, IconSparkles, IconActivity, IconRecipe, IconCommunity } from './components/Icons'
+import { IconHome, IconSparkles, IconActivity, IconRecipe, IconAccount } from './components/Icons'
 import logo from './assets/logo-primary.svg'
 
 function MainLayout() {
@@ -35,7 +36,7 @@ function MainLayout() {
             }
             case 'follicular': return {
                 bg: 'linear-gradient(to bottom, #99f0ff40 0%, rgba(153,240,255,0.1) 40%, #FFFFFF 100%)',
-                text: '#99f0ff'
+                text: '#5bc4d4'
             }
             case 'ovulatory': return {
                 bg: 'linear-gradient(to bottom, #f5a89c20 0%, rgba(245,168,156,0.05) 40%, #FFFFFF 100%)',
@@ -198,21 +199,21 @@ function MainLayout() {
                 </button>
 
                 <button
-                    onClick={() => setCurrentView('community')}
+                    onClick={() => setCurrentView('profile')}
                     style={{
-                        color: currentView === 'community' ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                        color: currentView === 'profile' ? 'var(--color-primary)' : 'var(--color-text-muted)',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
                         fontSize: '0.7rem',
-                        fontWeight: currentView === 'community' ? '600' : '400',
+                        fontWeight: currentView === 'profile' ? '600' : '400',
                         background: 'none',
                         gap: '4px',
                         width: '64px'
                     }}
                 >
-                    <IconCommunity size={24} />
-                    Community
+                    <IconAccount size={24} />
+                    Profiel
                 </button>
             </nav>
             {import.meta.env.DEV && <DebugView />}
@@ -249,9 +250,7 @@ function AuthenticatedApp() {
     )
 }
 
-import AuthCallback from './components/AuthCallback'
-
-function App() {
+export default function App() {
     const [isOnline, setIsOnline] = useState(navigator.onLine)
 
     useEffect(() => {
@@ -268,7 +267,6 @@ function App() {
     }, [])
 
     // Simple Route Handling for Callback
-    // Since we don't have a full router, we check pathname
     const isCallback = window.location.pathname === '/auth/callback'
 
     if (isCallback) {
@@ -283,13 +281,11 @@ function App() {
     return (
         <ErrorBoundary>
             <AuthProvider>
-                <div style={{ padding: 20 }}>
-                    <h1>Auth Provider Check</h1>
-                    <p>If you see this, AuthProvider is fine.</p>
-                </div>
+                <OfflineBanner isOnline={isOnline} />
+                <AuthenticatedApp />
+                <InstallPrompt />
+                {import.meta.env.DEV && <DebugPanel />}
             </AuthProvider>
         </ErrorBoundary>
     )
 }
-
-export default App

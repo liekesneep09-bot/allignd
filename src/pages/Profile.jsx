@@ -89,10 +89,10 @@ export default function Profile() {
 
     // Goal Options
     const GOALS = [
-        { value: 'lose_fat', label: 'Vet verliezen', icon: '🔥' },
-        { value: 'recomp', label: 'Afvallen & Spieropbouw', icon: '✨' },
-        { value: 'maintain', label: 'Gewicht behouden', icon: '⚖️' },
-        { value: 'gain_muscle', label: 'Spier opbouwen', icon: '💪' }
+        { value: 'lose_fat', label: 'Vet verliezen' },
+        { value: 'recomp', label: 'Afvallen & Spieropbouw' },
+        { value: 'maintain', label: 'Gewicht behouden' },
+        { value: 'gain_muscle', label: 'Spier opbouwen' }
     ]
 
     // Activity / Lifestyle Options (New System)
@@ -193,11 +193,9 @@ export default function Profile() {
                                     borderRadius: '12px',
                                     textAlign: 'left',
                                     color: 'var(--color-text)',
-                                    display: 'flex', alignItems: 'center', gap: '0.8rem',
                                     fontWeight: formData.goal === g.value ? 600 : 400
                                 }}
                             >
-                                <span style={{ fontSize: '1.2rem' }}>{g.icon}</span>
                                 {g.label}
                             </button>
                         ))}
@@ -341,10 +339,10 @@ export default function Profile() {
                                 borderRadius: '12px',
                                 display: 'grid', gap: '0.5rem'
                             }}>
-                                <button className="btn" onClick={() => adjustCyclePhase('menstrual')}>🩸 Menstruatie</button>
-                                <button className="btn" onClick={() => adjustCyclePhase('follicular')}>🌱 Folliculaire fase</button>
-                                <button className="btn" onClick={() => adjustCyclePhase('ovulatory')}>🥚 Ovulatie</button>
-                                <button className="btn" onClick={() => adjustCyclePhase('luteal')}>🍂 Luteale fase</button>
+                                <button className="btn" onClick={() => adjustCyclePhase('menstrual')}>Menstruatie</button>
+                                <button className="btn" onClick={() => adjustCyclePhase('follicular')}>Folliculaire fase</button>
+                                <button className="btn" onClick={() => adjustCyclePhase('ovulatory')}>Ovulatie</button>
+                                <button className="btn" onClick={() => adjustCyclePhase('luteal')}>Luteale fase</button>
                             </div>
                         )}
                     </div>
@@ -411,11 +409,7 @@ export default function Profile() {
                     onClick={handleSave}
                     disabled={isSaving}
                 >
-                    {isSaving ? "Opslaan..." : (
-                        <>
-                            <span>💾</span> Opslaan
-                        </>
-                    )}
+                    {isSaving ? "Opslaan..." : "Opslaan"}
                 </button>
             </div>
 

@@ -5,14 +5,32 @@ import { supabase } from '../utils/supabaseClient'
 import logo from '../assets/logo-primary.svg'
 
 export default function Login() {
-    const { signIn, signUp, resendVerificationEmail, isConfigured } = useAuth()
+    const { signIn, signUp, resetPassword, resendVerificationEmail, isConfigured } = useAuth()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
     const [successMessage, setSuccessMessage] = useState('')
     const [isLoading, setIsLoading] = useState(false)
-    const [view, setView] = useState('start') // 'start', 'login', 'signup'
+    const [view, setView] = useState('start') // 'start', 'login', 'signup', 'forgot'
     const [showConfirmation, setShowConfirmation] = useState(false)
+    const [resetSent, setResetSent] = useState(false)
+
+    const handleResetPassword = async () => {
+        if (!email || !email.includes('@')) {
+            setError('Vul een geldig e-mailadres in')
+            return
+        }
+        setIsLoading(true)
+        setError('')
+        try {
+            await resetPassword(email)
+            setResetSent(true)
+        } catch (err) {
+            setError(err.message)
+        } finally {
+            setIsLoading(false)
+        }
+    }
 
 
     const handleResend = async () => {
@@ -77,6 +95,7 @@ export default function Login() {
         setError('')
         setSuccessMessage('')
         setShowConfirmation(false)
+        setResetSent(false)
     }
 
     // Confirmation Screen
@@ -84,7 +103,6 @@ export default function Login() {
         return (
             <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: 'var(--color-bg)', color: 'var(--color-text)' }}>
                 <div style={{ width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', textAlign: 'center' }}>
-                    <div style={{ fontSize: '3rem' }}>✉️</div>
                     <h1 style={{ fontSize: '1.5rem', fontWeight: '600' }}>Check je inbox</h1>
                     <p style={{ color: 'var(--color-text-muted)', lineHeight: '1.5' }}>
                         We hebben een bevestigingsmail gestuurd naar <strong>{email}</strong>.
@@ -102,9 +120,6 @@ export default function Login() {
                         setIsLoading(true)
                         setError('')
                         try {
-                            // Try to sign in directly.
-                            // If email is confirmed, this succeeds => AuthContext updates => App redirects.
-                            // If email is NOT confirmed, this throws "Email not confirmed" => We catch it.
                             await signIn(email, password)
                         } catch (err) {
                             if (err.message.includes('Bevestig eerst') || err.message.includes('not confirmed')) {
@@ -119,6 +134,43 @@ export default function Login() {
                         Ik heb bevestigd, ga verder
                     </button>
                     <button onClick={goBack} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', fontSize: '0.9rem' }}>Gebruik ander e-mailadres</button>
+                </div>
+            </div>
+        )
+    }
+
+    // Password Reset Screen
+    if (view === 'forgot') {
+        return (
+            <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: 'var(--color-bg)', color: 'var(--color-text)' }}>
+                <div style={{ width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', textAlign: 'center' }}>
+                    {resetSent ? (
+                        <>
+                            <h1 style={{ fontSize: '1.5rem', fontWeight: '600' }}>Check je inbox</h1>
+                            <p style={{ color: 'var(--color-text-muted)', lineHeight: '1.5' }}>
+                                We hebben een link gestuurd naar <strong>{email}</strong> waarmee je je wachtwoord kunt resetten.
+                            </p>
+                            <div style={{ padding: '1rem', background: 'var(--color-surface)', borderRadius: '8px', fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
+                                Tip: Check ook je spam of reclame folder.
+                            </div>
+                            <button onClick={() => { setView('login'); setResetSent(false); setError('') }} style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: 'none', background: 'var(--color-primary)', color: 'white', fontSize: '1rem', fontWeight: '600', cursor: 'pointer' }}>
+                                Terug naar inloggen
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <h1 style={{ fontSize: '1.5rem', fontWeight: '600' }}>Wachtwoord vergeten?</h1>
+                            <p style={{ color: 'var(--color-text-muted)', lineHeight: '1.5' }}>
+                                Vul je e-mailadres in en we sturen je een link om je wachtwoord te resetten.
+                            </p>
+                            <input type="email" placeholder="E-mailadres" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" style={{ width: '100%', padding: '0.875rem 1rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '1rem' }} />
+                            {error && <div style={{ padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', fontSize: '0.875rem', width: '100%' }}>{error}</div>}
+                            <button onClick={handleResetPassword} disabled={isLoading} style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: 'none', background: 'var(--color-primary)', color: 'white', fontSize: '1rem', fontWeight: '600', cursor: 'pointer', opacity: isLoading ? 0.7 : 1 }}>
+                                {isLoading ? 'Bezig...' : 'Verstuur reset link'}
+                            </button>
+                        </>
+                    )}
+                    <button onClick={goBack} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', fontSize: '0.9rem' }}>Terug</button>
                 </div>
             </div>
         )
@@ -334,6 +386,13 @@ export default function Login() {
                 <div style={{ textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.875rem', marginTop: '1rem' }}>
                     {view === 'login' ? (<>Nog geen account? <button onClick={() => { setView('signup'); setError('') }} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', cursor: 'pointer', textDecoration: 'underline' }}>Meld je aan</button></>) : (<>Heb je al een account? <button onClick={() => { setView('login'); setError('') }} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', cursor: 'pointer', textDecoration: 'underline' }}>Log in</button></>)}
                 </div>
+                {view === 'login' && (
+                    <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
+                        <button onClick={() => { setView('forgot'); setError('') }} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', fontSize: '0.8rem', textDecoration: 'underline' }}>
+                            Wachtwoord vergeten?
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     )
