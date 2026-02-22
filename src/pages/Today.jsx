@@ -474,25 +474,6 @@ export default function Today({ onNavigate }) {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
-          {/* Phase Tip Card */}
-          {content && (
-            <div
-              style={{
-                background: 'var(--color-surface)',
-                border: `1px solid ${phaseStyle.text}20`,
-                borderLeft: `3px solid ${phaseStyle.text}`,
-                borderRadius: '12px',
-                padding: '1rem 1.25rem',
-              }}
-            >
-              <div style={{ fontSize: '0.8rem', fontWeight: '600', color: phaseStyle.text, marginBottom: '0.35rem', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                {content.label}
-              </div>
-              <div style={{ fontSize: '0.9rem', color: 'var(--color-text)', lineHeight: '1.5' }}>
-                {content.bodySignal}
-              </div>
-            </div>
-          )}
 
           {(user.tracking !== 'none') && (
             <section>
