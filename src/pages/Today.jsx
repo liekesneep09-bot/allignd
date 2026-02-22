@@ -230,24 +230,24 @@ export default function Today({ onNavigate }) {
   const getPhaseColor = (p) => {
     switch (p) {
       case 'menstrual': return {
-        bg: 'linear-gradient(to bottom, #FFE5E5 0%, rgba(255,240,240,0.5) 60%, rgba(255,255,255,0) 100%)',
-        text: '#E57373',
-        accent: '#FFCDD2'
+        bg: 'linear-gradient(to bottom, #a8647340 0%, rgba(168,100,115,0.2) 60%, rgba(255,255,255,0) 100%)',
+        text: '#a86473',
+        accent: '#a8647380'
       }
       case 'follicular': return {
-        bg: 'linear-gradient(to bottom, #E0F7FA 0%, rgba(224,247,250,0.5) 60%, rgba(255,255,255,0) 100%)',
-        text: '#26A69A', // Slightly darker for better readability on white
-        accent: '#B2EBF2'
+        bg: 'linear-gradient(to bottom, #99f0ff60 0%, rgba(153,240,255,0.2) 60%, rgba(255,255,255,0) 100%)',
+        text: '#99f0ff',
+        accent: '#99f0ff80'
       }
       case 'ovulatory': return {
-        bg: 'linear-gradient(to bottom, #F3E5F5 0%, rgba(243,229,245,0.5) 60%, rgba(255,255,255,0) 100%)',
-        text: '#AB47BC',
-        accent: '#E1BEE7'
+        bg: 'linear-gradient(to bottom, #f5a89c40 0%, rgba(245,168,156,0.2) 60%, rgba(255,255,255,0) 100%)',
+        text: '#f5a89c',
+        accent: '#f5a89c80'
       }
       case 'luteal': return {
-        bg: 'linear-gradient(to bottom, #FFF3E0 0%, rgba(255,243,224,0.5) 60%, rgba(255,255,255,0) 100%)',
-        text: '#FFA726',
-        accent: '#FFE0B2'
+        bg: 'linear-gradient(to bottom, #e2a9f140 0%, rgba(226,169,241,0.2) 60%, rgba(255,255,255,0) 100%)',
+        text: '#e2a9f1',
+        accent: '#e2a9f180'
       }
       default: return { bg: '#F5F5F5', text: '#9E9E9E', accent: '#EEEEEE' }
     }

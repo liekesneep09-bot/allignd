@@ -30,20 +30,20 @@ function MainLayout() {
     const getPhaseColor = (phase) => {
         switch (phase) {
             case 'menstrual': return {
-                bg: 'linear-gradient(to bottom, #FFE5E5 0%, rgba(255,240,240,0.3) 40%, #FFFFFF 100%)',
-                text: '#E57373'
+                bg: 'linear-gradient(to bottom, #a8647320 0%, rgba(168,100,115,0.05) 40%, #FFFFFF 100%)',
+                text: '#a86473'
             }
             case 'follicular': return {
-                bg: 'linear-gradient(to bottom, #E0F7FA 0%, rgba(224,247,250,0.3) 40%, #FFFFFF 100%)',
-                text: '#26A69A'
+                bg: 'linear-gradient(to bottom, #99f0ff40 0%, rgba(153,240,255,0.1) 40%, #FFFFFF 100%)',
+                text: '#99f0ff'
             }
             case 'ovulatory': return {
-                bg: 'linear-gradient(to bottom, #F3E5F5 0%, rgba(243,229,245,0.3) 40%, #FFFFFF 100%)',
-                text: '#AB47BC'
+                bg: 'linear-gradient(to bottom, #f5a89c20 0%, rgba(245,168,156,0.05) 40%, #FFFFFF 100%)',
+                text: '#f5a89c'
             }
             case 'luteal': return {
-                bg: 'linear-gradient(to bottom, #FFF3E0 0%, rgba(255,243,224,0.3) 40%, #FFFFFF 100%)',
-                text: '#FFA726'
+                bg: 'linear-gradient(to bottom, #e2a9f120 0%, rgba(226,169,241,0.05) 40%, #FFFFFF 100%)',
+                text: '#e2a9f1'
             }
             default: return {
                 bg: 'linear-gradient(to bottom, #F5F5F5 0%, #FFFFFF 100%)',
