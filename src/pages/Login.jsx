@@ -187,6 +187,7 @@ export default function Login() {
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
+                backgroundColor: '#FFFFFF',
                 color: 'var(--color-text)'
             }}>
 
@@ -198,6 +199,9 @@ export default function Login() {
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
+                    transform: 'scale(1.25)', // Maakt de afbeelding een stuk groter
+                    opacity: 0.4, // Maakt de kleuren zachter/minder fel door het wit erdoorheen te laten
+                    filter: 'saturate(0.6)', // Nog iets minder kleurverzadiging
                     zIndex: 0
                 }} />
 
