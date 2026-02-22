@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../utils/supabaseClient'
 import logo from '../assets/logo-primary.svg'
-import heroIllustration from '../assets/hero-illustration.png'
+import startBg from '../assets/Ontwerp zonder titel.png'
 
 export default function Login() {
     const { signIn, signUp, resetPassword, resendVerificationEmail, isConfigured } = useAuth()
@@ -179,7 +179,6 @@ export default function Login() {
 
     // Start Screen (RE-RE-DESIGN)
     // Removed: "Not against it", "White Block"
-    // Added: "Abstract Cycle Line", Large Centered Logo
     if (view === 'start') {
         return (
             <div style={{
@@ -188,23 +187,17 @@ export default function Login() {
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
-                background: '#FEFBFC',
                 color: 'var(--color-text)'
             }}>
 
-                {/* Animated phase-color background */}
-                <style>{`
-                    @keyframes phaseColors {
-                        0%, 100% { background: linear-gradient(135deg, #a8647315 0%, rgba(168,100,115,0.03) 50%, #FEFBFC 100%); }
-                        25% { background: linear-gradient(135deg, #99f0ff25 0%, rgba(153,240,255,0.06) 50%, #FEFBFC 100%); }
-                        50% { background: linear-gradient(135deg, #f5a89c15 0%, rgba(245,168,156,0.03) 50%, #FEFBFC 100%); }
-                        75% { background: linear-gradient(135deg, #e2a9f115 0%, rgba(226,169,241,0.03) 50%, #FEFBFC 100%); }
-                    }
-                `}</style>
+                {/* Background: illustration */}
                 <div style={{
                     position: 'absolute',
                     top: 0, left: 0, right: 0, bottom: 0,
-                    animation: 'phaseColors 12s ease-in-out infinite',
+                    backgroundImage: `url(${startBg})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
                     zIndex: 0
                 }} />
 
@@ -216,85 +209,66 @@ export default function Login() {
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
+                    justifyContent: 'center',
                     width: '100%',
                     maxWidth: '400px',
                     margin: '0 auto',
-                    padding: '2rem 2rem 2.5rem'
+                    padding: '2rem'
                 }}>
 
-                    {/* Top: Logo (compact) */}
-                    <div style={{ paddingTop: '1.5rem', marginBottom: '0.5rem' }}>
+                    {/* Logo (big, centered) */}
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                         <img
                             src={logo}
                             alt="Allignd"
                             style={{
-                                height: '80px',
+                                height: '220px',
                                 width: 'auto',
+                                maxWidth: '80%',
+                                marginBottom: '1.5rem',
                                 objectFit: 'contain'
                             }}
                         />
-                    </div>
 
-                    {/* Tagline */}
-                    <p style={{
-                        fontSize: '1rem',
-                        fontWeight: '500',
-                        color: 'var(--color-text-muted)',
-                        letterSpacing: '0.02em',
-                        textAlign: 'center',
-                        margin: '0 0 1rem 0'
-                    }}>
-                        Move with your cycle
-                    </p>
-
-                    {/* Hero Illustration */}
-                    <div style={{
-                        flex: 1,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '100%',
-                        minHeight: '280px'
-                    }}>
-                        <img
-                            src={heroIllustration}
-                            alt=""
-                            style={{
-                                maxHeight: '380px',
-                                maxWidth: '85%',
-                                objectFit: 'contain',
-                                filter: 'drop-shadow(0 4px 20px rgba(168,100,115,0.08))'
-                            }}
-                        />
+                        <p style={{
+                            fontSize: '1.25rem',
+                            fontWeight: '600',
+                            color: 'var(--color-text)',
+                            letterSpacing: '-0.01em',
+                            textAlign: 'center',
+                            margin: 0
+                        }}>
+                            Move with your cycle
+                        </p>
                     </div>
 
                     {/* Bottom actions */}
-                    <div style={{ width: '100%', marginTop: '1.5rem' }}>
+                    <div style={{ width: '100%', paddingBottom: '2.5rem' }}>
                         <p style={{
                             textAlign: 'center',
-                            fontSize: '0.85rem',
+                            fontSize: '0.9rem',
                             color: 'var(--color-text-muted)',
-                            marginBottom: '1.25rem',
+                            marginBottom: '1.5rem',
                             fontStyle: 'italic',
-                            opacity: 0.7
+                            opacity: 0.8
                         }}>
                             Omdat jouw lichaam geen one-size-fits-all is
                         </p>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             <button
                                 onClick={() => setView('signup')}
                                 style={{
                                     width: '100%',
-                                    padding: '1.1rem',
-                                    borderRadius: '14px',
+                                    padding: '1.25rem',
+                                    borderRadius: '16px',
                                     border: 'none',
-                                    background: '#a86473',
+                                    background: 'var(--color-primary)',
                                     color: 'white',
-                                    fontSize: '1.05rem',
+                                    fontSize: '1.1rem',
                                     fontWeight: '600',
                                     cursor: 'pointer',
-                                    boxShadow: '0 6px 20px rgba(168,100,115,0.25)',
+                                    boxShadow: '0 8px 20px rgba(112, 193, 163, 0.3)',
                                     transition: 'transform 0.1s'
                                 }}
                             >
@@ -305,14 +279,14 @@ export default function Login() {
                                 onClick={() => setView('login')}
                                 style={{
                                     width: '100%',
-                                    padding: '0.9rem',
+                                    padding: '1rem',
                                     background: 'transparent',
                                     border: 'none',
                                     color: 'var(--color-text)',
-                                    fontSize: '0.95rem',
+                                    fontSize: '1rem',
                                     fontWeight: '500',
                                     cursor: 'pointer',
-                                    opacity: 0.7
+                                    opacity: 0.8
                                 }}
                             >
                                 Log in
