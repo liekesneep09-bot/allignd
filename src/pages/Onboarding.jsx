@@ -112,8 +112,23 @@ export default function Onboarding() {
                 justifyContent: 'center',
                 alignItems: 'center',
                 textAlign: 'center',
-                background: '#FFFFFF'
+                position: 'relative',
+                overflow: 'hidden'
             }}>
+                <style>{`
+                    @keyframes phaseColors {
+                        0%, 100% { background: linear-gradient(135deg, #a8647320 0%, rgba(168,100,115,0.05) 50%, #FFFFFF 100%); }
+                        25% { background: linear-gradient(135deg, #99f0ff40 0%, rgba(153,240,255,0.1) 50%, #FFFFFF 100%); }
+                        50% { background: linear-gradient(135deg, #f5a89c20 0%, rgba(245,168,156,0.05) 50%, #FFFFFF 100%); }
+                        75% { background: linear-gradient(135deg, #e2a9f120 0%, rgba(226,169,241,0.05) 50%, #FFFFFF 100%); }
+                    }
+                `}</style>
+                <div style={{
+                    position: 'absolute',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    animation: 'phaseColors 12s ease-in-out infinite',
+                    zIndex: 0
+                }} />
                 <div style={{ marginBottom: '3rem' }}>
                     <img
                         src={logo}
@@ -126,7 +141,7 @@ export default function Onboarding() {
                     />
                 </div>
 
-                <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--color-primary)' }}>
+                <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#a86473', position: 'relative', zIndex: 1 }}>
                     Train en eet afgestemd op jouw cyclus
                 </h1>
                 <p className="text-muted" style={{ maxWidth: '300px', margin: '0 auto 3rem auto' }}>
@@ -158,11 +173,25 @@ export default function Onboarding() {
 
     // Steps 1-6: Profile Setup (Updated Flow)
     return (
-        <div className="container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: '100px', background: '#FFFFFF' }}>
+        <div className="container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: '100px', position: 'relative', overflow: 'hidden' }}>
+            <style>{`
+                    @keyframes phaseColorsForm {
+                        0%, 100% { background: linear-gradient(135deg, #a8647310 0%, rgba(168,100,115,0.02) 50%, #FFFFFF 100%); }
+                        25% { background: linear-gradient(135deg, #99f0ff20 0%, rgba(153,240,255,0.05) 50%, #FFFFFF 100%); }
+                        50% { background: linear-gradient(135deg, #f5a89c10 0%, rgba(245,168,156,0.02) 50%, #FFFFFF 100%); }
+                        75% { background: linear-gradient(135deg, #e2a9f110 0%, rgba(226,169,241,0.02) 50%, #FFFFFF 100%); }
+                    }
+                `}</style>
+            <div style={{
+                position: 'absolute',
+                top: 0, left: 0, right: 0, bottom: 0,
+                animation: 'phaseColorsForm 12s ease-in-out infinite',
+                zIndex: 0
+            }} />
 
             {/* Progress */}
             <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '4px', background: 'var(--color-surface)', zIndex: 20 }}>
-                <div style={{ height: '100%', width: `${Math.min(step, 6) / 6 * 100}%`, background: 'var(--color-primary)', transition: 'width 0.3s' }} />
+                <div style={{ height: '100%', width: `${Math.min(step, 6) / 6 * 100}%`, background: '#a86473', transition: 'width 0.3s' }} />
             </div>
 
             <header style={{

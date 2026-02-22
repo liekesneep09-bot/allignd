@@ -129,7 +129,7 @@ function MainLayout() {
                 <button
                     onClick={() => setCurrentView('today')}
                     style={{
-                        color: currentView === 'today' ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                        color: currentView === 'today' ? phaseStyle.text : 'var(--color-text-muted)',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -147,7 +147,7 @@ function MainLayout() {
                 <button
                     onClick={() => setCurrentView('assistant')}
                     style={{
-                        color: currentView === 'assistant' ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                        color: currentView === 'assistant' ? phaseStyle.text : 'var(--color-text-muted)',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -165,7 +165,7 @@ function MainLayout() {
                 <button
                     onClick={() => setCurrentView('fitness')}
                     style={{
-                        color: currentView === 'fitness' ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                        color: currentView === 'fitness' ? phaseStyle.text : 'var(--color-text-muted)',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -183,7 +183,7 @@ function MainLayout() {
                 <button
                     onClick={() => setCurrentView('recipes')}
                     style={{
-                        color: currentView === 'recipes' ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                        color: currentView === 'recipes' ? phaseStyle.text : 'var(--color-text-muted)',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -201,7 +201,7 @@ function MainLayout() {
                 <button
                     onClick={() => setCurrentView('profile')}
                     style={{
-                        color: currentView === 'profile' ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                        color: currentView === 'profile' ? phaseStyle.text : 'var(--color-text-muted)',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
