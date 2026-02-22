@@ -200,8 +200,8 @@ export default function Login() {
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
                     transform: 'scale(1.25)', // Maakt de afbeelding een stuk groter
-                    opacity: 0.4, // Maakt de kleuren zachter/minder fel door het wit erdoorheen te laten
-                    filter: 'saturate(0.6)', // Nog iets minder kleurverzadiging
+                    opacity: 0.75, // Kleuren beter zichtbaar maar blenden nog een beetje in wit
+                    filter: 'saturate(0.85)', // Bijna volledige kleurverzadiging
                     zIndex: 0
                 }} />
 
