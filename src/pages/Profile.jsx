@@ -28,20 +28,18 @@ export default function Profile() {
         age: user.age || '',
         height: user.height || '',
         weight: user.weight || '',
-        targetWeight: user.targetWeight || '', // New Field
+        targetWeight: user.targetWeight || '',
         goal: user.goal || 'maintain',
-        activity: user.activity || 1.375, // Using number logic for now, UI maps to text
-        lifestyle_level: user.lifestyle_level || 'sedentary', // New Logic
-        steps_range: user.steps_range || 'lt4k', // New Logic
-        trainingFrequency: user.training_days_per_week || 0, // Using snake_case default? No, Context maps it.
+        resultTempo: user.resultTempo || 'average',
+        lifestyle_level: user.lifestyle_level || 'sedentary',
+        steps_range: user.steps_range || 'lt4k',
+        trainingFrequency: user.training_days_per_week || 0,
         // Cycle
         cycleLength: user.cycleLength || 28,
         periodLength: user.periodLength || 5,
-        // Cycle Start for correction
         cycleStart: user.cycleStart ? new Date(user.cycleStart).toISOString().split('T')[0] : ''
     })
 
-    // Update form when user data loads (e.g. initial fetch)
     useEffect(() => {
         if (user) {
             setFormData(prev => ({
@@ -50,11 +48,12 @@ export default function Profile() {
                 age: user.age || '',
                 height: user.height || '',
                 weight: user.weight || '',
-                targetWeight: user.targetWeight || '', // Sync targetWeight
+                targetWeight: user.targetWeight || '',
                 goal: user.goal || 'maintain',
+                resultTempo: user.resultTempo || 'average',
             }))
         }
-    }, [user.name, user.weight, user.targetWeight]) // Watch specific fields
+    }, [user.name, user.weight, user.targetWeight, user.goal, user.resultTempo])
 
     const [isDirty, setIsDirty] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
@@ -109,6 +108,12 @@ export default function Profile() {
         { value: '4k_8k', label: '4.000 - 8.000 stappen' },
         { value: '8k_12k', label: '8.000 - 12.000 stappen' },
         { value: 'gt12k', label: 'Meer dan 12.000 stappen' }
+    ]
+
+    const TEMPOS = [
+        { value: 'slow', label: 'Rustig & duurzaam' },
+        { value: 'average', label: 'Gemiddeld tempo' },
+        { value: 'fast', label: 'Snel resultaat' }
     ]
 
     return (
@@ -207,6 +212,32 @@ export default function Profile() {
                         ))}
                     </div>
                 </div>
+
+                {formData.goal !== 'maintain' && (
+                    <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                        <label>Hoe snel wil je resultaat?</label>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+                            {TEMPOS.map(t => (
+                                <button
+                                    key={t.value}
+                                    onClick={() => handleChange('resultTempo', t.value)}
+                                    style={{
+                                        padding: '0.7rem 0.5rem',
+                                        border: formData.resultTempo === t.value ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                        background: formData.resultTempo === t.value ? 'var(--color-surface)' : 'transparent',
+                                        borderRadius: '12px',
+                                        textAlign: 'center',
+                                        color: 'var(--color-text)',
+                                        fontWeight: formData.resultTempo === t.value ? 600 : 400,
+                                        fontSize: '0.85rem'
+                                    }}
+                                >
+                                    {t.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 <div style={{ marginBottom: '1.5rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
                     <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: 600 }}>Levensstijl</label>

@@ -7,23 +7,57 @@ export const GOAL_TYPES = {
 
 export const LIFESTYLE_LEVELS = {
     SEDENTARY: 'sedentary',
-    MIXED: 'mixed',
-    ACTIVE: 'active'
+    LIGHTLY_ACTIVE: 'lightly_active',
+    MODERATELY_ACTIVE: 'moderately_active',
+    VERY_ACTIVE: 'very_active'
 };
 
 export const STEPS_RANGES = {
     LT4K: 'lt4k',
-    K4_7: 'k4_7',
-    K7_10: 'k7_10',
-    GT10K: 'gt10k'
+    K4_8: '4k_8k',
+    K8_12: '8k_12k',
+    GT12K: 'gt12k'
 };
 
 /**
- * Calculates MVP Nutrition Targets with Ranges
- * Source: User Prompt Feb 2026
+ * Goal × Tempo Adjustment Matrix
+ *
+ * | Goal           | Rustig (slow) | Gemiddeld (average) | Snel (fast) |
+ * |----------------|---------------|---------------------|-------------|
+ * | Vet verliezen  | -15%          | -20%                | -25%        |
+ * | Recomp         | -5%           | -10%                | -15%        |
+ * | Behouden       | 0%            | 0%                  | 0%          |
+ * | Spier opbouwen | +5%           | +10%                | +15%        |
+ */
+const GOAL_ADJUSTMENTS = {
+    [GOAL_TYPES.LOSE_FAT]: { slow: 0.85, average: 0.80, fast: 0.75 },
+    [GOAL_TYPES.RECOMP]: { slow: 0.95, average: 0.90, fast: 0.85 },
+    [GOAL_TYPES.MAINTAIN]: { slow: 1.00, average: 1.00, fast: 1.00 },
+    [GOAL_TYPES.GAIN]: { slow: 1.05, average: 1.10, fast: 1.15 },
+};
+
+/**
+ * Protein factor per goal (g per kg bodyweight)
+ * Higher protein during deficit to preserve muscle
+ */
+const PROTEIN_FACTORS = {
+    [GOAL_TYPES.LOSE_FAT]: 2.0,
+    [GOAL_TYPES.RECOMP]: 2.0,
+    [GOAL_TYPES.MAINTAIN]: 1.8,
+    [GOAL_TYPES.GAIN]: 1.8,
+};
+
+/**
+ * Calculates MVP Nutrition Targets
+ * All input values from Profile/Onboarding are properly factored in:
+ * - weight, height, age → BMR (Mifflin-St Jeor for Women)
+ * - lifestyle_level, steps_range, training_days → Activity Multiplier → TDEE
+ * - goal + resultTempo → Calorie adjustment (deficit/surplus)
+ * - goal → Protein factor
+ * - Remaining calories → Carbs
  */
 export function calculateTargetRanges(profile) {
-    // 1. Inputs
+    // 1. Inputs (with safe defaults)
     const weight = Number(profile.weight_kg);
     const height = Number(profile.height_cm);
     const age = Number(profile.age);
@@ -31,92 +65,75 @@ export function calculateTargetRanges(profile) {
     const lifestyle = profile.lifestyle_level || LIFESTYLE_LEVELS.SEDENTARY;
     const steps = profile.steps_range || STEPS_RANGES.LT4K;
     const goal = profile.goal || GOAL_TYPES.MAINTAIN;
+    const tempo = profile.resultTempo || 'average';
 
     if (!weight || !height || !age) return null;
 
     // 2. BMR (Mifflin-St Jeor for Women)
     const bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
 
-    // 3. Activity Multiplier (Granular Composite Score)
-    // We map inputs to a score (0-8) to determine standard activity levels.
-
+    // 3. Activity Multiplier (Composite Score → PAL)
     let activityScore = 0;
 
-    // A. Lifestyle
-    if (lifestyle === LIFESTYLE_LEVELS.MIXED) activityScore += 1;
-    if (lifestyle === LIFESTYLE_LEVELS.ACTIVE) activityScore += 2;
+    // A. Lifestyle (0-3)
+    if (lifestyle === LIFESTYLE_LEVELS.LIGHTLY_ACTIVE) activityScore += 1;
+    if (lifestyle === LIFESTYLE_LEVELS.MODERATELY_ACTIVE) activityScore += 2;
+    if (lifestyle === LIFESTYLE_LEVELS.VERY_ACTIVE) activityScore += 3;
 
-    // B. Steps
-    if (steps === STEPS_RANGES.K4_7) activityScore += 1;
-    if (steps === STEPS_RANGES.K7_10) activityScore += 2;
-    if (steps === STEPS_RANGES.GT10K) activityScore += 3;
+    // B. Steps (0-3)
+    if (steps === STEPS_RANGES.K4_8) activityScore += 1;
+    if (steps === STEPS_RANGES.K8_12) activityScore += 2;
+    if (steps === STEPS_RANGES.GT12K) activityScore += 3;
 
-    // C. Training (Weighted more heavily)
+    // C. Training days (0-4, weighted more heavily)
     if (trainingDays >= 1 && trainingDays <= 2) activityScore += 1;
     if (trainingDays >= 3 && trainingDays <= 4) activityScore += 2;
     if (trainingDays >= 5 && trainingDays <= 6) activityScore += 3;
-    if (trainingDays >= 7) activityScore += 4; // High volume
+    if (trainingDays >= 7) activityScore += 4;
 
-    // D. Map Score to Multiplier (Standard PAL values)
-    let multiplier = 1.2; // Sedentary (Score 0-1)
-
-    // Adjusted Thresholds
+    // D. Map Score to PAL Multiplier
+    // Max possible score: 3 + 3 + 4 = 10
+    let multiplier = 1.2; // Sedentary (score 0-1)
     if (activityScore >= 2) multiplier = 1.375; // Lightly Active
-    if (activityScore >= 4) multiplier = 1.55; // Moderately Active
+    if (activityScore >= 4) multiplier = 1.55;  // Moderately Active
     if (activityScore >= 7) multiplier = 1.725; // Very Active
-    if (activityScore >= 10) multiplier = 1.9; // Extra Active
+    if (activityScore >= 10) multiplier = 1.9;  // Extra Active
 
     // 4. TDEE
     const tdee = Math.round(bmr * multiplier);
 
-    // 5. Goal Adjustment (Single Value)
-    let targetCals = tdee;
+    // 5. Goal + Tempo → Calorie Target
+    const goalAdj = GOAL_ADJUSTMENTS[goal] || GOAL_ADJUSTMENTS[GOAL_TYPES.MAINTAIN];
+    const factor = goalAdj[tempo] || goalAdj['average'];
+    const targetCals = Math.round(tdee * factor);
 
-    // Support 'cut' legacy value
-    if (goal === GOAL_TYPES.LOSE_FAT || goal === GOAL_TYPES.RECOMP || goal === 'cut') {
-        // Deficit based on Tempo
-        let deficitFactor = 0.85; // Default Average (-15%)
-        if (profile.resultTempo === 'slow') deficitFactor = 0.90; // -10%
-        if (profile.resultTempo === 'fast') deficitFactor = 0.75; // -25%
-
-        targetCals = Math.round(tdee * deficitFactor);
-    } else if (goal === GOAL_TYPES.GAIN) {
-        // Surplus based on Tempo
-        let surplusFactor = 1.10; // Default Average (+10%)
-        if (profile.resultTempo === 'slow') surplusFactor = 1.05; // +5% (Lean bulk)
-        if (profile.resultTempo === 'fast') surplusFactor = 1.15; // +15% (Aggressive bulk)
-
-        targetCals = Math.round(tdee * surplusFactor);
-    }
-
-    // 6. Macros (Fixed Grams per KG)
-    // Protein: 1.8g (maintain/bulk) - 2.0g (cut)
-    let proteinFactor = 1.8;
-    if (goal === GOAL_TYPES.LOSE_FAT || goal === GOAL_TYPES.RECOMP || goal === 'cut') {
-        proteinFactor = 2.0;
-    }
+    // 6. Macros
+    // Protein (g/kg based on goal)
+    const proteinFactor = PROTEIN_FACTORS[goal] || 1.8;
     const protein = Math.round(weight * proteinFactor);
 
-    // Fats: 0.9g per kg (Healthy baseline)
+    // Fat: 0.9g per kg (healthy baseline for hormonal balance)
     const fat = Math.round(weight * 0.9);
 
-    // Carbs: Remainder
-    // 1g Protein = 4kcal, 1g Fat = 9kcal, 1g Carb = 4kcal
-    const caloriesUsed = (protein * 4) + (fat * 9);
-    const remainingCals = Math.max(0, Math.round(tdee * (targetCals / tdee)) - caloriesUsed);
-    const carbs = Math.round(remainingCals / 4);
+    // Carbs: fill remainder from target calories
+    // 1g protein = 4kcal, 1g fat = 9kcal, 1g carb = 4kcal
+    const proteinCals = protein * 4;
+    const fatCals = fat * 9;
+    const carbCals = Math.max(0, targetCals - proteinCals - fatCals);
+    const carbs = Math.round(carbCals / 4);
 
-    // 7. EXACT Mathematical Kcal recalculation
-    // This perfectly aligns the stated targets with the UI's macro breakdown logic
-    const exactTargetKcal = (protein * 4) + (carbs * 4) + (fat * 9);
+    // 7. Exact kcal from macros (ensures UI consistency)
+    const exactTargetKcal = proteinCals + (carbs * 4) + fatCals;
+
+    console.log(`[Nutrition] Goal=${goal} Tempo=${tempo} TDEE=${tdee} Factor=${factor} Target=${targetCals} → Exact=${exactTargetKcal} (P${protein} C${carbs} F${fat})`);
 
     return {
         tdee_estimate: tdee,
-        calorie_target: exactTargetKcal, // Single Value based on exact macros
+        calorie_target: exactTargetKcal,
         protein_g: protein,
         fat_g: fat,
         carbs_g: carbs,
-        // Legacy range fields (populated with single value for compatibility)
+        // Legacy range fields (single value for compatibility)
         calorie_target_min: exactTargetKcal,
         calorie_target_max: exactTargetKcal,
         protein_g_min: protein,
