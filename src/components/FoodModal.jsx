@@ -23,7 +23,8 @@ export default function FoodModal({ onClose, onAdd }) {
         kcal_100: '',
         protein_100: '',
         carbs_100: '',
-        fat_100: ''
+        fat_100: '',
+        fiber_100: ''
     })
 
     // Gerechten (Meals) state
@@ -160,14 +161,15 @@ export default function FoodModal({ onClose, onAdd }) {
 
     // Derived values for preview (regular foods)
     const calculatePreview = () => {
-        if (!selectedFood || !grams) return { kcal: 0, p: 0, c: 0, f: 0 }
+        if (!selectedFood || !grams) return { kcal: 0, p: 0, c: 0, f: 0, fiber: 0 }
         const parsedGrams = parseFloat(String(grams).replace(',', '.')) || 0
         const factor = parsedGrams / 100
         return {
             kcal: Math.round(selectedFood.kcal_100 * factor),
             p: (selectedFood.protein_100 * factor).toFixed(1),
             c: (selectedFood.carbs_100 * factor).toFixed(1),
-            f: (selectedFood.fat_100 * factor).toFixed(1)
+            f: (selectedFood.fat_100 * factor).toFixed(1),
+            fiber: ((selectedFood.fiber_100 || 0) * factor).toFixed(1)
         }
     }
 
@@ -239,6 +241,7 @@ export default function FoodModal({ onClose, onAdd }) {
             protein_100: parseFloat(String(newFood.protein_100).replace(',', '.')) || 0,
             carbs_100: parseFloat(String(newFood.carbs_100).replace(',', '.')) || 0,
             fat_100: parseFloat(String(newFood.fat_100).replace(',', '.')) || 0,
+            fiber_100: parseFloat(String(newFood.fiber_100).replace(',', '.')) || 0,
             isCustom: true
         }
 
@@ -428,7 +431,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                         />
                                     </div>
 
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0.5rem' }}>
                                         <div className="input-group">
                                             <label>Eiwit</label>
                                             <input
@@ -457,6 +460,16 @@ export default function FoodModal({ onClose, onAdd }) {
                                                 placeholder="0"
                                                 value={newFood.fat_100}
                                                 onChange={e => setNewFood({ ...newFood, fat_100: e.target.value })}
+                                            />
+                                        </div>
+                                        <div className="input-group">
+                                            <label>Vezel</label>
+                                            <input
+                                                type="text"
+                                                inputMode="decimal"
+                                                placeholder="0"
+                                                value={newFood.fiber_100}
+                                                onChange={e => setNewFood({ ...newFood, fiber_100: e.target.value })}
                                             />
                                         </div>
                                     </div>
@@ -519,6 +532,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                     <PreviewStat label="Eiwit" value={preview.p + 'g'} />
                                     <PreviewStat label="Koolh" value={preview.c + 'g'} />
                                     <PreviewStat label="Vet" value={preview.f + 'g'} />
+                                    <PreviewStat label="Vezel" value={preview.fiber + 'g'} />
                                 </div>
 
                                 <button
