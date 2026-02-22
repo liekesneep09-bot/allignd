@@ -207,11 +207,11 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                     width: '100%'
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FF5E7D' }} />
+                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#a86473' }} />
                         <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Menstruatie</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <div style={{ width: 10, height: 10, borderRadius: '50%', border: '2px dashed #FF5E7D', boxSizing: 'border-box' }} />
+                        <div style={{ width: 10, height: 10, borderRadius: '50%', border: '2px dashed #a86473', boxSizing: 'border-box' }} />
                         <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Verwacht</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
@@ -314,9 +314,9 @@ function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef }) 
                     justifyContent: 'center',
                     fontSize: '0.9rem',
                     fontWeight: isToday || isPeriod ? '700' : '400',
-                    background: isPeriod ? '#FF5E7D' : (isToday ? '#f0f0f0' : 'transparent'),
-                    color: isPeriod ? '#fff' : (isPredicted ? '#FF5E7D' : '#2D3436'),
-                    border: isPredicted ? '2px dashed #FF5E7D' : '2px solid transparent',
+                    background: isPeriod ? '#a86473' : (isToday ? '#f0f0f0' : 'transparent'),
+                    color: isPeriod ? '#fff' : (isPredicted ? '#a86473' : '#2D3436'),
+                    border: isPredicted ? '2px dashed #a86473' : '2px solid transparent',
                     boxSizing: 'border-box',
                     position: 'relative' // For dot positioning
                 }}>

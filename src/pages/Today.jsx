@@ -461,8 +461,8 @@ export default function Today({ onNavigate }) {
                   </button>
                 )}
 
-                {/* Start Period Button for Non-Menstrual Phases */}
-                {viewPhase !== 'menstrual' && isToday && (
+                {/* Start Period Button — only in luteal phase */}
+                {viewPhase === 'luteal' && isToday && (
                   <button
                     onClick={() => {
                       const todayStr = getLocalDateStr(new Date())
