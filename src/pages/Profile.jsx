@@ -298,7 +298,7 @@ export default function Profile() {
                                             }
                                         }}
                                         className="btn"
-                                        style={{ border: '1px solid var(--color-border)', background: '#FFE5E5', color: '#D32F2F', whiteSpace: 'nowrap', cursor: 'pointer' }}
+                                        style={{ border: '1px solid #a8647340', background: '#a8647320', color: '#a86473', whiteSpace: 'nowrap', cursor: 'pointer', fontWeight: '600' }}
                                     >
                                         Stop Menstruatie
                                     </button>

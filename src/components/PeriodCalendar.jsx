@@ -126,7 +126,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                 <div style={{
                     margin: '0 1rem',
                     padding: '10px 14px',
-                    background: 'linear-gradient(135deg, #FFF3E0, #FFF8E1)',
+                    background: 'linear-gradient(135deg, #e2a9f120, #e2a9f110)',
                     borderRadius: '12px',
                     display: 'flex',
                     alignItems: 'flex-start',
@@ -134,7 +134,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                     fontSize: '0.82rem',
                     color: '#5D4037',
                     lineHeight: '1.45',
-                    border: '1px solid rgba(255,152,0,0.15)'
+                    border: '1px solid rgba(226,169,241,0.3)'
                 }}>
                     <span style={{ fontSize: '1rem', flexShrink: 0, marginTop: '1px' }}>💡</span>
                     <div style={{ flex: 1 }}>

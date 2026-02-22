@@ -142,10 +142,10 @@ export default function Login() {
                 {/* Animated phase-color background */}
                 <style>{`
                     @keyframes phaseColors {
-                        0%, 100% { background: linear-gradient(135deg, #FFE5E5 0%, #FFF0F0 50%, #FFFFFF 100%); }
-                        25% { background: linear-gradient(135deg, #E0F7FA 0%, #F0FCFD 50%, #FFFFFF 100%); }
-                        50% { background: linear-gradient(135deg, #F3E5F5 0%, #FAF0FB 50%, #FFFFFF 100%); }
-                        75% { background: linear-gradient(135deg, #FFF3E0 0%, #FFF9F0 50%, #FFFFFF 100%); }
+                        0%, 100% { background: linear-gradient(135deg, #a8647320 0%, rgba(168,100,115,0.05) 50%, #FFFFFF 100%); }
+                        25% { background: linear-gradient(135deg, #99f0ff40 0%, rgba(153,240,255,0.1) 50%, #FFFFFF 100%); }
+                        50% { background: linear-gradient(135deg, #f5a89c20 0%, rgba(245,168,156,0.05) 50%, #FFFFFF 100%); }
+                        75% { background: linear-gradient(135deg, #e2a9f120 0%, rgba(226,169,241,0.05) 50%, #FFFFFF 100%); }
                     }
                 `}</style>
                 <div style={{
@@ -292,10 +292,10 @@ export default function Login() {
             {/* Animated phase-color background (Shared with Start Screen) */}
             <style>{`
                 @keyframes phaseColors {
-                    0%, 100% { background: linear-gradient(135deg, #FFE5E5 0%, #FFF0F0 50%, #FFFFFF 100%); }
-                    25% { background: linear-gradient(135deg, #E0F7FA 0%, #F0FCFD 50%, #FFFFFF 100%); }
-                    50% { background: linear-gradient(135deg, #F3E5F5 0%, #FAF0FB 50%, #FFFFFF 100%); }
-                    75% { background: linear-gradient(135deg, #FFF3E0 0%, #FFF9F0 50%, #FFFFFF 100%); }
+                    0%, 100% { background: linear-gradient(135deg, #a8647320 0%, rgba(168,100,115,0.05) 50%, #FFFFFF 100%); }
+                    25% { background: linear-gradient(135deg, #99f0ff40 0%, rgba(153,240,255,0.1) 50%, #FFFFFF 100%); }
+                    50% { background: linear-gradient(135deg, #f5a89c20 0%, rgba(245,168,156,0.05) 50%, #FFFFFF 100%); }
+                    75% { background: linear-gradient(135deg, #e2a9f120 0%, rgba(226,169,241,0.05) 50%, #FFFFFF 100%); }
                 }
             `}</style>
             <div style={{
