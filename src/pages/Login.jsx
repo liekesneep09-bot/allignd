@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../utils/supabaseClient'
 import logo from '../assets/logo-primary.svg'
+import heroIllustration from '../assets/hero-illustration.png'
 
 export default function Login() {
     const { signIn, signUp, resetPassword, resendVerificationEmail, isConfigured } = useAuth()
@@ -187,17 +188,17 @@ export default function Login() {
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
-                padding: '2rem',
+                background: '#FEFBFC',
                 color: 'var(--color-text)'
             }}>
 
                 {/* Animated phase-color background */}
                 <style>{`
                     @keyframes phaseColors {
-                        0%, 100% { background: linear-gradient(135deg, #a8647320 0%, rgba(168,100,115,0.05) 50%, #FFFFFF 100%); }
-                        25% { background: linear-gradient(135deg, #99f0ff40 0%, rgba(153,240,255,0.1) 50%, #FFFFFF 100%); }
-                        50% { background: linear-gradient(135deg, #f5a89c20 0%, rgba(245,168,156,0.05) 50%, #FFFFFF 100%); }
-                        75% { background: linear-gradient(135deg, #e2a9f120 0%, rgba(226,169,241,0.05) 50%, #FFFFFF 100%); }
+                        0%, 100% { background: linear-gradient(135deg, #a8647315 0%, rgba(168,100,115,0.03) 50%, #FEFBFC 100%); }
+                        25% { background: linear-gradient(135deg, #99f0ff25 0%, rgba(153,240,255,0.06) 50%, #FEFBFC 100%); }
+                        50% { background: linear-gradient(135deg, #f5a89c15 0%, rgba(245,168,156,0.03) 50%, #FEFBFC 100%); }
+                        75% { background: linear-gradient(135deg, #e2a9f115 0%, rgba(226,169,241,0.03) 50%, #FEFBFC 100%); }
                     }
                 `}</style>
                 <div style={{
@@ -207,11 +208,7 @@ export default function Login() {
                     zIndex: 0
                 }} />
 
-                {/* BACKGROUND: Clean/Minimalist - No Illustration */}
-                {/* User requested removal of illustration. Keeps focus purely on Logo + Tagline. */}
-
-
-                {/* CONTENT: Centered */}
+                {/* Content */}
                 <div style={{
                     position: 'relative',
                     zIndex: 1,
@@ -219,90 +216,103 @@ export default function Login() {
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'center',
                     width: '100%',
                     maxWidth: '400px',
                     margin: '0 auto',
-                    gap: '1rem'
+                    padding: '2rem 2rem 2.5rem'
                 }}>
 
-                    {/* 1. Large Logo Centered */}
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                    {/* Top: Logo (compact) */}
+                    <div style={{ paddingTop: '1.5rem', marginBottom: '0.5rem' }}>
                         <img
                             src={logo}
                             alt="Allignd"
                             style={{
-                                height: '220px', // Requested "groot"
+                                height: '80px',
                                 width: 'auto',
-                                maxWidth: '80%',
-                                marginBottom: '1.5rem',
                                 objectFit: 'contain'
                             }}
                         />
-
-                        {/* Tagline: Just the core one */}
-                        <p style={{
-                            fontSize: '1.25rem',
-                            fontWeight: '600',
-                            color: 'var(--color-text)',
-                            letterSpacing: '-0.01em',
-                            textAlign: 'center',
-                            margin: 0
-                        }}>
-                            Move with your cycle
-                        </p>
                     </div>
 
+                    {/* Tagline */}
+                    <p style={{
+                        fontSize: '1rem',
+                        fontWeight: '500',
+                        color: 'var(--color-text-muted)',
+                        letterSpacing: '0.02em',
+                        textAlign: 'center',
+                        margin: '0 0 1rem 0'
+                    }}>
+                        Move with your cycle
+                    </p>
 
-                    {/* Actions Area */}
-                    <div style={{ width: '100%', paddingBottom: '2.5rem' }}>
+                    {/* Hero Illustration */}
+                    <div style={{
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '100%',
+                        minHeight: '280px'
+                    }}>
+                        <img
+                            src={heroIllustration}
+                            alt=""
+                            style={{
+                                maxHeight: '380px',
+                                maxWidth: '85%',
+                                objectFit: 'contain',
+                                filter: 'drop-shadow(0 4px 20px rgba(168,100,115,0.08))'
+                            }}
+                        />
+                    </div>
 
-                        {/* Micro-copy (Kept as requested initially, confirmed in Step 2 unless user hates it now. User only complained about slogan) */}
+                    {/* Bottom actions */}
+                    <div style={{ width: '100%', marginTop: '1.5rem' }}>
                         <p style={{
                             textAlign: 'center',
-                            fontSize: '0.9rem',
+                            fontSize: '0.85rem',
                             color: 'var(--color-text-muted)',
-                            marginBottom: '1.5rem',
+                            marginBottom: '1.25rem',
                             fontStyle: 'italic',
-                            opacity: 0.8
+                            opacity: 0.7
                         }}>
                             Omdat jouw lichaam geen one-size-fits-all is
                         </p>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            {/* Primary: Sign Up (Tall) */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                             <button
                                 onClick={() => setView('signup')}
                                 style={{
                                     width: '100%',
-                                    padding: '1.25rem',
-                                    borderRadius: '16px',
+                                    padding: '1.1rem',
+                                    borderRadius: '14px',
                                     border: 'none',
-                                    background: 'var(--color-primary)',
+                                    background: '#a86473',
                                     color: 'white',
-                                    fontSize: '1.1rem',
+                                    fontSize: '1.05rem',
                                     fontWeight: '600',
                                     cursor: 'pointer',
-                                    boxShadow: '0 8px 20px rgba(112, 193, 163, 0.3)', // Enhanced shadow
+                                    boxShadow: '0 6px 20px rgba(168,100,115,0.25)',
                                     transition: 'transform 0.1s'
                                 }}
                             >
                                 Meld je aan
                             </button>
 
-                            {/* Secondary: Log In (Ghost) */}
                             <button
                                 onClick={() => setView('login')}
                                 style={{
                                     width: '100%',
-                                    padding: '1rem',
+                                    padding: '0.9rem',
                                     background: 'transparent',
                                     border: 'none',
                                     color: 'var(--color-text)',
-                                    fontSize: '1rem',
+                                    fontSize: '0.95rem',
                                     fontWeight: '500',
                                     cursor: 'pointer',
-                                    opacity: 0.8
+                                    opacity: 0.7
                                 }}
                             >
                                 Log in
@@ -320,7 +330,7 @@ export default function Login() {
                             textAlign: 'center',
                             width: '100%'
                         }}>
-                            ⚠️ Auth niet geconfigureerd.
+                            Auth niet geconfigureerd.
                         </p>
                     )}
                 </div>
