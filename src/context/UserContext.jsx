@@ -70,6 +70,7 @@ export function UserProvider({ children }) {
 
     foodLogs: [], // Array of { id, date, foodId, grams, ... }
     movementLogs: [], // Array of { id, date, status }
+    weightLogs: [], // Array of { date, weight }
 
     // Menstruation Logs (Explicit Check-ins)
     menstruationLogs: [] // { date, status }
@@ -281,6 +282,20 @@ export function UserProvider({ children }) {
           movementLogs: dbMovement ? dbMovement.map(m => ({ date: m.date, status: m.status, id: m.id })) : []
         }))
 
+        // B5. Fetch Weight Logs
+        const { data: dbWeightLogs } = await supabase
+          .from('weight_logs')
+          .select('weight, date')
+          .eq('user_id', authUser.id)
+          .order('date', { ascending: true })
+
+        if (dbWeightLogs && dbWeightLogs.length > 0) {
+          setUser(prev => ({
+            ...prev,
+            weightLogs: dbWeightLogs.map(w => ({ date: w.date, weight: Number(w.weight) }))
+          }))
+        }
+
       } catch (err) {
         console.error('User init/sync failed:', err)
       } finally {
@@ -431,6 +446,22 @@ export function UserProvider({ children }) {
       });
 
       if (profileError) throw profileError;
+
+      // B2. Auto-log weight if changed
+      const newWeight = cleanProfile.weight_kg
+      if (newWeight && newWeight > 0) {
+        const todayStr = new Date().toISOString().split('T')[0]
+        await supabase.from('weight_logs').upsert({
+          user_id: authUser.id,
+          weight: newWeight,
+          date: todayStr
+        }, { onConflict: 'user_id,date' })
+        // Update local weight logs
+        setUser(prev => {
+          const existing = (prev.weightLogs || []).filter(l => l.date !== todayStr)
+          return { ...prev, weightLogs: [...existing, { date: todayStr, weight: newWeight }].sort((a, b) => a.date.localeCompare(b.date)) }
+        })
+      }
 
       // B. Save Computed Targets
       const { error: targetError } = await supabase.from('computed_targets').upsert({
@@ -1212,6 +1243,7 @@ export function UserProvider({ children }) {
     isPeriodOverridden: user?.currentPeriodLength !== null,
     targets,
     movementLogs: user?.movementLogs || [],
+    weightLogs: user?.weightLogs || [],
     menstruationLogs: user?.menstruationLogs || [],
     cycleStats: user?.cycleStats,
     periodStartDates: user?.periodStartDates || []
