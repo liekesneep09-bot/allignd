@@ -7,6 +7,9 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
     const { togglePeriodDate } = useUser()
     const scrollRef = React.useRef(null)
     const todayRef = React.useRef(null)
+    const [hintDismissed, setHintDismissed] = useState(
+        () => localStorage.getItem('allignd:calendar-hint-dismissed') === 'true'
+    )
 
     // Generate Month Range (e.g., 12 months past, 12 months future)
     const months = useMemo(() => {
@@ -117,6 +120,45 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                     </div>
                 ))}
             </div>
+
+            {/* Hint Banner for new users */}
+            {!hintDismissed && (user?.periodStartDates?.length || 0) < 3 && (
+                <div style={{
+                    margin: '0 1rem',
+                    padding: '10px 14px',
+                    background: 'linear-gradient(135deg, #FFF3E0, #FFF8E1)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '8px',
+                    fontSize: '0.82rem',
+                    color: '#5D4037',
+                    lineHeight: '1.45',
+                    border: '1px solid rgba(255,152,0,0.15)'
+                }}>
+                    <span style={{ fontSize: '1rem', flexShrink: 0, marginTop: '1px' }}>💡</span>
+                    <div style={{ flex: 1 }}>
+                        <strong>Tip:</strong> blader terug en tik je vorige menstruatiedagen aan. Hoe meer data, hoe nauwkeuriger je voorspelling.
+                    </div>
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            setHintDismissed(true)
+                            localStorage.setItem('allignd:calendar-hint-dismissed', 'true')
+                        }}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#9E9E9E',
+                            fontSize: '1rem',
+                            cursor: 'pointer',
+                            padding: '0',
+                            lineHeight: 1,
+                            flexShrink: 0
+                        }}
+                    >✕</button>
+                </div>
+            )}
 
             {/* Scrollable Content */}
             <div

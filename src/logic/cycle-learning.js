@@ -95,7 +95,8 @@ export function getMedian(arr) {
 
 /**
  * Gets learned cycle length from history
- * Uses median of last 3-6 non-outlier cycles
+ * Uses recency-weighted average: recent cycles weigh more
+ * Falls back to median when <3 cycles
  * @param {{ length: number, isOutlier: boolean }[]} history
  * @param {number} fallbackLength - Default cycle length from onboarding
  * @returns {number}
@@ -105,9 +106,26 @@ export function getLearnedCycleLength(history, fallbackLength = 28) {
 
     if (validCycles.length < 1) return fallbackLength
 
-    // Take last 3-6 valid cycles
+    // Take last 6 valid cycles
     const recent = validCycles.slice(-6)
-    return Math.round(getMedian(recent.map(c => c.length)))
+
+    // For <3 cycles, use simple median (not enough data for weighting)
+    if (recent.length < 3) {
+        return Math.round(getMedian(recent.map(c => c.length)))
+    }
+
+    // Recency-weighted average: newest cycles count more
+    // Weights: oldest=1, middle=1.5, newest 2=2
+    let totalWeight = 0
+    let weightedSum = 0
+    for (let i = 0; i < recent.length; i++) {
+        const position = i / (recent.length - 1) // 0 (oldest) → 1 (newest)
+        const weight = 1 + position // 1.0 → 2.0
+        weightedSum += recent[i].length * weight
+        totalWeight += weight
+    }
+
+    return Math.round(weightedSum / totalWeight)
 }
 
 /**

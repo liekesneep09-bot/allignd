@@ -299,7 +299,7 @@ export default function Today({ onNavigate }) {
       {/* HEADER SECTION - Soft Glow */}
       <div style={{
         background: phaseStyle.bg,
-        paddingBottom: '2.5rem',
+        paddingBottom: '0.5rem', // Reduced from 2.5rem
         paddingTop: '1rem',
         marginBottom: '-1rem',
         position: 'relative',
@@ -410,7 +410,7 @@ export default function Today({ onNavigate }) {
 
                 {/* Integrated Nutrition Text - Minimalist Icon + Line */}
                 <div style={{
-                  marginTop: '1rem', // Tighter spacing to section above
+                  marginTop: '0.5rem', // Tighter spacing to section above (was 1rem)
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
@@ -470,7 +470,7 @@ export default function Today({ onNavigate }) {
       </div>
 
       {/* MAIN CONTENT SECTION */}
-      <div className="container" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
+      <div className="container" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', marginTop: '-0.5rem' }}>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
@@ -526,6 +526,13 @@ export default function Today({ onNavigate }) {
                     <MacroListItem label="Vetten" current={toNum(stats.f)} target={toNum(targets.fatMin)} color="var(--color-fat)" />
                     <MacroListItem label="Eiwitten" current={toNum(stats.p)} target={toNum(targets.proteinMin)} color="var(--color-protein)" />
                   </div>
+                </div>
+
+                {/* Subtiele Vezels weergave */}
+                <div style={{ textAlign: 'center', marginTop: '-0.25rem', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', opacity: 0.8 }}>
+                    🌿 Vezels: {Math.round(toNum(stats.fiber))}g <span style={{ opacity: 0.6 }}>/ 25g</span>
+                  </span>
                 </div>
 
               </div>

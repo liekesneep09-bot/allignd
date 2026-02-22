@@ -278,18 +278,58 @@ export default function Login() {
 
     // Login / Signup Form
     return (
-        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: 'var(--color-bg)', color: 'var(--color-text)' }}>
-            <div style={{ width: '100%', maxWidth: '400px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div style={{
+            minHeight: '100vh',
+            position: 'relative',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '2rem',
+            color: 'var(--color-text)'
+        }}>
+            {/* Animated phase-color background (Shared with Start Screen) */}
+            <style>{`
+                @keyframes phaseColors {
+                    0%, 100% { background: linear-gradient(135deg, #FFE5E5 0%, #FFF0F0 50%, #FFFFFF 100%); }
+                    25% { background: linear-gradient(135deg, #E0F7FA 0%, #F0FCFD 50%, #FFFFFF 100%); }
+                    50% { background: linear-gradient(135deg, #F3E5F5 0%, #FAF0FB 50%, #FFFFFF 100%); }
+                    75% { background: linear-gradient(135deg, #FFF3E0 0%, #FFF9F0 50%, #FFFFFF 100%); }
+                }
+            `}</style>
+            <div style={{
+                position: 'absolute',
+                top: 0, left: 0, right: 0, bottom: 0,
+                animation: 'phaseColors 12s ease-in-out infinite',
+                zIndex: 0
+            }} />
+
+            <div style={{
+                position: 'relative',
+                zIndex: 1,
+                width: '100%',
+                maxWidth: '400px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.5rem',
+                // Add a subtle glass effect to make form readable over gradient
+                background: 'rgba(255, 255, 255, 0.6)',
+                backdropFilter: 'blur(10px)',
+                padding: '2rem',
+                borderRadius: '24px',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)'
+            }}>
                 <button onClick={goBack} style={{ alignSelf: 'flex-start', background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.9rem', cursor: 'pointer', padding: '0.5rem 0' }}>← Terug</button>
                 <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
                     <h1 style={{ fontSize: '1.5rem', fontWeight: '600', color: 'var(--color-text)', marginBottom: '0.5rem' }}>{view === 'login' ? 'Welkom terug' : 'Account aanmaken'}</h1>
                     <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>{view === 'login' ? 'Log in om verder te gaan' : 'Vul je gegevens in om te starten'}</p>
                 </div>
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <input type="email" placeholder="E-mailadres" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" style={{ padding: '0.875rem 1rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '1rem' }} />
-                    <input type="password" placeholder="Wachtwoord" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={view === 'login' ? 'current-password' : 'new-password'} style={{ padding: '0.875rem 1rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '1rem' }} />
+                    <input type="email" placeholder="E-mailadres" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" style={{ padding: '0.875rem 1rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'rgba(255,255,255,0.8)', color: 'var(--color-text)', fontSize: '1rem' }} />
+                    <input type="password" placeholder="Wachtwoord" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={view === 'login' ? 'current-password' : 'new-password'} style={{ padding: '0.875rem 1rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'rgba(255,255,255,0.8)', color: 'var(--color-text)', fontSize: '1rem' }} />
                     {error && <div style={{ padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', fontSize: '0.875rem' }}>{error}</div>}
-                    <button type="submit" disabled={isLoading} style={{ padding: '0.875rem 1rem', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'white', fontSize: '1rem', fontWeight: '500', cursor: isLoading ? 'not-allowed' : 'pointer', opacity: isLoading ? 0.7 : 1, marginTop: '0.5rem' }}>{isLoading ? 'Even geduld...' : (view === 'login' ? 'Log in' : 'Account aanmaken')}</button>
+                    <button type="submit" disabled={isLoading} style={{ padding: '0.875rem 1rem', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'white', fontSize: '1rem', fontWeight: '500', cursor: isLoading ? 'not-allowed' : 'pointer', opacity: isLoading ? 0.7 : 1, marginTop: '0.5rem', boxShadow: '0 4px 12px rgba(112, 193, 163, 0.2)' }}>{isLoading ? 'Even geduld...' : (view === 'login' ? 'Log in' : 'Account aanmaken')}</button>
                 </form>
                 <div style={{ textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.875rem', marginTop: '1rem' }}>
                     {view === 'login' ? (<>Nog geen account? <button onClick={() => { setView('signup'); setError('') }} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', cursor: 'pointer', textDecoration: 'underline' }}>Meld je aan</button></>) : (<>Heb je al een account? <button onClick={() => { setView('login'); setError('') }} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', cursor: 'pointer', textDecoration: 'underline' }}>Log in</button></>)}

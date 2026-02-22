@@ -50,14 +50,61 @@ export default function FoodModal({ onClose, onAdd }) {
                 return
             }
 
-            const { data, error } = await supabase
-                .from('recipes')
+            // Fetch meals
+            const { data: mealsData, error: mealsError } = await supabase
+                .from('meals')
                 .select('*')
                 .eq('user_id', authUser.id)
                 .order('created_at', { ascending: false })
 
-            if (error) throw error
-            setMeals(data || [])
+            if (mealsError) throw mealsError
+
+            // Fetch all meal_items for these meals
+            const mealIds = (mealsData || []).map(m => m.id)
+            let itemsMap = {}
+
+            if (mealIds.length > 0) {
+                const { data: items, error: itemsError } = await supabase
+                    .from('meal_items')
+                    .select('*')
+                    .in('meal_id', mealIds)
+
+                if (itemsError) throw itemsError
+
+                    ; (items || []).forEach(item => {
+                        if (!itemsMap[item.meal_id]) itemsMap[item.meal_id] = []
+                        itemsMap[item.meal_id].push(item)
+                    })
+            }
+
+            // Calculate totals for each meal
+            const mealsWithTotals = (mealsData || []).map(meal => {
+                const mealItems = itemsMap[meal.id] || []
+                const totals = mealItems.reduce((acc, item) => {
+                    const factor = (item.unit === 'g' || item.unit === 'ml')
+                        ? item.quantity / 100
+                        : item.quantity
+                    return {
+                        kcal: acc.kcal + (item.kcal_100 * factor),
+                        protein: acc.protein + (item.protein_100 * factor),
+                        carbs: acc.carbs + (item.carbs_100 * factor),
+                        fat: acc.fat + (item.fat_100 * factor)
+                    }
+                }, { kcal: 0, protein: 0, carbs: 0, fat: 0 })
+
+                return {
+                    ...meal,
+                    items: mealItems,
+                    totals: {
+                        kcal: Math.round(totals.kcal),
+                        protein: Math.round(totals.protein * 10) / 10,
+                        carbs: Math.round(totals.carbs * 10) / 10,
+                        fat: Math.round(totals.fat * 10) / 10
+                    }
+                }
+            })
+
+            setMeals(mealsWithTotals)
         } catch (e) {
             console.error('Fetch meals error:', e)
             setMealsError('Kon gerechten niet laden')
@@ -99,7 +146,7 @@ export default function FoodModal({ onClose, onAdd }) {
         if (!confirm('Weet je zeker dat je dit gerecht wilt verwijderen?')) return
         try {
             const { error } = await supabase
-                .from('recipes')
+                .from('meals')
                 .delete()
                 .eq('id', mealId)
 
@@ -114,7 +161,8 @@ export default function FoodModal({ onClose, onAdd }) {
     // Derived values for preview (regular foods)
     const calculatePreview = () => {
         if (!selectedFood || !grams) return { kcal: 0, p: 0, c: 0, f: 0 }
-        const factor = parseInt(grams) / 100
+        const parsedGrams = parseFloat(String(grams).replace(',', '.')) || 0
+        const factor = parsedGrams / 100
         return {
             kcal: Math.round(selectedFood.kcal_100 * factor),
             p: (selectedFood.protein_100 * factor).toFixed(1),
@@ -173,7 +221,9 @@ export default function FoodModal({ onClose, onAdd }) {
 
     const handleSubmit = () => {
         if (!selectedFood || !grams) return
-        onAdd(selectedFood.id, grams)
+        const parsedGrams = parseFloat(String(grams).replace(',', '.')) || 0
+        if (parsedGrams <= 0) return
+        onAdd(selectedFood.id, parsedGrams)
         onClose()
     }
 
@@ -185,10 +235,10 @@ export default function FoodModal({ onClose, onAdd }) {
             name_nl: newFood.name_nl,
             aliases: [],
             unit_type: 'per_100g',
-            kcal_100: parseInt(newFood.kcal_100),
-            protein_100: parseFloat(newFood.protein_100) || 0,
-            carbs_100: parseFloat(newFood.carbs_100) || 0,
-            fat_100: parseFloat(newFood.fat_100) || 0,
+            kcal_100: Math.round(parseFloat(String(newFood.kcal_100).replace(',', '.')) || 0),
+            protein_100: parseFloat(String(newFood.protein_100).replace(',', '.')) || 0,
+            carbs_100: parseFloat(String(newFood.carbs_100).replace(',', '.')) || 0,
+            fat_100: parseFloat(String(newFood.fat_100).replace(',', '.')) || 0,
             isCustom: true
         }
 
@@ -370,8 +420,8 @@ export default function FoodModal({ onClose, onAdd }) {
                                     <div className="input-group">
                                         <label>Kcal (per 100g)</label>
                                         <input
-                                            type="number"
-                                            inputMode="numeric"
+                                            type="text"
+                                            inputMode="decimal"
                                             placeholder="0"
                                             value={newFood.kcal_100}
                                             onChange={e => setNewFood({ ...newFood, kcal_100: e.target.value })}
@@ -382,8 +432,8 @@ export default function FoodModal({ onClose, onAdd }) {
                                         <div className="input-group">
                                             <label>Eiwit</label>
                                             <input
-                                                type="number"
-                                                inputMode="numeric"
+                                                type="text"
+                                                inputMode="decimal"
                                                 placeholder="0"
                                                 value={newFood.protein_100}
                                                 onChange={e => setNewFood({ ...newFood, protein_100: e.target.value })}
@@ -392,8 +442,8 @@ export default function FoodModal({ onClose, onAdd }) {
                                         <div className="input-group">
                                             <label>Koolh</label>
                                             <input
-                                                type="number"
-                                                inputMode="numeric"
+                                                type="text"
+                                                inputMode="decimal"
                                                 placeholder="0"
                                                 value={newFood.carbs_100}
                                                 onChange={e => setNewFood({ ...newFood, carbs_100: e.target.value })}
@@ -402,8 +452,8 @@ export default function FoodModal({ onClose, onAdd }) {
                                         <div className="input-group">
                                             <label>Vet</label>
                                             <input
-                                                type="number"
-                                                inputMode="numeric"
+                                                type="text"
+                                                inputMode="decimal"
                                                 placeholder="0"
                                                 value={newFood.fat_100}
                                                 onChange={e => setNewFood({ ...newFood, fat_100: e.target.value })}
@@ -447,8 +497,8 @@ export default function FoodModal({ onClose, onAdd }) {
                                 <div className="input-group">
                                     <label>Hoeveelheid (gram)</label>
                                     <input
-                                        type="number"
-                                        inputMode="numeric"
+                                        type="text"
+                                        inputMode="decimal"
                                         placeholder="0"
                                         value={grams}
                                         onChange={e => setGrams(e.target.value)}
@@ -474,10 +524,10 @@ export default function FoodModal({ onClose, onAdd }) {
                                 <button
                                     className="btn btn-primary"
                                     onClick={handleSubmit}
-                                    disabled={!grams || parseInt(grams) <= 0}
+                                    disabled={!grams || parseFloat(String(grams).replace(',', '.')) <= 0}
                                     style={{
                                         width: '100%',
-                                        opacity: (!grams || parseInt(grams) <= 0) ? 0.5 : 1
+                                        opacity: (!grams || parseFloat(String(grams).replace(',', '.')) <= 0) ? 0.5 : 1
                                     }}
                                 >
                                     Voeg toe aan vandaag

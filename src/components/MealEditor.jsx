@@ -50,10 +50,13 @@ export default function MealEditor({ meal, onSave, onClose }) {
     const handleAddIngredient = () => {
         if (!selectedProduct || !quantity) return
 
+        const parsedQuantity = parseFloat(String(quantity).replace(',', '.')) || 0
+        if (parsedQuantity <= 0) return
+
         const newItem = {
             product_id: selectedProduct.id,
             product_name: selectedProduct.name_nl,
-            quantity: parseFloat(quantity),
+            quantity: parsedQuantity,
             unit: unit,
             kcal_100: selectedProduct.kcal_100,
             protein_100: selectedProduct.protein_100,
@@ -95,15 +98,99 @@ export default function MealEditor({ meal, onSave, onClose }) {
             const cleanItems = items.map(item => ({
                 product_id: item.product_id,
                 product_name: item.product_name,
-                quantity: parseFloat(item.quantity) || 0,
-                unit: item.unit,
-                kcal_100: parseFloat(item.kcal_100) || 0,
-                protein_100: parseFloat(item.protein_100) || 0,
-                carbs_100: parseFloat(item.carbs_100) || 0,
-                fat_100: parseFloat(item.fat_100) || 0
+                quantity: parseFloat(String(item.quantity).replace(',', '.')) || 0,
+                unit: item.unit || 'g',
+                kcal_100: parseFloat(String(item.kcal_100).replace(',', '.')) || 0,
+                protein_100: parseFloat(String(item.protein_100).replace(',', '.')) || 0,
+                carbs_100: parseFloat(String(item.carbs_100).replace(',', '.')) || 0,
+                fat_100: parseFloat(String(item.fat_100).replace(',', '.')) || 0
             }))
 
-            // Snapshot totals
+            let savedMeal
+
+            if (meal?.id) {
+                // ── UPDATE existing meal ──
+                const { error: updateError } = await supabase
+                    .from('meals')
+                    .update({
+                        name: name.trim(),
+                        category: category || null
+                    })
+                    .eq('id', meal.id)
+                    .eq('user_id', authUser.id)
+
+                if (updateError) throw updateError
+
+                // Replace all items: delete old, insert new
+                await supabase.from('meal_items').delete().eq('meal_id', meal.id)
+
+                if (cleanItems.length > 0) {
+                    const itemRecords = cleanItems.map(item => ({
+                        meal_id: meal.id,
+                        product_id: item.product_id,
+                        product_name: item.product_name,
+                        quantity: item.quantity,
+                        unit: item.unit,
+                        kcal_100: item.kcal_100,
+                        protein_100: item.protein_100,
+                        carbs_100: item.carbs_100,
+                        fat_100: item.fat_100
+                    }))
+
+                    const { error: itemsError } = await supabase
+                        .from('meal_items')
+                        .insert(itemRecords)
+
+                    if (itemsError) throw itemsError
+                }
+
+                // Fetch updated meal
+                const { data: updatedMeal } = await supabase
+                    .from('meals')
+                    .select('*')
+                    .eq('id', meal.id)
+                    .single()
+
+                savedMeal = updatedMeal
+            } else {
+                // ── CREATE new meal ──
+                const { data: newMeal, error: mealError } = await supabase
+                    .from('meals')
+                    .insert({
+                        user_id: authUser.id,
+                        name: name.trim(),
+                        category: category || null
+                    })
+                    .select()
+                    .single()
+
+                if (mealError) throw mealError
+
+                // Insert items
+                if (cleanItems.length > 0) {
+                    const itemRecords = cleanItems.map(item => ({
+                        meal_id: newMeal.id,
+                        product_id: item.product_id,
+                        product_name: item.product_name,
+                        quantity: item.quantity,
+                        unit: item.unit,
+                        kcal_100: item.kcal_100,
+                        protein_100: item.protein_100,
+                        carbs_100: item.carbs_100,
+                        fat_100: item.fat_100
+                    }))
+
+                    const { error: itemsError } = await supabase
+                        .from('meal_items')
+                        .insert(itemRecords)
+
+                    if (itemsError) throw itemsError
+                }
+
+                savedMeal = newMeal
+            }
+
+            // Calculate totals for the callback
             const mealTotals = cleanItems.reduce((acc, item) => {
                 const factor = (item.unit === 'g' || item.unit === 'ml') ? item.quantity / 100 : item.quantity
                 return {
@@ -114,34 +201,17 @@ export default function MealEditor({ meal, onSave, onClose }) {
                 }
             }, { kcal: 0, protein: 0, carbs: 0, fat: 0 })
 
-            // Construct payload
-            const payload = {
-                user_id: authUser.id,
-                name: name.trim(),
-                category: category || null,
+            // Return full meal object with items and totals
+            onSave({
+                ...savedMeal,
                 items: cleanItems,
                 totals: {
                     kcal: Math.round(mealTotals.kcal),
-                    protein: parseFloat(mealTotals.protein.toFixed(1)),
-                    carbs: parseFloat(mealTotals.carbs.toFixed(1)),
-                    fat: parseFloat(mealTotals.fat.toFixed(1))
+                    protein: Math.round(mealTotals.protein * 10) / 10,
+                    carbs: Math.round(mealTotals.carbs * 10) / 10,
+                    fat: Math.round(mealTotals.fat * 10) / 10
                 }
-            }
-
-            if (meal?.id) {
-                payload.id = meal.id // Update existing
-                payload.updated_at = new Date().toISOString()
-            }
-
-            const { data, error } = await supabase
-                .from('recipes')
-                .upsert(payload)
-                .select()
-                .single()
-
-            if (error) throw error
-
-            onSave(data)
+            })
         } catch (e) {
             console.error("Save error:", e)
             setError(e.message || 'Fout bij opslaan')
@@ -303,7 +373,8 @@ export default function MealEditor({ meal, onSave, onClose }) {
                                     <div style={styles.quantityGroup}>
                                         <label style={styles.label}>Hoeveelheid</label>
                                         <input
-                                            type="number"
+                                            type="text"
+                                            inputMode="decimal"
                                             value={quantity}
                                             onChange={e => setQuantity(e.target.value)}
                                             style={styles.quantityInput}

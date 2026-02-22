@@ -103,18 +103,22 @@ export function calculateTargetRanges(profile) {
     // Carbs: Remainder
     // 1g Protein = 4kcal, 1g Fat = 9kcal, 1g Carb = 4kcal
     const caloriesUsed = (protein * 4) + (fat * 9);
-    const remainingCals = Math.max(0, targetCals - caloriesUsed);
+    const remainingCals = Math.max(0, Math.round(tdee * (targetCals / tdee)) - caloriesUsed);
     const carbs = Math.round(remainingCals / 4);
+
+    // 7. EXACT Mathematical Kcal recalculation
+    // This perfectly aligns the stated targets with the UI's macro breakdown logic
+    const exactTargetKcal = (protein * 4) + (carbs * 4) + (fat * 9);
 
     return {
         tdee_estimate: tdee,
-        calorie_target: targetCals, // Single Value
+        calorie_target: exactTargetKcal, // Single Value based on exact macros
         protein_g: protein,
         fat_g: fat,
         carbs_g: carbs,
         // Legacy range fields (populated with single value for compatibility)
-        calorie_target_min: targetCals,
-        calorie_target_max: targetCals,
+        calorie_target_min: exactTargetKcal,
+        calorie_target_max: exactTargetKcal,
         protein_g_min: protein,
         protein_g_max: protein,
         fat_g_min: fat,

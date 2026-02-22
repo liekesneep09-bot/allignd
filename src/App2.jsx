@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { UserProvider, useUser } from './context/UserContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Onboarding from './pages/Onboarding'
-import Subscription from './pages/Subscription' // NEW
+import Subscription from './pages/Subscription'
 import Today from './pages/Today'
 import PhaseGuide from './pages/PhaseGuide'
 import Recipes from './pages/Recipes'
@@ -18,6 +18,7 @@ import ErrorBoundary from './components/ErrorBoundary'
 import ConfigErrorScreen from './components/ConfigErrorScreen'
 import DebugPanel from './components/DebugPanel'
 import { supabaseConfigError } from './utils/supabaseClient'
+import AuthCallback from './components/AuthCallback'
 
 import { IconHome, IconSparkles, IconActivity, IconRecipe, IconCommunity } from './components/Icons'
 import logo from './assets/logo-primary.svg'
@@ -249,9 +250,7 @@ function AuthenticatedApp() {
     )
 }
 
-import AuthCallback from './components/AuthCallback'
-
-function App() {
+export default function App2() {
     const [isOnline, setIsOnline] = useState(navigator.onLine)
 
     useEffect(() => {
@@ -268,7 +267,6 @@ function App() {
     }, [])
 
     // Simple Route Handling for Callback
-    // Since we don't have a full router, we check pathname
     const isCallback = window.location.pathname === '/auth/callback'
 
     if (isCallback) {
@@ -283,13 +281,11 @@ function App() {
     return (
         <ErrorBoundary>
             <AuthProvider>
-                <div style={{ padding: 20 }}>
-                    <h1>Auth Provider Check</h1>
-                    <p>If you see this, AuthProvider is fine.</p>
-                </div>
+                <OfflineBanner isOnline={isOnline} />
+                <AuthenticatedApp />
+                <InstallPrompt />
+                {import.meta.env.DEV && <DebugPanel />}
             </AuthProvider>
         </ErrorBoundary>
     )
 }
-
-export default App

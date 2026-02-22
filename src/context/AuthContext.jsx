@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { supabase, isSupabaseConfigured } from '../utils/supabaseClient'
 
+// Force Reload
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {

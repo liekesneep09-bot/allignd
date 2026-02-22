@@ -5,10 +5,10 @@ import { RECIPES } from '../data/recipes'
 import { PHASE_CONTENT } from '../data/phases'
 
 const CATEGORIES = [
-    { key: 'ontbijt', label: 'Ontbijt', icon: '🌅' },
-    { key: 'lunch', label: 'Lunch', icon: '☀️' },
-    { key: 'diner', label: 'Diner', icon: '🌙' },
-    { key: 'snack', label: 'Snack', icon: '✨' }
+    { key: 'ontbijt', label: 'Ontbijt' },
+    { key: 'lunch', label: 'Lunch' },
+    { key: 'diner', label: 'Diner' },
+    { key: 'snack', label: 'Snack' }
 ]
 
 // Phase accent colors (matching App.jsx)
@@ -135,7 +135,6 @@ export default function Recipes() {
                                     flexShrink: 0
                                 }}
                             >
-                                <span style={{ fontSize: '1rem' }}>{cat.icon}</span>
                                 {cat.label}
                             </button>
                         )
@@ -225,21 +224,6 @@ function RecipeCard({ item, index, isExpanded, onToggle, colors }) {
                     alignItems: 'flex-start',
                     gap: '14px'
                 }}>
-                    {/* Emoji Icon */}
-                    <div style={{
-                        width: '52px',
-                        height: '52px',
-                        borderRadius: '16px',
-                        background: colors.accentLight,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '1.6rem',
-                        flexShrink: 0
-                    }}>
-                        {item.emoji}
-                    </div>
-
                     {/* Title & Description */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{

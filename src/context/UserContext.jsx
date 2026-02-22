@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
+// ... (omitting lines for brevity, targeting the import)
 import { calculateCycleDay, getPhaseForDay, calculateStartDateFromPhase, getCyclePrediction } from '../logic/cycle'
 import { calculateCycleStats, addPeriodStart as addPeriodStartToHistory, predictNextPeriodStart, getOvulationWindow } from '../logic/cycle-learning'
 import { calculateTargetRanges } from '../logic/nutrition'
@@ -257,6 +258,7 @@ export function UserProvider({ children }) {
             p: Number(log.protein),
             c: Number(log.carbs),
             f: Number(log.fat),
+            fiber: Number(log.fiber || 0),
             item_type: log.item_type,
             configId: log.config_id,
             selectedVariants: log.selected_variants
@@ -540,13 +542,7 @@ export function UserProvider({ children }) {
     localStorage.removeItem('cyclus_onboarded')
   }
 
-  // LOGOUT (Simple)
-  const logout = () => {
-    setIsOnboarded(false)
-    localStorage.removeItem('cyclus_onboarded')
-    // Also sign out from Supabase auth
-    if (signOut) signOut()
-  }
+  // LOGOUT (Simple) - defined inline in context value to avoid HMR scoping issues
 
   // DELETE ACCOUNT (Real Deletion)
   const deleteAccount = async () => {
@@ -633,7 +629,8 @@ export function UserProvider({ children }) {
           kcal: newLog.kcal,
           protein: newLog.p,
           carbs: newLog.c,
-          fat: newLog.f
+          fat: newLog.f,
+          fiber: newLog.fiber
         })
         if (error) throw error
       } catch (e) {
@@ -671,7 +668,8 @@ export function UserProvider({ children }) {
       kcal: Math.round(food.kcal_100 * factor),
       p: parseFloat((food.protein_100 * factor).toFixed(1)),
       c: parseFloat((food.carbs_100 * factor).toFixed(1)),
-      f: parseFloat((food.fat_100 * factor).toFixed(1))
+      f: parseFloat((food.fat_100 * factor).toFixed(1)),
+      fiber: parseFloat(((food.fiber_100 || 0) * factor).toFixed(1))
     }
 
     // 1. Optimistic UI
@@ -694,7 +692,8 @@ export function UserProvider({ children }) {
         kcal: newLog.kcal,
         protein: newLog.p,
         carbs: newLog.c,
-        fat: newLog.f
+        fat: newLog.f,
+        fiber: newLog.fiber
       })
       if (error) throw error
     } catch (e) {
@@ -1126,8 +1125,9 @@ export function UserProvider({ children }) {
       kcal: acc.kcal + toNum(log.kcal),
       p: acc.p + toNum(log.p),
       c: acc.c + toNum(log.c),
-      f: acc.f + toNum(log.f)
-    }), { kcal: 0, p: 0, c: 0, f: 0 })
+      f: acc.f + toNum(log.f),
+      fiber: acc.fiber + toNum(log.fiber || 0)
+    }), { kcal: 0, p: 0, c: 0, f: 0, fiber: 0 })
   }
 
   // Get Phase for ANY Date - prioritizes manual override, uses learned cycle length
@@ -1172,6 +1172,16 @@ export function UserProvider({ children }) {
   // [REMOVED] - Already declared above
 
   // 8. Context Value
+  // LOGOUT (Simple)
+  // LOGOUT (Simple)
+  const logout = () => {
+    setIsOnboarded(false)
+    localStorage.removeItem('cyclus_onboarded')
+    // Also sign out from Supabase auth
+    if (signOut) signOut()
+  }
+
+  // 8. Context Value
   const value = useMemo(() => ({
     user,
     isOnboarded,
@@ -1184,10 +1194,10 @@ export function UserProvider({ children }) {
     resetData,
     logFood,
     deleteFoodLog,
-    addCustomFood, // NEW
+    addCustomFood,
     logMovement,
     logMenstruation,
-    togglePeriodDate, // NEW
+    togglePeriodDate,
     confirmPeriodToday,
     endPeriodToday,
     adjustCyclePhase,
@@ -1199,19 +1209,27 @@ export function UserProvider({ children }) {
     getPhaseForDate,
     currentDay,
     currentPhase,
-    isPeriodOverridden: user.currentPeriodLength !== null,
+    isPeriodOverridden: user?.currentPeriodLength !== null,
     targets,
-    movementLogs: user.movementLogs || [],
-    menstruationLogs: user.menstruationLogs || [],
-    // Cycle learning data exports
-    cycleStats: user.cycleStats,
-    periodStartDates: user.periodStartDates || []
-  }), [user, isOnboarded, isLoading, currentDay, currentPhase, targets])
+    movementLogs: user?.movementLogs || [],
+    menstruationLogs: user?.menstruationLogs || [],
+    cycleStats: user?.cycleStats,
+    periodStartDates: user?.periodStartDates || []
+  }), [
+    user,
+    isOnboarded,
+    isLoading,
+    currentDay,
+    currentPhase,
+    targets,
+    getStatsForDate,
+    getPhaseForDate
+  ])
 
   return (
-    <UserContext.Provider value={value}>
+    <UserContext.Provider value={value} >
       {children}
-    </UserContext.Provider>
+    </UserContext.Provider >
   )
 }
 
