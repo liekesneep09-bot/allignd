@@ -447,7 +447,7 @@ export default function Today({ onNavigate }) {
                       marginTop: '1.25rem',
                       background: 'rgba(255,255,255,0.5)',
                       border: '1px solid rgba(255,255,255,0.8)',
-                      padding: '0.8rem 1.5rem', // Larger touch target
+                      padding: '0.8rem 1.5rem',
                       borderRadius: '30px',
                       fontSize: '0.9rem',
                       fontWeight: '600',
@@ -458,6 +458,31 @@ export default function Today({ onNavigate }) {
                     }}
                   >
                     Menstruatie is gestopt
+                  </button>
+                )}
+
+                {/* Start Period Button for Non-Menstrual Phases */}
+                {viewPhase !== 'menstrual' && isToday && (
+                  <button
+                    onClick={() => {
+                      const todayStr = getLocalDateStr(new Date())
+                      logMenstruation(todayStr)
+                    }}
+                    style={{
+                      marginTop: '1.25rem',
+                      background: 'rgba(255,255,255,0.5)',
+                      border: '1px solid rgba(255,255,255,0.8)',
+                      padding: '0.8rem 1.5rem',
+                      borderRadius: '30px',
+                      fontSize: '0.9rem',
+                      fontWeight: '600',
+                      color: phaseStyle.text,
+                      cursor: 'pointer',
+                      backdropFilter: 'blur(4px)',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    Ongesteld geworden?
                   </button>
                 )}
 
