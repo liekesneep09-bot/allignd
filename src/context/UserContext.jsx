@@ -224,6 +224,7 @@ export function UserProvider({ children }) {
             protein_100: Number(f.protein_100),
             carbs_100: Number(f.carbs_100),
             fat_100: Number(f.fat_100),
+            fiber_100: Number(f.fiber_100 || 0),
             unit_type: f.unit_type || 'per_100g',
             isCustom: true
           }))
@@ -776,6 +777,7 @@ export function UserProvider({ children }) {
         protein_100: food.protein_100,
         carbs_100: food.carbs_100,
         fat_100: food.fat_100,
+        fiber_100: food.fiber_100 || 0,
         unit_type: food.unit_type
       })
     } catch (e) {
