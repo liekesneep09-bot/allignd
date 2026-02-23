@@ -237,6 +237,7 @@ export default function Login() {
                         <p style={{
                             fontSize: '0.9rem',
                             fontWeight: '400',
+                            fontStyle: 'italic',
                             color: 'var(--color-text-muted)',
                             letterSpacing: '0.2em',
                             textTransform: 'uppercase',
