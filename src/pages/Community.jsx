@@ -43,8 +43,8 @@ function PostCard({ post, onOpen, onLike, isLiked }) {
             onClick={() => onOpen(post)}
             style={{
                 background: 'var(--color-surface)',
-                borderRadius: '16px',
-                padding: '1.25rem',
+                borderRadius: '12px',
+                padding: '0.75rem 1rem',
                 cursor: 'pointer',
                 boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
                 transition: 'transform 0.1s',
@@ -52,13 +52,13 @@ function PostCard({ post, onOpen, onLike, isLiked }) {
             }}
         >
             {/* Header: author + time */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <span style={{
-                        width: '32px', height: '32px', borderRadius: '50%',
+                        width: '26px', height: '26px', borderRadius: '50%',
                         background: post.is_anonymous ? '#E8ECEF' : 'var(--color-primary)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '0.8rem', color: 'white', fontWeight: '600',
+                        fontSize: '0.7rem', color: 'white', fontWeight: '600',
                         flexShrink: 0
                     }}>
                         {post.is_anonymous ? '🌸' : (post.author_name?.[0] || '?').toUpperCase()}
@@ -86,7 +86,7 @@ function PostCard({ post, onOpen, onLike, isLiked }) {
             </div>
 
             {/* Category pill */}
-            <div style={{ marginBottom: '0.5rem' }}>
+            <div style={{ marginBottom: '0.2rem' }}>
                 <span style={{
                     fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em',
                     color: 'var(--color-text-muted)', fontWeight: '500'
@@ -95,20 +95,13 @@ function PostCard({ post, onOpen, onLike, isLiked }) {
                 </span>
             </div>
 
-            {/* Title + body preview */}
-            <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.35rem', color: 'var(--color-text)' }}>
+            {/* Title only – full body visible on click */}
+            <h3 style={{ fontSize: '0.95rem', fontWeight: '600', marginBottom: 0, color: 'var(--color-text)' }}>
                 {post.title}
             </h3>
-            <p style={{
-                fontSize: '0.9rem', color: 'var(--color-text-muted)', lineHeight: '1.4',
-                overflow: 'hidden', textOverflow: 'ellipsis',
-                display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'
-            }}>
-                {post.body}
-            </p>
 
             {/* Footer: likes + comments */}
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.75rem', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.4rem', alignItems: 'center' }}>
                 <button
                     onClick={(e) => { e.stopPropagation(); onLike(post.id) }}
                     style={{
@@ -140,6 +133,8 @@ export default function Community() {
     const [myLikes, setMyLikes] = useState(new Set()) // post IDs the user has liked
     const [myCommentLikes, setMyCommentLikes] = useState(new Set())
     const [activeCategory, setActiveCategory] = useState('alles')
+    const [sortOrder, setSortOrder] = useState('nieuwste') // 'nieuwste', 'oudste', 'populairst'
+    const [showMyPosts, setShowMyPosts] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [commentText, setCommentText] = useState('')
 
@@ -155,10 +150,14 @@ export default function Community() {
     const fetchPosts = useCallback(async () => {
         setIsLoading(true)
         try {
+            // For 'populairst' we still fetch by date then sort client-side
+            const orderCol = 'created_at'
+            const ascending = sortOrder === 'oudste'
+
             let query = supabase
                 .from('community_posts')
                 .select('*')
-                .order('created_at', { ascending: false })
+                .order(orderCol, { ascending })
                 .limit(50)
 
             if (activeCategory !== 'alles') {
@@ -167,13 +166,18 @@ export default function Community() {
 
             const { data, error } = await query
             if (error) throw error
-            setPosts(data || [])
+
+            let sorted = data || []
+            if (sortOrder === 'populairst') {
+                sorted = [...sorted].sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0))
+            }
+            setPosts(sorted)
         } catch (e) {
             console.error('Failed to fetch posts:', e)
         } finally {
             setIsLoading(false)
         }
-    }, [activeCategory])
+    }, [activeCategory, sortOrder])
 
     // ─── Fetch My Likes ──────────────────────────────────
     const fetchMyLikes = useCallback(async () => {
@@ -677,14 +681,14 @@ export default function Community() {
         <div className="container" style={{ paddingBottom: '120px' }}>
             {/* Header */}
             <div style={{ marginBottom: '1rem' }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.25rem' }}>The Allignd Circle</h2>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.25rem' }}>The Circle</h2>
                 <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>Deel je ervaring. Stel je vraag. Groei samen.</p>
             </div>
 
             {/* Category tabs */}
             <div style={{
                 display: 'flex', gap: '0.5rem', overflowX: 'auto',
-                paddingBottom: '0.5rem', marginBottom: '1rem',
+                paddingBottom: '0.5rem', marginBottom: '0.75rem',
                 msOverflowStyle: 'none', scrollbarWidth: 'none'
             }}>
                 {CATEGORIES.map(cat => (
@@ -705,28 +709,83 @@ export default function Community() {
                 ))}
             </div>
 
+            {/* Sort selector + Mijn posts */}
+            <div style={{
+                display: 'flex', gap: '0.4rem', marginBottom: '0.75rem', alignItems: 'center'
+            }}>
+                {[{ key: 'nieuwste', label: 'Nieuwste' }, { key: 'oudste', label: 'Oudste' }, { key: 'populairst', label: 'Populairst' }].map(opt => (
+                    <button
+                        key={opt.key}
+                        onClick={() => setSortOrder(opt.key)}
+                        style={{
+                            padding: '0.3rem 0.7rem', borderRadius: '14px', fontSize: '0.75rem',
+                            border: 'none', cursor: 'pointer',
+                            background: sortOrder === opt.key ? 'var(--color-primary)' : 'transparent',
+                            color: sortOrder === opt.key ? 'white' : 'var(--color-text-muted)',
+                            fontWeight: sortOrder === opt.key ? '600' : '400',
+                            transition: 'all 0.15s'
+                        }}
+                    >
+                        {opt.label}
+                    </button>
+                ))}
+
+                {/* Separator */}
+                <span style={{ width: '1px', height: '16px', background: 'var(--color-border)', margin: '0 0.2rem' }} />
+
+                {/* Mijn posts toggle */}
+                <button
+                    onClick={() => setShowMyPosts(prev => !prev)}
+                    style={{
+                        padding: '0.3rem 0.7rem', borderRadius: '14px', fontSize: '0.75rem',
+                        border: showMyPosts ? '1.5px solid var(--color-primary)' : 'none',
+                        cursor: 'pointer',
+                        background: showMyPosts ? 'rgba(112,193,163,0.15)' : 'transparent',
+                        color: showMyPosts ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                        fontWeight: showMyPosts ? '600' : '400',
+                        transition: 'all 0.15s'
+                    }}
+                >
+                    Mijn posts
+                </button>
+            </div>
+
             {/* Posts */}
-            {isLoading ? (
-                <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', padding: '2rem 0' }}>Laden...</p>
-            ) : posts.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--color-text-muted)' }}>
-                    <p style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>💬</p>
-                    <p style={{ fontSize: '1rem' }}>Nog geen berichten{activeCategory !== 'alles' ? ` in ${activeCategory}` : ''}.</p>
-                    <p style={{ fontSize: '0.9rem' }}>Wees de eerste die iets deelt!</p>
-                </div>
-            ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    {posts.map(post => (
-                        <PostCard
-                            key={post.id}
-                            post={post}
-                            onOpen={openPost}
-                            onLike={togglePostLike}
-                            isLiked={myLikes.has(post.id)}
-                        />
-                    ))}
-                </div>
-            )}
+            {(() => {
+                const displayPosts = showMyPosts
+                    ? posts.filter(p => p.user_id === authUser?.id)
+                    : posts
+
+                if (isLoading) {
+                    return <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', padding: '2rem 0' }}>Laden...</p>
+                }
+                if (displayPosts.length === 0) {
+                    return (
+                        <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--color-text-muted)' }}>
+                            <p style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>💬</p>
+                            <p style={{ fontSize: '1rem' }}>
+                                {showMyPosts
+                                    ? 'Je hebt nog geen berichten geplaatst.'
+                                    : `Nog geen berichten${activeCategory !== 'alles' ? ` in ${activeCategory}` : ''}.`}
+                            </p>
+                            <p style={{ fontSize: '0.9rem' }}>{showMyPosts ? 'Deel je eerste bericht!' : 'Wees de eerste die iets deelt!'}</p>
+                        </div>
+                    )
+                }
+                return (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        {displayPosts.map(post => (
+                            <PostCard
+                                key={post.id}
+                                post={post}
+                                onOpen={openPost}
+                                onLike={togglePostLike}
+                                isLiked={myLikes.has(post.id)}
+                            />
+                        ))}
+                    </div>
+                )
+            })()}
 
             {/* FAB: New Post */}
             <button
