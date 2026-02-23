@@ -87,15 +87,24 @@ export function UserProvider({ children }) {
     ? user.currentPeriodLength
     : (user.bleedingLengthDays || user.periodLength)
 
-  const currentPhase = user.cycleStart
-    ? getPhaseForDay(
-      currentDay,
-      effectiveCycleLength,
-      effectivePeriodLength,
-      user.isMenstruatingNow,
-      !!user.cycleStart
-    )
-    : 'follicular' // Default phase
+  // Determine current phase - MUST match getPhaseForDate logic for today
+  const currentPhase = (() => {
+    // Priority 1: Manual phase override
+    if (user.manualPhaseOverride && user.manualPhase) {
+      return user.manualPhase
+    }
+    // Priority 2: Normal calculation
+    if (user.cycleStart) {
+      return getPhaseForDay(
+        currentDay,
+        effectiveCycleLength,
+        effectivePeriodLength,
+        user.isMenstruatingNow,
+        true
+      )
+    }
+    return 'follicular' // Default phase
+  })()
 
   // USE STORED TARGETS (No fallback defaults!)
   const targets = user.macroTargets || null
