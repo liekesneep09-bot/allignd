@@ -132,9 +132,10 @@ export default function Community() {
     const [comments, setComments] = useState([])
     const [myLikes, setMyLikes] = useState(new Set()) // post IDs the user has liked
     const [myCommentLikes, setMyCommentLikes] = useState(new Set())
+    const [myCommentedPosts, setMyCommentedPosts] = useState(new Set()) // post IDs the user commented on
     const [activeCategory, setActiveCategory] = useState('alles')
     const [sortOrder, setSortOrder] = useState('nieuwste') // 'nieuwste', 'oudste', 'populairst'
-    const [showMyPosts, setShowMyPosts] = useState(false)
+    const [activeFilter, setActiveFilter] = useState(null) // null | 'mijn' | 'geliked' | 'gereageerd'
     const [isLoading, setIsLoading] = useState(false)
     const [commentText, setCommentText] = useState('')
 
@@ -202,8 +203,24 @@ export default function Community() {
         }
     }, [authUser])
 
+    // ─── Fetch My Commented Posts ─────────────────────────
+    const fetchMyCommentedPosts = useCallback(async () => {
+        if (!authUser) return
+        try {
+            const { data } = await supabase
+                .from('community_comments')
+                .select('post_id')
+                .eq('user_id', authUser.id)
+            const postIds = new Set((data || []).map(c => c.post_id))
+            setMyCommentedPosts(postIds)
+        } catch (e) {
+            console.error('Failed to fetch commented posts:', e)
+        }
+    }, [authUser])
+
     useEffect(() => { fetchPosts() }, [fetchPosts])
     useEffect(() => { fetchMyLikes() }, [fetchMyLikes])
+    useEffect(() => { fetchMyCommentedPosts() }, [fetchMyCommentedPosts])
 
     // ─── Toggle Like on Post ─────────────────────────────
     const togglePostLike = async (postId) => {
@@ -306,6 +323,7 @@ export default function Community() {
 
             setComments(prev => [...prev, data])
             setSelectedPost(prev => ({ ...prev, comments_count: (prev.comments_count || 0) + 1 }))
+            setMyCommentedPosts(prev => new Set(prev).add(selectedPost.id))
             setCommentText('')
         } catch (e) {
             console.error('Failed to post comment:', e)
@@ -809,28 +827,43 @@ export default function Community() {
                 {/* Separator */}
                 <span style={{ width: '1px', height: '16px', background: 'var(--color-border)', margin: '0 0.2rem' }} />
 
-                {/* Mijn posts toggle */}
-                <button
-                    onClick={() => setShowMyPosts(prev => !prev)}
-                    style={{
-                        padding: '0.3rem 0.7rem', borderRadius: '14px', fontSize: '0.75rem',
-                        border: showMyPosts ? '1.5px solid var(--color-primary)' : 'none',
-                        cursor: 'pointer',
-                        background: showMyPosts ? 'rgba(112,193,163,0.15)' : 'transparent',
-                        color: showMyPosts ? 'var(--color-primary)' : 'var(--color-text-muted)',
-                        fontWeight: showMyPosts ? '600' : '400',
-                        transition: 'all 0.15s'
-                    }}
-                >
-                    Mijn posts
-                </button>
+                {/* Personal filters */}
+                {[{ key: 'mijn', label: 'Mijn posts' }, { key: 'geliked', label: '♥' }, { key: 'gereageerd', label: '💬' }].map(f => (
+                    <button
+                        key={f.key}
+                        onClick={() => setActiveFilter(prev => prev === f.key ? null : f.key)}
+                        style={{
+                            padding: '0.3rem 0.7rem', borderRadius: '14px', fontSize: '0.75rem',
+                            border: activeFilter === f.key ? '1.5px solid var(--color-primary)' : 'none',
+                            cursor: 'pointer',
+                            background: activeFilter === f.key ? 'rgba(112,193,163,0.15)' : 'transparent',
+                            color: activeFilter === f.key ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                            fontWeight: activeFilter === f.key ? '600' : '400',
+                            transition: 'all 0.15s',
+                            whiteSpace: 'nowrap'
+                        }}
+                    >
+                        {f.label}
+                    </button>
+                ))}
             </div>
 
             {/* Posts */}
             {(() => {
-                const displayPosts = showMyPosts
-                    ? posts.filter(p => p.user_id === authUser?.id)
-                    : posts
+                let displayPosts = posts
+                if (activeFilter === 'mijn') {
+                    displayPosts = posts.filter(p => p.user_id === authUser?.id)
+                } else if (activeFilter === 'geliked') {
+                    displayPosts = posts.filter(p => myLikes.has(p.id))
+                } else if (activeFilter === 'gereageerd') {
+                    displayPosts = posts.filter(p => myCommentedPosts.has(p.id))
+                }
+
+                const emptyMessages = {
+                    mijn: 'Je hebt nog geen berichten geplaatst.',
+                    geliked: 'Je hebt nog geen berichten geliked.',
+                    gereageerd: 'Je hebt nog nergens op gereageerd.'
+                }
 
                 if (isLoading) {
                     return <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', padding: '2rem 0' }}>Laden...</p>
@@ -840,11 +873,11 @@ export default function Community() {
                         <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--color-text-muted)' }}>
                             <p style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>💬</p>
                             <p style={{ fontSize: '1rem' }}>
-                                {showMyPosts
-                                    ? 'Je hebt nog geen berichten geplaatst.'
+                                {activeFilter
+                                    ? emptyMessages[activeFilter]
                                     : `Nog geen berichten${activeCategory !== 'alles' ? ` in ${activeCategory}` : ''}.`}
                             </p>
-                            <p style={{ fontSize: '0.9rem' }}>{showMyPosts ? 'Deel je eerste bericht!' : 'Wees de eerste die iets deelt!'}</p>
+                            <p style={{ fontSize: '0.9rem' }}>{activeFilter ? '' : 'Wees de eerste die iets deelt!'}</p>
                         </div>
                     )
                 }

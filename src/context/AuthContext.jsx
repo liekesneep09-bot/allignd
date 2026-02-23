@@ -69,7 +69,7 @@ export function AuthProvider({ children }) {
             email,
             password,
             options: {
-                emailRedirectTo: window.location.origin
+                emailRedirectTo: `${window.location.origin}/auth/callback`
             }
         })
 
@@ -93,7 +93,7 @@ export function AuthProvider({ children }) {
             type: 'signup',
             email: email,
             options: {
-                emailRedirectTo: window.location.origin
+                emailRedirectTo: `${window.location.origin}/auth/callback`
             }
         })
 
