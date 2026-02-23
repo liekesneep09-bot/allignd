@@ -205,66 +205,65 @@ export default function Login() {
                     zIndex: 0
                 }} />
 
-                {/* Content — single centered block */}
+                {/* Content */}
                 <div style={{
                     position: 'relative',
                     zIndex: 1,
-                    flex: 1,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
                     width: '100%',
+                    height: '100vh',
                     maxWidth: '400px',
                     margin: '0 auto',
                     padding: '2rem'
                 }}>
 
-                    {/* Logo */}
-                    <img
-                        src={logo}
-                        alt="Allignd"
-                        style={{
-                            height: '160px',
-                            width: 'auto',
-                            maxWidth: '75%',
-                            marginBottom: '0.25rem',
-                            objectFit: 'contain'
-                        }}
-                    />
+                    {/* Logo + Tagline — perfectly centered in viewport */}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                        <img
+                            src={logo}
+                            alt="Allignd"
+                            style={{
+                                height: '260px',
+                                width: 'auto',
+                                maxWidth: '90%',
+                                marginBottom: '1rem',
+                                objectFit: 'contain'
+                            }}
+                        />
 
-                    {/* Tagline */}
-                    <p style={{
-                        fontSize: '0.85rem',
-                        fontWeight: '400',
-                        color: 'var(--color-text-muted)',
-                        letterSpacing: '0.18em',
-                        textTransform: 'uppercase',
-                        textAlign: 'center',
-                        margin: '0 0 3rem 0'
+                        <p style={{
+                            fontSize: '0.9rem',
+                            fontWeight: '400',
+                            color: 'var(--color-text-muted)',
+                            letterSpacing: '0.2em',
+                            textTransform: 'uppercase',
+                            textAlign: 'center',
+                            margin: 0
+                        }}>
+                            Move with your cycle
+                        </p>
+                    </div>
+
+                    {/* Buttons — pinned to bottom so they don't disrupt centering */}
+                    <div style={{
+                        position: 'absolute',
+                        bottom: '2.5rem',
+                        left: 0,
+                        right: 0,
+                        padding: '0 2rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.75rem',
+                        width: '100%'
                     }}>
-                        Move with your cycle
-                    </p>
-
-                    {/* Subtitle */}
-                    <p style={{
-                        textAlign: 'center',
-                        fontSize: '0.9rem',
-                        color: 'var(--color-text-muted)',
-                        marginBottom: '1.25rem',
-                        fontStyle: 'italic',
-                        opacity: 0.7
-                    }}>
-                        Omdat jouw lichaam geen one-size-fits-all is
-                    </p>
-
-                    {/* Buttons */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%' }}>
                         <button
                             onClick={() => setView('signup')}
                             style={{
                                 width: '100%',
-                                padding: '1.15rem',
+                                padding: '1.2rem',
                                 borderRadius: '14px',
                                 border: 'none',
                                 background: 'var(--color-primary)',
@@ -283,7 +282,7 @@ export default function Login() {
                             onClick={() => setView('login')}
                             style={{
                                 width: '100%',
-                                padding: '0.85rem',
+                                padding: '0.9rem',
                                 background: 'transparent',
                                 border: 'none',
                                 color: 'var(--color-text)',
