@@ -205,7 +205,7 @@ export default function Login() {
                     zIndex: 0
                 }} />
 
-                {/* Content */}
+                {/* Content — single centered block */}
                 <div style={{
                     position: 'relative',
                     zIndex: 1,
@@ -220,83 +220,81 @@ export default function Login() {
                     padding: '2rem'
                 }}>
 
-                    {/* Logo + Tagline (centered as one unit) */}
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                        <img
-                            src={logo}
-                            alt="Allignd"
+                    {/* Logo */}
+                    <img
+                        src={logo}
+                        alt="Allignd"
+                        style={{
+                            height: '160px',
+                            width: 'auto',
+                            maxWidth: '75%',
+                            marginBottom: '0.25rem',
+                            objectFit: 'contain'
+                        }}
+                    />
+
+                    {/* Tagline */}
+                    <p style={{
+                        fontSize: '0.85rem',
+                        fontWeight: '400',
+                        color: 'var(--color-text-muted)',
+                        letterSpacing: '0.18em',
+                        textTransform: 'uppercase',
+                        textAlign: 'center',
+                        margin: '0 0 3rem 0'
+                    }}>
+                        Move with your cycle
+                    </p>
+
+                    {/* Subtitle */}
+                    <p style={{
+                        textAlign: 'center',
+                        fontSize: '0.9rem',
+                        color: 'var(--color-text-muted)',
+                        marginBottom: '1.25rem',
+                        fontStyle: 'italic',
+                        opacity: 0.7
+                    }}>
+                        Omdat jouw lichaam geen one-size-fits-all is
+                    </p>
+
+                    {/* Buttons */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%' }}>
+                        <button
+                            onClick={() => setView('signup')}
                             style={{
-                                height: '180px',
-                                width: 'auto',
-                                maxWidth: '80%',
-                                marginBottom: '0.5rem',
-                                objectFit: 'contain'
+                                width: '100%',
+                                padding: '1.15rem',
+                                borderRadius: '14px',
+                                border: 'none',
+                                background: 'var(--color-primary)',
+                                color: 'white',
+                                fontSize: '1.05rem',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                boxShadow: '0 6px 18px rgba(112, 193, 163, 0.25)',
+                                transition: 'transform 0.1s'
                             }}
-                        />
+                        >
+                            Meld je aan
+                        </button>
 
-                        <p style={{
-                            fontSize: '1.05rem',
-                            fontWeight: '400',
-                            color: 'var(--color-text-muted)',
-                            letterSpacing: '0.15em',
-                            textTransform: 'uppercase',
-                            textAlign: 'center',
-                            margin: 0
-                        }}>
-                            Move with your cycle
-                        </p>
-                    </div>
-
-                    {/* Bottom actions */}
-                    <div style={{ width: '100%', paddingBottom: '2.5rem' }}>
-                        <p style={{
-                            textAlign: 'center',
-                            fontSize: '0.9rem',
-                            color: 'var(--color-text-muted)',
-                            marginBottom: '1.5rem',
-                            fontStyle: 'italic',
-                            opacity: 0.8
-                        }}>
-                            Omdat jouw lichaam geen one-size-fits-all is
-                        </p>
-
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <button
-                                onClick={() => setView('signup')}
-                                style={{
-                                    width: '100%',
-                                    padding: '1.25rem',
-                                    borderRadius: '16px',
-                                    border: 'none',
-                                    background: 'var(--color-primary)',
-                                    color: 'white',
-                                    fontSize: '1.1rem',
-                                    fontWeight: '600',
-                                    cursor: 'pointer',
-                                    boxShadow: '0 8px 20px rgba(112, 193, 163, 0.3)',
-                                    transition: 'transform 0.1s'
-                                }}
-                            >
-                                Meld je aan
-                            </button>
-
-                            <button
-                                onClick={() => setView('login')}
-                                style={{
-                                    width: '100%',
-                                    padding: '1rem',
-                                    background: 'transparent',
-                                    border: 'none',
-                                    color: 'var(--color-text)',
-                                    fontSize: '1rem',
-                                    fontWeight: '500',
-                                    cursor: 'pointer',
-                                    opacity: 0.8
-                                }}
-                            >
-                                Log in
-                            </button>
-                        </div>
+                        <button
+                            onClick={() => setView('login')}
+                            style={{
+                                width: '100%',
+                                padding: '0.85rem',
+                                background: 'transparent',
+                                border: 'none',
+                                color: 'var(--color-text)',
+                                fontSize: '0.95rem',
+                                fontWeight: '500',
+                                cursor: 'pointer',
+                                opacity: 0.7
+                            }}
+                        >
+                            Log in
+                        </button>
                     </div>
 
                     {/* Config Warning */}
