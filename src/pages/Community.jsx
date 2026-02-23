@@ -350,13 +350,24 @@ export default function Community() {
 
     // ─── Delete own post ─────────────────────────────────
     const deletePost = async (postId) => {
-        if (!confirm('Weet je zeker dat je dit bericht wilt verwijderen?')) return
+        if (!window.confirm('Weet je zeker dat je dit bericht wilt verwijderen?')) return
+        if (!authUser) return
         try {
-            await supabase.from('community_posts').delete().eq('id', postId)
+            const { error } = await supabase
+                .from('community_posts')
+                .delete()
+                .eq('id', postId)
+                .eq('user_id', authUser.id)
+            if (error) {
+                console.error('Delete failed:', error)
+                alert('Verwijderen mislukt: ' + error.message)
+                return
+            }
             setView('feed')
             fetchPosts()
         } catch (e) {
             console.error('Failed to delete post:', e)
+            alert('Verwijderen mislukt')
         }
     }
 
@@ -517,6 +528,7 @@ export default function Community() {
     // ───────────────────────────────────────────────────────
     if (view === 'detail' && selectedPost) {
         const isOwner = authUser?.id === selectedPost.user_id
+        console.log('[Circle] isOwner check:', { authUserId: authUser?.id, postUserId: selectedPost.user_id, isOwner })
         return (
             <div className="container" style={{ paddingBottom: '120px' }}>
                 {/* Back */}
