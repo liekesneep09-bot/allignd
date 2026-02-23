@@ -145,6 +145,7 @@ export default function Community() {
     const [newPhaseTag, setNewPhaseTag] = useState(currentPhase || null)
     const [newAnonymous, setNewAnonymous] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [deleteConfirmId, setDeleteConfirmId] = useState(null) // post ID awaiting delete confirmation
 
     // ─── Fetch Posts ──────────────────────────────────────
     const fetchPosts = useCallback(async () => {
@@ -349,9 +350,18 @@ export default function Community() {
     }
 
     // ─── Delete own post ─────────────────────────────────
-    const deletePost = async (postId) => {
-        if (!window.confirm('Weet je zeker dat je dit bericht wilt verwijderen?')) return
-        if (!authUser) return
+    const confirmDeletePost = (postId) => {
+        setDeleteConfirmId(postId)
+    }
+
+    const cancelDelete = () => {
+        setDeleteConfirmId(null)
+    }
+
+    const executeDelete = async () => {
+        if (!deleteConfirmId || !authUser) return
+        const postId = deleteConfirmId
+        setDeleteConfirmId(null)
         try {
             const { error } = await supabase
                 .from('community_posts')
@@ -599,7 +609,7 @@ export default function Community() {
                         </span>
                         {isOwner && (
                             <button
-                                onClick={() => deletePost(selectedPost.id)}
+                                onClick={() => confirmDeletePost(selectedPost.id)}
                                 style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#ef4444', fontSize: '0.8rem', cursor: 'pointer' }}
                             >
                                 Verwijderen
@@ -682,6 +692,60 @@ export default function Community() {
                         ➤
                     </button>
                 </div>
+
+                {/* Delete Confirmation Modal */}
+                {deleteConfirmId && (
+                    <div
+                        onClick={cancelDelete}
+                        style={{
+                            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                            background: 'rgba(0,0,0,0.5)', display: 'flex',
+                            alignItems: 'center', justifyContent: 'center',
+                            zIndex: 1000, padding: '1rem'
+                        }}
+                    >
+                        <div
+                            onClick={e => e.stopPropagation()}
+                            style={{
+                                background: 'var(--color-surface)', borderRadius: '16px',
+                                padding: '1.5rem', maxWidth: '320px', width: '100%',
+                                boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+                                textAlign: 'center'
+                            }}
+                        >
+                            <p style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--color-text)' }}>
+                                Bericht verwijderen?
+                            </p>
+                            <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '1.25rem' }}>
+                                Dit kan niet ongedaan worden gemaakt.
+                            </p>
+                            <div style={{ display: 'flex', gap: '0.75rem' }}>
+                                <button
+                                    onClick={cancelDelete}
+                                    style={{
+                                        flex: 1, padding: '0.7rem', borderRadius: '12px',
+                                        border: '1px solid var(--color-border)', background: 'var(--color-bg)',
+                                        color: 'var(--color-text)', fontSize: '0.9rem', fontWeight: '500',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    Annuleren
+                                </button>
+                                <button
+                                    onClick={executeDelete}
+                                    style={{
+                                        flex: 1, padding: '0.7rem', borderRadius: '12px',
+                                        border: 'none', background: '#ef4444',
+                                        color: 'white', fontSize: '0.9rem', fontWeight: '600',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    Verwijderen
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         )
     }
