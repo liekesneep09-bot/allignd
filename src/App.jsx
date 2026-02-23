@@ -9,7 +9,6 @@ import Recipes from './pages/Recipes'
 import Fitness from './pages/Fitness'
 import Profile from './pages/Profile'
 import Community from './pages/Community'
-import Assistant from './pages/Assistant'
 import Login from './pages/Login'
 import InstallPrompt from './components/InstallPrompt'
 import OfflineBanner from './components/OfflineBanner'
@@ -20,7 +19,7 @@ import DebugPanel from './components/DebugPanel'
 import { supabaseConfigError } from './utils/supabaseClient'
 import AuthCallback from './components/AuthCallback'
 
-import { IconHome, IconSparkles, IconActivity, IconRecipe, IconAccount } from './components/Icons'
+import { IconHome, IconActivity, IconRecipe, IconAccount, IconCommunity } from './components/Icons'
 import logo from './assets/logo-primary.svg'
 
 function MainLayout() {
@@ -103,11 +102,10 @@ function MainLayout() {
                 transition: 'background 0.5s ease'
             }}>
                 {currentView === 'today' && <Today onNavigate={setCurrentView} />}
-                {currentView === 'assistant' && <Assistant />}
+                {currentView === 'community' && <Community />}
                 {currentView === 'fitness' && <Fitness />}
                 {currentView === 'recipes' && <Recipes />}
                 {currentView === 'guide' && <PhaseGuide />}
-                {currentView === 'community' && <Community />}
                 {currentView === 'profile' && <Profile />}
             </main>
 
@@ -145,21 +143,21 @@ function MainLayout() {
                 </button>
 
                 <button
-                    onClick={() => setCurrentView('assistant')}
+                    onClick={() => setCurrentView('community')}
                     style={{
-                        color: currentView === 'assistant' ? phaseStyle.text : 'var(--color-text-muted)',
+                        color: currentView === 'community' ? phaseStyle.text : 'var(--color-text-muted)',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
                         fontSize: '0.7rem',
-                        fontWeight: currentView === 'assistant' ? '600' : '400',
+                        fontWeight: currentView === 'community' ? '600' : '400',
                         background: 'none',
                         gap: '4px',
                         width: '64px'
                     }}
                 >
-                    <IconSparkles size={24} />
-                    Assistent
+                    <IconCommunity size={24} />
+                    Community
                 </button>
 
                 <button
