@@ -180,6 +180,8 @@ export function UserProvider({ children }) {
             cycleStats: profile.cycle_stats || {},
             menstruationLogs: profile.menstruation_logs || [], // LOADED
             isMenstruatingNow: false,
+            manualPhaseOverride: profile.manual_phase_override || false,
+            manualPhase: profile.manual_phase || null,
             macroTargets: null
           }
 
@@ -370,6 +372,10 @@ export function UserProvider({ children }) {
 
       // Menstruation Logs (Calendar Interactions)
       if (data.menstruationLogs !== undefined) updates.menstruation_logs = data.menstruationLogs
+
+      // Manual Phase Override
+      if (data.manualPhaseOverride !== undefined) updates.manual_phase_override = data.manualPhaseOverride
+      if (data.manualPhase !== undefined) updates.manual_phase = data.manualPhase
 
       // Add New Macros if recalculated
       if (newMacros) {
