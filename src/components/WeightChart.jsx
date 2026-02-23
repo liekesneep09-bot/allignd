@@ -38,7 +38,7 @@ export default function WeightChart() {
     // Phase colors (matching the app palette)
     const PHASE_COLORS = {
         menstrual: '#a8647325',
-        follicular: '#99f0ff30',
+        follicular: '#5bc4d430',
         ovulatory: '#f5a89c25',
         luteal: '#e2a9f125'
     }

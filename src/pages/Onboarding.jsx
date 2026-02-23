@@ -118,7 +118,7 @@ export default function Onboarding() {
                 <style>{`
                     @keyframes phaseColors {
                         0%, 100% { background: linear-gradient(135deg, #a8647320 0%, rgba(168,100,115,0.05) 50%, #FFFFFF 100%); }
-                        25% { background: linear-gradient(135deg, #99f0ff40 0%, rgba(153,240,255,0.1) 50%, #FFFFFF 100%); }
+                        25% { background: linear-gradient(135deg, #5bc4d440 0%, rgba(91,196,212,0.1) 50%, #FFFFFF 100%); }
                         50% { background: linear-gradient(135deg, #f5a89c20 0%, rgba(245,168,156,0.05) 50%, #FFFFFF 100%); }
                         75% { background: linear-gradient(135deg, #e2a9f120 0%, rgba(226,169,241,0.05) 50%, #FFFFFF 100%); }
                     }
@@ -177,7 +177,7 @@ export default function Onboarding() {
             <style>{`
                     @keyframes phaseColorsForm {
                         0%, 100% { background: linear-gradient(135deg, #a8647310 0%, rgba(168,100,115,0.02) 50%, #FFFFFF 100%); }
-                        25% { background: linear-gradient(135deg, #99f0ff20 0%, rgba(153,240,255,0.05) 50%, #FFFFFF 100%); }
+                        25% { background: linear-gradient(135deg, #5bc4d420 0%, rgba(91,196,212,0.05) 50%, #FFFFFF 100%); }
                         50% { background: linear-gradient(135deg, #f5a89c10 0%, rgba(245,168,156,0.02) 50%, #FFFFFF 100%); }
                         75% { background: linear-gradient(135deg, #e2a9f110 0%, rgba(226,169,241,0.02) 50%, #FFFFFF 100%); }
                     }

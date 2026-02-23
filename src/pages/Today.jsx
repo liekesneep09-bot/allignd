@@ -235,9 +235,9 @@ export default function Today({ onNavigate }) {
         accent: '#a8647380'
       }
       case 'follicular': return {
-        bg: 'linear-gradient(to bottom, #99f0ff60 0%, rgba(153,240,255,0.2) 60%, rgba(255,255,255,0) 100%)',
+        bg: 'linear-gradient(to bottom, #5bc4d460 0%, rgba(91,196,212,0.2) 60%, rgba(255,255,255,0) 100%)',
         text: '#5bc4d4',
-        accent: '#99f0ff80'
+        accent: '#5bc4d480'
       }
       case 'ovulatory': return {
         bg: 'linear-gradient(to bottom, #f5a89c40 0%, rgba(245,168,156,0.2) 60%, rgba(255,255,255,0) 100%)',

@@ -34,7 +34,7 @@ function MainLayout() {
                 text: '#a86473'
             }
             case 'follicular': return {
-                bg: 'linear-gradient(to bottom, #99f0ff40 0%, rgba(153,240,255,0.1) 40%, #FFFFFF 100%)',
+                bg: 'linear-gradient(to bottom, #5bc4d440 0%, rgba(91,196,212,0.1) 40%, #FFFFFF 100%)',
                 text: '#5bc4d4'
             }
             case 'ovulatory': return {
