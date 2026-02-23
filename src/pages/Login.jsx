@@ -220,25 +220,26 @@ export default function Login() {
                     padding: '2rem'
                 }}>
 
-                    {/* Logo (big, centered) */}
+                    {/* Logo + Tagline (centered as one unit) */}
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                         <img
                             src={logo}
                             alt="Allignd"
                             style={{
-                                height: '220px',
+                                height: '180px',
                                 width: 'auto',
                                 maxWidth: '80%',
-                                marginBottom: '1.5rem',
+                                marginBottom: '0.5rem',
                                 objectFit: 'contain'
                             }}
                         />
 
                         <p style={{
-                            fontSize: '1.25rem',
-                            fontWeight: '600',
-                            color: 'var(--color-text)',
-                            letterSpacing: '-0.01em',
+                            fontSize: '1.05rem',
+                            fontWeight: '400',
+                            color: 'var(--color-text-muted)',
+                            letterSpacing: '0.15em',
+                            textTransform: 'uppercase',
                             textAlign: 'center',
                             margin: 0
                         }}>
