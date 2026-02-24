@@ -101,7 +101,7 @@ export default function InstallPrompt() {
                         fontWeight: '600',
                         color: 'var(--color-text)'
                     }}>
-                        Installeer Allignd
+                        Zet Allignd op je homescreen
                     </h3>
                     <p style={{
                         margin: '4px 0 0',
@@ -109,8 +109,8 @@ export default function InstallPrompt() {
                         color: 'var(--color-text-muted)'
                     }}>
                         {isIOS
-                            ? 'Tik op "Deel" en dan "Zet op beginscherm"'
-                            : 'Voeg toe aan je startscherm voor snelle toegang'}
+                            ? 'Tik op het Deel-icoon onderin en kies voor \'Zet op beginscherm\''
+                            : 'Klik op Installeren om de app direct op je beginscherm te plaatsen'}
                     </p>
                 </div>
             </div>

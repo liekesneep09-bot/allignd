@@ -163,7 +163,9 @@ export default function Community() {
                 .limit(50)
 
             if (activeCategory !== 'alles') {
-                query = query.eq('category', activeCategory)
+                // Use ilike to make it case-insensitive, just in case some posts 
+                // were saved with "Voeding" instead of "voeding"
+                query = query.ilike('category', activeCategory)
             }
 
             const { data, error } = await query
@@ -805,51 +807,63 @@ export default function Community() {
 
             {/* Sort selector + Mijn posts */}
             <div style={{
-                display: 'flex', gap: '0.4rem', marginBottom: '0.75rem', alignItems: 'center'
+                display: 'flex', gap: '0.4rem', marginBottom: '0.75rem', alignItems: 'center',
+                overflowX: 'auto', paddingBottom: '0.5rem', msOverflowStyle: 'none', scrollbarWidth: 'none'
             }}>
-                {[{ key: 'nieuwste', label: 'Nieuwste' }, { key: 'oudste', label: 'Oudste' }, { key: 'populairst', label: 'Populairst' }].map(opt => (
-                    <button
-                        key={opt.key}
-                        onClick={() => setSortOrder(opt.key)}
-                        style={{
-                            padding: '0.3rem 0.7rem', borderRadius: '14px', fontSize: '0.75rem',
-                            border: 'none', cursor: 'pointer',
-                            background: sortOrder === opt.key ? 'var(--color-primary)' : 'transparent',
-                            color: sortOrder === opt.key ? 'white' : 'var(--color-text-muted)',
-                            fontWeight: sortOrder === opt.key ? '600' : '400',
-                            transition: 'all 0.15s'
-                        }}
-                    >
-                        {opt.label}
-                    </button>
-                ))}
+                {/* Horizontal scroll container for all filters */}
+                <div style={{ display: 'flex', gap: '0.4rem', minWidth: 'max-content' }}>
+                    {[{ key: 'nieuwste', label: 'Nieuwste' }, { key: 'oudste', label: 'Oudste' }, { key: 'populairst', label: 'Populairst' }].map(opt => (
+                        <button
+                            key={opt.key}
+                            onClick={() => {
+                                setSortOrder(opt.key);
+                                setActiveFilter(null); // Clear personal filter when sorting
+                            }}
+                            style={{
+                                padding: '0.4rem 0.8rem', borderRadius: '20px', fontSize: '0.75rem',
+                                border: '1px solid var(--color-border)', cursor: 'pointer',
+                                background: (sortOrder === opt.key && !activeFilter) ? 'var(--color-primary)' : 'var(--color-surface)',
+                                color: (sortOrder === opt.key && !activeFilter) ? 'white' : 'var(--color-text)',
+                                fontWeight: (sortOrder === opt.key && !activeFilter) ? '600' : '500',
+                                transition: 'all 0.15s'
+                            }}
+                        >
+                            {opt.label}
+                        </button>
+                    ))}
 
-                {/* Separator */}
-                <span style={{ width: '1px', height: '16px', background: 'var(--color-border)', margin: '0 0.2rem' }} />
+                    {/* Separator */}
+                    <span style={{ width: '1px', height: '16px', background: 'var(--color-border)', margin: '0 0.2rem', alignSelf: 'center' }} />
 
-                {/* Personal filters */}
-                {[{ key: 'mijn', label: 'Mijn posts' }, { key: 'geliked', label: '♥' }, { key: 'gereageerd', label: '💬' }].map(f => (
-                    <button
-                        key={f.key}
-                        onClick={() => setActiveFilter(prev => prev === f.key ? null : f.key)}
-                        style={{
-                            padding: '0.3rem 0.7rem', borderRadius: '14px', fontSize: '0.75rem',
-                            border: activeFilter === f.key ? '1.5px solid var(--color-primary)' : 'none',
-                            cursor: 'pointer',
-                            background: activeFilter === f.key ? 'rgba(112,193,163,0.15)' : 'transparent',
-                            color: activeFilter === f.key ? 'var(--color-primary)' : 'var(--color-text-muted)',
-                            fontWeight: activeFilter === f.key ? '600' : '400',
-                            transition: 'all 0.15s',
-                            whiteSpace: 'nowrap'
-                        }}
-                    >
-                        {f.label}
-                    </button>
-                ))}
+                    {/* Personal filters */}
+                    {[{ key: 'mijn', label: 'Mijn posts' }, { key: 'geliked', label: '♥' }, { key: 'gereageerd', label: '💬' }].map(f => (
+                        <button
+                            key={f.key}
+                            onClick={() => {
+                                setActiveFilter(prev => prev === f.key ? null : f.key);
+                                // We don't change sortOrder here so it remembers the sort when they un-toggle
+                            }}
+                            style={{
+                                padding: '0.4rem 0.8rem', borderRadius: '20px', fontSize: '0.75rem',
+                                border: activeFilter === f.key ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                cursor: 'pointer',
+                                background: activeFilter === f.key ? 'var(--color-primary)' : 'var(--color-surface)',
+                                color: activeFilter === f.key ? 'white' : 'var(--color-text)',
+                                fontWeight: activeFilter === f.key ? '600' : '500',
+                                transition: 'all 0.15s',
+                                whiteSpace: 'nowrap',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                            }}
+                        >
+                            {f.label}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {/* Posts */}
             {(() => {
+                // Filter the fetched posts based on the active personal filter
                 let displayPosts = posts
                 if (activeFilter === 'mijn') {
                     displayPosts = posts.filter(p => p.user_id === authUser?.id)
