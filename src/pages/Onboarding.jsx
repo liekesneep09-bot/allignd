@@ -443,9 +443,9 @@ export default function Onboarding() {
                             <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' }}>Dagelijkse stappen</label>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.5rem' }}>
                                 <SelectOption label="Minder dan 4.000 stappen" selected={formData.steps_range === 'lt4k'} onClick={() => handleChange('steps_range', 'lt4k')} />
-                                <SelectOption label="4.000 – 7.000 stappen" selected={formData.steps_range === 'k4_7'} onClick={() => handleChange('steps_range', 'k4_7')} />
-                                <SelectOption label="7.000 – 10.000 stappen" selected={formData.steps_range === 'k7_10'} onClick={() => handleChange('steps_range', 'k7_10')} />
-                                <SelectOption label="Meer dan 10.000 stappen" selected={formData.steps_range === 'gt10k'} onClick={() => handleChange('steps_range', 'gt10k')} />
+                                <SelectOption label="4.000 – 8.000 stappen" selected={formData.steps_range === '4k_8k'} onClick={() => handleChange('steps_range', '4k_8k')} />
+                                <SelectOption label="8.000 – 12.000 stappen" selected={formData.steps_range === '8k_12k'} onClick={() => handleChange('steps_range', '8k_12k')} />
+                                <SelectOption label="Meer dan 12.000 stappen" selected={formData.steps_range === 'gt12k'} onClick={() => handleChange('steps_range', 'gt12k')} />
                             </div>
                         </div>
 
@@ -557,8 +557,8 @@ export default function Onboarding() {
 
             <div style={{ marginTop: '2rem', paddingBottom: '2rem' }}>
                 <div style={{ marginTop: '2rem', paddingBottom: '2rem' }}>
-                    <button className="btn btn-primary" onClick={handleNext} disabled={!isValid(step, formData, !!authUser)}>
-                        {step === 6 ? (authUser ? 'Profiel Opslaan & Starten' : 'Account aanmaken & Starten') : 'Volgende'}
+                    <button className="btn btn-primary" onClick={handleNext} disabled={isLoading || !isValid(step, formData, !!authUser)}>
+                        {isLoading ? 'Bezig met opslaan...' : (step === 6 ? (authUser ? 'Profiel Opslaan & Starten' : 'Account aanmaken & Starten') : 'Volgende')}
                     </button>
                 </div>
             </div>
@@ -632,12 +632,13 @@ function isValid(step, data, isAuthed) {
     if (step === 3 && !data.goal) return false
 
     // Step 4: Activity (Must have lifestyle, steps, frequency)
-    // Frequency 0 is valid, so check undefined/null
+    // Frequency 0 is valid, so check undefined/null explicitly
     if (step === 4 && (
         !data.lifestyle_level ||
         !data.steps_range ||
         data.trainingFrequency === undefined ||
-        data.trainingFrequency === null
+        data.trainingFrequency === null ||
+        data.trainingFrequency === ''
     )) return false
 
     // Step 5: Experience

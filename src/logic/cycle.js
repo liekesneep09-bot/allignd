@@ -213,3 +213,41 @@ export function calculateStartDateFromPhase(targetPhase, cycleLength = 28, perio
 
     return startDate
 }
+
+/**
+ * Determines if the current day is in a transition period (last 1-2 days of a phase)
+ * @param {number} day 
+ * @param {number} cycleLength 
+ * @param {number} periodLength 
+ * @param {string} currentPhase 
+ * @returns {Object|null} { isTransition, nextPhase, daysLeft }
+ */
+export function getPhaseTransition(day, cycleLength = 28, periodLength = 5, currentPhase) {
+    if (!day || day < 1 || day > cycleLength) return null
+
+    const lutealLength = 14
+    const ovulationDay = cycleLength - lutealLength
+    const fertileStart = ovulationDay - 5
+    const fertileEnd = ovulationDay + 1
+
+    if (currentPhase === PHASES.MENSTRUAL) {
+        const effectivePeriod = periodLength || 5
+        if (day >= effectivePeriod - 1 && day <= effectivePeriod) {
+            return { isTransition: true, nextPhase: PHASES.FOLLICULAR, daysLeft: effectivePeriod - day }
+        }
+    } else if (currentPhase === PHASES.FOLLICULAR) {
+        if (day >= fertileStart - 2 && day < fertileStart) {
+            return { isTransition: true, nextPhase: PHASES.OVULATORY, daysLeft: fertileStart - day }
+        }
+    } else if (currentPhase === PHASES.OVULATORY) {
+        if (day === fertileEnd) {
+            return { isTransition: true, nextPhase: PHASES.LUTEAL, daysLeft: 0 }
+        }
+    } else if (currentPhase === PHASES.LUTEAL) {
+        if (day >= cycleLength - 2 && day <= cycleLength) {
+            return { isTransition: true, nextPhase: PHASES.MENSTRUAL, daysLeft: cycleLength - day }
+        }
+    }
+
+    return null
+}

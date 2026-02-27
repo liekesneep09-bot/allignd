@@ -162,8 +162,17 @@ export default async function handler(req, res) {
                 return res.status(404).json({ error: 'Reactie niet gevonden' })
             }
 
-            if (comment.user_id !== user.id) {
-                return res.status(403).json({ error: 'Je kunt alleen je eigen reacties verwijderen' })
+            // Fetch user profile to check admin status
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('is_admin')
+                .eq('id', user.id)
+                .single()
+
+            const isAdmin = profile?.is_admin === true
+
+            if (comment.user_id !== user.id && !isAdmin) {
+                return res.status(403).json({ error: 'Je kunt alleen je eigen reacties verwijderen (tenzij je admin bent)' })
             }
 
             const { error } = await supabase

@@ -17,7 +17,7 @@ export default function Profile() {
         logout,
         deleteAccount,
         resetOnboarding,
-        logMenstruation,
+        logPeriodStart,
         endPeriodToday, // NEW
         adjustCyclePhase
     } = useUser()
@@ -342,7 +342,7 @@ export default function Profile() {
                                         onClick={() => {
                                             if (window.confirm("Is je menstruatie begonnen? Dit start een nieuwe cyclus.")) {
                                                 if (formData.cycleStart) {
-                                                    logMenstruation(formData.cycleStart)
+                                                    logPeriodStart(formData.cycleStart)
                                                     alert("Nieuwe cyclus gestart!")
                                                 }
                                             }

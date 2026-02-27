@@ -174,6 +174,9 @@ export function UserProvider({ children }) {
             training_days_per_week: profile.training_days_per_week,
             lifestyle_level: profile.lifestyle_level,
             steps_range: profile.steps_range,
+            resultTempo: profile.result_tempo || 'average',
+            experienceLevel: profile.experience_level || 'beginner',
+            trainingType: profile.training_type || 'combination',
             // Cycle Learning
             periodStartDates: profile.period_start_dates || [],
             cycleHistory: profile.cycle_history || [],
@@ -182,7 +185,8 @@ export function UserProvider({ children }) {
             isMenstruatingNow: false,
             manualPhaseOverride: profile.manual_phase_override || false,
             manualPhase: profile.manual_phase || null,
-            macroTargets: null
+            macroTargets: null,
+            isAdmin: profile.is_admin || false
           }
 
           if (profile.is_onboarded) {
@@ -1119,7 +1123,8 @@ export function UserProvider({ children }) {
       isMenstruatingNow: true,
       // Clear manual override when new period is logged
       manualPhaseOverride: false,
-      manualPhase: null
+      manualPhase: null,
+      menstruationLogs: [...(user.menstruationLogs || []).filter(l => l.date !== todayStr), { date: todayStr, status: 'yes' }]
     })
   }
 

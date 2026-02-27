@@ -627,12 +627,16 @@ export default function Community() {
                         <span style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
                             💬 {comments.length}
                         </span>
-                        {isOwner && (
+                        {(isOwner || user?.isAdmin) && (
                             <button
                                 onClick={() => confirmDeletePost(selectedPost.id)}
-                                style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#ef4444', fontSize: '0.8rem', cursor: 'pointer' }}
+                                style={{
+                                    marginLeft: 'auto', background: 'rgba(239,68,68,0.1)', border: 'none',
+                                    color: '#ef4444', fontSize: '0.8rem', cursor: 'pointer', padding: '0.3rem 0.6rem',
+                                    borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.25rem'
+                                }}
                             >
-                                Verwijderen
+                                {user?.isAdmin && !isOwner && '🛡️ '}Verwijderen
                             </button>
                         )}
                     </div>
@@ -665,17 +669,38 @@ export default function Community() {
                         <p style={{ fontSize: '0.9rem', color: 'var(--color-text)', lineHeight: '1.5', margin: 0 }}>
                             {comment.body}
                         </p>
-                        <button
-                            onClick={() => toggleCommentLike(comment.id)}
-                            style={{
-                                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                                display: 'flex', alignItems: 'center', gap: '4px', marginTop: '0.5rem',
-                                color: myCommentLikes.has(comment.id) ? '#ef4444' : 'var(--color-text-muted)',
-                                fontSize: '0.8rem'
-                            }}
-                        >
-                            {myCommentLikes.has(comment.id) ? '❤️' : '🤍'} {comment.likes_count || 0}
-                        </button>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem' }}>
+                            <button
+                                onClick={() => toggleCommentLike(comment.id)}
+                                style={{
+                                    background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                                    display: 'flex', alignItems: 'center', gap: '4px',
+                                    color: myCommentLikes.has(comment.id) ? '#ef4444' : 'var(--color-text-muted)',
+                                    fontSize: '0.8rem'
+                                }}
+                            >
+                                {myCommentLikes.has(comment.id) ? '❤️' : '🤍'} {comment.likes_count || 0}
+                            </button>
+
+                            {(comment.user_id === authUser?.id || user?.isAdmin) && (
+                                <button
+                                    onClick={() => {
+                                        if (confirm('Wil je deze reactie verwijderen?')) {
+                                            removeCommentFromUI(comment.id)
+                                        }
+                                    }}
+                                    style={{
+                                        background: 'none', border: 'none', color: '#ef4444',
+                                        fontSize: '0.75rem', cursor: 'pointer', padding: '0.2rem 0.5rem',
+                                        opacity: 0.7,
+                                        display: 'flex', alignItems: 'center', gap: '4px'
+                                    }}
+                                    title="Reactie verwijderen"
+                                >
+                                    🗑️
+                                </button>
+                            )}
+                        </div>
                     </div>
                 ))}
 
@@ -812,19 +837,19 @@ export default function Community() {
             }}>
                 {/* Horizontal scroll container for all filters */}
                 <div style={{ display: 'flex', gap: '0.4rem', minWidth: 'max-content' }}>
-                    {[{ key: 'nieuwste', label: 'Nieuwste' }, { key: 'oudste', label: 'Oudste' }, { key: 'populairst', label: 'Populairst' }].map(opt => (
+                    {[{ key: 'nieuwste', label: 'Nieuwste' }, { key: 'populairst', label: 'Populairst' }].map(opt => (
                         <button
                             key={opt.key}
                             onClick={() => {
                                 setSortOrder(opt.key);
-                                setActiveFilter(null); // Clear personal filter when sorting
+                                setActiveFilter(null);
                             }}
                             style={{
-                                padding: '0.4rem 0.8rem', borderRadius: '20px', fontSize: '0.75rem',
-                                border: '1px solid var(--color-border)', cursor: 'pointer',
-                                background: (sortOrder === opt.key && !activeFilter) ? 'var(--color-primary)' : 'var(--color-surface)',
-                                color: (sortOrder === opt.key && !activeFilter) ? 'white' : 'var(--color-text)',
-                                fontWeight: (sortOrder === opt.key && !activeFilter) ? '600' : '500',
+                                padding: '0.3rem 0.7rem', borderRadius: '14px', fontSize: '0.75rem',
+                                border: 'none', cursor: 'pointer',
+                                background: (sortOrder === opt.key && !activeFilter) ? 'var(--color-primary)' : 'transparent',
+                                color: (sortOrder === opt.key && !activeFilter) ? 'white' : 'var(--color-text-muted)',
+                                fontWeight: (sortOrder === opt.key && !activeFilter) ? '600' : '400',
                                 transition: 'all 0.15s'
                             }}
                         >
@@ -839,17 +864,14 @@ export default function Community() {
                     {[{ key: 'mijn', label: 'Mijn posts' }, { key: 'geliked', label: '♥' }, { key: 'gereageerd', label: '💬' }].map(f => (
                         <button
                             key={f.key}
-                            onClick={() => {
-                                setActiveFilter(prev => prev === f.key ? null : f.key);
-                                // We don't change sortOrder here so it remembers the sort when they un-toggle
-                            }}
+                            onClick={() => setActiveFilter(prev => prev === f.key ? null : f.key)}
                             style={{
-                                padding: '0.4rem 0.8rem', borderRadius: '20px', fontSize: '0.75rem',
-                                border: activeFilter === f.key ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                padding: '0.3rem 0.7rem', borderRadius: '14px', fontSize: '0.75rem',
+                                border: activeFilter === f.key ? '1.5px solid var(--color-primary)' : 'none',
                                 cursor: 'pointer',
-                                background: activeFilter === f.key ? 'var(--color-primary)' : 'var(--color-surface)',
-                                color: activeFilter === f.key ? 'white' : 'var(--color-text)',
-                                fontWeight: activeFilter === f.key ? '600' : '500',
+                                background: activeFilter === f.key ? 'rgba(112,193,163,0.15)' : 'transparent',
+                                color: activeFilter === f.key ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                                fontWeight: activeFilter === f.key ? '600' : '400',
                                 transition: 'all 0.15s',
                                 whiteSpace: 'nowrap',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center'

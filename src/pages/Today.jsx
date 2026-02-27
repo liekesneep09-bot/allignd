@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useUser } from '../context/UserContext'
-import { getCycleDisplayData } from '../logic/cycle'
+import { getCycleDisplayData, getPhaseTransition } from '../logic/cycle'
 import { PHASE_CONTENT } from '../data/phases'
 import { IconMap, IconAccount, IconCalendar } from '../components/Icons'
 import FoodModal from '../components/FoodModal'
@@ -204,15 +204,17 @@ function DayStrip({ selectedDate, onSelect, accentColor }) {
 // --- MAIN COMPONENT ---
 
 export default function Today({ onNavigate }) {
-  const { user, targets, logFood, getStatsForDate, deleteFoodLog, logMenstruation, logMovement, resetOnboarding, isLoading, endPeriodToday, getPhaseForDate } = useUser()
+  const { user, targets, logFood, getStatsForDate, deleteFoodLog, logPeriodStart, logMovement, resetOnboarding, isLoading, endPeriodToday, getPhaseForDate } = useUser()
 
   const [viewDate, setViewDate] = useState(new Date())
   const viewDateStr = getLocalDateStr(viewDate)
   const todayDateStr = getLocalDateStr(new Date())
   const isToday = viewDateStr === todayDateStr
 
-  // Use Centralized Phase Logic from Context (Respects overrides and stops)
-  const { phase: viewPhase } = getPhaseForDate(viewDateStr)
+  const { phase: viewPhase, day: viewDay } = getPhaseForDate(viewDateStr)
+  const effectiveCycleLen = user?.cycleStats?.learnedCycleLength || user?.cycleLength || 28
+  const effectivePeriodLen = user?.bleedingLengthDays || user?.periodLength || 5
+  const phaseTransition = getPhaseTransition(viewDay, effectiveCycleLen, effectivePeriodLen, viewPhase)
 
   const content = PHASE_CONTENT[viewPhase]
   const stats = getStatsForDate(viewDateStr)
@@ -340,27 +342,23 @@ export default function Today({ onNavigate }) {
             const PHASE_TEXT = {
               menstrual: {
                 title: "Menstruatiefase",
-                normal: "Lagere energie en meer behoefte aan rust zijn normaal in deze fase.",
-                focus: "herstel en basisstructuur.",
-                nutrition: "In deze fase ondersteunen ijzerrijke voeding, magnesium en omega-3 je herstel en energiebalans."
+                normal: "Krampen of moe? Gun jezelf 'Comfort Modus'. Laat je strakke macro's los en focus op voldoende eten en rust. Jouw lichaam, jouw regels.",
+                nutrition: "IJzerrijke voeding, magnesium en omega-3 ondersteunen nu je herstel en energiebalans."
               },
               follicular: {
                 title: "Folliculaire fase",
-                normal: "Je energie en motivatie bouwen vaak weer op in deze fase.",
-                focus: "opbouwen en progressie.",
-                nutrition: "Eiwitrijke en vezelrijke voeding helpt je lichaam bij opbouw en nieuwe energie."
+                normal: "Een periode van hoge energie. Een perfect moment om alles uit je dag te halen!",
+                nutrition: "Koolhydraten zijn nu je beste vriend. Eiwitten helpen bij opbouw en herstel."
               },
               ovulatory: {
                 title: "Ovulatiefase",
-                normal: "Dit is vaak je meest energieke en krachtige periode.",
-                focus: "intensiteit en vertrouwen.",
-                nutrition: "Antioxidantenrijke en lichte, voedzame maaltijden ondersteunen balans en vitaliteit."
+                normal: "Vaker je meest energieke en krachtige periode. Vertrouw op je lichaam.",
+                nutrition: "Antioxidantenrijke, lichte en voedzame maaltijden ondersteunen je vitaliteit."
               },
               luteal: {
                 title: "Luteale fase",
-                normal: "Meer honger en lagere motivatie zijn normaal in deze fase.",
-                focus: "consistentie boven intensiteit.",
-                nutrition: "Complexe koolhydraten, extra eiwitten en magnesium helpen bij stabiliteit en een verzadigd gevoel."
+                normal: "Wist je dat je lichaam in deze fase vaak ~100-300 kcal extra verbrandt? Heb je meer trek? Eet gerust iets meer dan je doel. Wees lief voor jezelf.",
+                nutrition: "Complexe koolhydraten, extra eiwitten en magnesium helpen voor een verzadigd gevoel."
               }
             }
 
@@ -408,9 +406,31 @@ export default function Today({ onNavigate }) {
                   {currentText.normal}
                 </p>
 
+                {phaseTransition && phaseTransition.isTransition && (
+                  <div style={{
+                    marginTop: '0.75rem',
+                    padding: '0.6rem 0.8rem',
+                    borderRadius: '12px',
+                    background: 'rgba(255,255,255,0.4)',
+                    border: '1px solid rgba(255,255,255,0.6)',
+                    maxWidth: '280px'
+                  }}>
+                    <p style={{
+                      fontSize: '0.85rem',
+                      color: 'var(--color-text)',
+                      lineHeight: '1.4',
+                      margin: 0,
+                      fontWeight: '500',
+                      opacity: 0.85
+                    }}>
+                      ⚡ Je nadert je {PHASE_TEXT[phaseTransition.nextPhase]?.title?.toLowerCase() || 'volgende fase'}. Het is normaal als je af en toe merkt dat je energie of behoeftes al licht verschuiven.
+                    </p>
+                  </div>
+                )}
+
                 {/* Integrated Nutrition Text - Minimalist Icon + Line */}
                 <div style={{
-                  marginTop: '0.5rem', // Tighter spacing to section above (was 1rem)
+                  marginTop: '0.75rem', // Slightly more space above the nutrition block
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
@@ -465,8 +485,7 @@ export default function Today({ onNavigate }) {
                 {viewPhase === 'luteal' && isToday && (
                   <button
                     onClick={() => {
-                      const todayStr = getLocalDateStr(new Date())
-                      logMenstruation(todayStr)
+                      logPeriodStart(todayStr)
                     }}
                     style={{
                       marginTop: '1.25rem',

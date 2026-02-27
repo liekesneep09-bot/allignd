@@ -39,3 +39,6 @@ create policy "Users can insert their own logs." on daily_logs for insert with c
 
 drop policy if exists "Users can update their own logs." on daily_logs;
 create policy "Users can update their own logs." on daily_logs for update using (auth.uid() = user_id);
+
+-- 5. ADMIN
+alter table profiles add column if not exists is_admin boolean default false;

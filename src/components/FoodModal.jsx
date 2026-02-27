@@ -331,11 +331,10 @@ export default function FoodModal({ onClose, onAdd }) {
                                             fontSize: '1rem',
                                             outline: 'none'
                                         }}
-                                        autoFocus
                                     />
                                 </div>
 
-                                <div style={{ maxHeight: '45vh', overflowY: 'auto', marginBottom: '1rem' }}>
+                                <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', marginBottom: '1rem' }}>
                                     {/* Regular Foods Section */}
                                     {filteredFoods.length > 0 && (
                                         <div>
@@ -409,7 +408,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                     <h3 style={{ margin: 0, fontSize: '1.25rem' }}>Nieuw product</h3>
                                 </div>
 
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '60vh', overflowY: 'auto' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1, minHeight: 0, overflowY: 'auto' }}>
                                     <div className="input-group">
                                         <label>Naam product</label>
                                         <input
@@ -485,7 +484,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                         opacity: (!newFood.name_nl || !newFood.kcal_100) ? 0.5 : 1
                                     }}
                                 >
-                                    Opslaan en kiezen
+                                    Opslaan en selecteren
                                 </button>
                             </>
                         )}
@@ -577,7 +576,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                 Laden...
                             </div>
                         ) : (
-                            <div style={{ maxHeight: '50vh', overflowY: 'auto', marginBottom: '1rem' }}>
+                            <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', marginBottom: '1rem' }}>
                                 {meals.length === 0 ? (
                                     <div style={{
                                         textAlign: 'center',
@@ -751,19 +750,24 @@ const modalStyles = `
     .modal-content {
         background: #FFFFFF;
         width: 100%;
-        max-width: 480px;
+        height: 100vh;
+        max-width: none;
         padding: 1.5rem;
-        padding-bottom: 2rem;
-        border-radius: 20px 20px 0 0;
+        padding-bottom: env(safe-area-inset-bottom, 2rem);
+        border-radius: 0;
         animation: slideUp 0.3s ease-out;
-        max-height: 90vh;
         overflow-y: auto;
+        display: flex;
+        flex-direction: column;
     }
 
     @media(min-width: 480px) {
         .modal-content {
+            height: auto;
+            max-height: 90vh;
             border-radius: 20px;
             width: 90%;
+            max-width: 480px;
         }
     }
 

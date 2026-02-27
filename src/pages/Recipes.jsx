@@ -65,6 +65,41 @@ export default function Recipes() {
                 </p>
             </div>
 
+            {/* Special Phase Recipe Highlight */}
+            {data.meals && data.meals.diner && data.meals.diner.length > 0 && (
+                <div style={{ padding: '0 20px', marginBottom: '1.5rem' }}>
+                    <div style={{
+                        background: `${colors.accent}15`,
+                        borderRadius: '16px',
+                        padding: '1rem',
+                        border: `1px solid ${colors.accent}30`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '1rem'
+                    }}>
+                        <div style={{
+                            width: '48px', height: '48px', borderRadius: '50%',
+                            background: 'white', display: 'flex', alignItems: 'center',
+                            justifyContent: 'center', fontSize: '1.2rem', flexShrink: 0,
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                        }}>
+                            🥗
+                        </div>
+                        <div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: '600', color: colors.accent, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>
+                                Highlight voor deze fase
+                            </div>
+                            <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: '600', color: 'var(--color-text)' }}>
+                                {data.meals.diner[0].title}
+                            </h4>
+                            <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.85rem', color: 'var(--color-text-muted)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                {data.meals.diner[0].explanation}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Nutrient Chips */}
             {phaseContent?.nutrients?.length > 0 && (
                 <div style={{
