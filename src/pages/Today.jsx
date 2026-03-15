@@ -485,7 +485,7 @@ export default function Today({ onNavigate }) {
                 {viewPhase === 'luteal' && isToday && (
                   <button
                     onClick={() => {
-                      logPeriodStart(todayStr)
+                      logPeriodStart(todayDateStr)
                     }}
                     style={{
                       marginTop: '1.25rem',

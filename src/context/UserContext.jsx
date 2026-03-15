@@ -904,6 +904,22 @@ export function UserProvider({ children }) {
       }
     }
 
+    // CRITICAL FIX: Update backwards-compatible cycleStart pointer
+    if (newStartDates.length > 0) {
+      const latestStart = newStartDates[newStartDates.length - 1]
+      updates.cycleStart = new Date(latestStart).toISOString()
+
+      // Opt-in: Als the latest start heel recent is (gisteren of eergisteren), 
+      // ga er dan vanuit dat The gebruiker nog menstrueert VANDAAG, tenzij ze The menstruatie expliciet heeft gestopt voor vandaag.
+      const diffDays = (new Date() - new Date(latestStart)) / (1000 * 60 * 60 * 24)
+      if (diffDays >= 0 && diffDays <= 10) {
+        const todayLog = newLogs.find(l => l.date === todayStr)
+        if (!todayLog || todayLog.status !== 'no') {
+          updates.isMenstruatingNow = true
+        }
+      }
+    }
+
     // SPECIAL HANDLING: If we toggle TODAY, we must sync the "isMenstruatingNow" state
     // This allows the Calendar to control the Phase view immediately
     if (isToday) {
