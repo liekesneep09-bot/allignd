@@ -908,33 +908,43 @@ export function UserProvider({ children }) {
     if (newStartDates.length > 0) {
       const latestStart = newStartDates[newStartDates.length - 1]
       updates.cycleStart = new Date(latestStart).toISOString()
+    }
 
-      // Opt-in: Als the latest start heel recent is (gisteren of eergisteren), 
-      // ga er dan vanuit dat The gebruiker nog menstrueert VANDAAG, tenzij ze The menstruatie expliciet heeft gestopt voor vandaag.
-      const diffDays = (new Date() - new Date(latestStart)) / (1000 * 60 * 60 * 24)
-      if (diffDays >= 0 && diffDays <= 10) {
-        const todayLog = newLogs.find(l => l.date === todayStr)
-        if (!todayLog || todayLog.status !== 'no') {
-          updates.isMenstruatingNow = true
+    // DYNAMIC RE-EVALUATION for isMenstruatingNow (VANDAAG)
+    // We checken de log data in de database om te bepalen of het systeem *vandaag* als menstruerend beschouwt.
+    // 1. Wat was the meest recente interactie/log tot en met vandaag?
+    const pastLogs = newLogs.filter(l => l.date <= todayStr).sort((a, b) => a.date.localeCompare(b.date))
+    const lastLog = pastLogs.length > 0 ? pastLogs[pastLogs.length - 1] : null
+
+    // 2. Wanneer startte The laatste cyclus?
+    const latestStartStr = newStartDates.length > 0 ? newStartDates[newStartDates.length - 1] : null
+    let isBleedingToday = false
+
+    if (latestStartStr) {
+      const daysSinceStart = (new Date(todayStr) - new Date(latestStartStr)) / (1000 * 60 * 60 * 24)
+      // Als the laatste start binnen 12 dagen (veilige limiet) viel
+      if (daysSinceStart >= 0 && daysSinceStart <= 12) {
+        // EN The allerlaatste handeling was 'yes' (we zijn gestart, maar nog niet expliciet gestopt)
+        if (lastLog && lastLog.status === 'yes') {
+          isBleedingToday = true
         }
       }
     }
 
-    // SPECIAL HANDLING: If we toggle TODAY, we must sync the "isMenstruatingNow" state
-    // This allows the Calendar to control the Phase view immediately
+    // 3. Absolute override: Als the gebruiker letterlijk *vandaag* zojuist heeft gelogd of ongedaan gemaakt in The kalender.
     if (isToday) {
+      isBleedingToday = (newStatus === 'yes')
       if (newStatus === 'yes') {
-        updates.isMenstruatingNow = true
-        updates.currentPeriodLength = null // Reset any "stopped" override
-        updates.manualPhaseOverride = false // Clear manual overrides
+        updates.currentPeriodLength = null
+        updates.manualPhaseOverride = false
         updates.manualPhase = null
       } else {
-        updates.isMenstruatingNow = false
-        // If we turn OFF today, we imply period stopped yesterday
         updates.currentPeriodLength = Math.max(0, currentDay - 1)
         updates.manualPhaseOverride = false
       }
     }
+
+    updates.isMenstruatingNow = isBleedingToday
 
     // 6. Update User State
     updateUser(updates)
