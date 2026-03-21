@@ -153,7 +153,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                 }}>
                     <span style={{ fontSize: '1rem', flexShrink: 0, marginTop: '1px' }}>💡</span>
                     <div style={{ flex: 1 }}>
-                        <strong>Tip:</strong> tik op een dag om snel details of je menstruatie in te thezien en loggen.
+                        <strong>Tip:</strong> Tik op een dag om je menstruatie, symptomen en logs te bekijken of bij te werken.
                     </div>
                     <button
                         onClick={(e) => {
