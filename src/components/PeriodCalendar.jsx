@@ -153,7 +153,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                 }}>
                     <span style={{ fontSize: '1rem', flexShrink: 0, marginTop: '1px' }}>💡</span>
                     <div style={{ flex: 1 }}>
-                        <strong>Tip:</strong> blader terug en tik je vorige menstruatiedagen aan. Hoe meer data, hoe nauwkeuriger je voorspelling.
+                        <strong>Tip:</strong> tik op een dag om snel details of je menstruatie in te thezien en loggen.
                     </div>
                     <button
                         onClick={(e) => {
@@ -294,13 +294,30 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
                             {/* Menstruation Status */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: summaryData.isPeriod ? '#a86473' : '#f0f0f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                    {summaryData.isPeriod && <span style={{ color: '#fff', fontSize: '0.8rem' }}>✓</span>}
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                    <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: summaryData.isPeriod ? '#a86473' : '#f0f0f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                        {summaryData.isPeriod && <span style={{ color: '#fff', fontSize: '0.8rem' }}>✓</span>}
+                                    </div>
+                                    <span style={{ fontSize: '0.95rem', color: 'var(--color-text)', fontWeight: summaryData.isPeriod ? '600' : '400' }}>
+                                        {summaryData.isPeriod ? 'Menstruatie gelogd' : 'Geen menstruatie'}
+                                    </span>
                                 </div>
-                                <span style={{ fontSize: '0.95rem', color: 'var(--color-text)', fontWeight: summaryData.isPeriod ? '600' : '400' }}>
-                                    {summaryData.isPeriod ? 'Menstruatie (Dag gelogd)' : 'Geen menstruatie gelogd'}
-                                </span>
+                                <button
+                                    onClick={() => togglePeriodDate(selectedSummaryDateStr)}
+                                    style={{
+                                        background: summaryData.isPeriod ? 'none' : 'rgba(168, 100, 115, 0.1)',
+                                        color: summaryData.isPeriod ? 'var(--color-text-muted)' : '#a86473',
+                                        border: summaryData.isPeriod ? '1px solid var(--color-border)' : 'none',
+                                        padding: '0.4rem 0.8rem',
+                                        borderRadius: '20px',
+                                        fontSize: '0.8rem',
+                                        fontWeight: '600',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    {summaryData.isPeriod ? 'Verwijder' : 'Loggen +'}
+                                </button>
                             </div>
 
                             {/* Movement Status */}
