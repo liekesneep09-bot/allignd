@@ -71,6 +71,8 @@ export function UserProvider({ children }) {
     foodLogs: [], // Array of { id, date, foodId, grams, ... }
     movementLogs: [], // Array of { id, date, status }
     weightLogs: [], // Array of { date, weight }
+    waterLogs: [], // Array of { date, amount_ml }
+    symptomLogs: [], // Array of { date, symptoms: [] }
 
     // Menstruation Logs (Explicit Check-ins)
     menstruationLogs: [] // { date, status }
@@ -309,6 +311,32 @@ export function UserProvider({ children }) {
           setUser(prev => ({
             ...prev,
             weightLogs: dbWeightLogs.map(w => ({ date: w.date, weight: Number(w.weight) }))
+          }))
+        }
+
+        // B6. Fetch Water Logs
+        const { data: dbWaterLogs } = await supabase
+          .from('water_logs')
+          .select('date, amount_ml')
+          .eq('user_id', authUser.id)
+
+        if (dbWaterLogs) {
+          setUser(prev => ({
+            ...prev,
+            waterLogs: dbWaterLogs.map(w => ({ date: w.date, amount_ml: Number(w.amount_ml) }))
+          }))
+        }
+
+        // B7. Fetch Symptom Logs
+        const { data: dbSymptomLogs } = await supabase
+          .from('symptom_logs')
+          .select('date, symptoms')
+          .eq('user_id', authUser.id)
+
+        if (dbSymptomLogs) {
+          setUser(prev => ({
+            ...prev,
+            symptomLogs: dbSymptomLogs.map(s => ({ date: s.date, symptoms: s.symptoms || [] }))
           }))
         }
 
@@ -848,6 +876,65 @@ export function UserProvider({ children }) {
     }
   }
 
+  // NEW: Log Water
+  const logWater = async (dateStr, amount_ml) => {
+    if (!authUser) return
+
+    // 1. Optimistic UI Update
+    setUser(prev => {
+      const existingLogs = prev.waterLogs || []
+      const currentAmount = existingLogs.find(l => l.date === dateStr)?.amount_ml || 0
+      const newAmount = currentAmount + amount_ml
+
+      const others = existingLogs.filter(l => l.date !== dateStr)
+      return {
+        ...prev,
+        waterLogs: [...others, { date: dateStr, amount_ml: newAmount }]
+      }
+    })
+
+    // 2. Persist DB
+    try {
+      const { data: current } = await supabase.from('water_logs')
+        .select('amount_ml').eq('user_id', authUser.id).eq('date', dateStr).maybeSingle()
+
+      const newTotal = (current?.amount_ml || 0) + amount_ml
+
+      const { error } = await supabase.from('water_logs').upsert({
+        user_id: authUser.id,
+        date: dateStr,
+        amount_ml: newTotal,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,date' })
+      if (error) throw error
+    } catch (e) { console.error("Failed to log water", e) }
+  }
+
+  // NEW: Save Symptoms
+  const saveSymptoms = async (dateStr, symptomsArray) => {
+    if (!authUser) return
+
+    // 1. Optimistic UI Update
+    setUser(prev => {
+      const others = (prev.symptomLogs || []).filter(l => l.date !== dateStr)
+      return {
+        ...prev,
+        symptomLogs: [...others, { date: dateStr, symptoms: symptomsArray }]
+      }
+    })
+
+    // 2. Persist
+    try {
+      const { error } = await supabase.from('symptom_logs').upsert({
+        user_id: authUser.id,
+        date: dateStr,
+        symptoms: symptomsArray,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,date' })
+      if (error) throw error
+    } catch (e) { console.error("Failed to save symptoms", e) }
+  }
+
   // NEW: Toggle Period Date (Interactive Calendar)
   const togglePeriodDate = (dateStr) => {
     const todayStr = getLocalDateStr()
@@ -1293,6 +1380,10 @@ export function UserProvider({ children }) {
     movementLogs: user?.movementLogs || [],
     weightLogs: user?.weightLogs || [],
     menstruationLogs: user?.menstruationLogs || [],
+    waterLogs: user?.waterLogs || [], // NEW
+    symptomLogs: user?.symptomLogs || [], // NEW
+    logWater, // NEW
+    saveSymptoms, // NEW
     cycleStats: user?.cycleStats,
     periodStartDates: user?.periodStartDates || []
   }), [

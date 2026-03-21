@@ -7,6 +7,8 @@ import FoodModal from '../components/FoodModal'
 import PeriodCalendar from '../components/PeriodCalendar'
 import { toNum, calculateProgress } from '../utils/numbers'
 import { getLocalDateStr } from '../utils/date'
+import WaterTracker from '../components/WaterTracker'
+import CheckInModal, { SYMPTOMS_LIST } from '../components/CheckInModal'
 
 // --- HELPER COMPONENTS ---
 
@@ -223,9 +225,13 @@ export default function Today({ onNavigate }) {
   const showMovementLog = !(user.movementLogs && user.movementLogs.find(l => l.date === viewDateStr))
 
   const [showModal, setShowModal] = useState(false)
+  const [showCheckInModal, setShowCheckInModal] = useState(false)
   const [showLog, setShowLog] = useState(false)
   const [showCalendar, setShowCalendar] = useState(false)
   const [showDatePicker, setShowDatePicker] = useState(false)
+
+  const todaysSymptomsLog = user?.symptomLogs?.find(l => l.date === viewDateStr)
+  const todaysSymptoms = todaysSymptomsLog?.symptoms || []
 
   const trainingActions = content.training ? content.training.types : []
 
@@ -581,6 +587,48 @@ export default function Today({ onNavigate }) {
                 </div>
 
               </div>
+              {/* NEW: WATER TRACKER WIDGET */}
+              <div style={{ marginTop: '1.25rem' }}>
+                <WaterTracker date={viewDateStr} />
+              </div>
+
+              {/* NEW: DAILY CHECK-IN WIDGET */}
+              <div style={{ marginTop: '1.25rem' }}>
+                <button
+                  onClick={() => setShowCheckInModal(true)}
+                  style={{
+                    width: '100%',
+                    padding: '1rem',
+                    borderRadius: '16px',
+                    background: '#fff',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-primary)',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+                  }}
+                >
+                  Hoe voel je je vandaag? ✨
+                </button>
+                {todaysSymptoms.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem', justifyContent: 'center' }}>
+                    {todaysSymptoms.map(sympId => {
+                      const sympDef = SYMPTOMS_LIST.find(s => s.id === sympId)
+                      if (!sympDef) return null
+                      return (
+                        <span key={sympId} className="chip" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem', backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}>
+                          {sympDef.label} {sympDef.category === 'Mood' ? '✨' : '🧘‍♀️'}
+                        </span>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
 
               <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
                 <button
@@ -642,6 +690,12 @@ export default function Today({ onNavigate }) {
       </div> {/* CLOSE CONTAINER */}
 
       {/* MODALS ROOT LEVEL */}
+      <CheckInModal
+        isOpen={showCheckInModal}
+        onClose={() => setShowCheckInModal(false)}
+        dateStr={viewDateStr}
+      />
+
       {
         showModal && (
           <FoodModal

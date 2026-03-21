@@ -42,3 +42,39 @@ create policy "Users can update their own logs." on daily_logs for update using 
 
 -- 5. ADMIN
 alter table profiles add column if not exists is_admin boolean default false;
+
+-- 6. WATER LOGS
+create table if not exists water_logs (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid references auth.users not null,
+    date date not null,
+    amount_ml integer not null default 0,
+    updated_at timestamp with time zone default now(),
+    unique(user_id, date)
+);
+
+alter table water_logs enable row level security;
+drop policy if exists "Users can view their own water logs." on water_logs;
+create policy "Users can view their own water logs." on water_logs for select using (auth.uid() = user_id);
+drop policy if exists "Users can insert their own water logs." on water_logs;
+create policy "Users can insert their own water logs." on water_logs for insert with check (auth.uid() = user_id);
+drop policy if exists "Users can update their own water logs." on water_logs;
+create policy "Users can update their own water logs." on water_logs for update using (auth.uid() = user_id);
+
+-- 7. SYMPTOM LOGS
+create table if not exists symptom_logs (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid references auth.users not null,
+    date date not null,
+    symptoms jsonb not null default '[]'::jsonb,
+    updated_at timestamp with time zone default now(),
+    unique(user_id, date)
+);
+
+alter table symptom_logs enable row level security;
+drop policy if exists "Users can view their own symptom logs." on symptom_logs;
+create policy "Users can view their own symptom logs." on symptom_logs for select using (auth.uid() = user_id);
+drop policy if exists "Users can insert their own symptom logs." on symptom_logs;
+create policy "Users can insert their own symptom logs." on symptom_logs for insert with check (auth.uid() = user_id);
+drop policy if exists "Users can update their own symptom logs." on symptom_logs;
+create policy "Users can update their own symptom logs." on symptom_logs for update using (auth.uid() = user_id);

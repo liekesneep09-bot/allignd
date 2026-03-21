@@ -69,6 +69,8 @@ export const loadDayLog = (dateStr, userId) => {
     return {
         date: dateStr,
         items: [],
+        water_ml: 0,
+        symptoms: [],
         movement: { status: null, updatedAt: null },
         menstruation: { status: null, updatedAt: null }
     }
