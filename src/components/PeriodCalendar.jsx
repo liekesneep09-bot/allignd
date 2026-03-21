@@ -222,6 +222,10 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                         <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#f0f0f0' }} />
                         <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Vandaag</span>
                     </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                        <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#f5a89c' }} />
+                        <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Symptomen</span>
+                    </div>
                 </div>
 
                 {/* Klaar Button */}
@@ -289,6 +293,10 @@ function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef }) 
         const flowLog = user.movementLogs?.find(l => l.date === dateStr)
         const hasMoved = flowLog?.status === 'moved'
 
+        // 4. Symptoms Logic
+        const symptomLog = user.symptomLogs?.find(l => l.date === dateStr)
+        const hasSymptoms = symptomLog?.symptoms?.length > 0
+
         grid.push(
             <div
                 key={i}
@@ -323,27 +331,34 @@ function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef }) 
                     {i}
                 </div>
 
-                {/* Workout Dot Indicator */}
-                {hasMoved && !isPeriod && (
-                    <div style={{
-                        width: '5px',
-                        height: '5px',
-                        borderRadius: '50%',
-                        background: '#4DB6AC', // Matching Green/Teal
-                        marginTop: '2px'
-                    }} />
-                )}
-                {/* White Dot on Red Background for Visibility if logged on period day */}
-                {hasMoved && isPeriod && (
-                    <div style={{
-                        position: 'absolute',
-                        bottom: '4px',
-                        width: '4px',
-                        height: '4px',
-                        borderRadius: '50%',
-                        background: '#fff'
-                    }} />
-                )}
+                {/* Indicators Container */}
+                <div style={{
+                    display: 'flex',
+                    gap: '3px',
+                    position: isPeriod ? 'absolute' : 'static',
+                    bottom: isPeriod ? '3px' : 'auto',
+                    marginTop: isPeriod ? '0' : '2px',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '5px'
+                }}>
+                    {hasMoved && (
+                        <div style={{
+                            width: isPeriod ? '4px' : '5px',
+                            height: isPeriod ? '4px' : '5px',
+                            borderRadius: '50%',
+                            background: isPeriod ? '#fff' : '#4DB6AC',
+                        }} />
+                    )}
+                    {hasSymptoms && (
+                        <div style={{
+                            width: isPeriod ? '4px' : '5px',
+                            height: isPeriod ? '4px' : '5px',
+                            borderRadius: '50%',
+                            background: isPeriod ? 'rgba(255,255,255,0.7)' : '#f5a89c'
+                        }} />
+                    )}
+                </div>
             </div>
         )
     }

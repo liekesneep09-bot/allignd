@@ -587,8 +587,21 @@ export default function Today({ onNavigate }) {
                 </div>
 
               </div>
+              <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="btn btn-primary"
+                  style={{
+                    width: '90%',
+                    boxShadow: 'var(--shadow-soft)'
+                  }}
+                >
+                  + Voeg eten toe
+                </button>
+              </div>
+
               {/* NEW: WATER TRACKER WIDGET */}
-              <div style={{ marginTop: '1.25rem' }}>
+              <div style={{ marginTop: '2rem' }}>
                 <WaterTracker date={viewDateStr} />
               </div>
 
@@ -630,18 +643,6 @@ export default function Today({ onNavigate }) {
                 )}
               </div>
 
-              <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
-                <button
-                  onClick={() => setShowModal(true)}
-                  className="btn btn-primary"
-                  style={{
-                    width: '90%',
-                    boxShadow: 'var(--shadow-soft)'
-                  }}
-                >
-                  + Voeg eten toe
-                </button>
-              </div>
 
               {todaysLogs.length > 0 && (
                 <div style={{ marginTop: '2rem' }}>
