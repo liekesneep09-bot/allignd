@@ -81,7 +81,7 @@ export default function CheckInModal({ isOpen, onClose, dateStr }) {
             animation: 'fadeIn 0.2s ease-out'
         }}>
             <div style={{
-                background: 'var(--color-bg-alt)',
+                background: '#ffffff',
                 width: '100%',
                 maxWidth: '600px', // Prevent full width stretch on desktop
                 maxHeight: '90vh',
