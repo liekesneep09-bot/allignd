@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react'
 import { useUser } from '../context/UserContext'
 import { IconAccount, IconCalendar } from './Icons'
 import { getFuturePeriodWindows } from '../logic/cycle-learning'
+import { SYMPTOMS_LIST } from './CheckInModal'
 
 export default function PeriodCalendar({ user, onClose, onSelect }) {
     const { togglePeriodDate } = useUser()
@@ -10,6 +11,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
     const [hintDismissed, setHintDismissed] = useState(
         () => localStorage.getItem('allignd:calendar-hint-dismissed') === 'true'
     )
+    const [selectedSummaryDateStr, setSelectedSummaryDateStr] = useState(null)
 
     // Generate Month Range (e.g., 12 months past, 12 months future)
     const months = useMemo(() => {
@@ -50,10 +52,23 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
         const isFuture = checkDate > today
         if (isFuture) return
 
-        if (onSelect) {
-            onSelect(checkDate)
-        }
+        setSelectedSummaryDateStr(dateStr)
     }
+
+    // Helper data for the summary sheet
+    const summaryData = useMemo(() => {
+        if (!selectedSummaryDateStr) return null
+
+        const isPeriod = user?.menstruationLogs?.some(l => l.date === selectedSummaryDateStr && l.status === 'yes')
+        const hasMoved = user?.movementLogs?.some(l => l.date === selectedSummaryDateStr && l.status === 'moved')
+        const waterAmount = user?.waterLogs?.find(l => l.date === selectedSummaryDateStr)?.amount_ml || 0
+        const symptomsIds = user?.symptomLogs?.find(l => l.date === selectedSummaryDateStr)?.symptoms || []
+
+        // Simple text representation of symptoms
+        const symptomLabels = symptomsIds.map(id => SYMPTOMS_LIST.find(s => s.id === id)?.label).filter(Boolean)
+
+        return { isPeriod, hasMoved, waterAmount, symptomLabels }
+    }, [selectedSummaryDateStr, user])
 
     return (
         <div style={{
@@ -198,7 +213,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                 gap: '0.75rem',
                 zIndex: 10
             }}>
-                {/* Legenda - compact horizontal */}
+                {/* Legenda ... */}
                 <div style={{
                     display: 'flex',
                     gap: '1rem',
@@ -247,6 +262,99 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                     Klaar
                 </button>
             </div>
+
+            {/* DAY SUMMARY OVERLAY SHEET */}
+            {selectedSummaryDateStr && summaryData && (() => {
+                const dateObj = new Date(selectedSummaryDateStr)
+                const dateHeader = dateObj.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' })
+
+                return (
+                    <div style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        background: '#fff',
+                        borderTopLeftRadius: '24px',
+                        borderTopRightRadius: '24px',
+                        boxShadow: '0 -4px 30px rgba(0,0,0,0.1)',
+                        zIndex: 3000,
+                        padding: '1.5rem',
+                        animation: 'slideUp 0.3s ease-out'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                            <h3 style={{ margin: 0, fontSize: '1.15rem', color: 'var(--color-text)' }}>
+                                <span style={{ textTransform: 'capitalize' }}>{dateHeader}</span>
+                            </h3>
+                            <button
+                                onClick={() => setSelectedSummaryDateStr(null)}
+                                style={{ background: 'none', border: 'none', fontSize: '1.5rem', lineHeight: 1, padding: 0, cursor: 'pointer', color: 'var(--color-text-muted)' }}
+                            >✕</button>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                            {/* Menstruation Status */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: summaryData.isPeriod ? '#a86473' : '#f0f0f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                    {summaryData.isPeriod && <span style={{ color: '#fff', fontSize: '0.8rem' }}>✓</span>}
+                                </div>
+                                <span style={{ fontSize: '0.95rem', color: 'var(--color-text)', fontWeight: summaryData.isPeriod ? '600' : '400' }}>
+                                    {summaryData.isPeriod ? 'Menstruatie (Dag gelogd)' : 'Geen menstruatie gelogd'}
+                                </span>
+                            </div>
+
+                            {/* Movement Status */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: summaryData.hasMoved ? '#4DB6AC' : '#f0f0f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                    {summaryData.hasMoved && <span style={{ color: '#fff', fontSize: '0.8rem' }}>✓</span>}
+                                </div>
+                                <span style={{ fontSize: '0.95rem', color: 'var(--color-text)', fontWeight: summaryData.hasMoved ? '600' : '400' }}>
+                                    {summaryData.hasMoved ? 'Beweging / Sport gelogd' : 'Geen beweging gelogd'}
+                                </span>
+                            </div>
+
+                            {/* Water Status */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: summaryData.waterAmount > 0 ? '#4da6b3' : '#f0f0f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                    {summaryData.waterAmount > 0 && <span style={{ color: '#fff', fontSize: '0.8rem' }}>💧</span>}
+                                </div>
+                                <span style={{ fontSize: '0.95rem', color: 'var(--color-text)', fontWeight: summaryData.waterAmount > 0 ? '600' : '400' }}>
+                                    {summaryData.waterAmount > 0 ? `${(summaryData.waterAmount / 1000).toFixed(1)}L Water gedronken` : 'Geen water gelogd'}
+                                </span>
+                            </div>
+
+                            {/* Symptoms Status */}
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: summaryData.symptomLabels.length > 0 ? '#f5a89c' : '#f0f0f0', display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0 }}>
+                                    {summaryData.symptomLabels.length > 0 && <span style={{ color: '#fff', fontSize: '0.8rem' }}>✨</span>}
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <span style={{ fontSize: '0.95rem', color: 'var(--color-text)', fontWeight: summaryData.symptomLabels.length > 0 ? '600' : '400', marginTop: '4px' }}>
+                                        {summaryData.symptomLabels.length > 0 ? 'Symptomen gelogd' : 'Geen symptomen gelogd'}
+                                    </span>
+                                    {summaryData.symptomLabels.length > 0 && (
+                                        <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
+                                            {summaryData.symptomLabels.join(', ')}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={() => {
+                                if (onSelect) {
+                                    onSelect(dateObj)
+                                }
+                            }}
+                            className="btn btn-primary"
+                            style={{ width: '100%', boxShadow: 'var(--shadow-soft)' }}
+                        >
+                            Bewerk deze dag op dashboard
+                        </button>
+                    </div>
+                )
+            })()}
 
         </div>
     )
