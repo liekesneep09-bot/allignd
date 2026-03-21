@@ -605,7 +605,7 @@ export default function Today({ onNavigate }) {
                     boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
                   }}
                 >
-                  Hoe voel je je vandaag? ✨
+                  Hoe voel je je vandaag?
                 </button>
                 {todaysSymptoms.length > 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem', justifyContent: 'center' }}>
@@ -613,8 +613,8 @@ export default function Today({ onNavigate }) {
                       const sympDef = SYMPTOMS_LIST.find(s => s.id === sympId)
                       if (!sympDef) return null
                       return (
-                        <span key={sympId} className="chip" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem', backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}>
-                          {sympDef.label} {sympDef.category === 'Mood' ? '✨' : '🧘‍♀️'}
+                        <span key={sympId} className="chip" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem', backgroundColor: 'var(--color-bg)', color: 'var(--color-text)', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
+                          {sympDef.label}
                         </span>
                       )
                     })}

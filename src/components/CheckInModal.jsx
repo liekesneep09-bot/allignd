@@ -77,11 +77,13 @@ export default function CheckInModal({ isOpen, onClose, dateStr }) {
             zIndex: 1000,
             display: 'flex',
             alignItems: 'flex-end', // slide up from bottom visually
+            justifyContent: 'center', // Center on desktop
             animation: 'fadeIn 0.2s ease-out'
         }}>
             <div style={{
                 background: 'var(--color-bg-alt)',
                 width: '100%',
+                maxWidth: '600px', // Prevent full width stretch on desktop
                 maxHeight: '90vh',
                 borderTopLeftRadius: '24px',
                 borderTopRightRadius: '24px',
@@ -100,14 +102,14 @@ export default function CheckInModal({ isOpen, onClose, dateStr }) {
                 </div>
 
                 <div style={{ marginBottom: '2rem' }}>
-                    <h3 style={{ fontSize: '1rem', color: 'var(--color-text-muted)', marginBottom: '1rem', fontWeight: '500' }}>Mood ✨</h3>
+                    <h3 style={{ fontSize: '1rem', color: 'var(--color-text-muted)', marginBottom: '1rem', fontWeight: '500' }}>Mood</h3>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                         {moodSymptoms.map(renderChip)}
                     </div>
                 </div>
 
                 <div style={{ marginBottom: '2rem' }}>
-                    <h3 style={{ fontSize: '1rem', color: 'var(--color-text-muted)', marginBottom: '1rem', fontWeight: '500' }}>Lichaam 🧘‍♀️</h3>
+                    <h3 style={{ fontSize: '1rem', color: 'var(--color-text-muted)', marginBottom: '1rem', fontWeight: '500' }}>Lichaam</h3>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                         {bodySymptoms.map(renderChip)}
                     </div>
