@@ -462,54 +462,33 @@ export default function Today({ onNavigate }) {
                   </div>
                 </div>
 
-                {/* Manual Stop Button for Menstrual Phase */}
-                {viewPhase === 'menstrual' && (
-                  <button
-                    onClick={() => {
-                      console.log("End period clicked")
-                      endPeriodToday()
-                    }}
-                    style={{
-                      marginTop: '1.25rem',
-                      background: 'rgba(255,255,255,0.5)',
-                      border: '1px solid rgba(255,255,255,0.8)',
-                      padding: '0.8rem 1.5rem',
-                      borderRadius: '30px',
-                      fontSize: '0.9rem',
-                      fontWeight: '600',
-                      color: phaseStyle.text,
-                      cursor: 'pointer',
-                      backdropFilter: 'blur(4px)',
-                      transition: 'all 0.2s',
-                    }}
-                  >
-                    Menstruatie is gestopt
-                  </button>
-                )}
-
-                {/* Start Period Button — only in luteal phase */}
-                {viewPhase === 'luteal' && isToday && (
-                  <button
-                    onClick={() => {
-                      logPeriodStart(todayDateStr)
-                    }}
-                    style={{
-                      marginTop: '1.25rem',
-                      background: 'rgba(255,255,255,0.5)',
-                      border: '1px solid rgba(255,255,255,0.8)',
-                      padding: '0.8rem 1.5rem',
-                      borderRadius: '30px',
-                      fontSize: '0.9rem',
-                      fontWeight: '600',
-                      color: phaseStyle.text,
-                      cursor: 'pointer',
-                      backdropFilter: 'blur(4px)',
-                      transition: 'all 0.2s',
-                    }}
-                  >
-                    Ongesteld geworden?
-                  </button>
-                )}
+                {/* Universal Menstruation Toggle for ANY viewDate */}
+                {(() => {
+                  const isPeriodForViewDate = user?.menstruationLogs?.some(l => l.date === viewDateStr && l.status === 'yes');
+                  return (
+                    <button
+                      onClick={() => {
+                        togglePeriodDate(viewDateStr)
+                      }}
+                      style={{
+                        marginTop: '1.25rem',
+                        background: isPeriodForViewDate ? 'var(--color-primary)' : 'rgba(255,255,255,0.5)',
+                        border: isPeriodForViewDate ? '1px solid var(--color-primary)' : '1px solid rgba(255,255,255,0.8)',
+                        padding: '0.8rem 1.5rem',
+                        borderRadius: '30px',
+                        fontSize: '0.9rem',
+                        fontWeight: '600',
+                        color: isPeriodForViewDate ? '#fff' : phaseStyle.text,
+                        cursor: 'pointer',
+                        backdropFilter: 'blur(4px)',
+                        transition: 'all 0.2s',
+                        boxShadow: isPeriodForViewDate ? '0 4px 12px rgba(112, 193, 163, 0.4)' : 'none'
+                      }}
+                    >
+                      {isPeriodForViewDate ? 'Menstruatie gelogd ✓' : 'Menstruatie loggen +'}
+                    </button>
+                  )
+                })()}
 
 
               </div>

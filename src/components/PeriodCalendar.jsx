@@ -50,8 +50,8 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
         const isFuture = checkDate > today
         if (isFuture) return
 
-        if (togglePeriodDate) {
-            togglePeriodDate(dateStr)
+        if (onSelect) {
+            onSelect(checkDate)
         }
     }
 
