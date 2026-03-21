@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react'
 import { useUser } from '../context/UserContext'
 import { IconAccount, IconCalendar } from '../components/Icons'
-import WeightChart from '../components/WeightChart'
 
 /**
  * Modern Profile & Settings Page
@@ -158,12 +157,6 @@ export default function Profile() {
                     </div>
                 </div>
             </section>
-
-            {/* WEIGHT CHART */}
-            <section style={{ marginBottom: '1.5rem' }}>
-                <WeightChart />
-            </section>
-
             {/* SECTION 2: BODY & GOALS */}
             <section className="card" style={{ marginBottom: '1.5rem' }}>
                 <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Lichaam & Doelen</h2>
