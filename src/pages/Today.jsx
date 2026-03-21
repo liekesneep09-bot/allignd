@@ -206,7 +206,7 @@ function DayStrip({ selectedDate, onSelect, accentColor }) {
 // --- MAIN COMPONENT ---
 
 export default function Today({ onNavigate }) {
-  const { user, targets, logFood, getStatsForDate, deleteFoodLog, logPeriodStart, logMovement, resetOnboarding, isLoading, endPeriodToday, getPhaseForDate } = useUser()
+  const { user, targets, logFood, getStatsForDate, deleteFoodLog, logPeriodStart, logMovement, resetOnboarding, isLoading, endPeriodToday, getPhaseForDate, isDateInPeriod, togglePeriodDate } = useUser()
 
   const [viewDate, setViewDate] = useState(new Date())
   const viewDateStr = getLocalDateStr(viewDate)
@@ -464,7 +464,7 @@ export default function Today({ onNavigate }) {
 
                 {/* Universal Menstruation Toggle for ANY viewDate */}
                 {(() => {
-                  const isPeriodForViewDate = user?.menstruationLogs?.some(l => l.date === viewDateStr && l.status === 'yes');
+                  const isPeriodForViewDate = isDateInPeriod(viewDateStr);
                   return (
                     <button
                       onClick={() => {

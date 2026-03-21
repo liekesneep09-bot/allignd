@@ -5,7 +5,7 @@ import { getFuturePeriodWindows } from '../logic/cycle-learning'
 import { SYMPTOMS_LIST } from './CheckInModal'
 
 export default function PeriodCalendar({ user, onClose, onSelect }) {
-    const { togglePeriodDate } = useUser()
+    const { togglePeriodDate, isDateInPeriod } = useUser()
     const scrollRef = React.useRef(null)
     const todayRef = React.useRef(null)
     const [hintDismissed, setHintDismissed] = useState(
@@ -59,7 +59,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
     const summaryData = useMemo(() => {
         if (!selectedSummaryDateStr) return null
 
-        const isPeriod = user?.menstruationLogs?.some(l => l.date === selectedSummaryDateStr && l.status === 'yes')
+        const isPeriod = isDateInPeriod(selectedSummaryDateStr)
         const hasMoved = user?.movementLogs?.some(l => l.date === selectedSummaryDateStr && l.status === 'moved')
         const waterAmount = user?.waterLogs?.find(l => l.date === selectedSummaryDateStr)?.amount_ml || 0
         const symptomsIds = user?.symptomLogs?.find(l => l.date === selectedSummaryDateStr)?.symptoms || []
@@ -193,6 +193,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                         predictedWindows={predictedWindows}
                         onDayClick={handleDayClick}
                         todayRef={index === 12 ? todayRef : null} // Index 12 is "Today" (offset 0)
+                        isDateInPeriod={isDateInPeriod}
                     />
                 ))}
 
@@ -378,7 +379,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
 }
 
 // Sub-component for a single month
-function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef }) {
+function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef, isDateInPeriod }) {
     const year = monthDate.getFullYear()
     const month = monthDate.getMonth()
     const daysInMonth = new Date(year, month + 1, 0).getDate()
@@ -407,9 +408,8 @@ function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef }) 
         const isFuture = currentCheckDate > today
 
         // Check Status
-        // 1. Explicit Log
-        const log = user.menstruationLogs?.find(l => l.date === dateStr)
-        const isPeriod = log?.status === 'yes'
+        // 1. Explicit or Auto-fill Log
+        const isPeriod = isDateInPeriod?.(dateStr) || false
 
         // 2. Prediction Logic (Visuals)
         const isPredicted = !isPeriod && predictedWindows[dateStr]

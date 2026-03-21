@@ -935,20 +935,56 @@ export function UserProvider({ children }) {
     } catch (e) { console.error("Failed to save symptoms", e) }
   }
 
+  // NEW: Helper function to determine if a day is a period day (explicit or auto-filled)
+  const isDateInPeriod = (dateStr, currentUser) => {
+    const logs = currentUser.menstruationLogs || []
+    const explicitLog = logs.find(l => l.date === dateStr)
+
+    // 1. Exact match
+    if (explicitLog) {
+      return explicitLog.status === 'yes'
+    }
+
+    // 2. Auto-fill logic
+    const checkDate = new Date(dateStr)
+    checkDate.setHours(0, 0, 0, 0)
+
+    // Find most recent 'yes' BEFORE this date
+    const pastYesLogs = logs
+      .filter(l => l.status === 'yes' && new Date(l.date) < checkDate)
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+
+    if (pastYesLogs.length === 0) return false
+
+    const mostRecentYes = new Date(pastYesLogs[0].date)
+    const diffDays = Math.round((checkDate - mostRecentYes) / (1000 * 60 * 60 * 24))
+    const maxLen = currentUser.periodLength || 5
+
+    if (diffDays > 0 && diffDays < maxLen) {
+      // Is there a 'no' explicitly logged between that 'yes' and checkDate inclusive?
+      const stopper = logs.find(l =>
+        l.status === 'no' &&
+        new Date(l.date) > mostRecentYes &&
+        new Date(l.date) <= checkDate
+      )
+      if (stopper) return false
+
+      return true
+    }
+
+    return false
+  }
+
   // NEW: Toggle Period Date (Interactive Calendar)
   const togglePeriodDate = (dateStr) => {
     const todayStr = getLocalDateStr()
-    const isToday = dateStr === todayStr
+    const currentlyActive = isDateInPeriod(dateStr, user)
+    const newStatus = currentlyActive ? 'no' : 'yes'
 
-    // 1. Check if already logged
-    const existingLog = user.menstruationLogs?.find(l => l.date === dateStr)
-    const newStatus = (existingLog && existingLog.status === 'yes') ? 'no' : 'yes'
-
-    // 2. Update Menstruation Logs
+    // Update Menstruation Logs
     let newLogs = user.menstruationLogs?.filter(l => l.date !== dateStr) || []
-    if (newStatus === 'yes') {
-      newLogs.push({ date: dateStr, status: 'yes' })
-    }
+    // Always explicitly log the new status to act as anchor or stopper
+    newLogs.push({ date: dateStr, status: newStatus })
 
     // 3. Recalculate Cycle History based on ALL logs
     // We need to reconstruct period start dates from the raw logs
@@ -1385,7 +1421,8 @@ export function UserProvider({ children }) {
     logWater, // NEW
     saveSymptoms, // NEW
     cycleStats: user?.cycleStats,
-    periodStartDates: user?.periodStartDates || []
+    periodStartDates: user?.periodStartDates || [],
+    isDateInPeriod: (dateStr) => isDateInPeriod(dateStr, user)
   }), [
     user,
     isOnboarded,
