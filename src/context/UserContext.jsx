@@ -1055,14 +1055,18 @@ export function UserProvider({ children }) {
     }
 
     // 3. Absolute override: Als the gebruiker letterlijk *vandaag* zojuist heeft gelogd of ongedaan gemaakt in The kalender.
-    if (isToday) {
+    const isToggleToday = dateStr === todayStr
+    if (isToggleToday) {
       isBleedingToday = (newStatus === 'yes')
       if (newStatus === 'yes') {
         updates.currentPeriodLength = null
         updates.manualPhaseOverride = false
         updates.manualPhase = null
       } else {
-        updates.currentPeriodLength = Math.max(0, currentDay - 1)
+        const localCurrentDay = user.cycleStart
+          ? Math.floor((new Date(dateStr) - new Date(user.cycleStart)) / (1000 * 60 * 60 * 24)) + 1
+          : 1
+        updates.currentPeriodLength = Math.max(0, localCurrentDay - 1)
         updates.manualPhaseOverride = false
       }
     }

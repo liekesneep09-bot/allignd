@@ -281,31 +281,31 @@ export function getFuturePeriodWindows(periodStartDates = [], cycleLength = 28, 
     const predictions = {}
     const lastStart = new Date(periodStartDates[periodStartDates.length - 1])
 
-    // Buffer based on variability (standard deviation)
-    // Minimum 2 days buffer to capture "early/late" feeling
-    // Cap at 5 days to avoid painting half the month green
-    const buffer = Math.min(5, Math.max(2, Math.ceil(variability || 2)))
+    // Flo-style: tight prediction windows based on confidence
+    // High confidence (4+ regular cycles, low variability): no buffer, just show expected period days
+    // Lower confidence: ±1 day margin around the expected period
+    const validCycleCount = periodStartDates.length - 1
+    const buffer = (validCycleCount >= 4 && variability <= 3) ? 0 : 1
 
     for (let i = 1; i <= numCycles; i++) {
         // Calculate expected start for this future cycle
         const expectedStart = new Date(lastStart)
         expectedStart.setDate(lastStart.getDate() + (cycleLength * i))
 
-        // Window Start: Expected Start - Buffer
+        // Window Start: Expected Start - Buffer (0 or 1 day before)
         const windowStart = new Date(expectedStart)
         windowStart.setDate(expectedStart.getDate() - buffer)
 
-        // Window End: Expected Start + Period Length + Buffer
-        // This covers the entire "danger zone" of bleeding
+        // Window End: Expected Start + Period Length - 1 + Buffer
+        // Shows just the expected bleeding days with minimal margin
         const windowEnd = new Date(expectedStart)
-        windowEnd.setDate(expectedStart.getDate() + periodLength + buffer)
+        windowEnd.setDate(expectedStart.getDate() + periodLength - 1 + buffer)
 
         // Fill dates in map
         const current = new Date(windowStart)
         while (current <= windowEnd) {
             const dateStr = current.toISOString().split('T')[0]
 
-            // Only add if not already present (though cycles shouldn't overlap usually)
             if (!predictions[dateStr]) {
                 predictions[dateStr] = { type: 'prediction' }
             }

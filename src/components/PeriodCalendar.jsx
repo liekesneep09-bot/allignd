@@ -359,17 +359,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                             </div>
                         </div>
 
-                        <button
-                            onClick={() => {
-                                if (onSelect) {
-                                    onSelect(dateObj)
-                                }
-                            }}
-                            className="btn btn-primary"
-                            style={{ width: '100%', boxShadow: 'var(--shadow-soft)' }}
-                        >
-                            Bewerk deze dag op dashboard
-                        </button>
+
                     </div>
                 )
             })()}
