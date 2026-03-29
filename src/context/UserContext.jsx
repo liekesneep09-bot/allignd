@@ -499,6 +499,22 @@ export function UserProvider({ children }) {
 
       if (profileError) throw profileError;
 
+      // AUTO-LOG cycleStart into period_start_dates (so it shows on the calendar)
+      const cycleStartDate = profileData.cycleStart || user.cycleStart;
+      if (cycleStartDate) {
+        const cycleStartStr = String(cycleStartDate).split('T')[0]; // ensure YYYY-MM-DD
+        const existingDates = user.periodStartDates || [];
+        if (!existingDates.includes(cycleStartStr)) {
+          const updatedDates = [...existingDates, cycleStartStr].sort();
+          await supabase.from('profiles').update({
+            period_start_dates: updatedDates,
+            updated_at: new Date().toISOString()
+          }).eq('id', userId);
+          // Update local state too
+          setUser(prev => ({ ...prev, periodStartDates: updatedDates }));
+        }
+      }
+
       // B2. Auto-log weight if changed
       const newWeight = cleanProfile.weight_kg
       if (newWeight && newWeight > 0) {
