@@ -42,8 +42,8 @@ function MainLayout() {
                 text: '#f5a89c'
             }
             case 'luteal': return {
-                bg: 'linear-gradient(to bottom, #e2a9f120 0%, rgba(226,169,241,0.05) 40%, #FFFFFF 100%)',
-                text: '#e2a9f1'
+                bg: 'linear-gradient(to bottom, #a3b89920 0%, rgba(163,184,153,0.05) 40%, #FFFFFF 100%)',
+                text: '#a3b899'
             }
             default: return {
                 bg: 'linear-gradient(to bottom, #F5F5F5 0%, #FFFFFF 100%)',

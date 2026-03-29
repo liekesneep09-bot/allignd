@@ -334,7 +334,7 @@ export default function Login() {
                     0%, 100% { background: linear-gradient(135deg, #a8647320 0%, rgba(168,100,115,0.05) 50%, #FFFFFF 100%); } /* Menstrual */
                     25% { background: linear-gradient(135deg, #5bc4d440 0%, rgba(91,196,212,0.1) 50%, #FFFFFF 100%); } /* Follicular - New Color */
                     50% { background: linear-gradient(135deg, #f5a89c20 0%, rgba(245,168,156,0.05) 50%, #FFFFFF 100%); } /* Ovulatory */
-                    75% { background: linear-gradient(135deg, #e2a9f120 0%, rgba(226,169,241,0.05) 50%, #FFFFFF 100%); } /* Luteal */
+                    75% { background: linear-gradient(135deg, #a3b89920 0%, rgba(163,184,153,0.05) 50%, #FFFFFF 100%); } /* Luteal */
                 }
             `}</style>
             <div style={{
