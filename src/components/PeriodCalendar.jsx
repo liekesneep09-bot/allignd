@@ -255,7 +255,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                         borderRadius: '30px',
                         fontWeight: '600',
                         fontSize: '1rem',
-                        boxShadow: '0 4px 12px rgba(112, 193, 163, 0.4)',
+                        boxShadow: '0 4px 12px rgba(255, 174, 185, 0.4)',
                         cursor: 'pointer',
                         transition: 'transform 0.1s'
                     }}

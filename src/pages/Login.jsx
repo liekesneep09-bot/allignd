@@ -131,7 +131,7 @@ export default function Login() {
                         } finally {
                             setIsLoading(false)
                         }
-                    }} style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: 'none', background: 'var(--color-primary)', color: 'white', fontSize: '1rem', fontWeight: '600', cursor: 'pointer', marginTop: '0.5rem' }}>
+                    }} style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: 'none', background: 'var(--color-primary)', color: '#333333', fontSize: '1rem', fontWeight: '600', cursor: 'pointer', marginTop: '0.5rem' }}>
                         Ik heb bevestigd, ga verder
                     </button>
                     <button onClick={goBack} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', fontSize: '0.9rem' }}>Gebruik ander e-mailadres</button>
@@ -154,7 +154,7 @@ export default function Login() {
                             <div style={{ padding: '1rem', background: 'var(--color-surface)', borderRadius: '8px', fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
                                 Tip: Check ook je spam of reclame folder.
                             </div>
-                            <button onClick={() => { setView('login'); setResetSent(false); setError('') }} style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: 'none', background: 'var(--color-primary)', color: 'white', fontSize: '1rem', fontWeight: '600', cursor: 'pointer' }}>
+                            <button onClick={() => { setView('login'); setResetSent(false); setError('') }} style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: 'none', background: 'var(--color-primary)', color: '#333333', fontSize: '1rem', fontWeight: '600', cursor: 'pointer' }}>
                                 Terug naar inloggen
                             </button>
                         </>
@@ -166,7 +166,7 @@ export default function Login() {
                             </p>
                             <input type="email" placeholder="E-mailadres" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" style={{ width: '100%', padding: '0.875rem 1rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '1rem' }} />
                             {error && <div style={{ padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', fontSize: '0.875rem', width: '100%' }}>{error}</div>}
-                            <button onClick={handleResetPassword} disabled={isLoading} style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: 'none', background: 'var(--color-primary)', color: 'white', fontSize: '1rem', fontWeight: '600', cursor: 'pointer', opacity: isLoading ? 0.7 : 1 }}>
+                            <button onClick={handleResetPassword} disabled={isLoading} style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: 'none', background: 'var(--color-primary)', color: '#333333', fontSize: '1rem', fontWeight: '600', cursor: 'pointer', opacity: isLoading ? 0.7 : 1 }}>
                                 {isLoading ? 'Bezig...' : 'Verstuur reset link'}
                             </button>
                         </>
@@ -268,11 +268,11 @@ export default function Login() {
                                 borderRadius: '14px',
                                 border: 'none',
                                 background: 'var(--color-primary)',
-                                color: 'white',
+                                color: '#333333',
                                 fontSize: '1.05rem',
                                 fontWeight: '600',
                                 cursor: 'pointer',
-                                boxShadow: '0 6px 18px rgba(112, 193, 163, 0.25)',
+                                boxShadow: '0 6px 18px rgba(255, 174, 185, 0.25)',
                                 transition: 'transform 0.1s'
                             }}
                         >
@@ -368,7 +368,7 @@ export default function Login() {
                     <input type="email" placeholder="E-mailadres" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" style={{ padding: '0.875rem 1rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'rgba(255,255,255,0.8)', color: 'var(--color-text)', fontSize: '1rem' }} />
                     <input type="password" placeholder="Wachtwoord" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={view === 'login' ? 'current-password' : 'new-password'} style={{ padding: '0.875rem 1rem', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'rgba(255,255,255,0.8)', color: 'var(--color-text)', fontSize: '1rem' }} />
                     {error && <div style={{ padding: '0.75rem 1rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', fontSize: '0.875rem' }}>{error}</div>}
-                    <button type="submit" disabled={isLoading} style={{ padding: '0.875rem 1rem', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: 'white', fontSize: '1rem', fontWeight: '500', cursor: isLoading ? 'not-allowed' : 'pointer', opacity: isLoading ? 0.7 : 1, marginTop: '0.5rem', boxShadow: '0 4px 12px rgba(112, 193, 163, 0.2)' }}>{isLoading ? 'Even geduld...' : (view === 'login' ? 'Log in' : 'Account aanmaken')}</button>
+                    <button type="submit" disabled={isLoading} style={{ padding: '0.875rem 1rem', borderRadius: '8px', border: 'none', background: 'var(--color-primary)', color: '#333333', fontSize: '1rem', fontWeight: '500', cursor: isLoading ? 'not-allowed' : 'pointer', opacity: isLoading ? 0.7 : 1, marginTop: '0.5rem', boxShadow: '0 4px 12px rgba(255, 174, 185, 0.2)' }}>{isLoading ? 'Even geduld...' : (view === 'login' ? 'Log in' : 'Account aanmaken')}</button>
                 </form>
                 <div style={{ textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.875rem', marginTop: '1rem' }}>
                     {view === 'login' ? (<>Nog geen account? <button onClick={() => { setView('signup'); setError('') }} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', cursor: 'pointer', textDecoration: 'underline' }}>Meld je aan</button></>) : (<>Heb je al een account? <button onClick={() => { setView('login'); setError('') }} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', cursor: 'pointer', textDecoration: 'underline' }}>Log in</button></>)}

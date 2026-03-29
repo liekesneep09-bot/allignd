@@ -58,7 +58,7 @@ function PostCard({ post, onOpen, onLike, isLiked }) {
                         width: '26px', height: '26px', borderRadius: '50%',
                         background: post.is_anonymous ? '#E8ECEF' : 'var(--color-primary)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '0.7rem', color: 'white', fontWeight: '600',
+                        fontSize: '0.7rem', color: '#333333', fontWeight: '600',
                         flexShrink: 0
                     }}>
                         {post.is_anonymous ? '🌸' : (post.author_name?.[0] || '?').toUpperCase()}
@@ -474,7 +474,7 @@ export default function Community() {
                                     padding: '0.5rem 1rem',
                                     borderRadius: '20px',
                                     border: newCategory === cat.key ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
-                                    background: newCategory === cat.key ? 'rgba(112,193,163,0.1)' : 'var(--color-surface)',
+                                    background: newCategory === cat.key ? 'rgba(255,174,185,0.1)' : 'var(--color-surface)',
                                     color: newCategory === cat.key ? 'var(--color-primary)' : 'var(--color-text)',
                                     fontSize: '0.85rem',
                                     fontWeight: newCategory === cat.key ? '600' : '400',
@@ -584,10 +584,10 @@ export default function Community() {
                     disabled={!newTitle.trim() || !newBody.trim() || isSubmitting}
                     style={{
                         width: '100%', padding: '1rem', borderRadius: '14px',
-                        border: 'none', background: 'var(--color-primary)', color: 'white',
+                        border: 'none', background: 'var(--color-primary)', color: '#333333',
                         fontSize: '1rem', fontWeight: '600', cursor: 'pointer',
                         opacity: (!newTitle.trim() || !newBody.trim() || isSubmitting) ? 0.5 : 1,
-                        boxShadow: '0 4px 12px rgba(112,193,163,0.25)'
+                        boxShadow: '0 4px 12px rgba(255,174,185,0.25)'
                     }}
                 >
                     {isSubmitting ? 'Plaatsen...' : 'Plaats bericht'}
@@ -621,7 +621,7 @@ export default function Community() {
                                 width: '36px', height: '36px', borderRadius: '50%',
                                 background: selectedPost.is_anonymous ? '#E8ECEF' : 'var(--color-primary)',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                fontSize: '0.85rem', color: 'white', fontWeight: '600'
+                                fontSize: '0.85rem', color: '#333333', fontWeight: '600'
                             }}>
                                 {selectedPost.is_anonymous ? '🌸' : (selectedPost.author_name?.[0] || '?').toUpperCase()}
                             </span>
@@ -770,7 +770,7 @@ export default function Community() {
                         onClick={submitComment}
                         disabled={!commentText.trim() || isSubmitting}
                         style={{
-                            background: 'var(--color-primary)', color: 'white', border: 'none',
+                            background: 'var(--color-primary)', color: '#333333', border: 'none',
                             width: '42px', height: '42px', borderRadius: '50%',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             cursor: 'pointer', fontSize: '1.1rem',
@@ -824,7 +824,7 @@ export default function Community() {
                                     style={{
                                         flex: 1, padding: '0.7rem', borderRadius: '12px',
                                         border: 'none', background: '#ef4444',
-                                        color: 'white', fontSize: '0.9rem', fontWeight: '600',
+                                        color: '#333333', fontSize: '0.9rem', fontWeight: '600',
                                         cursor: 'pointer'
                                     }}
                                 >
@@ -862,7 +862,7 @@ export default function Community() {
                         style={{
                             padding: '0.5rem 1rem', borderRadius: '20px', whiteSpace: 'nowrap',
                             border: activeCategory === cat.key ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
-                            background: activeCategory === cat.key ? 'rgba(112,193,163,0.1)' : 'var(--color-surface)',
+                            background: activeCategory === cat.key ? 'rgba(255,174,185,0.1)' : 'var(--color-surface)',
                             color: activeCategory === cat.key ? 'var(--color-primary)' : 'var(--color-text)',
                             fontSize: '0.85rem', fontWeight: activeCategory === cat.key ? '600' : '400',
                             cursor: 'pointer', flexShrink: 0
@@ -912,7 +912,7 @@ export default function Community() {
                                 padding: '0.3rem 0.7rem', borderRadius: '14px', fontSize: '0.75rem',
                                 border: activeFilter === f.key ? '1.5px solid var(--color-primary)' : 'none',
                                 cursor: 'pointer',
-                                background: activeFilter === f.key ? 'rgba(112,193,163,0.15)' : 'transparent',
+                                background: activeFilter === f.key ? 'rgba(255,174,185,0.15)' : 'transparent',
                                 color: activeFilter === f.key ? 'var(--color-primary)' : 'var(--color-text-muted)',
                                 fontWeight: activeFilter === f.key ? '600' : '400',
                                 transition: 'all 0.15s',
@@ -981,9 +981,9 @@ export default function Community() {
                 style={{
                     position: 'fixed', bottom: '90px', right: '20px',
                     width: '56px', height: '56px', borderRadius: '50%',
-                    background: 'var(--color-primary)', color: 'white',
+                    background: 'var(--color-primary)', color: '#333333',
                     border: 'none', fontSize: '1.5rem', cursor: 'pointer',
-                    boxShadow: '0 4px 16px rgba(112,193,163,0.4)',
+                    boxShadow: '0 4px 16px rgba(255,174,185,0.4)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     zIndex: 50
                 }}

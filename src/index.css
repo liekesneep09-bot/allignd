@@ -20,16 +20,16 @@
   --phase-luteal: #e2a9f1;
 
   /* Actions & Brand */
-  --color-primary: #70C1A3;
-  /* Action Green (Buttons, Active States) */
-  --color-brand: #70C1A3;
+  --color-primary: #ffaeb9;
+  /* Action Pink (Buttons, Active States) */
+  --color-brand: #ffaeb9;
   /* Mapped to Action Green */
   --color-movement: #38B2AC;
   /* Teal/Blue-Green for Movement Indicators */
 
   /* Layer 2: Nutrition Data */
-  --color-calories: #70C1A3;
-  /* Fresh Green (Progress/Good Status) */
+  --color-calories: #ffaeb9;
+  /* Action Pink (Progress/Good Status) */
   --color-carbs: #FFB7A1;
   /* Soft Peach/Coral */
   --color-fat: #FDE6A6;
@@ -44,8 +44,8 @@
   --radius-sm: 6px;
   --radius-md: 16px;
   --radius-lg: 24px;
-  --shadow-soft: 0 4px 20px rgba(112, 193, 163, 0.08);
-  /* Subtle green-tinted shadow */
+  --shadow-soft: 0 4px 20px rgba(255, 174, 185, 0.4);
+  /* Subtle pink-tinted shadow */
 
   /* Spacing */
   --space-xs: 4px;
@@ -146,7 +146,7 @@ input::placeholder {
 
 .btn-primary {
   background-color: var(--color-primary);
-  color: #FFFFFF;
+  color: #333333;
 }
 
 .btn-primary:active {

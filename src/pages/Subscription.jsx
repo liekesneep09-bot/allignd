@@ -82,10 +82,10 @@ export default function Subscription() {
                 >
                     {selectedPlan === 'yearly' && (
                         <div style={{
-                            position: 'absolute', top: '-10px', right: '1rem',
-                            background: 'var(--color-primary)', color: '#fff',
-                            padding: '0.2rem 0.6rem', borderRadius: '12px',
-                            fontSize: '0.75rem', fontWeight: 'bold'
+                            position: 'absolute', top: '-12px', right: '16px',
+                            background: 'var(--color-primary)', color: '#333333',
+                            fontSize: '0.75rem', fontWeight: 'bold', padding: '4px 8px',
+                            borderRadius: '12px', textTransform: 'uppercase'
                         }}>
                             BESTE WAARDE
                         </div>

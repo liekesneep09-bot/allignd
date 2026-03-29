@@ -482,7 +482,7 @@ export default function Today({ onNavigate }) {
                         cursor: 'pointer',
                         backdropFilter: 'blur(4px)',
                         transition: 'all 0.2s',
-                        boxShadow: isPeriodForViewDate ? '0 4px 12px rgba(112, 193, 163, 0.4)' : 'none'
+                        boxShadow: isPeriodForViewDate ? '0 4px 12px rgba(255, 174, 185, 0.4)' : 'none'
                       }}
                     >
                       {isPeriodForViewDate ? 'Menstruatie gelogd ✓' : 'Menstruatie loggen +'}
