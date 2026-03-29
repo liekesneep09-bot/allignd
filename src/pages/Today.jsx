@@ -465,7 +465,7 @@ export default function Today({ onNavigate }) {
                 {/* Period log button: only show in Luteal phase (or if already logged so user can undo) */}
                 {(() => {
                   const isPeriodForViewDate = isDateInPeriod(viewDateStr);
-                  if (currentPhase !== 'luteal' && !isPeriodForViewDate) return null;
+                  if (viewPhase !== 'luteal' && !isPeriodForViewDate) return null;
                   return (
                     <button
                       onClick={() => {
