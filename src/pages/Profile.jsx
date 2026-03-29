@@ -322,13 +322,13 @@ export default function Profile() {
                             <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.4rem' }}>
                                 Startdatum laatste menstruatie
                             </label>
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
                                 <input
                                     type="date"
                                     value={formData.cycleStart}
                                     onChange={e => handleChange('cycleStart', e.target.value)}
                                     className="input-field"
-                                    style={{ flex: 1, minWidth: '120px' }} // Fix layout
+                                    style={{ width: '100%' }}
                                 />
                                 {user.isMenstruatingNow ? (
                                     <button
@@ -339,7 +339,7 @@ export default function Profile() {
                                             }
                                         }}
                                         className="btn"
-                                        style={{ border: '1px solid #a8647340', background: '#a8647320', color: '#a86473', whiteSpace: 'nowrap', cursor: 'pointer', fontWeight: '600' }}
+                                        style={{ width: '100%', border: '1px solid #a8647340', background: '#a8647320', color: '#a86473', cursor: 'pointer', fontWeight: '600' }}
                                     >
                                         Stop Menstruatie
                                     </button>
@@ -353,10 +353,10 @@ export default function Profile() {
                                                 }
                                             }
                                         }}
-                                        className="btn"
-                                        style={{ border: 'none', background: 'var(--color-primary)', color: '#fff', whiteSpace: 'nowrap' }}
+                                        className="btn btn-primary"
+                                        style={{ width: '100%', border: 'none', color: '#fff' }}
                                     >
-                                        Start (Nieuwe Cyclus)
+                                        Nieuwe cyclus starten
                                     </button>
                                 )}
                             </div>
