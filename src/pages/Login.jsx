@@ -328,21 +328,7 @@ export default function Login() {
             padding: '2rem',
             color: 'var(--color-text)'
         }}>
-            {/* Animated phase-color background (Shared with Start Screen) */}
-            <style>{`
-                @keyframes phaseColors {
-                    0%, 100% { background: linear-gradient(135deg, #a8647320 0%, rgba(168,100,115,0.05) 50%, #FFFFFF 100%); } /* Menstrual */
-                    25% { background: linear-gradient(135deg, #5bc4d440 0%, rgba(91,196,212,0.1) 50%, #FFFFFF 100%); } /* Follicular - New Color */
-                    50% { background: linear-gradient(135deg, #f5a89c20 0%, rgba(245,168,156,0.05) 50%, #FFFFFF 100%); } /* Ovulatory */
-                    75% { background: linear-gradient(135deg, #a3b89920 0%, rgba(163,184,153,0.05) 50%, #FFFFFF 100%); } /* Luteal */
-                }
-            `}</style>
-            <div style={{
-                position: 'absolute',
-                top: 0, left: 0, right: 0, bottom: 0,
-                animation: 'phaseColors 12s ease-in-out infinite',
-                zIndex: 0
-            }} />
+
 
             <div style={{
                 position: 'relative',
