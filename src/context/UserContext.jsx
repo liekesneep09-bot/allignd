@@ -572,8 +572,8 @@ export function UserProvider({ children }) {
       })
     }
 
-    // Redirect to Subscription Paywall
-    window.location.href = '/subscription'
+    // SUBSCRIPTION BYPASSED FOR TESTING - redirect straight to app
+    window.location.href = '/'
   }
 
   // NEW: Explicitly Reset Onboarding (Keep data, just redo setup)

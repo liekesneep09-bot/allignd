@@ -60,10 +60,10 @@ function MainLayout() {
         return <Onboarding />
     }
 
-    // Explicit Route Handling for Subscription Paywall
-    if (window.location.pathname === '/subscription') {
-        return <Subscription />
-    }
+    // SUBSCRIPTION BYPASSED FOR TESTING
+    // if (window.location.pathname === '/subscription') {
+    //     return <Subscription />
+    // }
 
     return (
         <>
