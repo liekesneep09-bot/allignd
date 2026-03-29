@@ -120,7 +120,7 @@ export default function Onboarding() {
                         0%, 100% { background: linear-gradient(135deg, #a8647320 0%, rgba(168,100,115,0.05) 50%, #FFFFFF 100%); }
                         25% { background: linear-gradient(135deg, #5bc4d440 0%, rgba(91,196,212,0.1) 50%, #FFFFFF 100%); }
                         50% { background: linear-gradient(135deg, #f5a89c20 0%, rgba(245,168,156,0.05) 50%, #FFFFFF 100%); }
-                        75% { background: linear-gradient(135deg, #e2a9f120 0%, rgba(226,169,241,0.05) 50%, #FFFFFF 100%); }
+                        75% { background: linear-gradient(135deg, #a3b89920 0%, rgba(163,184,153,0.05) 50%, #FFFFFF 100%); }
                     }
                 `}</style>
                 <div style={{
@@ -179,7 +179,7 @@ export default function Onboarding() {
                         0%, 100% { background: linear-gradient(135deg, #a8647310 0%, rgba(168,100,115,0.02) 50%, #FFFFFF 100%); }
                         25% { background: linear-gradient(135deg, #5bc4d420 0%, rgba(91,196,212,0.05) 50%, #FFFFFF 100%); }
                         50% { background: linear-gradient(135deg, #f5a89c10 0%, rgba(245,168,156,0.02) 50%, #FFFFFF 100%); }
-                        75% { background: linear-gradient(135deg, #e2a9f110 0%, rgba(226,169,241,0.02) 50%, #FFFFFF 100%); }
+                        75% { background: linear-gradient(135deg, #a3b89910 0%, rgba(163,184,153,0.02) 50%, #FFFFFF 100%); }
                     }
                 `}</style>
             <div style={{
@@ -289,7 +289,7 @@ export default function Onboarding() {
                                                 borderRadius: '20px',
                                                 border: formData.cycleLength === len ? 'none' : '1px solid var(--color-border)',
                                                 background: formData.cycleLength === len ? 'var(--color-primary)' : 'transparent',
-                                                color: formData.cycleLength === len ? '#fff' : 'var(--color-text-muted)',
+                                                color: formData.cycleLength === len ? '#333333' : 'var(--color-text-muted)',
                                                 fontSize: '0.8rem',
                                                 cursor: 'pointer'
                                             }}

@@ -253,9 +253,9 @@ export default function Today({ onNavigate }) {
         accent: '#f5a89c80'
       }
       case 'luteal': return {
-        bg: 'linear-gradient(to bottom, #e2a9f140 0%, rgba(226,169,241,0.2) 60%, rgba(255,255,255,0) 100%)',
-        text: '#e2a9f1',
-        accent: '#e2a9f180'
+        bg: 'linear-gradient(to bottom, #a3b89940 0%, rgba(163,184,153,0.2) 60%, rgba(255,255,255,0) 100%)',
+        text: '#a3b899',
+        accent: '#a3b89980'
       }
       default: return { bg: '#F5F5F5', text: '#9E9E9E', accent: '#EEEEEE' }
     }

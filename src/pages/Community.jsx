@@ -22,7 +22,7 @@ const PHASE_COLORS = {
     menstrual: '#a86473',
     follicular: '#5bc4d4',
     ovulatory: '#f5a89c',
-    luteal: '#e2a9f1'
+    luteal: '#a3b899'
 }
 
 function timeAgo(dateStr) {
