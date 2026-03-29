@@ -382,22 +382,65 @@ export default function Community() {
         if (!deleteConfirmId || !authUser) return
         const postId = deleteConfirmId
         setDeleteConfirmId(null)
+        
         try {
-            const { error } = await supabase
-                .from('community_posts')
-                .delete()
-                .eq('id', postId)
-                .eq('user_id', authUser.id)
-            if (error) {
-                console.error('Delete failed:', error)
-                alert('Verwijderen mislukt: ' + error.message)
-                return
+            const isOwner = selectedPost?.user_id === authUser.id
+
+            if (user?.isAdmin && !isOwner) {
+                // Admin deleting someone else's post via RPC
+                const { error } = await supabase.rpc('admin_delete_community_post', {
+                    target_post_id: postId
+                })
+                if (error) throw error
+            } else {
+                // Normal user deleting their own post
+                const { error } = await supabase
+                    .from('community_posts')
+                    .delete()
+                    .eq('id', postId)
+                    .eq('user_id', authUser.id)
+                if (error) throw error
             }
+
             setView('feed')
             fetchPosts()
         } catch (e) {
             console.error('Failed to delete post:', e)
-            alert('Verwijderen mislukt')
+            alert('Verwijderen mislukt: ' + (e.message || 'Onbekende fout'))
+        }
+    }
+
+    // ─── Delete comment (Normal or Admin) ─────────────────
+    const removeCommentFromUI = async (commentId) => {
+        if (!authUser) return
+        
+        try {
+            const comment = comments.find(c => c.id === commentId)
+            const isOwner = comment?.user_id === authUser.id
+
+            if (user?.isAdmin && !isOwner) {
+                // Admin deleting someone else's comment via RPC
+                const { error } = await supabase.rpc('admin_delete_community_comment', {
+                    target_comment_id: commentId
+                })
+                if (error) throw error
+            } else {
+                // Normal user deleting their own comment
+                const { error } = await supabase
+                    .from('community_comments')
+                    .delete()
+                    .eq('id', commentId)
+                    .eq('user_id', authUser.id)
+                if (error) throw error
+            }
+
+            // Remove from UI
+            setComments(prev => prev.filter(c => c.id !== commentId))
+            setSelectedPost(prev => ({ ...prev, comments_count: Math.max(0, (prev.comments_count || 1) - 1) }))
+            fetchPosts()
+        } catch (e) {
+            console.error('Failed to delete comment:', e)
+            alert('Reactie verwijderen mislukt: ' + (e.message || 'Onbekende fout'))
         }
     }
 
