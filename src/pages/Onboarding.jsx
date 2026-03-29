@@ -289,10 +289,18 @@ export default function Onboarding() {
                                     </button>
                                 </div>
                                 <input
-                                    type="date"
+                                    type={formData.cycleStart ? "date" : "text"}
+                                    onFocus={(e) => e.target.type = "date"}
+                                    onBlur={(e) => { if (!e.target.value) e.target.type = "text" }}
                                     value={formatDateForInput(formData.cycleStart)}
                                     onChange={e => handleChange('cycleStart', e.target.value)}
-                                    style={inputStyle}
+                                    placeholder="Kies een datum (bijv. 12-03-2026)"
+                                    style={{
+                                        ...inputStyle,
+                                        WebkitAppearance: 'none', // fixes iOS native styling issues
+                                        minHeight: '3.5rem' // Ensure same height as other inputs
+                                    }}
+                                    max={new Date().toISOString().split('T')[0]}
                                 />
 
                             </div>
