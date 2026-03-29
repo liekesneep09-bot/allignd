@@ -336,8 +336,11 @@ export default function Onboarding() {
                                 <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>Gemiddelde menstruatieduur (optioneel)</label>
                                 <input
                                     type="number"
-                                    value={formData.periodLength}
-                                    onChange={e => handleChange('periodLength', parseInt(e.target.value) || 5)}
+                                    value={formData.periodLength || ''}
+                                    onChange={e => {
+                                        const val = parseInt(e.target.value);
+                                        handleChange('periodLength', isNaN(val) ? '' : val);
+                                    }}
                                     placeholder="5"
                                     style={inputStyle}
                                 />
