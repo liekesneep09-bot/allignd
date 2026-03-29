@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { useRegisterSW } from 'virtual:pwa-register/react'
 import { UserProvider, useUser } from './context/UserContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Onboarding from './pages/Onboarding'
@@ -265,21 +264,21 @@ export default function App() {
         }
     }, [])
 
-    // Register Service Worker for PWA Offline Support
-    useRegisterSW({
-        onRegistered(r) {
-            console.log('SW Registered: ', r)
-        },
-        onRegisterError(error) {
-            console.error('SW registration error', error)
-        }
-    })
+    // PWA Service Worker is registered automatically by Vite PWA plugin when using 'prompt', 
+    // no need for manual React hooks that might cause re-renders.
 
     // Simple Route Handling for Callback
     const isCallback = window.location.pathname === '/auth/callback'
 
     if (isCallback) {
-        return <AuthCallback />
+        // If we are on callback but we ALREADY have a session (e.g. from localStorage), just go to home
+        return (
+            <ErrorBoundary>
+                <AuthProvider>
+                    <AuthCallback />
+                </AuthProvider>
+            </ErrorBoundary>
+        )
     }
 
     // Check if Supabase is configured
