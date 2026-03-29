@@ -623,38 +623,37 @@ export function UserProvider({ children }) {
 
   // LOGOUT (Simple) - defined inline in context value to avoid HMR scoping issues
 
-  // DELETE ACCOUNT (Real Deletion)
+  // DELETE ACCOUNT (Secure Server-Side Deletion)
   const deleteAccount = async () => {
     try {
-      if (!authUser?.id) return
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) throw new Error('Niet ingelogd')
 
-      // 1. Try to call RPC (Best Case: Deletes Auth User + Cascade)
-      const { error: rpcError } = await supabase.rpc('delete_user_account')
+      const response = await fetch('/api/delete-account', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      })
 
-      if (rpcError) {
-        console.warn("RPC delete_user_account failed (likely not exists), falling back to manual delete.", rpcError)
-
-        // 2. Fallback: Delete Profile + Data manually
-        // Note: This leaves the Auth User, but removes all app data.
-        await supabase.from('food_logs').delete().eq('user_id', authUser.id)
-        await supabase.from('custom_foods').delete().eq('user_id', authUser.id)
-        await supabase.from('computed_targets').delete().eq('user_id', authUser.id)
-        await supabase.from('profiles').delete().eq('id', authUser.id)
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Verwijderen mislukt')
       }
 
-      // 3. Clear Local State
+      // Clear Local State
       setIsOnboarded(false)
-      localStorage.clear() // Wipe everything
+      localStorage.clear() 
 
-      // 4. Sign Out
+      // Sign Out locally
       await signOut()
 
-      // 5. Hard Reload
+      // Hard Reload to reset app state
       window.location.href = '/'
 
     } catch (e) {
       console.error("Delete Account Failed:", e)
-      alert("Kon account niet verwijderen (probeer opnieuw): " + e.message)
+      throw e // Let the UI handle the error message
     }
   }
 

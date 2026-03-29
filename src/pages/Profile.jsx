@@ -56,7 +56,20 @@ export default function Profile() {
 
     const [isDirty, setIsDirty] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
+    const [isDeleting, setIsDeleting] = useState(false)
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
     const [showCycleCorrection, setShowCycleCorrection] = useState(false)
+
+    const handleDeleteAccount = async () => {
+        setIsDeleting(true)
+        try {
+            await deleteAccount()
+        } catch (err) {
+            alert("Fout bij verwijderen: " + err.message)
+            setIsDeleting(false)
+            setShowDeleteConfirm(false)
+        }
+    }
 
     // Handle Input Change
     const handleChange = (field, value) => {
@@ -394,21 +407,49 @@ export default function Profile() {
 
                 <button
                     onClick={logout}
-                    style={{ background: 'transparent', border: 'none', color: 'var(--color-text)', cursor: 'pointer' }}
+                    style={{ background: 'transparent', border: 'none', color: 'var(--color-text)', cursor: 'pointer', textAlign: 'left', padding: 0 }}
                 >
                     Uitloggen
                 </button>
 
-                <button
-                    onClick={() => {
-                        if (window.confirm("LET OP: Dit verwijdert defintief je account en data. Dit kan niet ongedaan gemaakt worden.")) {
-                            deleteAccount()
-                        }
-                    }}
-                    style={{ background: 'transparent', border: 'none', color: '#D32F2F', fontSize: '0.8rem', cursor: 'pointer' }}
-                >
-                    Account verwijderen
-                </button>
+                {!showDeleteConfirm ? (
+                    <button
+                        onClick={() => setShowDeleteConfirm(true)}
+                        style={{ background: 'transparent', border: 'none', color: '#D32F2F', fontSize: '0.8rem', cursor: 'pointer', textAlign: 'left', padding: 0, marginTop: '1rem' }}
+                    >
+                        Account verwijderen
+                    </button>
+                ) : (
+                    <div style={{ background: '#FFF5F5', padding: '1rem', borderRadius: '12px', border: '1px solid #FFE3E3', marginTop: '1rem' }}>
+                        <p style={{ fontSize: '0.85rem', color: '#D32F2F', marginBottom: '0.75rem', fontWeight: 600 }}>
+                            Weet je het zeker? Dit verwijdert definitief al je data (logs, profiel en account) en kan niet ongedaan gemaakt worden.
+                        </p>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button
+                                onClick={handleDeleteAccount}
+                                disabled={isDeleting}
+                                style={{
+                                    flex: 1, padding: '0.6rem', borderRadius: '8px', border: 'none',
+                                    background: '#D32F2F', color: 'white', fontSize: '0.85rem', fontWeight: 600,
+                                    cursor: isDeleting ? 'not-allowed' : 'pointer', opacity: isDeleting ? 0.7 : 1
+                                }}
+                            >
+                                {isDeleting ? 'Bezig...' : 'Ja, verwijder definitief'}
+                            </button>
+                            <button
+                                onClick={() => setShowDeleteConfirm(false)}
+                                disabled={isDeleting}
+                                style={{
+                                    flex: 1, padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--color-border)',
+                                    background: 'white', color: 'var(--color-text)', fontSize: '0.85rem', fontWeight: 600,
+                                    cursor: isDeleting ? 'not-allowed' : 'pointer'
+                                }}
+                            >
+                                Annuleer
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* STICKY SAVE BUTTON (Mobile Friendly) */}
