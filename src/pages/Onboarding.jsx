@@ -294,11 +294,7 @@ export default function Onboarding() {
                                     onChange={e => handleChange('cycleStart', e.target.value)}
                                     style={inputStyle}
                                 />
-                                {!formData.cycleStart && (
-                                    <p style={{ fontSize: '0.75rem', color: '#a86473', marginTop: '0.4rem' }}>
-                                        Selecteer de startdatum van je laatste menstruatie.
-                                    </p>
-                                )}
+
                             </div>
 
                             <div>
@@ -313,9 +309,7 @@ export default function Onboarding() {
                                     placeholder="Bijv. 28"
                                     style={inputStyle}
                                 />
-                                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.4rem' }}>
-                                    Gemiddeld is 28 dagen. Elke cyclus is anders.
-                                </p>
+
                                 <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
                                     {[26, 28, 30, 32].map(len => (
                                         <button
@@ -335,9 +329,7 @@ export default function Onboarding() {
                                         </button>
                                     ))}
                                 </div>
-                                <p className="text-muted" style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>
-                                    Gemiddeld is 28, maar alles tussen 21 en 35 is normaal.
-                                </p>
+
                             </div>
 
                             <div>
@@ -349,9 +341,7 @@ export default function Onboarding() {
                                     placeholder="5"
                                     style={inputStyle}
                                 />
-                                <p className="text-muted" style={{ fontSize: '0.8rem', marginTop: '0.25rem' }}>
-                                    Standaard 5 dagen. Dit helpt ons de fases beter in te schatten.
-                                </p>
+
                             </div>
                         </div>
                     </div>
