@@ -313,11 +313,9 @@ export default function Onboarding() {
                                     placeholder="Bijv. 28"
                                     style={inputStyle}
                                 />
-                                {(formData.cycleLength && (formData.cycleLength < 15 || formData.cycleLength > 60)) && (
-                                    <p style={{ fontSize: '0.75rem', color: '#a86473', marginTop: '0.4rem' }}>
-                                        Huisarts-tip: bij een cyclus korter dan 21 of langer dan 35 dagen raden we aan extra op te letten, maar je kunt gewoon doorgaan.
-                                    </p>
-                                )}
+                                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.4rem' }}>
+                                    Gemiddeld is 28 dagen. Elke cyclus is anders.
+                                </p>
                                 <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
                                     {[26, 28, 30, 32].map(len => (
                                         <button
