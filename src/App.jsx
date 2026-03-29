@@ -20,7 +20,7 @@ import { supabaseConfigError } from './utils/supabaseClient'
 import AuthCallback from './components/AuthCallback'
 
 import { IconHome, IconActivity, IconRecipe, IconAccount, IconCommunity } from './components/Icons'
-import logo from './assets/logo-primary.svg'
+import logo from './assets/logo-primary.png'
 
 function MainLayout() {
     const { hasOnboarded, isLoading, currentPhase } = useUser()

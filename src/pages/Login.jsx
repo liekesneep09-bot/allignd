@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../utils/supabaseClient'
-import logo from '../assets/logo-primary.svg'
+import logo from '../assets/logo-primary.png'
 import startBg from '../assets/Ontwerp zonder titel.png'
 
 export default function Login() {

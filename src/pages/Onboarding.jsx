@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useUser } from '../context/UserContext'
 import { useAuth } from '../context/AuthContext'
 import { GOAL_TYPES } from '../logic/nutrition'
-import logo from '../assets/logo-primary.svg'
+import logo from '../assets/logo-primary.png'
 
 export default function Onboarding() {
     const { user, updateUser, completeOnboarding, saveProfileAndCalculate, logout } = useUser()
