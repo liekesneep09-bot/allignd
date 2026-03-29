@@ -845,7 +845,7 @@ export default function Community() {
         <div className="container" style={{ paddingBottom: '120px' }}>
             {/* Header */}
             <div style={{ marginBottom: '1rem' }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.25rem' }}>The Circle</h2>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.25rem' }}>Community</h2>
                 <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>Deel je ervaring. Stel je vraag. Groei samen.</p>
             </div>
 

@@ -157,7 +157,7 @@ function MainLayout() {
                     }}
                 >
                     <IconCommunity size={24} />
-                    The Circle
+                    Community
                 </button>
 
                 <button
