@@ -150,21 +150,7 @@ export default function Onboarding() {
                 position: 'relative',
                 overflow: 'hidden'
             }}>
-                <style>{`
-                    @keyframes phaseColors {
-                        0%, 100% { background: linear-gradient(135deg, #a8647320 0%, rgba(168,100,115,0.05) 50%, #FFFFFF 100%); }
-                        25% { background: linear-gradient(135deg, #5bc4d440 0%, rgba(91,196,212,0.1) 50%, #FFFFFF 100%); }
-                        50% { background: linear-gradient(135deg, #f5a89c20 0%, rgba(245,168,156,0.05) 50%, #FFFFFF 100%); }
-                        75% { background: linear-gradient(135deg, #a3b89920 0%, rgba(163,184,153,0.05) 50%, #FFFFFF 100%); }
-                    }
-                `}</style>
-                <div style={{
-                    position: 'absolute',
-                    top: 0, left: 0, right: 0, bottom: 0,
-                    animation: 'phaseColors 12s ease-in-out infinite',
-                    zIndex: 0,
-                    pointerEvents: 'none'  // CRITICAL: never intercept clicks
-                }} />
+
                 <div style={{ marginBottom: '3rem', position: 'relative', zIndex: 1 }}>
                     <img
                         src={logo}
@@ -210,21 +196,7 @@ export default function Onboarding() {
     // Steps 1-6: Profile Setup (Updated Flow)
     return (
         <div className="container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: '100px', position: 'relative', overflow: 'hidden' }}>
-            <style>{`
-                    @keyframes phaseColorsForm {
-                        0%, 100% { background: linear-gradient(135deg, #a8647310 0%, rgba(168,100,115,0.02) 50%, #FFFFFF 100%); }
-                        25% { background: linear-gradient(135deg, #5bc4d420 0%, rgba(91,196,212,0.05) 50%, #FFFFFF 100%); }
-                        50% { background: linear-gradient(135deg, #f5a89c10 0%, rgba(245,168,156,0.02) 50%, #FFFFFF 100%); }
-                        75% { background: linear-gradient(135deg, #a3b89910 0%, rgba(163,184,153,0.02) 50%, #FFFFFF 100%); }
-                    }
-                `}</style>
-            <div style={{
-                position: 'absolute',
-                top: 0, left: 0, right: 0, bottom: 0,
-                animation: 'phaseColorsForm 12s ease-in-out infinite',
-                zIndex: 0,
-                pointerEvents: 'none'  // CRITICAL: never intercept clicks
-            }} />
+
 
             {/* Progress */}
             <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '4px', background: 'var(--color-surface)', zIndex: 20 }}>
