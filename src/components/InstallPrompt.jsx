@@ -89,7 +89,7 @@ export default function InstallPrompt() {
 
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                 <img
-                    src="/icon-192.png"
+                    src="/logo-192.png"
                     alt="Allignd"
                     style={{ width: '48px', height: '48px', borderRadius: '12px' }}
                 />

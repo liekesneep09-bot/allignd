@@ -1,8 +1,8 @@
-const CACHE_NAME = 'allignd-v6'; // Bumped version to bust stale caches
+const CACHE_NAME = 'allignd-v7'; // Bumped version to bust stale caches
 const STATIC_ASSETS = [
     '/manifest.json',
-    '/icon-192.png',
-    '/icon-512.png'
+    '/logo-192.png',
+    '/logo-512.png'
 ];
 // NOTE: /index.html is intentionally NOT cached — always fetched from network
 
