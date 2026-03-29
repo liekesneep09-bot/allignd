@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useRegisterSW } from 'virtual:pwa-register/react'
 import { UserProvider, useUser } from './context/UserContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Onboarding from './pages/Onboarding'
@@ -263,6 +264,16 @@ export default function App() {
             window.removeEventListener('offline', handleOffline)
         }
     }, [])
+
+    // Register Service Worker for PWA Offline Support
+    useRegisterSW({
+        onRegistered(r) {
+            console.log('SW Registered: ', r)
+        },
+        onRegisterError(error) {
+            console.error('SW registration error', error)
+        }
+    })
 
     // Simple Route Handling for Callback
     const isCallback = window.location.pathname === '/auth/callback'

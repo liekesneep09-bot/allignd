@@ -1,4 +1,5 @@
 import React from 'react'
+import { IconHome } from './Icons'
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
@@ -17,16 +18,16 @@ class ErrorBoundary extends React.Component {
 
     resetSession = async () => {
         try {
-            // Clear all Supabase localStorage keys
+            // Clear all Supabase localStorage keys safely
             Object.keys(localStorage)
-                .filter(key => key.startsWith('sb-'))
+                .filter(key => key.startsWith('sb-') || key.startsWith('cyclus_'))
                 .forEach(key => localStorage.removeItem(key))
+            
+            // Clear session storage just in case
+            sessionStorage.clear()
 
-            // Clear other app data
-            localStorage.removeItem('cyclus_onboarded')
-
-            // Reload
-            window.location.href = '/'
+            // Hard reload without cache
+            window.location.replace('/')
         } catch (err) {
             console.error('Failed to reset session:', err)
             window.location.reload()
@@ -43,98 +44,84 @@ class ErrorBoundary extends React.Component {
                     alignItems: 'center',
                     justifyContent: 'center',
                     minHeight: '100vh',
-                    background: '#fdf5f7',
-                    padding: '20px'
+                    background: 'var(--color-bg, #fdf5f7)',
+                    padding: '24px',
+                    fontFamily: 'Inter, system-ui, sans-serif'
                 }}>
-                    <div style={{
-                        background: 'white',
-                        padding: '40px',
-                        borderRadius: '16px',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                        maxWidth: '600px',
-                        width: '100%'
+                    <div className="card" style={{
+                        padding: '40px 32px',
+                        maxWidth: '400px',
+                        width: '100%',
+                        textAlign: 'center',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '24px'
                     }}>
-                        <div style={{
-                            fontSize: '48px',
-                            textAlign: 'center',
-                            marginBottom: '20px'
-                        }}>⚠️</div>
+                        <div style={{ fontSize: '48px', marginBottom: '-8px' }}>⚠️</div>
 
-                        <h1 style={{
-                            fontSize: '24px',
-                            fontWeight: '600',
-                            color: '#d4567a',
-                            marginBottom: '12px',
-                            textAlign: 'center'
-                        }}>
-                            Er ging iets mis
-                        </h1>
-
-                        <p style={{
-                            fontSize: '16px',
-                            color: '#666',
-                            marginBottom: '24px',
-                            textAlign: 'center',
-                            lineHeight: '1.5'
-                        }}>
-                            De app is onverwacht gestopt. Probeer de pagina opnieuw te laden of reset je sessie.
-                        </p>
+                        <div>
+                            <h1 style={{
+                                fontSize: '24px',
+                                fontWeight: '700',
+                                color: 'var(--color-primary, #d4567a)',
+                                margin: '0 0 12px 0'
+                            }}>
+                                Oeps, er ging iets mis
+                            </h1>
+                            <p style={{
+                                fontSize: '15px',
+                                color: 'var(--color-text-muted, #666)',
+                                margin: 0,
+                                lineHeight: '1.5'
+                            }}>
+                                De app is onverwachts vastgelopen. Vaak helpt het om de pagina even opnieuw te laden.
+                            </p>
+                        </div>
 
                         {isDev && this.state.error && (
                             <div style={{
-                                background: '#f5f5f5',
-                                padding: '16px',
+                                background: 'rgba(0,0,0,0.05)',
+                                padding: '12px',
                                 borderRadius: '8px',
-                                marginBottom: '24px',
-                                fontSize: '14px',
+                                fontSize: '12px',
                                 fontFamily: 'monospace',
+                                color: '#333',
+                                textAlign: 'left',
                                 overflow: 'auto',
-                                maxHeight: '200px'
+                                maxHeight: '150px'
                             }}>
-                                <strong>Error:</strong> {this.state.error.toString()}
-                                {this.state.errorInfo && (
-                                    <pre style={{ marginTop: '8px', fontSize: '12px' }}>
-                                        {this.state.errorInfo.componentStack}
-                                    </pre>
-                                )}
+                                <strong>{this.state.error.toString()}</strong>
                             </div>
                         )}
 
-                        <div style={{
-                            display: 'flex',
-                            gap: '12px',
-                            flexDirection: 'column'
-                        }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px' }}>
                             <button
                                 onClick={() => window.location.reload()}
+                                className="btn btn-primary"
                                 style={{
-                                    background: '#d4567a',
-                                    color: 'white',
-                                    border: 'none',
-                                    padding: '14px 24px',
-                                    borderRadius: '8px',
+                                    padding: '16px',
+                                    borderRadius: '16px',
                                     fontSize: '16px',
-                                    fontWeight: '600',
-                                    cursor: 'pointer'
+                                    fontWeight: '600'
                                 }}
                             >
-                                🔄 Herlaad Pagina
+                                Herlaad App
                             </button>
 
                             <button
                                 onClick={this.resetSession}
+                                className="btn"
                                 style={{
-                                    background: '#666',
-                                    color: 'white',
-                                    border: 'none',
-                                    padding: '14px 24px',
-                                    borderRadius: '8px',
-                                    fontSize: '16px',
-                                    fontWeight: '600',
-                                    cursor: 'pointer'
+                                    background: 'transparent',
+                                    color: 'var(--color-text-muted, #666)',
+                                    border: '1px solid var(--color-border, #eaeaea)',
+                                    padding: '16px',
+                                    borderRadius: '16px',
+                                    fontSize: '15px',
+                                    fontWeight: '500'
                                 }}
                             >
-                                🗑️ Reset Sessie
+                                Cache legen
                             </button>
                         </div>
                     </div>
