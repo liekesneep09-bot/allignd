@@ -162,9 +162,10 @@ export default function Onboarding() {
                     position: 'absolute',
                     top: 0, left: 0, right: 0, bottom: 0,
                     animation: 'phaseColors 12s ease-in-out infinite',
-                    zIndex: 0
+                    zIndex: 0,
+                    pointerEvents: 'none'  // CRITICAL: never intercept clicks
                 }} />
-                <div style={{ marginBottom: '3rem' }}>
+                <div style={{ marginBottom: '3rem', position: 'relative', zIndex: 1 }}>
                     <img
                         src={logo}
                         alt="Cyclus Logo"
@@ -183,11 +184,11 @@ export default function Onboarding() {
                     Op basis van jouw lichaam, doelen en energie
                 </p>
 
-                <button className="btn btn-primary" onClick={() => setStep(1)} style={{ minWidth: '200px' }}>
+                <button className="btn btn-primary" onClick={() => setStep(1)} style={{ minWidth: '200px', position: 'relative', zIndex: 1 }}>
                     START NU
                 </button>
 
-                <div style={{ marginTop: '2rem' }}>
+                <div style={{ marginTop: '2rem', position: 'relative', zIndex: 1 }}>
                     <button
                         onClick={logout}
                         style={{
@@ -221,7 +222,8 @@ export default function Onboarding() {
                 position: 'absolute',
                 top: 0, left: 0, right: 0, bottom: 0,
                 animation: 'phaseColorsForm 12s ease-in-out infinite',
-                zIndex: 0
+                zIndex: 0,
+                pointerEvents: 'none'  // CRITICAL: never intercept clicks
             }} />
 
             {/* Progress */}
@@ -288,7 +290,7 @@ export default function Onboarding() {
                 </div>
             </header>
 
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, position: 'relative', zIndex: 1 }}>
 
                 {/* STEP 1: CYCLUS */}
                 {step === 1 && (
@@ -320,6 +322,11 @@ export default function Onboarding() {
                                     onChange={e => handleChange('cycleStart', e.target.value)}
                                     style={inputStyle}
                                 />
+                                {!formData.cycleStart && (
+                                    <p style={{ fontSize: '0.75rem', color: '#a86473', marginTop: '0.4rem' }}>
+                                        Selecteer de startdatum van je laatste menstruatie.
+                                    </p>
+                                )}
                             </div>
 
                             <div>
@@ -327,10 +334,18 @@ export default function Onboarding() {
                                 <input
                                     type="number"
                                     value={formData.cycleLength}
-                                    onChange={e => handleChange('cycleLength', parseInt(e.target.value) || '')}
+                                    onChange={e => {
+                                        const val = parseInt(e.target.value);
+                                        handleChange('cycleLength', isNaN(val) ? '' : val);
+                                    }}
                                     placeholder="Bijv. 28"
                                     style={inputStyle}
                                 />
+                                {(formData.cycleLength && (formData.cycleLength < 15 || formData.cycleLength > 60)) && (
+                                    <p style={{ fontSize: '0.75rem', color: '#a86473', marginTop: '0.4rem' }}>
+                                        Huisarts-tip: bij een cyclus korter dan 21 of langer dan 35 dagen raden we aan extra op te letten, maar je kunt gewoon doorgaan.
+                                    </p>
+                                )}
                                 <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
                                     {[26, 28, 30, 32].map(len => (
                                         <button
@@ -607,12 +622,10 @@ export default function Onboarding() {
 
             </div>
 
-            <div style={{ marginTop: '2rem', paddingBottom: '2rem' }}>
-                <div style={{ marginTop: '2rem', paddingBottom: '2rem' }}>
+            <div style={{ marginTop: '2rem', paddingBottom: '2rem', position: 'relative', zIndex: 1 }}>
                     <button className="btn btn-primary" onClick={handleNext} disabled={isLoading || !isValid(step, formData, !!authUser)}>
                         {isLoading ? 'Bezig met opslaan...' : (step === 6 ? (authUser ? 'Profiel Opslaan & Starten' : 'Account aanmaken & Starten') : 'Volgende')}
                     </button>
-                </div>
             </div>
 
 
@@ -678,12 +691,10 @@ const inputStyle = {
 
 function isValid(step, data, isAuthed) {
     if (step === 1) {
-        // More robust date validation
+        // Very lenient validation: just needs a truthy date and a number > 10 for cycle length
         if (!data.cycleStart) return false;
-        const dateStr = String(data.cycleStart);
-        if (dateStr.length < 8) return false; // Allow slightly shorter dates if not padded, but broadly checking truthy
-        
-        if (!data.cycleLength || isNaN(data.cycleLength) || data.cycleLength < 20 || data.cycleLength > 45) return false;
+        if (!data.cycleLength || isNaN(data.cycleLength) || data.cycleLength < 10) return false;
+        return true;
     }
     
     if (step === 2 && (!data.age || !data.height || !data.weight)) return false
