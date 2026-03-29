@@ -28,19 +28,49 @@ export default function Onboarding() {
         age: user.age || '',
         height: user.height || '',
         weight: user.weight || '',
-        trainingFrequency: user.training_days_per_week !== undefined ? user.training_days_per_week : 3,
+        trainingFrequency: (user.training_days_per_week !== undefined && user.training_days_per_week !== null) ? user.training_days_per_week : 3,
         goal: user.goal || GOAL_TYPES.MAINTAIN,
         experienceLevel: user.experienceLevel || 'beginner',
         trainingType: user.trainingType || 'combination',
         resultTempo: user.resultTempo || 'average',
         targetWeight: user.targetWeight || '',
-        // New MVP Fields
         lifestyle_level: user.lifestyle_level || 'sedentary',
         steps_range: user.steps_range || 'lt4k'
     })
 
+    // NEW: Sync formData when user profile loads or changes (Fixes stale state bug)
+    useEffect(() => {
+        if (user && Object.keys(user).length > 0) {
+            setFormData(prev => ({
+                ...prev,
+                name: prev.name || user.name || '',
+                age: prev.age || user.age || '',
+                height: prev.height || user.height || '',
+                weight: prev.weight || user.weight || '',
+                cycleStart: prev.cycleStart || user.cycleStart || '',
+                cycleLength: prev.cycleLength || user.cycleLength || 28,
+                periodLength: prev.periodLength || user.periodLength || 5,
+                goal: prev.goal || user.goal || GOAL_TYPES.MAINTAIN,
+                lifestyle_level: prev.lifestyle_level || user.lifestyle_level || 'sedentary',
+                steps_range: prev.steps_range || user.steps_range || 'lt4k'
+            }))
+        }
+    }, [user])
+
     const handleChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }))
+    }
+
+    // Helper to ensure date is always YYYY-MM-DD for input
+    const formatDateForInput = (val) => {
+        if (!val) return '';
+        try {
+            const d = new Date(val);
+            if (isNaN(d.getTime())) return '';
+            return d.toISOString().split('T')[0];
+        } catch (e) {
+            return '';
+        }
     }
 
     const handleProfileSubmit = async (data) => {
@@ -50,18 +80,23 @@ export default function Onboarding() {
             console.log("Onboarding Data:", data);
 
             // 1. If not logged in, create account first (moved here from handleNext)
-            if (!authUser) {
+            let userId = authUser?.id;
+            if (!userId) {
                 console.log("Creating new account...");
-                await signUp(data.email, data.password);
-                console.log("✅ Account created successfully");
+                const signUpResult = await signUp(data.email, data.password);
+                userId = signUpResult?.user?.id;
+                console.log("✅ Account created successfully, user ID:", userId);
             } else {
                 console.log("User already authenticated:", authUser.email);
             }
+
+            if (!userId) throw new Error("Kon geen account aanmaken. Probeer een ander e-mailadres.");
 
             // 2. Save & Calculate Exact Targets (Server-Side Logic)
             console.log("Saving profile and calculating targets...");
             await saveProfileAndCalculate({
                 ...data,
+                id: userId, // PASS THE ID OVERRIDE
                 // Ensure mapping matches what saveProfileAndCalculate expects
                 trainingFrequency: data.trainingFrequency,
                 trainingType: data.trainingType,
@@ -261,10 +296,27 @@ export default function Onboarding() {
                         <h2 className="text-center" style={{ marginBottom: '1.5rem' }}>Jouw Cyclus</h2>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                             <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>Startdatum laatste menstruatie</label>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                                    <label style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>Startdatum laatste menstruatie</label>
+                                    <button
+                                        onClick={() => handleChange('cycleStart', new Date().toISOString().split('T')[0])}
+                                        style={{
+                                            background: 'none',
+                                            border: 'none',
+                                            color: 'var(--color-primary)',
+                                            fontSize: '0.8rem',
+                                            fontWeight: '600',
+                                            cursor: 'pointer',
+                                            textDecoration: 'underline',
+                                            padding: 0
+                                        }}
+                                    >
+                                        Vandaag
+                                    </button>
+                                </div>
                                 <input
                                     type="date"
-                                    value={formData.cycleStart ? String(formData.cycleStart).substr(0, 10) : ''}
+                                    value={formatDateForInput(formData.cycleStart)}
                                     onChange={e => handleChange('cycleStart', e.target.value)}
                                     style={inputStyle}
                                 />
@@ -626,9 +678,12 @@ const inputStyle = {
 
 function isValid(step, data, isAuthed) {
     if (step === 1) {
-        // cycleStart MUST be a non-empty string with at least YYYY-MM-DD (10 chars)
-        if (!data.cycleStart || String(data.cycleStart).length < 10) return false;
-        if (!data.cycleLength || isNaN(data.cycleLength) || data.cycleLength < 1) return false;
+        // More robust date validation
+        if (!data.cycleStart) return false;
+        const dateStr = String(data.cycleStart);
+        if (dateStr.length < 8) return false; // Allow slightly shorter dates if not padded, but broadly checking truthy
+        
+        if (!data.cycleLength || isNaN(data.cycleLength) || data.cycleLength < 20 || data.cycleLength > 45) return false;
     }
     
     if (step === 2 && (!data.age || !data.height || !data.weight)) return false

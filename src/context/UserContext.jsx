@@ -449,16 +449,19 @@ export function UserProvider({ children }) {
 
   const saveProfileAndCalculate = async (profileData) => {
     try {
-      if (!authUser) throw new Error("User not authenticated");
+      // Find the user ID: either passed in (for first signup), or from authUser, or from profileData
+      const userId = profileData.id || authUser?.id;
+      if (!userId) throw new Error("Gebruiker niet gevonden (niet ingelogd)");
 
       // 1. Prepare Profile Object
       // Ensure numbers are numbers
       const cleanProfile = {
         ...user,
         ...profileData,
-        weight_kg: Number(profileData.weight || user.weight),
-        height_cm: Number(profileData.height || user.height),
-        age: Number(profileData.age || user.age),
+        weight_kg: Number(profileData.weight || user.weight || 0),
+        target_weight: Number(profileData.targetWeight || user.targetWeight || 0), // Fix: use targetWeight
+        height_cm: Number(profileData.height || user.height || 0),
+        age: Number(profileData.age || user.age || 0),
         goal: profileData.goal || user.goal,
         training_days_per_week: Number(profileData.trainingFrequency || user.trainingFrequency || 0),
         lifestyle_level: profileData.lifestyle_level || user.lifestyle_level || 'sedentary',
@@ -474,7 +477,7 @@ export function UserProvider({ children }) {
       // 3. Save to Supabase
       // A. Update Profile
       const { error: profileError } = await supabase.from('profiles').upsert({
-        id: authUser.id,
+        id: userId,
         // Nutrition/Body Fields
         name: cleanProfile.name, // Ensure Name is saved
         weight: cleanProfile.weight_kg,
@@ -487,9 +490,10 @@ export function UserProvider({ children }) {
         steps_range: cleanProfile.steps_range,
 
         // Preserve other fields
-        cycle_start: cleanProfile.cycleStart,
-        cycle_length: cleanProfile.cycleLength,
-        period_length: cleanProfile.periodLength,
+        cycle_start: profileData.cycleStart || user.cycleStart, // Use raw profileData if possible
+        cycle_length: profileData.cycleLength || user.cycleLength,
+        period_length: profileData.periodLength || user.periodLength,
+        is_onboarded: true, // Mark as onboarded in DB
         updated_at: new Date().toISOString()
       });
 
@@ -500,7 +504,7 @@ export function UserProvider({ children }) {
       if (newWeight && newWeight > 0) {
         const todayStr = new Date().toISOString().split('T')[0]
         await supabase.from('weight_logs').upsert({
-          user_id: authUser.id,
+          user_id: userId,
           weight: newWeight,
           date: todayStr
         }, { onConflict: 'user_id,date' })
@@ -511,9 +515,8 @@ export function UserProvider({ children }) {
         })
       }
 
-      // B. Save Computed Targets
       const { error: targetError } = await supabase.from('computed_targets').upsert({
-        user_id: authUser.id,
+        user_id: userId,
         tdee_estimate: targets.tdee_estimate,
         calorie_target_min: targets.calorie_target_min,
         calorie_target_max: targets.calorie_target_max,
