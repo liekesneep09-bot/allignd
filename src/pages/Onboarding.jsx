@@ -288,21 +288,33 @@ export default function Onboarding() {
                                         Vandaag
                                     </button>
                                 </div>
-                                <input
-                                    type={formData.cycleStart ? "date" : "text"}
-                                    onFocus={(e) => e.target.type = "date"}
-                                    onBlur={(e) => { if (!e.target.value) e.target.type = "text" }}
-                                    value={formatDateForInput(formData.cycleStart)}
-                                    onChange={e => handleChange('cycleStart', e.target.value)}
-                                    placeholder="Kies een datum (bijv. 12-03-2026)"
-                                    style={{
-                                        ...inputStyle,
-                                        WebkitAppearance: 'none', // fixes iOS native styling issues
-                                        minHeight: '3.5rem' // Ensure same height as other inputs
-                                    }}
-                                    max={new Date().toISOString().split('T')[0]}
-                                />
-
+                                <div style={{ position: 'relative' }}>
+                                    <input
+                                        type="date"
+                                        value={formatDateForInput(formData.cycleStart)}
+                                        onChange={e => handleChange('cycleStart', e.target.value)}
+                                        style={{
+                                            ...inputStyle,
+                                            WebkitAppearance: 'none', // fixes iOS native styling issues
+                                            minHeight: '3.5rem', // Ensure same height as other inputs
+                                            color: formData.cycleStart ? 'var(--color-text)' : 'transparent' // Hide default d/m/y text if empty
+                                        }}
+                                        max={new Date().toISOString().split('T')[0]}
+                                    />
+                                    {!formData.cycleStart && (
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: '50%',
+                                            left: '1rem',
+                                            transform: 'translateY(-50%)',
+                                            color: 'var(--color-text-muted)',
+                                            pointerEvents: 'none',
+                                            fontSize: '1rem'
+                                        }}>
+                                            Kies een datum (bijv. 12-03-2026)
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             <div>
