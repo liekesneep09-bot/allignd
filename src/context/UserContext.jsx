@@ -490,10 +490,13 @@ export function UserProvider({ children }) {
         steps_range: cleanProfile.steps_range,
 
         // Preserve other fields
-        cycle_start: profileData.cycleStart || user.cycleStart, // Use raw profileData if possible
+        cycle_start: profileData.cycleStart || user.cycleStart,
         cycle_length: profileData.cycleLength || user.cycleLength,
         period_length: profileData.periodLength || user.periodLength,
-        is_onboarded: true, // Mark as onboarded in DB
+        result_tempo: profileData.resultTempo || user.resultTempo || 'average',
+        experience_level: profileData.experienceLevel || user.experienceLevel || 'beginner',
+        training_type: profileData.trainingType || user.trainingType || 'combination',
+        is_onboarded: true,
         updated_at: new Date().toISOString()
       });
 
