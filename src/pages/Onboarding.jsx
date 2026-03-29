@@ -625,7 +625,12 @@ const inputStyle = {
 }
 
 function isValid(step, data, isAuthed) {
-    if (step === 1 && !data.cycleStart) return false
+    if (step === 1) {
+        // cycleStart MUST be a non-empty string with at least YYYY-MM-DD (10 chars)
+        if (!data.cycleStart || String(data.cycleStart).length < 10) return false;
+        if (!data.cycleLength || isNaN(data.cycleLength) || data.cycleLength < 1) return false;
+    }
+    
     if (step === 2 && (!data.age || !data.height || !data.weight)) return false
 
     // Step 3: Goals (Must have goal)

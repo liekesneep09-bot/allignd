@@ -5,37 +5,45 @@ export default function AuthCallback() {
     const [status, setStatus] = useState('loading') // loading, success, error
 
     useEffect(() => {
-        // Supabase client automatically handles the session exchange from the URL hash/query
-        // We just need to give it a moment to process
         const processAuth = async () => {
             try {
-                // Check if we have a session now
+                // If there's no hash and no query parameters, this might be a regular page load
+                // but the route matched /auth/callback. We check if there's an active session.
                 const { data: { session }, error } = await supabase.auth.getSession()
 
                 if (error) throw error
 
                 if (session) {
                     setStatus('success')
-                    // Redirect to home after short delay
                     setTimeout(() => {
-                        window.location.href = '/' // Force reload to clear URL parameters
+                        window.location.replace('/') // replace instead of href to avoid history bloat
                     }, 2000)
+                } else if (window.location.hash.includes('access_token')) {
+                    // Supabase handles the hash automatically, wait a tick for session to establish
+                    setTimeout(async () => {
+                        const { data: { session: newSession } } = await supabase.auth.getSession()
+                        if (newSession) {
+                            setStatus('success')
+                        } else {
+                            setStatus('error')
+                        }
+                        setTimeout(() => {
+                            window.location.replace('/')
+                        }, 2000)
+                    }, 1000)
                 } else {
-                    // Sometimes the hash is meant for recovery or invite, Supabase handles it asynchronously
-                    // We listen for the AUTH_STATE_CHANGE event in AuthContext, 
-                    // but here we just want to provide visual feedback.
-                    // If no session found yet, wait for onAuthStateChange to possibly fire?
-                    // Or maybe the user *just* signed up and is confirming email.
-
-                    // Let's assume success if no error, but give user a button to proceed
-                    setStatus('success')
+                    // No session and no auth hash found. Unlikely here, but handle safely.
+                    setStatus('error')
                     setTimeout(() => {
-                        window.location.href = '/'
+                         window.location.replace('/')
                     }, 2000)
                 }
             } catch (err) {
                 console.error('Auth Callback Error:', err)
                 setStatus('error')
+                 setTimeout(() => {
+                    window.location.replace('/')
+                }, 3000)
             }
         }
 
