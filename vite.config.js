@@ -9,12 +9,15 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
+        id: '/',
+        start_url: '/',
         name: 'Allignd',
         short_name: 'Allignd',
         description: 'Jouw cyclus, voeding en fitness in sync',
         theme_color: '#ffffff',
         background_color: '#ffffff',
         display: 'standalone',
+        orientation: 'portrait',
         icons: [
           {
             src: 'logo-192.png',
