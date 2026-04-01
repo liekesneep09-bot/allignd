@@ -374,12 +374,12 @@ export default function Today({ onNavigate }) {
 
             return (
               <div style={{
-                marginTop: '1rem', // Reduced from 1.5rem
+                marginTop: '0.5rem', 
                 textAlign: 'center',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: '0.35rem' // Tighter gap
+                gap: '0.25rem' 
               }}>
                 <div style={{
                   fontSize: '0.85rem',
@@ -392,12 +392,12 @@ export default function Today({ onNavigate }) {
                 </div>
 
                 <h2 style={{
-                  fontSize: '1.8rem',
+                  fontSize: '2.6rem', 
                   color: phaseStyle.text,
                   margin: '0',
                   fontWeight: '800',
-                  letterSpacing: '-0.02em',
-                  lineHeight: '1.1'
+                  letterSpacing: '-0.04em',
+                  lineHeight: '1'
                 }}>
                   {currentText.title}
                 </h2>
@@ -474,7 +474,7 @@ export default function Today({ onNavigate }) {
                         togglePeriodDate(viewDateStr)
                       }}
                       style={{
-                        marginTop: '1.25rem',
+                        marginTop: '0.75rem',
                         background: isPeriodForViewDate ? 'var(--color-primary)' : 'rgba(255,255,255,0.5)',
                         border: isPeriodForViewDate ? '1px solid var(--color-primary)' : '1px solid rgba(255,255,255,0.8)',
                         padding: '0.8rem 1.5rem',
@@ -502,7 +502,7 @@ export default function Today({ onNavigate }) {
       </div>
 
       {/* MAIN CONTENT SECTION */}
-      <div className="container" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', marginTop: '-0.5rem' }}>
+      <div className="container" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', marginTop: '-1.5rem' }}>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
