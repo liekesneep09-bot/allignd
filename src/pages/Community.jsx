@@ -43,22 +43,22 @@ function PostCard({ post, onOpen, onLike, isLiked }) {
             onClick={() => onOpen(post)}
             style={{
                 background: 'var(--color-surface)',
-                borderRadius: '12px',
-                padding: '0.75rem 1rem',
+                borderRadius: '16px',
+                padding: '1.25rem',
                 cursor: 'pointer',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-                transition: 'transform 0.1s',
-                border: '1px solid var(--color-border)'
+                boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+                transition: 'all 0.2s ease',
+                border: '1px solid #f2f2f2'
             }}
         >
             {/* Header: author + time */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <span style={{
-                        width: '26px', height: '26px', borderRadius: '50%',
-                        background: post.is_anonymous ? '#E8ECEF' : 'var(--color-primary)',
+                        width: '32px', height: '32px', borderRadius: '50%',
+                        background: post.is_anonymous ? '#F2F4F5' : 'rgba(255,174,185,0.2)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '0.7rem', color: '#333333', fontWeight: '600',
+                        fontSize: '0.8rem', color: post.is_anonymous ? '#8898AA' : 'var(--color-primary)', fontWeight: '700',
                         flexShrink: 0
                     }}>
                         {post.is_anonymous ? '🌸' : (post.author_name?.[0] || '?').toUpperCase()}
@@ -860,12 +860,13 @@ export default function Community() {
                         key={cat.key}
                         onClick={() => setActiveCategory(cat.key)}
                         style={{
-                            padding: '0.5rem 1rem', borderRadius: '20px', whiteSpace: 'nowrap',
+                            padding: '0.6rem 1.25rem', borderRadius: '24px', whiteSpace: 'nowrap',
                             border: activeCategory === cat.key ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
                             background: activeCategory === cat.key ? 'rgba(255,174,185,0.1)' : 'var(--color-surface)',
                             color: activeCategory === cat.key ? 'var(--color-primary)' : 'var(--color-text)',
                             fontSize: '0.85rem', fontWeight: activeCategory === cat.key ? '600' : '400',
-                            cursor: 'pointer', flexShrink: 0
+                            cursor: 'pointer', flexShrink: 0,
+                            transition: 'all 0.2s ease'
                         }}
                     >
                         {cat.label}
@@ -980,13 +981,16 @@ export default function Community() {
                 onClick={() => setView('new')}
                 style={{
                     position: 'fixed', bottom: '90px', right: '20px',
-                    width: '56px', height: '56px', borderRadius: '50%',
-                    background: 'var(--color-primary)', color: '#333333',
-                    border: 'none', fontSize: '1.5rem', cursor: 'pointer',
-                    boxShadow: '0 4px 16px rgba(255,174,185,0.4)',
+                    width: '60px', height: '60px', borderRadius: '50%',
+                    background: 'var(--color-primary)', color: 'white',
+                    border: 'none', fontSize: '2rem', cursor: 'pointer',
+                    boxShadow: '0 8px 24px rgba(255,174,185,0.4)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    zIndex: 50
+                    zIndex: 50,
+                    transition: 'transform 0.2s ease'
                 }}
+                onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
+                onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
             >
                 +
             </button>

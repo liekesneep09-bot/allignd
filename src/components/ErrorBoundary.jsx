@@ -46,7 +46,7 @@ class ErrorBoundary extends React.Component {
                     minHeight: '100vh',
                     background: 'var(--color-bg, #fdf5f7)',
                     padding: '24px',
-                    fontFamily: 'Inter, system-ui, sans-serif'
+                    fontFamily: 'var(--font-family)'
                 }}>
                     <div className="card" style={{
                         padding: '40px 32px',

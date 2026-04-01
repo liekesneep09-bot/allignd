@@ -109,7 +109,8 @@ button:focus {
 }
 
 input,
-select {
+select,
+textarea {
   font-family: inherit;
   outline: none;
   background-color: var(--color-surface);
