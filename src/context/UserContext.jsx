@@ -200,11 +200,9 @@ export function UserProvider({ children }) {
 
           setUser(prev => ({ ...prev, ...profileData }))
 
-          // AFTER LOAD: Safety Re-evaluation of isMenstruatingNow (extra robust)
+          // AFTER LOAD: Safety Re-evaluation of isMenstruatingNow (using robust log check)
           const todayStr = getLocalDateStr()
-          const logs = profile.menstruation_logs || []
-          const todayLog = logs.find(l => l.date === todayStr)
-          if (todayLog && todayLog.status === 'yes') {
+          if (isDateInPeriod(todayStr, { ...prev, ...profileData })) {
             setUser(prev => ({ ...prev, isMenstruatingNow: true }))
           }
 
@@ -1105,22 +1103,15 @@ export function UserProvider({ children }) {
     if (pastYesLogs.length === 0) return false
 
     const mostRecentYes = new Date(pastYesLogs[0].date)
-    const diffDays = Math.round((checkDate - mostRecentYes) / (1000 * 60 * 60 * 24))
-    const maxLen = currentUser.periodLength || 5
-
-    if (diffDays > 0 && diffDays < maxLen) {
-      // Is there a 'no' explicitly logged between that 'yes' and checkDate inclusive?
-      const stopper = logs.find(l =>
-        l.status === 'no' &&
-        new Date(l.date) > mostRecentYes &&
-        new Date(l.date) <= checkDate
-      )
-      if (stopper) return false
-
-      return true
-    }
-
-    return false
+    
+    // Find most recent 'no' BETWEEN that 'yes' and now
+    const interveningNo = logs.find(l =>
+      l.status === 'no' &&
+      new Date(l.date) > mostRecentYes &&
+      new Date(l.date) <= checkDate
+    )
+    
+    return !interveningNo
   }
 
   // NEW: Toggle Period Date (Interactive Calendar)
@@ -1181,36 +1172,17 @@ export function UserProvider({ children }) {
       updates.cycleStart = new Date(latestStart).toISOString()
     }
 
-    // DYNAMIC RE-EVALUATION for isMenstruatingNow (VANDAAG)
-    // We checken de log data in de database om te bepalen of het systeem *vandaag* als menstruerend beschouwt.
-    // 1. Wat was the meest recente interactie/log tot en met vandaag?
-    const pastLogs = newLogs.filter(l => l.date <= todayStr).sort((a, b) => a.date.localeCompare(b.date))
-    const lastLog = pastLogs.length > 0 ? pastLogs[pastLogs.length - 1] : null
-
-    // 2. Wanneer startte The laatste cyclus?
-    const latestStartStr = newStartDates.length > 0 ? newStartDates[newStartDates.length - 1] : null
-    let isBleedingToday = false
-
-    if (latestStartStr) {
-      const daysSinceStart = (new Date(todayStr) - new Date(latestStartStr)) / (1000 * 60 * 60 * 24)
-      // Als the laatste start binnen 12 dagen (veilige limiet) viel
-      if (daysSinceStart >= 0 && daysSinceStart <= 12) {
-        // EN The allerlaatste handeling was 'yes' (we zijn gestart, maar nog niet expliciet gestopt)
-        if (lastLog && lastLog.status === 'yes') {
-          isBleedingToday = true
-        }
-      }
-    }
-
-    // 3. Absolute override: Als the gebruiker letterlijk *vandaag* zojuist heeft gelogd of ongedaan gemaakt in The kalender.
+    const todayStr = getLocalDateStr()
     const isToggleToday = dateStr === todayStr
-    if (isToggleToday) {
-      isBleedingToday = (newStatus === 'yes')
-      if (newStatus === 'yes') {
-        updates.currentPeriodLength = null
-        updates.manualPhaseOverride = false
-        updates.manualPhase = null
-      } else {
+
+    // Determine New isMenstruatingNow Status (TRUST THE LOGS)
+    const isBleedingToday = isDateInPeriod(todayStr, { ...user, menstruationLogs: newLogs })
+
+    if (isToggleToday && newStatus === 'yes') {
+      updates.currentPeriodLength = null
+      updates.manualPhaseOverride = false
+      updates.manualPhase = null
+    } else {
         const localCurrentDay = user.cycleStart
           ? Math.floor((new Date(dateStr) - new Date(user.cycleStart)) / (1000 * 60 * 60 * 24)) + 1
           : 1
