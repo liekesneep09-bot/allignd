@@ -72,6 +72,7 @@ export function UserProvider({ children }) {
     movementLogs: [], // Array of { id, date, status }
     weightLogs: [], // Array of { date, weight }
     waterLogs: [], // Array of { date, amount_ml }
+    stepLogs: [], // Array of { date, steps }
     symptomLogs: [], // Array of { date, symptoms: [] }
 
     // Menstruation Logs (Explicit Check-ins)
@@ -331,15 +332,22 @@ export function UserProvider({ children }) {
         }
 
         // B7. Fetch Symptom Logs
-        const { data: dbSymptomLogs } = await supabase
-          .from('symptom_logs')
-          .select('date, symptoms')
-          .eq('user_id', authUser.id)
-
         if (dbSymptomLogs) {
           setUser(prev => ({
             ...prev,
             symptomLogs: dbSymptomLogs.map(s => ({ date: s.date, symptoms: s.symptoms || [] }))
+          }))
+        }
+        // B8. Fetch Step Logs
+        const { data: dbStepLogs } = await supabase
+          .from('step_logs')
+          .select('date, steps')
+          .eq('user_id', authUser.id)
+
+        if (dbStepLogs) {
+          setUser(prev => ({
+            ...prev,
+            stepLogs: dbStepLogs.map(s => ({ date: s.date, steps: Number(s.steps) }))
           }))
         }
 
@@ -950,6 +958,33 @@ export function UserProvider({ children }) {
       }, { onConflict: 'user_id,date' })
       if (error) throw error
     } catch (e) { console.error("Failed to log water", e) }
+  }
+
+  // NEW: Log Steps
+  const logSteps = async (dateStr, steps) => {
+    if (!authUser) return
+    const newSteps = parseInt(steps) || 0
+
+    // 1. Optimistic UI Update
+    setUser(prev => {
+      const existingLogs = prev.stepLogs || []
+      const others = existingLogs.filter(l => l.date !== dateStr)
+      return {
+        ...prev,
+        stepLogs: [...others, { date: dateStr, steps: newSteps }]
+      }
+    })
+
+    // 2. Persist DB
+    try {
+      const { error } = await supabase.from('step_logs').upsert({
+        user_id: authUser.id,
+        date: dateStr,
+        steps: newSteps,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,date' })
+      if (error) throw error
+    } catch (e) { console.error("Failed to log steps", e) }
   }
 
   // NEW: Save Symptoms

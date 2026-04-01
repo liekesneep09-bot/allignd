@@ -5,49 +5,49 @@ export default function AuthCallback() {
     const [status, setStatus] = useState('loading') // loading, success, error
 
     useEffect(() => {
+        let mounted = true;
+
         const processAuth = async () => {
             try {
-                // If there's no hash and no query parameters, this might be a regular page load
-                // but the route matched /auth/callback. We check if there's an active session.
+                // Wait briefly for Supabase to process the URL hash automatically
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
                 const { data: { session }, error } = await supabase.auth.getSession()
+
+                if (!mounted) return;
 
                 if (error) throw error
 
                 if (session) {
                     setStatus('success')
                     setTimeout(() => {
-                        window.location.replace('/') // replace instead of href to avoid history bloat
-                    }, 2000)
-                } else if (window.location.hash.includes('access_token')) {
-                    // Supabase handles the hash automatically, wait a tick for session to establish
-                    setTimeout(async () => {
-                        const { data: { session: newSession } } = await supabase.auth.getSession()
-                        if (newSession) {
-                            setStatus('success')
-                        } else {
-                            setStatus('error')
-                        }
-                        setTimeout(() => {
-                            window.location.replace('/')
-                        }, 2000)
-                    }, 1000)
+                        window.location.href = '/'
+                    }, 1500)
                 } else {
-                    // No session and no auth hash found. Unlikely here, but handle safely.
                     setStatus('error')
-                    setTimeout(() => {
-                         window.location.replace('/')
-                    }, 2000)
                 }
             } catch (err) {
                 console.error('Auth Callback Error:', err)
-                setStatus('error')
-                 setTimeout(() => {
-                    window.location.replace('/')
-                }, 3000)
+                if (mounted) setStatus('error')
             }
         }
 
         processAuth()
+
+        // Also listen for auth changes directly
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (session && mounted) {
+                setStatus('success')
+                setTimeout(() => {
+                    window.location.href = '/'
+                }, 1500)
+            }
+        })
+
+        return () => {
+            mounted = false;
+            subscription.unsubscribe()
+        }
     }, [])
 
     return (

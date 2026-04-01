@@ -8,6 +8,7 @@ import PeriodCalendar from '../components/PeriodCalendar'
 import { toNum, calculateProgress } from '../utils/numbers'
 import { getLocalDateStr } from '../utils/date'
 import WaterTracker from '../components/WaterTracker'
+import StepTracker from '../components/StepTracker'
 import CheckInModal, { SYMPTOMS_LIST } from '../components/CheckInModal'
 
 // --- HELPER COMPONENTS ---
@@ -583,6 +584,7 @@ export default function Today({ onNavigate }) {
               {/* NEW: WATER TRACKER WIDGET */}
               <div style={{ marginTop: '2rem' }}>
                 <WaterTracker date={viewDateStr} />
+                <StepTracker date={viewDateStr} />
               </div>
 
               {/* NEW: DAILY CHECK-IN WIDGET */}
