@@ -9,6 +9,7 @@ import { toNum, calculateProgress } from '../utils/numbers'
 import { getLocalDateStr } from '../utils/date'
 import WaterTracker from '../components/WaterTracker'
 import StepTracker from '../components/StepTracker'
+import WeightTracker from '../components/WeightTracker'
 import CheckInModal, { SYMPTOMS_LIST } from '../components/CheckInModal'
 
 // --- HELPER COMPONENTS ---
@@ -585,6 +586,7 @@ export default function Today({ onNavigate }) {
               <div style={{ marginTop: '2rem' }}>
                 <WaterTracker date={viewDateStr} />
                 <StepTracker date={viewDateStr} />
+                <WeightTracker date={viewDateStr} />
               </div>
 
               {/* NEW: DAILY CHECK-IN WIDGET */}

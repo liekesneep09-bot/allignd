@@ -987,6 +987,41 @@ export function UserProvider({ children }) {
     } catch (e) { console.error("Failed to log steps", e) }
   }
 
+  // NEW: Log Weight
+  const logWeight = async (dateStr, weight) => {
+    if (!authUser) return
+    const newWeight = parseFloat(weight)
+    if (isNaN(newWeight)) return
+
+    // 1. Optimistic UI Update
+    setUser(prev => {
+      const existingLogs = prev.weightLogs || []
+      const others = existingLogs.filter(l => l.date !== dateStr)
+      return {
+        ...prev,
+        weight: dateStr === getLocalDateStr(new Date()) ? newWeight : prev.weight,
+        weightLogs: [...others, { date: dateStr, weight: newWeight }].sort((a, b) => a.date.localeCompare(b.date))
+      }
+    })
+
+    // 2. Persist DB
+    try {
+      const { error } = await supabase.from('weight_logs').upsert({
+        user_id: authUser.id,
+        date: dateStr,
+        weight: newWeight,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,date' })
+
+      // Also update profile if it's today's weight
+      if (dateStr === getLocalDateStr(new Date())) {
+        await supabase.from('profiles').update({ weight: newWeight }).eq('id', authUser.id)
+      }
+
+      if (error) throw error
+    } catch (e) { console.error("Failed to log weight", e) }
+  }
+
   // NEW: Save Symptoms
   const saveSymptoms = async (dateStr, symptomsArray) => {
     if (!authUser) return
@@ -1499,9 +1534,11 @@ export function UserProvider({ children }) {
     menstruationLogs: user?.menstruationLogs || [],
     waterLogs: user?.waterLogs || [], // NEW
     stepLogs: user?.stepLogs || [], // NEW
+    weightLogs: user?.weightLogs || [], // NEW
     symptomLogs: user?.symptomLogs || [], // NEW
     logWater, // NEW
     logSteps, // NEW
+    logWeight, // NEW
     saveSymptoms, // NEW
     cycleStats: user?.cycleStats,
     periodStartDates: user?.periodStartDates || [],

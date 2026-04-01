@@ -5,6 +5,7 @@ import { PHASE_CONTENT } from '../data/phases'
 import { IconActivity } from '../components/Icons'
 import { getLocalDateStr } from '../utils/date'
 import StepTracker from '../components/StepTracker'
+import WeightTracker from '../components/WeightTracker'
 import { calculateProgress } from '../utils/numbers'
 
 // Focus bullets based on goal + phase (all start with verb, max 6-7 words)
@@ -181,6 +182,7 @@ export default function Fitness() {
                 </header>
 
                 <StepTracker date={todayStr} />
+                <WeightTracker date={todayStr} />
 
                 {/* WEEK STATUS BLOCK */}
                 <div style={{
