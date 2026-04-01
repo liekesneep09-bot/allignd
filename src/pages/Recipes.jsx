@@ -20,7 +20,7 @@ const PHASE_COLORS = {
 }
 
 export default function Recipes() {
-    const { currentPhase } = useUser()
+    const { currentPhase, user } = useUser()
     const [activeCategory, setActiveCategory] = useState('ontbijt')
     const [expandedIndex, setExpandedIndex] = useState(null)
 
@@ -192,6 +192,7 @@ export default function Recipes() {
                         isExpanded={expandedIndex === index}
                         onToggle={() => handleExpand(index)}
                         colors={colors}
+                        userGoal={user.goal}
                     />
                 ))}
             </div>
@@ -236,7 +237,28 @@ export default function Recipes() {
     )
 }
 
-function RecipeCard({ item, index, isExpanded, onToggle, colors }) {
+function RecipeCard({ item, index, isExpanded, onToggle, colors, userGoal }) {
+    const { logFood } = useUser()
+    const isSuitable = item.suitability?.includes(userGoal)
+
+    const handleLog = (e) => {
+        e.stopPropagation()
+        if (window.confirm(`Wil je "${item.title}" toevoegen aan je dagdoel?`)) {
+            logFood('recipe-' + index, null, {
+                foodName: item.title,
+                calculatedMacros: {
+                    kcal: item.macros.kcal,
+                    protein: item.macros.p,
+                    carbs: item.macros.c,
+                    fat: item.macros.f,
+                    fiber: item.macros.fiber
+                },
+                quantity: 1
+            })
+            alert('Toegevoegd aan vandaag! 🌸')
+        }
+    }
+
     return (
         <div
             onClick={onToggle}
@@ -310,6 +332,7 @@ function RecipeCard({ item, index, isExpanded, onToggle, colors }) {
                     <MacroBadge label="Eiwit" value={`${item.macros.p}g`} />
                     <MacroBadge label="Koolh" value={`${item.macros.c}g`} />
                     <MacroBadge label="Vet" value={`${item.macros.f}g`} />
+                    <MacroBadge label="Vezel" value={`${item.macros.fiber}g`} />
                     <div style={{ marginLeft: 'auto' }}>
                         <span style={{
                             fontSize: '0.85rem',
@@ -414,6 +437,54 @@ function RecipeCard({ item, index, isExpanded, onToggle, colors }) {
                             ))}
                         </div>
                     </div>
+
+                    {/* Suitability Badge */}
+                    {isSuitable && (
+                        <div style={{
+                            marginTop: '1rem',
+                            padding: '10px 14px',
+                            borderRadius: '12px',
+                            background: '#f0fdf4',
+                            border: '1px solid #dcfce7',
+                            color: '#166534',
+                            fontSize: '0.85rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            fontWeight: '500'
+                        }}>
+                            <span>✨</span> Perfect voor jouw doel: <strong>{
+                                userGoal === 'lose_fat' ? 'Afvallen' :
+                                userGoal === 'recomp' ? 'Afvallen & Spieropbouw' :
+                                userGoal === 'gain_muscle' ? 'Spiermassa' : 'Gezond blijven'
+                            }</strong>
+                        </div>
+                    )}
+
+                    {/* Log Button */}
+                    <button
+                        onClick={handleLog}
+                        style={{
+                            width: '100%',
+                            padding: '14px',
+                            borderRadius: '14px',
+                            border: 'none',
+                            background: colors.accent,
+                            color: '#FFFFFF',
+                            fontSize: '0.95rem',
+                            fontWeight: '600',
+                            marginTop: '1rem',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            boxShadow: `0 4px 12px ${colors.accentLight}`
+                        }}
+                    >
+                        <span>➕</span>
+                        Voeg toe aan dagdoel
+                    </button>
                 </div>
             )}
         </div>
