@@ -199,8 +199,8 @@ export default function Onboarding() {
 
 
             {/* Progress */}
-            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '4px', background: 'var(--color-surface)', zIndex: 20 }}>
-                <div style={{ height: '100%', width: `${Math.min(step, 6) / 6 * 100}%`, background: '#a86473', transition: 'width 0.3s' }} />
+            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '6px', background: 'var(--color-surface)', zIndex: 20 }}>
+                <div style={{ height: '100%', width: `${Math.min(step, 6) / 6 * 100}%`, background: 'var(--color-primary)', transition: 'width 0.3s ease-out' }} />
             </div>
 
             <header style={{
@@ -217,11 +217,14 @@ export default function Onboarding() {
                     style={{
                         border: 'none',
                         background: 'none',
-                        fontSize: '0.9rem',
-                        color: 'var(--color-primary)', // Using primary color for visibility
+                        fontSize: '0.85rem',
+                        fontWeight: '700',
+                        color: 'var(--color-text-muted)',
                         cursor: 'pointer',
                         padding: '0.5rem',
-                        whiteSpace: 'nowrap'
+                        whiteSpace: 'nowrap',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.03em'
                     }}
                 >
                     ← Terug
@@ -270,8 +273,8 @@ export default function Onboarding() {
                         <h2 className="text-center" style={{ marginBottom: '1.5rem' }}>Jouw Cyclus</h2>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                             <div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                                    <label style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>Startdatum laatste menstruatie</label>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.2rem' }}>
+                                    <label style={labelStyle}>Startdatum laatste menstruatie</label>
                                     <button
                                         onClick={() => handleChange('cycleStart', new Date().toISOString().split('T')[0])}
                                         style={{
@@ -318,7 +321,7 @@ export default function Onboarding() {
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>Gemiddelde cycluslengte (dagen)</label>
+                                <label style={labelStyle}>Gemiddelde cycluslengte (dagen)</label>
                                 <input
                                     type="number"
                                     value={formData.cycleLength}
@@ -353,7 +356,7 @@ export default function Onboarding() {
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>Gemiddelde menstruatieduur (optioneel)</label>
+                                <label style={labelStyle}>Gemiddelde menstruatieduur (optioneel)</label>
                                 <input
                                     type="number"
                                     value={formData.periodLength || ''}
@@ -376,7 +379,7 @@ export default function Onboarding() {
                         <h2 className="text-center" style={{ marginBottom: '1.5rem' }}>Over jouw lichaam</h2>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>Leeftijd</label>
+                                <label style={labelStyle}>Leeftijd</label>
                                 <input
                                     type="number"
                                     value={formData.age}
@@ -387,7 +390,7 @@ export default function Onboarding() {
                             </div>
                             <div style={{ display: 'flex', gap: '1rem' }}>
                                 <div style={{ flex: 1 }}>
-                                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>Lengte (cm)</label>
+                                    <label style={labelStyle}>Lengte (cm)</label>
                                     <input
                                         type="number"
                                         value={formData.height}
@@ -397,7 +400,7 @@ export default function Onboarding() {
                                     />
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>Gewicht (kg)</label>
+                                    <label style={labelStyle}>Gewicht (kg)</label>
                                     <input
                                         type="number"
                                         value={formData.weight}
@@ -434,13 +437,13 @@ export default function Onboarding() {
 
                         {/* 2. Target Weight */}
                         <div>
-                            <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' }}>Streefgewicht (optioneel)</label>
+                            <label style={labelStyle}>Streefgewicht (optioneel)</label>
                             <input
                                 type="number"
                                 value={formData.targetWeight}
                                 onChange={e => handleChange('targetWeight', e.target.value)}
                                 placeholder="Bijv. 60"
-                                style={{ ...inputStyle, marginTop: 0 }}
+                                style={inputStyle}
                             />
                         </div>
 
@@ -501,22 +504,23 @@ export default function Onboarding() {
 
                         {/* 3. Frequency (0-7) */}
                         <div>
-                            <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' }}>Kracht/Training (dagen p/w)</label>
-                            <div style={{ display: 'flex', gap: '0.25rem', justifyContent: 'space-between' }}>
+                            <label style={labelStyle}>Kracht/Training (dagen p/w)</label>
+                            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'space-between' }}>
                                 {[0, 1, 2, 3, 4, 5, 6, 7].map(val => (
                                     <button
                                         key={val}
                                         onClick={() => handleChange('trainingFrequency', val)}
                                         style={{
                                             flex: 1,
-                                            padding: '0.6rem 0',
-                                            border: formData.trainingFrequency === val ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
-                                            borderRadius: '8px',
-                                            background: formData.trainingFrequency === val ? 'var(--color-surface)' : 'transparent',
+                                            padding: '0.8rem 0',
+                                            border: formData.trainingFrequency === val ? '2.5px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                            borderRadius: '12px',
+                                            background: formData.trainingFrequency === val ? 'rgba(255, 174, 185, 0.05)' : 'transparent',
                                             color: formData.trainingFrequency === val ? 'var(--color-primary)' : 'var(--color-text)',
-                                            fontWeight: formData.trainingFrequency === val ? '600' : '400',
+                                            fontWeight: formData.trainingFrequency === val ? '700' : '400',
                                             fontSize: '0.9rem',
-                                            cursor: 'pointer'
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s'
                                         }}
                                     >
                                         {val}
@@ -565,7 +569,7 @@ export default function Onboarding() {
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>Naam</label>
+                                <label style={labelStyle}>Naam</label>
                                 <input
                                     type="text"
                                     value={formData.name}
@@ -578,7 +582,7 @@ export default function Onboarding() {
                             {!authUser && (
                                 <>
                                     <div>
-                                        <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>Email</label>
+                                        <label style={labelStyle}>Email</label>
                                         <input
                                             type="email"
                                             value={formData.email}
@@ -588,7 +592,7 @@ export default function Onboarding() {
                                         />
                                     </div>
                                     <div>
-                                        <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>Wachtwoord</label>
+                                        <label style={labelStyle}>Wachtwoord</label>
                                         <input
                                             type="password"
                                             value={formData.password}
@@ -621,15 +625,15 @@ function SelectOption({ label, selected, onClick }) {
         <button
             onClick={onClick}
             style={{
-                padding: '0.8rem 1rem', // Reduced padding
-                border: selected ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-md)',
-                background: selected ? 'var(--color-surface)' : 'transparent',
+                padding: '1rem',
+                border: selected ? '2.5px solid var(--color-primary)' : '1px solid var(--color-border)',
+                borderRadius: '16px',
+                background: selected ? 'rgba(255, 174, 185, 0.05)' : 'var(--color-surface)',
                 color: selected ? 'var(--color-primary)' : 'var(--color-text)',
-                fontWeight: selected ? '600' : '400',
+                fontWeight: selected ? '700' : '500',
                 textAlign: 'left',
                 width: '100%',
-                transition: 'all 0.2s',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                 fontSize: '0.95rem'
             }}
         >
@@ -643,17 +647,19 @@ function CompactOption({ label, selected, onClick }) {
         <button
             onClick={onClick}
             style={{
-                padding: '0.6rem',
-                border: selected ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
-                borderRadius: '8px',
-                background: selected ? 'var(--color-surface)' : 'transparent',
+                padding: '0.75rem 0.5rem',
+                border: selected ? '2.5px solid var(--color-primary)' : '1px solid var(--color-border)',
+                borderRadius: '12px',
+                background: selected ? 'rgba(255, 174, 185, 0.05)' : 'var(--color-surface)',
                 color: selected ? 'var(--color-primary)' : 'var(--color-text)',
-                fontWeight: selected ? '600' : '400',
+                fontWeight: selected ? '700' : '500',
                 width: '100%',
-                fontSize: '0.85rem',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
+                fontSize: '0.82rem',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center'
             }}
         >
             {label}
@@ -661,15 +667,25 @@ function CompactOption({ label, selected, onClick }) {
     )
 }
 
+const labelStyle = {
+    display: 'block',
+    fontSize: '0.75rem',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    color: 'var(--color-text-muted)',
+    marginBottom: '0.6rem'
+}
+
 const inputStyle = {
     width: '100%',
     padding: '1rem',
-    fontSize: '1.1rem',
+    fontSize: '1rem',
     border: '1px solid var(--color-border)',
-    borderRadius: 'var(--radius-md)',
-    marginTop: '0.5rem',
+    borderRadius: '12px',
     background: 'var(--color-surface)',
-    color: 'var(--color-text)'
+    color: 'var(--color-text)',
+    transition: 'all 0.2s ease'
 }
 
 function isValid(step, data, isAuthed) {
