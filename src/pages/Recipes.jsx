@@ -239,255 +239,346 @@ export default function Recipes() {
 
 function RecipeCard({ item, index, isExpanded, onToggle, colors, userGoal }) {
     const { logFood } = useUser()
+    const [showConfirm, setShowConfirm] = useState(false)
+    const [isLogged, setIsLogged] = useState(false)
     const isSuitable = item.suitability?.includes(userGoal)
 
     const handleLog = (e) => {
         e.stopPropagation()
-        if (window.confirm(`Wil je "${item.title}" toevoegen aan je dagdoel?`)) {
-            logFood('recipe-' + index, null, {
-                foodName: item.title,
-                calculatedMacros: {
-                    kcal: item.macros.kcal,
-                    protein: item.macros.p,
-                    carbs: item.macros.c,
-                    fat: item.macros.f,
-                    fiber: item.macros.fiber
-                },
-                quantity: 1
-            })
-            alert('Toegevoegd aan vandaag! 🌸')
-        }
+        setShowConfirm(true)
+    }
+
+    const confirmLog = () => {
+        logFood('recipe-' + index, null, {
+            foodName: item.title,
+            calculatedMacros: {
+                kcal: item.macros.kcal,
+                protein: item.macros.p,
+                carbs: item.macros.c,
+                fat: item.macros.f,
+                fiber: item.macros.fiber
+            },
+            quantity: 1
+        })
+        setShowConfirm(false)
+        setIsLogged(true)
+        setTimeout(() => setIsLogged(false), 3000)
     }
 
     return (
-        <div
-            onClick={onToggle}
-            style={{
-                borderRadius: '20px',
-                background: '#FFFFFF',
-                border: isExpanded ? `2px solid ${colors.accent}` : '1px solid rgba(0,0,0,0.06)',
-                overflow: 'hidden',
-                cursor: 'pointer',
-                transition: 'all 0.25s ease',
-                boxShadow: isExpanded
-                    ? `0 8px 24px ${colors.accentLight}`
-                    : '0 2px 8px rgba(0,0,0,0.04)'
-            }}
-        >
-            {/* Card Header */}
-            <div style={{ padding: '1.25rem 1.25rem 1rem' }}>
-                <div style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '14px'
-                }}>
-                    {/* Title & Description */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            marginBottom: '4px'
-                        }}>
-                            <h4 style={{
-                                fontSize: '1.05rem',
-                                fontWeight: '600',
-                                color: 'var(--color-text)',
-                                margin: 0,
-                                lineHeight: '1.3'
+        <>
+            <div
+                onClick={onToggle}
+                style={{
+                    borderRadius: '20px',
+                    background: '#FFFFFF',
+                    border: isExpanded ? `2px solid ${colors.accent}` : '1px solid rgba(0,0,0,0.06)',
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    transition: 'all 0.25s ease',
+                    boxShadow: isExpanded
+                        ? `0 8px 24px ${colors.accentLight}`
+                        : '0 2px 8px rgba(0,0,0,0.04)'
+                }}
+            >
+                {/* Card Header */}
+                <div style={{ padding: '1.25rem 1.25rem 1rem' }}>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '14px'
+                    }}>
+                        {/* Title & Description */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                marginBottom: '4px'
                             }}>
-                                {item.title}
-                            </h4>
+                                <h4 style={{
+                                    fontSize: '1.05rem',
+                                    fontWeight: '600',
+                                    color: 'var(--color-text)',
+                                    margin: 0,
+                                    lineHeight: '1.3'
+                                }}>
+                                    {item.title}
+                                </h4>
+                                <span style={{
+                                    fontSize: '0.85rem',
+                                    color: colors.accent,
+                                    transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                                    transition: 'transform 0.2s ease',
+                                    marginLeft: '8px',
+                                    flexShrink: 0
+                                }}>
+                                    ▾
+                                </span>
+                            </div>
+                            <p style={{
+                                fontSize: '0.85rem',
+                                color: 'var(--color-text-muted)',
+                                lineHeight: '1.5',
+                                margin: 0
+                            }}>
+                                {item.explanation}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Macro Line */}
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        marginTop: '12px',
+                        paddingTop: '10px',
+                        borderTop: '1px solid rgba(0,0,0,0.04)'
+                    }}>
+                        <MacroBadge label="Eiwit" value={`${item.macros.p}g`} />
+                        <MacroBadge label="Koolh" value={`${item.macros.c}g`} />
+                        <MacroBadge label="Vet" value={`${item.macros.f}g`} />
+                        <MacroBadge label="Vezel" value={`${item.macros.fiber}g`} />
+                        <div style={{ marginLeft: 'auto' }}>
                             <span style={{
                                 fontSize: '0.85rem',
-                                color: colors.accent,
-                                transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                                transition: 'transform 0.2s ease',
-                                marginLeft: '8px',
-                                flexShrink: 0
+                                fontWeight: '700',
+                                color: colors.accent
                             }}>
-                                ▾
+                                {item.macros.kcal} kcal
                             </span>
                         </div>
-                        <p style={{
-                            fontSize: '0.85rem',
-                            color: 'var(--color-text-muted)',
-                            lineHeight: '1.5',
-                            margin: 0
-                        }}>
-                            {item.explanation}
-                        </p>
                     </div>
                 </div>
 
-                {/* Macro Line */}
-                <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    marginTop: '12px',
-                    paddingTop: '10px',
-                    borderTop: '1px solid rgba(0,0,0,0.04)'
-                }}>
-                    <MacroBadge label="Eiwit" value={`${item.macros.p}g`} />
-                    <MacroBadge label="Koolh" value={`${item.macros.c}g`} />
-                    <MacroBadge label="Vet" value={`${item.macros.f}g`} />
-                    <MacroBadge label="Vezel" value={`${item.macros.fiber}g`} />
-                    <div style={{ marginLeft: 'auto' }}>
-                        <span style={{
-                            fontSize: '0.85rem',
-                            fontWeight: '700',
-                            color: colors.accent
-                        }}>
-                            {item.macros.kcal} kcal
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Expanded Content */}
-            {isExpanded && (
-                <div style={{
-                    padding: '0 1.25rem 1.25rem',
-                    animation: 'fadeIn 0.2s ease'
-                }}>
-                    {/* Ingredients */}
+                {/* Expanded Content */}
+                {isExpanded && (
                     <div style={{
-                        background: 'rgba(0,0,0,0.02)',
-                        borderRadius: '14px',
-                        padding: '1rem 1.25rem',
-                        marginBottom: '12px'
+                        padding: '0 1.25rem 1.25rem',
+                        animation: 'fadeIn 0.2s ease'
                     }}>
-                        <h5 style={{
-                            fontSize: '0.75rem',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px',
-                            color: 'var(--color-text-muted)',
-                            marginBottom: '0.75rem',
-                            fontWeight: '600'
+                        {/* Ingredients */}
+                        <div style={{
+                            background: 'rgba(0,0,0,0.02)',
+                            borderRadius: '14px',
+                            padding: '1rem 1.25rem',
+                            marginBottom: '12px'
                         }}>
-                            Ingrediënten
-                        </h5>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                            {item.ingredients.map((ing, i) => (
-                                <div key={i} style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '10px',
-                                    fontSize: '0.9rem',
-                                    color: 'var(--color-text)'
-                                }}>
-                                    <span style={{
-                                        width: '6px',
-                                        height: '6px',
-                                        borderRadius: '50%',
-                                        background: colors.accent,
-                                        flexShrink: 0
-                                    }} />
-                                    {ing}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Instructions */}
-                    <div style={{
-                        background: 'rgba(0,0,0,0.02)',
-                        borderRadius: '14px',
-                        padding: '1rem 1.25rem'
-                    }}>
-                        <h5 style={{
-                            fontSize: '0.75rem',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px',
-                            color: 'var(--color-text-muted)',
-                            marginBottom: '0.75rem',
-                            fontWeight: '600'
-                        }}>
-                            Bereiding
-                        </h5>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                            {item.instructions.map((step, i) => (
-                                <div key={i} style={{
-                                    display: 'flex',
-                                    alignItems: 'flex-start',
-                                    gap: '12px',
-                                    fontSize: '0.9rem',
-                                    color: 'var(--color-text)',
-                                    lineHeight: '1.5'
-                                }}>
-                                    <span style={{
-                                        width: '22px',
-                                        height: '22px',
-                                        borderRadius: '50%',
-                                        background: colors.accentMid,
-                                        color: colors.accent,
+                            <h5 style={{
+                                fontSize: '0.75rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px',
+                                color: 'var(--color-text-muted)',
+                                marginBottom: '0.75rem',
+                                fontWeight: '600'
+                            }}>
+                                Ingrediënten
+                            </h5>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                {item.ingredients.map((ing, i) => (
+                                    <div key={i} style={{
                                         display: 'flex',
                                         alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontSize: '0.7rem',
-                                        fontWeight: '700',
-                                        flexShrink: 0,
-                                        marginTop: '1px'
+                                        gap: '10px',
+                                        fontSize: '0.9rem',
+                                        color: 'var(--color-text)'
                                     }}>
-                                        {i + 1}
-                                    </span>
-                                    {step}
-                                </div>
-                            ))}
+                                        <span style={{
+                                            width: '6px',
+                                            height: '6px',
+                                            borderRadius: '50%',
+                                            background: colors.accent,
+                                            flexShrink: 0
+                                        }} />
+                                        {ing}
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Suitability Badge */}
-                    {isSuitable && (
+                        {/* Instructions */}
                         <div style={{
-                            marginTop: '1rem',
-                            padding: '10px 14px',
-                            borderRadius: '12px',
-                            background: '#f0fdf4',
-                            border: '1px solid #dcfce7',
-                            color: '#166534',
-                            fontSize: '0.85rem',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            fontWeight: '500'
-                        }}>
-                            <span>✨</span> Perfect voor jouw doel: <strong>{
-                                userGoal === 'lose_fat' ? 'Afvallen' :
-                                userGoal === 'recomp' ? 'Afvallen & Spieropbouw' :
-                                userGoal === 'gain_muscle' ? 'Spiermassa' : 'Gezond blijven'
-                            }</strong>
-                        </div>
-                    )}
-
-                    {/* Log Button */}
-                    <button
-                        onClick={handleLog}
-                        style={{
-                            width: '100%',
-                            padding: '14px',
+                            background: 'rgba(0,0,0,0.02)',
                             borderRadius: '14px',
-                            border: 'none',
-                            background: colors.accent,
-                            color: '#FFFFFF',
-                            fontSize: '0.95rem',
-                            fontWeight: '600',
-                            marginTop: '1rem',
-                            cursor: 'pointer',
+                            padding: '1rem 1.25rem'
+                        }}>
+                            <h5 style={{
+                                fontSize: '0.75rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px',
+                                color: 'var(--color-text-muted)',
+                                marginBottom: '0.75rem',
+                                fontWeight: '600'
+                            }}>
+                                Bereiding
+                            </h5>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                {item.instructions.map((step, i) => (
+                                    <div key={i} style={{
+                                        display: 'flex',
+                                        alignItems: 'flex-start',
+                                        gap: '12px',
+                                        fontSize: '0.9rem',
+                                        color: 'var(--color-text)',
+                                        lineHeight: '1.5'
+                                    }}>
+                                        <span style={{
+                                            width: '22px',
+                                            height: '22px',
+                                            borderRadius: '50%',
+                                            background: colors.accentMid,
+                                            color: colors.accent,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '0.7rem',
+                                            fontWeight: '700',
+                                            flexShrink: 0,
+                                            marginTop: '1px'
+                                        }}>
+                                            {i + 1}
+                                        </span>
+                                        {step}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Suitability Badge */}
+                        {isSuitable && (
+                            <div style={{
+                                marginTop: '1rem',
+                                padding: '10px 14px',
+                                borderRadius: '12px',
+                                background: '#f0fdf4',
+                                border: '1px solid #dcfce7',
+                                color: '#166534',
+                                fontSize: '0.85rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                fontWeight: '500'
+                            }}>
+                                <span>✨</span> Perfect voor jouw doel: <strong>{
+                                    userGoal === 'lose_fat' ? 'Afvallen' :
+                                    userGoal === 'recomp' ? 'Afvallen & Spieropbouw' :
+                                    userGoal === 'gain_muscle' ? 'Spiermassa' : 'Gezond blijven'
+                                }</strong>
+                            </div>
+                        )}
+
+                        {/* Log Button */}
+                        <button
+                            onClick={handleLog}
+                            className={`btn ${isLogged ? '' : 'btn-primary'} ${isLogged ? 'pulse-success' : ''}`}
+                            style={{
+                                width: '100%',
+                                marginTop: '1rem',
+                                background: isLogged ? '#22c55e' : undefined,
+                                color: isLogged ? '#FFFFFF' : undefined,
+                                boxShadow: isLogged ? '0 4px 12px rgba(34,197,94,0.2)' : 'var(--shadow-soft)',
+                                transition: 'all 0.3s ease'
+                            }}
+                        >
+                            {isLogged ? (
+                                <>✓ Toegevoegd!</>
+                            ) : (
+                                <>+ Voeg toe aan dagdoel</>
+                            )}
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            {/* Custom Styled Confirm Modal */}
+            {showConfirm && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    zIndex: 2000,
+                    background: 'rgba(0,0,0,0.4)',
+                    backdropFilter: 'blur(4px)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '20px'
+                }}>
+                    <div style={{
+                        background: '#FFFFFF',
+                        borderRadius: '24px',
+                        width: '100%',
+                        maxWidth: '340px',
+                        padding: '24px',
+                        boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+                        textAlign: 'center'
+                    }}>
+                        <div style={{
+                            width: '48px',
+                            height: '48px',
+                            background: colors.accentMid,
+                            borderRadius: '50%',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            gap: '8px',
-                            boxShadow: `0 4px 12px ${colors.accentLight}`
-                        }}
-                    >
-                        <span>➕</span>
-                        Voeg toe aan dagdoel
-                    </button>
+                            margin: '0 auto 1rem',
+                            color: colors.accent,
+                            fontSize: '1.5rem'
+                        }}>
+                            +
+                        </div>
+                        <h3 style={{
+                            fontSize: '1.2rem',
+                            fontWeight: '700',
+                            marginBottom: '0.75rem',
+                            color: 'var(--color-text)'
+                        }}>
+                            Recept toevoegen
+                        </h3>
+                        <p style={{
+                            fontSize: '0.95rem',
+                            color: 'var(--color-text-muted)',
+                            lineHeight: '1.5',
+                            marginBottom: '1.5rem'
+                        }}>
+                            Wil je "{item.title}" toevoegen aan je dagdoel van vandaag?
+                        </p>
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                            <button
+                                onClick={() => setShowConfirm(false)}
+                                style={{
+                                    flex: 1,
+                                    padding: '12px',
+                                    borderRadius: '14px',
+                                    border: '1px solid rgba(0,0,0,0.1)',
+                                    background: 'none',
+                                    color: 'var(--color-text-muted)',
+                                    fontWeight: '600',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                Annuleer
+                            </button>
+                            <button
+                                onClick={confirmLog}
+                                style={{
+                                    flex: 1,
+                                    padding: '12px',
+                                    borderRadius: '14px',
+                                    border: 'none',
+                                    background: colors.accent,
+                                    color: '#FFFFFF',
+                                    fontWeight: '600',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                Ja, voeg toe
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
-        </div>
+        </>
     )
 }
 
