@@ -185,8 +185,8 @@ export function UserProvider({ children }) {
             periodStartDates: profile.period_start_dates || [],
             cycleHistory: profile.cycle_history || [],
             cycleStats: profile.cycle_stats || {},
-            menstruationLogs: profile.menstruation_logs || [], // LOADED
-            isMenstruatingNow: false,
+            menstruationLogs: profile.menstruation_logs || [],
+            isMenstruatingNow: profile.is_menstruating_now || false,
             manualPhaseOverride: profile.manual_phase_override || false,
             manualPhase: profile.manual_phase || null,
             macroTargets: null,
@@ -199,6 +199,14 @@ export function UserProvider({ children }) {
           }
 
           setUser(prev => ({ ...prev, ...profileData }))
+
+          // AFTER LOAD: Safety Re-evaluation of isMenstruatingNow (extra robust)
+          const todayStr = getLocalDateStr()
+          const logs = profile.menstruation_logs || []
+          const todayLog = logs.find(l => l.date === todayStr)
+          if (todayLog && todayLog.status === 'yes') {
+            setUser(prev => ({ ...prev, isMenstruatingNow: true }))
+          }
 
           // B1.5. Fetch Computed Targets
           const { data: targetData } = await supabase
@@ -404,10 +412,11 @@ export function UserProvider({ children }) {
       if (data.targetWeight !== undefined) updates.target_weight = data.targetWeight
       if (data.goal !== undefined) updates.goal = data.goal
       if (data.activity !== undefined) updates.activity_level = data.activity
-      if (data.trainingFrequency !== undefined) updates.training_frequency = data.trainingFrequency
+      if (data.trainingFrequency !== undefined) updates.training_days_per_week = data.trainingFrequency
       if (data.trainingType !== undefined) updates.training_type = data.trainingType
       if (data.experienceLevel !== undefined) updates.experience_level = data.experienceLevel
       if (data.resultTempo !== undefined) updates.result_tempo = data.resultTempo
+      if (data.isMenstruatingNow !== undefined) updates.is_menstruating_now = data.isMenstruatingNow
 
       // Cycle Learning
       if (data.periodStartDates !== undefined) updates.period_start_dates = data.periodStartDates
@@ -514,6 +523,7 @@ export function UserProvider({ children }) {
         experience_level: profileData.experienceLevel || user.experienceLevel || 'beginner',
         training_type: profileData.trainingType || user.trainingType || 'combination',
         is_onboarded: true,
+        is_menstruating_now: profileData.isMenstruatingNow || user.isMenstruatingNow || false,
         updated_at: new Date().toISOString()
       });
 
