@@ -382,22 +382,24 @@ export default function Today({ onNavigate }) {
                 gap: '0.25rem' 
               }}>
                 <div style={{
-                  fontSize: '0.85rem',
+                  fontSize: '0.8rem',
                   color: 'var(--color-text-muted)',
+                  fontWeight: '600',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
                   opacity: 0.8,
-                  marginBottom: '0',
-                  fontWeight: '400'
+                  marginBottom: '2px'
                 }}>
                   Je zit waarschijnlijk in je
                 </div>
 
                 <h2 style={{
-                  fontSize: '2.6rem', 
+                  fontSize: '2.1rem', 
                   color: phaseStyle.text,
                   margin: '0',
-                  fontWeight: '800',
-                  letterSpacing: '-0.04em',
-                  lineHeight: '1'
+                  fontWeight: '700',
+                  letterSpacing: '-0.02em',
+                  lineHeight: '1.1'
                 }}>
                   {currentText.title}
                 </h2>
