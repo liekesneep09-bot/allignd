@@ -1498,8 +1498,10 @@ export function UserProvider({ children }) {
     weightLogs: user?.weightLogs || [],
     menstruationLogs: user?.menstruationLogs || [],
     waterLogs: user?.waterLogs || [], // NEW
+    stepLogs: user?.stepLogs || [], // NEW
     symptomLogs: user?.symptomLogs || [], // NEW
     logWater, // NEW
+    logSteps, // NEW
     saveSymptoms, // NEW
     cycleStats: user?.cycleStats,
     periodStartDates: user?.periodStartDates || [],
