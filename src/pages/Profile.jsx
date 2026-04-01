@@ -21,6 +21,12 @@ export default function Profile() {
         adjustCyclePhase
     } = useUser()
 
+    const [isDirty, setIsDirty] = useState(false)
+    const [isSaving, setIsSaving] = useState(false)
+    const [isDeleting, setIsDeleting] = useState(false)
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+    const [showCycleCorrection, setShowCycleCorrection] = useState(false)
+
     // Local State for Form (initialized from user)
     const [formData, setFormData] = useState({
         name: user.name || '',
@@ -67,12 +73,6 @@ export default function Profile() {
             }))
         }
     }, [user, isDirty, isSaving])
-
-    const [isDirty, setIsDirty] = useState(false)
-    const [isSaving, setIsSaving] = useState(false)
-    const [isDeleting, setIsDeleting] = useState(false)
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-    const [showCycleCorrection, setShowCycleCorrection] = useState(false)
 
     const handleDeleteAccount = async () => {
         setIsDeleting(true)

@@ -341,6 +341,11 @@ export function UserProvider({ children }) {
         }
 
         // B7. Fetch Symptom Logs
+        const { data: dbSymptomLogs } = await supabase
+          .from('symptom_logs')
+          .select('*')
+          .eq('user_id', authUser.id)
+
         if (dbSymptomLogs) {
           setUser(prev => ({
             ...prev,
