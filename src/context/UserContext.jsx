@@ -396,6 +396,26 @@ export function UserProvider({ children }) {
     }
   }
 
+  // Helper: Defensive Upsert for Profiles (handles missing columns gracefully)
+  const defensiveProfileUpsert = async (payload) => {
+    try {
+      const { error } = await supabase.from('profiles').upsert(payload)
+      if (error) {
+        // Code 42703 is 'undefined_column'
+        if (error.code === '42703' && payload.is_menstruating_now !== undefined) {
+          console.warn("Column is_menstruating_now missing, retrying without it.")
+          const { is_menstruating_now, ...safePayload } = payload
+          const { error: retryError } = await supabase.from('profiles').upsert(safePayload)
+          if (retryError) throw retryError
+        } else {
+          throw error
+        }
+      }
+    } catch (err) {
+      console.error("Defensive profile upsert failed:", err)
+    }
+  }
+
   // Helper: Sync profile updates to Supabase
   const syncProfileUpdateToSupabase = async (data, newMacros) => {
     if (!authUser) return
@@ -445,8 +465,7 @@ export function UserProvider({ children }) {
       // Only fire update if we mapped fields
       if (Object.keys(updates).length > 0) {
         updates.updated_at = new Date().toISOString()
-
-        await supabase.from('profiles').upsert({
+        await defensiveProfileUpsert({
           id: authUser.id,
           ...updates
         })
@@ -502,32 +521,29 @@ export function UserProvider({ children }) {
 
       // 3. Save to Supabase
       // A. Update Profile
-      const { error: profileError } = await supabase.from('profiles').upsert({
+      await defensiveProfileUpsert({
         id: userId,
-        // Nutrition/Body Fields
-        name: cleanProfile.name, // Ensure Name is saved
-        weight: cleanProfile.weight_kg,
-        target_weight: cleanProfile.target_weight, // Ensure Target Weight
-        height: cleanProfile.height_cm,
-        age: cleanProfile.age,
-        goal: cleanProfile.goal,
-        training_days_per_week: cleanProfile.training_days_per_week,
-        lifestyle_level: cleanProfile.lifestyle_level,
-        steps_range: cleanProfile.steps_range,
-
-        // Preserve other fields
+        name: profileData.name || user.name || '',
+        age: profileData.age || user.age || 0,
+        height: profileData.height || user.height || 0,
+        weight: profileData.weight || user.weight || 0,
+        target_weight: profileData.targetWeight || user.targetWeight || 0,
         cycle_start: profileData.cycleStart || user.cycleStart,
-        cycle_length: profileData.cycleLength || user.cycleLength,
-        period_length: profileData.periodLength || user.periodLength,
+        cycle_length: profileData.cycleLength || user.cycleLength || 28,
+        period_length: profileData.periodLength || user.periodLength || 5,
+        bleeding_length_days: profileData.periodLength || user.periodLength || 5,
+        goal: profileData.goal || user.goal || 'maintain',
+        activity_level: profileData.activity || user.activity || 'sedentary',
+        training_days_per_week: Number(profileData.trainingFrequency || user.trainingFrequency || 0),
+        lifestyle_level: profileData.lifestyle_level || user.lifestyle_level || 'sedentary',
+        steps_range: profileData.steps_range || user.steps_range || 'lt4k',
         result_tempo: profileData.resultTempo || user.resultTempo || 'average',
         experience_level: profileData.experienceLevel || user.experienceLevel || 'beginner',
         training_type: profileData.trainingType || user.trainingType || 'combination',
         is_onboarded: true,
-        is_menstruating_now: profileData.isMenstruatingNow || user.isMenstruatingNow || false,
+        is_menstruating_now: profileData.isMenstruatingNow !== undefined ? profileData.isMenstruatingNow : (user.isMenstruatingNow || false),
         updated_at: new Date().toISOString()
       });
-
-      if (profileError) throw profileError;
 
       // AUTO-LOG cycleStart into period_start_dates (so it shows on the calendar)
       const cycleStartDate = profileData.cycleStart || user.cycleStart;
@@ -858,7 +874,6 @@ export function UserProvider({ children }) {
       foodLogs: prev.foodLogs.filter(log => log.id !== logId)
     }))
 
-    // 2. Persist
     // 2. Persist
     try {
       const { error } = await supabase.from('food_logs').delete().eq('id', logId)

@@ -36,7 +36,16 @@ export default function Profile() {
         // Cycle
         cycleLength: user.cycleLength || 28,
         periodLength: user.periodLength || 5,
-        cycleStart: user.cycleStart ? new Date(user.cycleStart).toISOString().split('T')[0] : ''
+        cycleStart: (() => {
+            try {
+                if (!user.cycleStart) return ''
+                const d = new Date(user.cycleStart)
+                if (isNaN(d.getTime())) return ''
+                return d.toISOString().split('T')[0]
+            } catch (e) {
+                return ''
+            }
+        })()
     })
 
     useEffect(() => {
