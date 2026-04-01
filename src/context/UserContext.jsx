@@ -91,24 +91,81 @@ export function UserProvider({ children }) {
     ? user.currentPeriodLength
     : (user.bleedingLengthDays || user.periodLength)
 
+  // --- CORE CYCLE LOGIC (Source of Truth) ---
+  const isDateInPeriod = (dateStr, currentUser) => {
+    const logs = currentUser?.menstruationLogs || []
+    const explicitLog = logs.find(l => l.date === dateStr)
+
+    // 1. Exact match
+    if (explicitLog) {
+      return explicitLog.status === 'yes'
+    }
+
+    // 2. Auto-fill logic
+    const checkDate = new Date(dateStr)
+    checkDate.setHours(0, 0, 0, 0)
+
+    // Find most recent 'yes' BEFORE this date
+    const pastYesLogs = logs
+      .filter(l => l.status === 'yes' && new Date(l.date) < checkDate)
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+
+    if (pastYesLogs.length === 0) return false
+
+    const mostRecentYes = new Date(pastYesLogs[0].date)
+    
+    // Find most recent 'no' BETWEEN that 'yes' and now
+    const interveningNo = logs.find(l =>
+      l.status === 'no' &&
+      new Date(l.date) > mostRecentYes &&
+      new Date(l.date) <= checkDate
+    )
+    
+    return !interveningNo
+  }
+
+  const getPhaseForDate = (dateStr) => {
+    if (!user) return { phase: 'follicular', day: 1, confidence: 'low' }
+    const effectiveCycleLength = user.cycleStats?.learnedCycleLength || user.cycleLength || 28
+    const effectiveBleedingDays = user.bleedingLengthDays || user.periodLength || 5
+    const dayCount = calculateCycleDay(user.cycleStart, effectiveCycleLength, dateStr)
+    const hasValidStart = !!user.cycleStart
+
+    // 1. PRIORITY: Manual Log check for THIS specific date
+    if (isDateInPeriod(dateStr, user)) {
+      return {
+        phase: 'menstrual',
+        day: dayCount,
+        confidence: 'high'
+      }
+    }
+
+    // 2. Check for manual override or live toggle (TODAY ONLY)
+    const todayStr = getLocalDateStr()
+    const isViewingToday = dateStr === todayStr
+
+    if (isViewingToday && user.manualPhaseOverride && user.manualPhase) {
+      return {
+        phase: user.manualPhase,
+        day: dayCount,
+        confidence: 'high'
+      }
+    }
+
+    const isMenstruating = isViewingToday && user.isMenstruatingNow
+
+    return {
+      phase: getPhaseForDay(dayCount, effectiveCycleLength, effectiveBleedingDays, isMenstruating, hasValidStart),
+      day: dayCount,
+      confidence: user.cycleStats?.confidence || 'low'
+    }
+  }
+
   // Determine current phase - MUST match getPhaseForDate logic for today
-  const currentPhase = (() => {
-    // Priority 1: Manual phase override
-    if (user.manualPhaseOverride && user.manualPhase) {
-      return user.manualPhase
-    }
-    // Priority 2: Normal calculation
-    if (user.cycleStart) {
-      return getPhaseForDay(
-        currentDay,
-        effectiveCycleLength,
-        effectivePeriodLength,
-        user.isMenstruatingNow,
-        true
-      )
-    }
-    return 'follicular' // Default phase
-  })()
+  const currentPhase = useMemo(() => {
+    const todayStr = getLocalDateStr()
+    return getPhaseForDate(todayStr).phase
+  }, [user, currentDay]) // Recalculate when user or day changes
 
   // USE STORED TARGETS (No fallback defaults!)
   const targets = user.macroTargets || null
@@ -198,13 +255,13 @@ export function UserProvider({ children }) {
             localStorage.setItem('cyclus_onboarded', 'true')
           }
 
-          setUser(prev => ({ ...prev, ...profileData }))
-
           // AFTER LOAD: Safety Re-evaluation of isMenstruatingNow (using robust log check)
+          const mergedProfile = { ...user, ...profileData }
           const todayStr = getLocalDateStr()
-          if (isDateInPeriod(todayStr, { ...prev, ...profileData })) {
-            setUser(prev => ({ ...prev, isMenstruatingNow: true }))
+          if (isDateInPeriod(todayStr, mergedProfile)) {
+            mergedProfile.isMenstruatingNow = true
           }
+          setUser(mergedProfile)
 
           // B1.5. Fetch Computed Targets
           const { data: targetData } = await supabase
@@ -1082,37 +1139,6 @@ export function UserProvider({ children }) {
   }
 
   // NEW: Helper function to determine if a day is a period day (explicit or auto-filled)
-  const isDateInPeriod = (dateStr, currentUser) => {
-    const logs = currentUser.menstruationLogs || []
-    const explicitLog = logs.find(l => l.date === dateStr)
-
-    // 1. Exact match
-    if (explicitLog) {
-      return explicitLog.status === 'yes'
-    }
-
-    // 2. Auto-fill logic
-    const checkDate = new Date(dateStr)
-    checkDate.setHours(0, 0, 0, 0)
-
-    // Find most recent 'yes' BEFORE this date
-    const pastYesLogs = logs
-      .filter(l => l.status === 'yes' && new Date(l.date) < checkDate)
-      .sort((a, b) => new Date(b.date) - new Date(a.date))
-
-    if (pastYesLogs.length === 0) return false
-
-    const mostRecentYes = new Date(pastYesLogs[0].date)
-    
-    // Find most recent 'no' BETWEEN that 'yes' and now
-    const interveningNo = logs.find(l =>
-      l.status === 'no' &&
-      new Date(l.date) > mostRecentYes &&
-      new Date(l.date) <= checkDate
-    )
-    
-    return !interveningNo
-  }
 
   // NEW: Toggle Period Date (Interactive Calendar)
   const togglePeriodDate = (dateStr) => {
@@ -1175,20 +1201,18 @@ export function UserProvider({ children }) {
     const todayStr = getLocalDateStr()
     const isToggleToday = dateStr === todayStr
 
-    // Determine New isMenstruatingNow Status (TRUST THE LOGS)
     const isBleedingToday = isDateInPeriod(todayStr, { ...user, menstruationLogs: newLogs })
 
     if (isToggleToday && newStatus === 'yes') {
       updates.currentPeriodLength = null
       updates.manualPhaseOverride = false
       updates.manualPhase = null
-    } else {
-        const localCurrentDay = user.cycleStart
-          ? Math.floor((new Date(dateStr) - new Date(user.cycleStart)) / (1000 * 60 * 60 * 24)) + 1
-          : 1
-        updates.currentPeriodLength = Math.max(0, localCurrentDay - 1)
-        updates.manualPhaseOverride = false
-      }
+    } else if (isToggleToday && newStatus === 'no') {
+      const localCurrentDay = user.cycleStart
+        ? Math.floor((new Date(dateStr) - new Date(user.cycleStart)) / (1000 * 60 * 60 * 24)) + 1
+        : 1
+      updates.currentPeriodLength = Math.max(0, localCurrentDay - 1)
+      updates.manualPhaseOverride = false
     }
 
     updates.isMenstruatingNow = isBleedingToday
@@ -1456,35 +1480,6 @@ export function UserProvider({ children }) {
     }), { kcal: 0, p: 0, c: 0, f: 0, fiber: 0 })
   }
 
-  // Get Phase for ANY Date - prioritizes manual override, uses learned cycle length
-  const getPhaseForDate = (dateStr) => {
-    const effectiveCycleLength = user.cycleStats?.learnedCycleLength || user.cycleLength
-    const effectiveBleedingDays = user.bleedingLengthDays || user.periodLength || 5
-    const dayCount = calculateCycleDay(user.cycleStart, effectiveCycleLength, dateStr)
-    const hasValidStart = !!user.cycleStart
-
-    // Check if viewing today
-    const todayStr = new Date().toISOString().split('T')[0]
-    const isViewingToday = dateStr === todayStr
-
-    // PRIORITY: If manual phase override is active and viewing today, use manual phase
-    if (isViewingToday && user.manualPhaseOverride && user.manualPhase) {
-      return {
-        phase: user.manualPhase,
-        day: dayCount,
-        confidence: user.cycleStats?.confidence || 'low'
-      }
-    }
-
-    // Normal calculation using learned data
-    const isMenstruating = isViewingToday && user.isMenstruatingNow
-
-    return {
-      phase: getPhaseForDay(dayCount, effectiveCycleLength, effectiveBleedingDays, isMenstruating, hasValidStart),
-      day: dayCount,
-      confidence: user.cycleStats?.confidence || 'low'
-    }
-  }
 
   // DEPRECATED: Legacy manual log (keeping for compatibility if needed, but UI will stop using it)
   const logMacros = (macros) => {
