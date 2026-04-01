@@ -78,13 +78,13 @@ export default function WaterTracker({ date }) {
                             background: 'none',
                             border: 'none',
                             color: 'var(--color-text-muted)',
-                            fontSize: '0.85rem',
+                            fontSize: '0.82rem',
                             textDecoration: 'underline',
                             cursor: 'pointer',
                             padding: '0.2rem'
                         }}
                     >
-                        Oeps, per ongeluk een glas teveel getikt? (-250ml)
+                        Herstellen (-250ml)
                     </button>
                 </div>
             )}
