@@ -646,7 +646,9 @@ export default function Today({ onNavigate }) {
                         }}>
                           <div>
                             <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>{log.name}</div>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{log.grams}g • {log.kcal} kcal</div>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                              {log.unitName && log.quantity ? `${log.quantity} ${log.unitName}` : `${log.grams}g`} • {log.kcal} kcal
+                            </div>
                           </div>
                           <button
                             onClick={() => deleteFoodLog(log.id)}
@@ -681,8 +683,8 @@ export default function Today({ onNavigate }) {
         showModal && (
           <FoodModal
             onClose={() => setShowModal(false)}
-            onAdd={(foodId, grams) => {
-              logFood(foodId, grams, viewDateStr)
+            onAdd={(foodId, grams, _, config) => {
+              logFood(foodId, grams, viewDateStr, config)
               setShowModal(false)
             }}
           />

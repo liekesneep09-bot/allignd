@@ -16,6 +16,7 @@ export default function FoodModal({ onClose, onAdd }) {
     const [searchTerm, setSearchTerm] = useState('')
     const [selectedFood, setSelectedFood] = useState(null)
     const [grams, setGrams] = useState('')
+    const [unitType, setUnitType] = useState('g') // 'g' | 'unit'
 
     // Form state for new product
     const [newFood, setNewFood] = useState({
@@ -24,7 +25,9 @@ export default function FoodModal({ onClose, onAdd }) {
         protein_100: '',
         carbs_100: '',
         fat_100: '',
-        fiber_100: ''
+        fiber_100: '',
+        unit_name: '',
+        unit_weight: ''
     })
 
     // Gerechten (Meals) state
@@ -84,7 +87,7 @@ export default function FoodModal({ onClose, onAdd }) {
                 const totals = mealItems.reduce((acc, item) => {
                     const factor = (item.unit === 'g' || item.unit === 'ml')
                         ? item.quantity / 100
-                        : item.quantity
+                        : (item.quantity * (item.unit_weight || 100)) / 100
                     return {
                         kcal: acc.kcal + (item.kcal_100 * factor),
                         protein: acc.protein + (item.protein_100 * factor),
@@ -162,8 +165,15 @@ export default function FoodModal({ onClose, onAdd }) {
     // Derived values for preview (regular foods)
     const calculatePreview = () => {
         if (!selectedFood || !grams) return { kcal: 0, p: 0, c: 0, f: 0, fiber: 0 }
-        const parsedGrams = parseFloat(String(grams).replace(',', '.')) || 0
-        const factor = parsedGrams / 100
+        const parsedValue = parseFloat(String(grams).replace(',', '.')) || 0
+        
+        let factor = 0
+        if (unitType === 'unit' && selectedFood.unit_weight) {
+            factor = (parsedValue * selectedFood.unit_weight) / 100
+        } else {
+            factor = parsedValue / 100
+        }
+
         return {
             kcal: Math.round(selectedFood.kcal_100 * factor),
             p: (selectedFood.protein_100 * factor).toFixed(1),
@@ -218,14 +228,15 @@ export default function FoodModal({ onClose, onAdd }) {
     const handleSelectFood = (food) => {
         setSelectedFood(food)
         setGrams('')
+        setUnitType(food.unit_name ? 'unit' : 'g')
         setView('entry')
     }
 
     const handleSubmit = () => {
         if (!selectedFood || !grams) return
-        const parsedGrams = parseFloat(String(grams).replace(',', '.')) || 0
-        if (parsedGrams <= 0) return
-        onAdd(selectedFood.id, parsedGrams)
+        const parsedValue = parseFloat(String(grams).replace(',', '.')) || 0
+        if (parsedValue <= 0) return
+        onAdd(selectedFood.id, parsedValue, null, { unitType })
         onClose()
     }
 
@@ -237,6 +248,8 @@ export default function FoodModal({ onClose, onAdd }) {
             name_nl: newFood.name_nl,
             aliases: [],
             unit_type: 'per_100g',
+            unit_name: newFood.unit_name || null,
+            unit_weight: newFood.unit_weight ? parseFloat(String(newFood.unit_weight).replace(',', '.')) : null,
             kcal_100: Math.round(parseFloat(String(newFood.kcal_100).replace(',', '.')) || 0),
             protein_100: parseFloat(String(newFood.protein_100).replace(',', '.')) || 0,
             carbs_100: parseFloat(String(newFood.carbs_100).replace(',', '.')) || 0,
@@ -472,6 +485,38 @@ export default function FoodModal({ onClose, onAdd }) {
                                             />
                                         </div>
                                     </div>
+
+                                    <div style={{ padding: '1rem', background: 'var(--color-bg)', borderRadius: '12px', border: '1px solid var(--color-border)' }}>
+                                        <div style={{ fontWeight: '600', fontSize: '0.9rem', marginBottom: '0.75rem', color: 'var(--color-text)' }}>
+                                            Standaard eenheid (optioneel)
+                                        </div>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                            <div className="input-group" style={{ marginBottom: 0 }}>
+                                                <label>Naam (bv. stuk)</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="stuk"
+                                                    style={{ fontSize: '1rem', padding: '0.75rem', fontWeight: '400' }}
+                                                    value={newFood.unit_name}
+                                                    onChange={e => setNewFood({ ...newFood, unit_name: e.target.value })}
+                                                />
+                                            </div>
+                                            <div className="input-group" style={{ marginBottom: 0 }}>
+                                                <label>Gewicht (gram)</label>
+                                                <input
+                                                    type="text"
+                                                    inputMode="decimal"
+                                                    placeholder="0"
+                                                    style={{ fontSize: '1rem', padding: '0.75rem', fontWeight: '400' }}
+                                                    value={newFood.unit_weight}
+                                                    onChange={e => setNewFood({ ...newFood, unit_weight: e.target.value })}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>
+                                            Zodat je vaker op "stuks" kunt loggen ipv grammen.
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <button
@@ -506,8 +551,42 @@ export default function FoodModal({ onClose, onAdd }) {
                                     <h3 style={{ margin: 0, fontSize: '1.25rem' }}>{selectedFood.name_nl}</h3>
                                 </div>
 
+                                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                                    <button
+                                        onClick={() => setUnitType('g')}
+                                        style={{
+                                            flex: 1,
+                                            padding: '0.8rem',
+                                            borderRadius: '12px',
+                                            border: '1px solid var(--color-border)',
+                                            background: unitType === 'g' ? 'var(--color-primary)' : 'var(--color-bg)',
+                                            color: unitType === 'g' ? '#fff' : 'var(--color-text)',
+                                            fontWeight: '600'
+                                        }}
+                                    >
+                                        Gram
+                                    </button>
+                                    {selectedFood.unit_name && (
+                                        <button
+                                            onClick={() => setUnitType('unit')}
+                                            style={{
+                                                flex: 1,
+                                                padding: '0.8rem',
+                                                borderRadius: '12px',
+                                                border: '1px solid var(--color-border)',
+                                                background: unitType === 'unit' ? 'var(--color-primary)' : 'var(--color-bg)',
+                                                color: unitType === 'unit' ? '#fff' : 'var(--color-text)',
+                                                fontWeight: '600',
+                                                textTransform: 'capitalize'
+                                            }}
+                                        >
+                                            {selectedFood.unit_name}
+                                        </button>
+                                    )}
+                                </div>
+
                                 <div className="input-group">
-                                    <label>Hoeveelheid (gram)</label>
+                                    <label>Hoeveelheid ({unitType === 'g' ? 'gram' : selectedFood.unit_name})</label>
                                     <input
                                         type="text"
                                         inputMode="decimal"

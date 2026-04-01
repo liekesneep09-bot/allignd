@@ -30,7 +30,7 @@ export default function MealEditor({ meal, onSave, onClose }) {
     const totals = items.reduce((acc, item) => {
         const factor = (item.unit === 'g' || item.unit === 'ml')
             ? item.quantity / 100
-            : item.quantity
+            : (item.quantity * (item.unit_weight || 100)) / 100
         return {
             kcal: acc.kcal + (item.kcal_100 * factor),
             protein: acc.protein + (item.protein_100 * factor),
@@ -58,6 +58,7 @@ export default function MealEditor({ meal, onSave, onClose }) {
             product_name: selectedProduct.name_nl,
             quantity: parsedQuantity,
             unit: unit,
+            unit_weight: selectedProduct.unit_name === unit ? selectedProduct.unit_weight : null,
             kcal_100: selectedProduct.kcal_100,
             protein_100: selectedProduct.protein_100,
             carbs_100: selectedProduct.carbs_100,
@@ -131,6 +132,7 @@ export default function MealEditor({ meal, onSave, onClose }) {
                         product_name: item.product_name,
                         quantity: item.quantity,
                         unit: item.unit,
+                        unit_weight: item.unit_weight,
                         kcal_100: item.kcal_100,
                         protein_100: item.protein_100,
                         carbs_100: item.carbs_100,
@@ -192,7 +194,9 @@ export default function MealEditor({ meal, onSave, onClose }) {
 
             // Calculate totals for the callback
             const mealTotals = cleanItems.reduce((acc, item) => {
-                const factor = (item.unit === 'g' || item.unit === 'ml') ? item.quantity / 100 : item.quantity
+                const factor = (item.unit === 'g' || item.unit === 'ml') 
+                    ? item.quantity / 100 
+                    : (item.quantity * (item.unit_weight || 100)) / 100
                 return {
                     kcal: acc.kcal + (item.kcal_100 * factor),
                     protein: acc.protein + (item.protein_100 * factor),
@@ -295,7 +299,7 @@ export default function MealEditor({ meal, onSave, onClose }) {
                         {items.map((item, index) => {
                             const factor = (item.unit === 'g' || item.unit === 'ml')
                                 ? item.quantity / 100
-                                : item.quantity
+                                : (item.quantity * (item.unit_weight || 100)) / 100
                             const itemKcal = Math.round(item.kcal_100 * factor)
 
                             return (
@@ -389,7 +393,9 @@ export default function MealEditor({ meal, onSave, onClose }) {
                                         >
                                             <option value="g">gram</option>
                                             <option value="ml">ml</option>
-                                            <option value="stuk">stuks</option>
+                                            {selectedProduct.unit_name && (
+                                                <option value={selectedProduct.unit_name}>{selectedProduct.unit_name}</option>
+                                            )}
                                             <option value="portie">porties</option>
                                         </select>
                                     </div>

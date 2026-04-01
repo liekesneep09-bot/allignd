@@ -243,6 +243,8 @@ export function UserProvider({ children }) {
             fat_100: Number(f.fat_100),
             fiber_100: Number(f.fiber_100 || 0),
             unit_type: f.unit_type || 'per_100g',
+            unit_name: f.unit_name,
+            unit_weight: f.unit_weight ? Number(f.unit_weight) : null,
             isCustom: true
           }))
         }
@@ -273,6 +275,7 @@ export function UserProvider({ children }) {
             name: log.name,
             grams: Number(log.grams),
             quantity: Number(log.quantity),
+            unitName: log.unit_name,
             kcal: Number(log.kcal),
             p: Number(log.protein),
             c: Number(log.carbs),
@@ -755,15 +758,30 @@ export function UserProvider({ children }) {
       return
     }
 
-    const factor = grams / 100
+    // Support for unit-based logging
+    let finalGrams = grams
+    let finalQuantity = 1
+    let finalUnitName = null
+
+    // If configData contains unit info from FoodModal
+    if (configData?.unitType === 'unit' && food.unit_weight) {
+      finalQuantity = grams // In this case 'grams' param is actually quantity
+      finalGrams = Math.round(finalQuantity * food.unit_weight)
+      finalUnitName = food.unit_name
+    } else {
+      finalGrams = parseInt(grams)
+    }
+
+    const factor = finalGrams / 100
     const newLog = {
       id: crypto.randomUUID(),
       user_id: authUser.id,
       date: targetDate,
       foodId: food.id,
       name: food.name_nl,
-      grams: parseInt(grams),
-      quantity: 1,
+      grams: finalGrams,
+      quantity: finalQuantity,
+      unitName: finalUnitName,
       item_type: 'product',
       kcal: Math.round(food.kcal_100 * factor),
       p: parseFloat((food.protein_100 * factor).toFixed(1)),
@@ -787,7 +805,8 @@ export function UserProvider({ children }) {
         food_id: newLog.foodId,
         name: newLog.name,
         grams: newLog.grams,
-        quantity: 1,
+        quantity: newLog.quantity,
+        unit_name: newLog.unitName,
         item_type: 'product',
         kcal: newLog.kcal,
         protein: newLog.p,
@@ -846,7 +865,9 @@ export function UserProvider({ children }) {
         carbs_100: food.carbs_100,
         fat_100: food.fat_100,
         fiber_100: food.fiber_100 || 0,
-        unit_type: food.unit_type
+        unit_type: food.unit_type,
+        unit_name: food.unit_name,
+        unit_weight: food.unit_weight
       })
     } catch (e) {
       console.error("Failed to add custom food", e)
