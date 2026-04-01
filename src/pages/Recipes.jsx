@@ -91,10 +91,9 @@ export default function Recipes() {
                             </div>
                             <h4 style={{ 
                                 margin: 0, 
-                                fontSize: '1.2rem', 
-                                fontWeight: '500', 
+                                fontSize: '1rem', 
+                                fontWeight: '700', 
                                 color: 'var(--color-text)',
-                                fontFamily: 'var(--font-family-serif)',
                                 lineHeight: '1.2'
                             }}>
                                 {data.meals.diner[0].title}
