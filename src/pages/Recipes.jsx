@@ -451,16 +451,16 @@ function RecipeCard({ item, index, isExpanded, onToggle, colors, userGoal }) {
                                 marginTop: '1rem',
                                 padding: '10px 14px',
                                 borderRadius: '12px',
-                                background: '#f0fdf4',
-                                border: '1px solid #dcfce7',
-                                color: '#166534',
+                                background: 'rgba(165, 220, 201, 0.1)',
+                                border: '1px solid rgba(165, 220, 201, 0.2)',
+                                color: '#3A4A45',
                                 fontSize: '0.85rem',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '8px',
-                                fontWeight: '500'
+                                fontWeight: '600'
                             }}>
-                                <span>✨</span> Perfect voor jouw doel: <strong>{
+                                <span style={{ fontSize: '1rem' }}>✨</span> Perfect voor jouw doel: <strong>{
                                     userGoal === 'lose_fat' ? 'Afvallen' :
                                     userGoal === 'recomp' ? 'Afvallen & Spieropbouw' :
                                     userGoal === 'gain_muscle' ? 'Spiermassa' : 'Gezond blijven'
@@ -475,10 +475,11 @@ function RecipeCard({ item, index, isExpanded, onToggle, colors, userGoal }) {
                             style={{
                                 width: '100%',
                                 marginTop: '1rem',
-                                background: isLogged ? '#22c55e' : undefined,
-                                color: isLogged ? '#FFFFFF' : undefined,
-                                boxShadow: isLogged ? '0 4px 12px rgba(34,197,94,0.2)' : 'var(--shadow-soft)',
-                                transition: 'all 0.3s ease'
+                                background: isLogged ? '#A5DCC9' : undefined,
+                                color: isLogged ? '#2D3436' : undefined,
+                                boxShadow: isLogged ? '0 4px 12px rgba(165,220,201,0.3)' : 'var(--shadow-soft)',
+                                transition: 'all 0.3s ease',
+                                border: isLogged ? 'none' : undefined
                             }}
                         >
                             {isLogged ? (
@@ -516,14 +517,15 @@ function RecipeCard({ item, index, isExpanded, onToggle, colors, userGoal }) {
                         <div style={{
                             width: '48px',
                             height: '48px',
-                            background: colors.accentMid,
+                            background: 'rgba(255, 174, 185, 0.15)',
                             borderRadius: '50%',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             margin: '0 auto 1rem',
-                            color: colors.accent,
-                            fontSize: '1.5rem'
+                            color: '#ffaeb9',
+                            fontSize: '1.5rem',
+                            fontWeight: '700'
                         }}>
                             +
                         </div>
@@ -566,10 +568,11 @@ function RecipeCard({ item, index, isExpanded, onToggle, colors, userGoal }) {
                                     padding: '12px',
                                     borderRadius: '14px',
                                     border: 'none',
-                                    background: colors.accent,
+                                    background: '#ffaeb9',
                                     color: '#FFFFFF',
-                                    fontWeight: '600',
-                                    cursor: 'pointer'
+                                    fontWeight: '700',
+                                    cursor: 'pointer',
+                                    boxShadow: '0 4px 12px rgba(255,174,185,0.2)'
                                 }}
                             >
                                 Ja, voeg toe
