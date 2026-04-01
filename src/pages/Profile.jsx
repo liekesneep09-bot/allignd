@@ -40,7 +40,9 @@ export default function Profile() {
     })
 
     useEffect(() => {
-        if (user) {
+        // Only sync from global state if user is NOT currently editing (isDirty is false)
+        // OR if a save just completed (isSaving became false)
+        if (user && !isDirty && !isSaving) {
             setFormData(prev => ({
                 ...prev,
                 name: user.name || '',
@@ -50,9 +52,12 @@ export default function Profile() {
                 targetWeight: user.targetWeight || '',
                 goal: user.goal || 'maintain',
                 resultTempo: user.resultTempo || 'average',
+                lifestyle_level: user.lifestyle_level || 'sedentary',
+                steps_range: user.steps_range || 'lt4k',
+                trainingFrequency: user.training_days_per_week || 0,
             }))
         }
-    }, [user.name, user.weight, user.targetWeight, user.goal, user.resultTempo])
+    }, [user, isDirty, isSaving])
 
     const [isDirty, setIsDirty] = useState(false)
     const [isSaving, setIsSaving] = useState(false)

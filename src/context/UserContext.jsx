@@ -61,6 +61,7 @@ export function UserProvider({ children }) {
     training_days_per_week: 3,
     lifestyle_level: 'sedentary',
     steps_range: 'lt4k',
+    resultTempo: 'average', // New Field
     tracking: 'now',
     cycleHistory: [], // [{ startDate, endDate, length }] - Legacy
     logs: {}, // Archived logs
@@ -420,6 +421,10 @@ export function UserProvider({ children }) {
       if (data.manualPhaseOverride !== undefined) updates.manual_phase_override = data.manualPhaseOverride
       if (data.manualPhase !== undefined) updates.manual_phase = data.manualPhase
 
+      if (data.experienceLevel !== undefined) updates.experience_level = data.experienceLevel
+      if (data.resultTempo !== undefined) updates.result_tempo = data.resultTempo
+      if (data.trainingType !== undefined) updates.training_type = data.trainingType
+
       // Add New Macros if recalculated
       if (newMacros) {
         updates.target_calories = newMacros.calories
@@ -476,7 +481,8 @@ export function UserProvider({ children }) {
         goal: profileData.goal || user.goal,
         training_days_per_week: Number(profileData.trainingFrequency || user.trainingFrequency || 0),
         lifestyle_level: profileData.lifestyle_level || user.lifestyle_level || 'sedentary',
-        steps_range: profileData.steps_range || user.steps_range || 'lt4k'
+        steps_range: profileData.steps_range || user.steps_range || 'lt4k',
+        resultTempo: profileData.resultTempo || user.resultTempo || 'average' // Explicitly captured
       };
 
       // 2. Calculate Targets (Range Based)
