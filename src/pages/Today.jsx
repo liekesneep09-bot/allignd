@@ -403,7 +403,7 @@ export default function Today({ onNavigate }) {
                 </h2>
 
                 <p style={{
-                  fontSize: '1rem', // Slightly smaller
+                  fontSize: '0.95rem', 
                   color: 'var(--color-text)',
                   lineHeight: '1.4',
                   margin: '0.25rem 0 0 0',
@@ -454,9 +454,9 @@ export default function Today({ onNavigate }) {
                   </svg>
 
                   <div style={{
-                    fontSize: '0.9rem',
+                    fontSize: '0.95rem',
                     color: 'var(--color-text)',
-                    lineHeight: '1.35',
+                    lineHeight: '1.4',
                     fontWeight: '400',
                     maxWidth: '300px'
                   }}>
