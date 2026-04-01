@@ -392,12 +392,13 @@ export default function Today({ onNavigate }) {
                 </div>
 
                 <h2 style={{
-                  fontSize: '1.75rem', // Slightly smaller
+                  fontSize: '2.4rem', // Slightly larger for Serif impact
                   color: phaseStyle.text,
                   margin: '0',
-                  fontWeight: '800',
-                  letterSpacing: '-0.03em',
-                  lineHeight: '1.1'
+                  fontWeight: '400', // Serif looks better at 400
+                  fontFamily: 'var(--font-family-serif)',
+                  letterSpacing: '-0.01em',
+                  lineHeight: '1'
                 }}>
                   {currentText.title}
                 </h2>

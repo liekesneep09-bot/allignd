@@ -89,7 +89,14 @@ export default function Recipes() {
                             <div style={{ fontSize: '0.75rem', fontWeight: '600', color: colors.accent, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>
                                 Highlight voor deze fase
                             </div>
-                            <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: '600', color: 'var(--color-text)' }}>
+                            <h4 style={{ 
+                                margin: 0, 
+                                fontSize: '1.2rem', 
+                                fontWeight: '500', 
+                                color: 'var(--color-text)',
+                                fontFamily: 'var(--font-family-serif)',
+                                lineHeight: '1.2'
+                            }}>
                                 {data.meals.diner[0].title}
                             </h4>
                             <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.85rem', color: 'var(--color-text-muted)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
