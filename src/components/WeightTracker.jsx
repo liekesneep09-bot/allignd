@@ -3,13 +3,21 @@ import { useUser } from '../context/UserContext'
 import { getLocalDateStr } from '../utils/date'
 
 export default function WeightTracker({ date }) {
-    const { user, logWeight, currentPhase } = useUser()
+    const { user, logWeight, currentPhase, getPhaseForDate } = useUser()
     const [isEditing, setIsEditing] = useState(false)
     const [tempWeight, setTempWeight] = useState('')
 
     // Today's weight
     const weightLog = user?.weightLogs?.find(l => l.date === date)
     const currentWeight = weightLog?.weight || user.weight || 0
+
+    // Cycle Phase Colors (from CSS variables)
+    const PHASE_COLORS = {
+        menstrual: '#a86473',
+        follicular: '#5bc4d4',
+        ovulatory: '#f5a89c',
+        luteal: '#a3b899'
+    }
 
     // Cycle-Aware Insights (Clean, no emojis)
     const getInsight = (phase) => {
@@ -70,24 +78,39 @@ export default function WeightTracker({ date }) {
     // SVG Sparkline Logic (Last 30 days)
     const sparklineData = (() => {
         if (!user.weightLogs || user.weightLogs.length < 2) return null
+        
+        // Use last 30 days of data
         const sorted = [...user.weightLogs]
             .sort((a,b) => a.date.localeCompare(b.date))
             .slice(-30)
         
+        if (sorted.length < 2) return null
+
         const weights = sorted.map(l => l.weight)
         const min = Math.min(...weights) - 0.5
         const max = Math.max(...weights) + 0.5
         const range = max - min
 
         const width = 100
-        const height = 30
+        const height = 40
+        
         const points = sorted.map((l, i) => {
             const x = (i / (sorted.length - 1)) * width
-            const y = height - ((l.weight - min) / range) * height
+            const y = height * 0.8 - ((l.weight - min) / (max - min || 1)) * (height * 0.6)
             return `${x},${y}`
         }).join(' ')
 
-        return points
+        // Phase bar data (discrete blocks below the graph)
+        const phaseBlocks = sorted.map((l, i) => {
+            const phase = getPhaseForDate(l.date)
+            return {
+                x: (i / sorted.length) * 100,
+                width: (1 / sorted.length) * 100,
+                color: PHASE_COLORS[phase] || 'var(--color-border)'
+            }
+        })
+
+        return { points, phaseBlocks }
     })()
 
     return (
@@ -127,58 +150,86 @@ export default function WeightTracker({ date }) {
                 </div>
             </div>
 
-            {/* Sparkline Visualization */}
+            {/* Sparkline & Phase Bar Visualization */}
             {sparklineData && (
-                <div style={{ margin: '1rem 0', height: '40px', display: 'flex', alignItems: 'flex-end' }}>
-                    <svg width="100%" height="40" viewBox="0 0 100 40" preserveAspectRatio="none">
+                <div style={{ margin: '1rem 0', position: 'relative' }}>
+                    <svg width="100%" height="50" viewBox="0 0 100 50" preserveAspectRatio="none" style={{ display: 'block' }}>
+                        {/* Phase Bar (Background blocks) */}
+                        {sparklineData.phaseBlocks.map((block, idx) => (
+                            <rect
+                                key={idx}
+                                x={block.x}
+                                y="44"
+                                width={block.width}
+                                height="4"
+                                fill={block.color}
+                                rx="2"
+                            />
+                        ))}
+                        
+                        {/* Trend Line */}
                         <polyline
                             fill="none"
                             stroke="rgba(255, 174, 185, 0.4)"
-                            strokeWidth="2"
+                            strokeWidth="2.5"
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            points={sparklineData}
+                            points={sparklineData.points}
                         />
                     </svg>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
+                        <span>30 dagen geleden</span>
+                        <span>Nu</span>
+                    </div>
                 </div>
             )}
 
             {/* Insight Text (Clean) */}
             <div style={{
                 background: 'var(--color-bg)',
-                padding: '0.75rem 1rem',
-                borderRadius: '12px',
-                fontSize: '0.82rem',
-                lineHeight: '1.4',
+                padding: '1rem',
+                borderRadius: '16px',
+                fontSize: '0.85rem',
+                lineHeight: '1.5',
                 marginBottom: '1rem',
                 color: 'var(--color-text)',
-                border: '1px solid var(--color-border)'
+                border: '1px solid var(--color-border)',
+                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
             }}>
-                <span style={{ fontWeight: '700', color: 'var(--color-primary)', marginRight: '6px' }}>Cyclus inzicht:</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: PHASE_COLORS[currentPhase] }} />
+                    <span style={{ fontWeight: '700', color: 'var(--color-text)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        Cyclus Inzicht
+                    </span>
+                </div>
                 {getInsight(currentPhase)}
             </div>
 
             {isEditing ? (
-                <div style={{ display: 'flex', gap: '8px' }}>
-                    <input
-                        type="number"
-                        step="0.1"
-                        value={tempWeight}
-                        onChange={(e) => setTempWeight(e.target.value)}
-                        placeholder="65.0"
-                        autoFocus
-                        style={{
-                            flex: 1,
-                            padding: '10px',
-                            borderRadius: '12px',
-                            border: '1px solid var(--color-border)',
-                            fontSize: '0.9rem'
-                        }}
-                    />
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <div style={{ position: 'relative', flex: 1 }}>
+                        <input
+                            type="number"
+                            step="0.1"
+                            value={tempWeight}
+                            onChange={(e) => setTempWeight(e.target.value)}
+                            placeholder="65.0"
+                            autoFocus
+                            style={{
+                                width: '100%',
+                                padding: '12px',
+                                borderRadius: '12px',
+                                border: '2px solid var(--color-primary)',
+                                fontSize: '1rem',
+                                fontWeight: '600'
+                            }}
+                        />
+                        <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }}>kg</span>
+                    </div>
                     <button
                         onClick={handleSaveManual}
                         className="btn btn-primary"
-                        style={{ width: 'auto', padding: '0 20px', borderRadius: '12px' }}
+                        style={{ width: 'auto', padding: '0 20px', borderRadius: '12px', height: '48px' }}
                     >
                         Opslaan
                     </button>
@@ -193,9 +244,17 @@ export default function WeightTracker({ date }) {
                 <button
                     onClick={() => setIsEditing(true)}
                     className="chip"
-                    style={{ width: '100%', padding: '0.75rem', fontSize: '0.85rem' }}
+                    style={{ 
+                        width: '100%', 
+                        padding: '1rem', 
+                        fontSize: '0.9rem', 
+                        borderRadius: '16px',
+                        backgroundColor: 'rgba(255, 174, 185, 0.1)',
+                        border: '1px solid rgba(255, 174, 185, 0.2)',
+                        fontWeight: '700'
+                    }}
                 >
-                    Nieuw weegmoment loggen
+                    Log nieuw weegmoment
                 </button>
             )}
         </section>
