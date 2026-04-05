@@ -1328,11 +1328,20 @@ export function UserProvider({ children }) {
 
   // LEGACY: togglePeriodDate — used in calendar for manual corrections on past dates
   const togglePeriodDate = (dateStr) => {
+    const explicitLog = (user.menstruationLogs || []).find(l => l.date === dateStr)
     const currentlyActive = isDateInPeriod(dateStr, user)
-    if (currentlyActive) {
-      // Remove just this one day
-      let newLogs = (user.menstruationLogs || []).filter(l => l.date !== dateStr)
-      newLogs.push({ date: dateStr, status: 'no' })
+
+    if (explicitLog || currentlyActive) {
+      let newLogs = [...(user.menstruationLogs || [])]
+      
+      if (explicitLog) {
+        // Undo: Completely remove the explicit log for this date
+        newLogs = newLogs.filter(l => l.date !== dateStr)
+      } else {
+        // Active by projection -> user wants to force-stop the period here
+        newLogs = newLogs.filter(l => l.date !== dateStr)
+        newLogs.push({ date: dateStr, status: 'no' })
+      }
 
       const sortedYes = newLogs.filter(l => l.status === 'yes').map(l => l.date).sort()
       const newStartDates = []
@@ -1358,7 +1367,7 @@ export function UserProvider({ children }) {
       try {
         if (authUser?.id) {
           const dayData = loadDayLog(dateStr, authUser.id)
-          dayData.menstruation = { status: 'no', updatedAt: new Date().toISOString() }
+          dayData.menstruation = explicitLog ? null : { status: 'no', updatedAt: new Date().toISOString() }
           saveDayLog(dateStr, dayData, authUser.id)
           syncDayLogToCloud(dateStr, dayData)
         }
