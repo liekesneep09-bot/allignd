@@ -391,8 +391,10 @@ function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef, is
         const currentCheckDate = new Date(year, month, i)
         currentCheckDate.setHours(0, 0, 0, 0)
 
-        // Use UTC string for logic to match consistency
-        const dateStr = new Date(Date.UTC(year, month, i)).toISOString().split('T')[0]
+        // Use local date string to match getLocalDateStr() used throughout the app
+        const localDate = new Date(year, month, i)
+        const pad = (n) => String(n).padStart(2, '0')
+        const dateStr = `${localDate.getFullYear()}-${pad(localDate.getMonth() + 1)}-${pad(localDate.getDate())}`
 
         const isToday = currentCheckDate.getTime() === today.getTime()
         const isFuture = currentCheckDate > today

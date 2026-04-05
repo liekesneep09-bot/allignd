@@ -22,7 +22,8 @@ export function UserProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true)
 
   // 2. Onboarding State
-  const [isOnboarded, setIsOnboarded] = useState(false)
+  // Initialize synchronously from localStorage to prevent onboarding flash
+  const [isOnboarded, setIsOnboarded] = useState(() => localStorage.getItem('cyclus_onboarded') === 'true')
 
   // 3. User Data State
   const [user, setUser] = useState(() => ({
@@ -165,7 +166,13 @@ export function UserProvider({ children }) {
   const currentPhase = useMemo(() => {
     const todayStr = getLocalDateStr()
     return getPhaseForDate(todayStr).phase
-  }, [user, currentDay]) // Recalculate when user or day changes
+  }, [user, user.menstruationLogs, currentDay]) // Recalculate when user logs change
+
+  // Derived: Is Menstruating NOW? (Absolute Source of Truth for UI)
+  const isMenstruatingNow = useMemo(() => {
+    const todayStr = getLocalDateStr()
+    return isDateInPeriod(todayStr, user)
+  }, [user.menstruationLogs])
 
   // USE STORED TARGETS (No fallback defaults!)
   const targets = user.macroTargets || null
@@ -242,12 +249,12 @@ export function UserProvider({ children }) {
             periodStartDates: profile.period_start_dates || [],
             cycleHistory: profile.cycle_history || [],
             cycleStats: profile.cycle_stats || {},
-            menstruationLogs: profile.menstruation_logs || [],
-            isMenstruatingNow: profile.is_menstruating_now || false,
             manualPhaseOverride: profile.manual_phase_override || false,
             manualPhase: profile.manual_phase || null,
             macroTargets: null,
-            isAdmin: profile.is_admin || false
+            isAdmin: profile.is_admin || false,
+            // CRITICAL: Restore menstruationLogs from Supabase so phase persists across reloads
+            menstruationLogs: profile.menstruation_logs || []
           }
 
           if (profile.is_onboarded) {
@@ -255,13 +262,8 @@ export function UserProvider({ children }) {
             localStorage.setItem('cyclus_onboarded', 'true')
           }
 
-          // AFTER LOAD: Safety Re-evaluation of isMenstruatingNow (using robust log check)
-          const mergedProfile = { ...user, ...profileData }
-          const todayStr = getLocalDateStr()
-          if (isDateInPeriod(todayStr, mergedProfile)) {
-            mergedProfile.isMenstruatingNow = true
-          }
-          setUser(mergedProfile)
+          // AFTER LOAD: Safety check (isMenstruatingNow is now derived, so we just set state)
+          setUser(prev => ({ ...prev, ...profileData }))
 
           // B1.5. Fetch Computed Targets
           const { data: targetData } = await supabase
@@ -540,8 +542,13 @@ export function UserProvider({ children }) {
   // ------------------------------------------------------------------
 
   const updateUser = async (updates) => {
+    // Safety: prevent clobbering isMenstruatingNow if accidentally passed
+    const { isMenstruatingNow: _ignored, ...cleanUpdates } = updates
+
     // 1. Update local state immediately (optimistic)
-    setUser(prev => ({ ...prev, ...updates }))
+    setUser(prev => {
+      return { ...prev, ...cleanUpdates }
+    })
 
     // 2. Sync to Supabase in background
     await syncProfileUpdateToSupabase(updates)
@@ -1184,7 +1191,8 @@ export function UserProvider({ children }) {
       menstruationLogs: newLogs,
       periodStartDates: newStartDates,
       cycleLengthHistory: stats.cycleLengthHistory,
-      cycleLength: stats.learnedCycleLength,
+      // Only update learned cycle length if we have real history data
+      ...(stats.learnedCycleLength ? { cycleLength: stats.learnedCycleLength } : {}),
       cycleStats: {
         learnedCycleLength: stats.learnedCycleLength,
         variability: stats.variability,
@@ -1192,16 +1200,13 @@ export function UserProvider({ children }) {
       }
     }
 
-    // CRITICAL FIX: Update backwards-compatible cycleStart pointer
+    // Update cycleStart pointer to the latest logged period start
     if (newStartDates.length > 0) {
       const latestStart = newStartDates[newStartDates.length - 1]
       updates.cycleStart = new Date(latestStart).toISOString()
     }
 
-    const todayStr = getLocalDateStr()
     const isToggleToday = dateStr === todayStr
-
-    const isBleedingToday = isDateInPeriod(todayStr, { ...user, menstruationLogs: newLogs })
 
     if (isToggleToday && newStatus === 'yes') {
       updates.currentPeriodLength = null
@@ -1215,7 +1220,7 @@ export function UserProvider({ children }) {
       updates.manualPhaseOverride = false
     }
 
-    updates.isMenstruatingNow = isBleedingToday
+    // NOTE: isMenstruatingNow is fully derived via useMemo from menstruationLogs — do NOT set it here
 
     // 6. Update User State
     updateUser(updates)
@@ -1298,8 +1303,8 @@ export function UserProvider({ children }) {
     } catch (e) { console.error(e) }
 
     // 3. Update User
+    // NOTE: isMenstruatingNow is derived via useMemo — we only update menstruationLogs
     updateUser({
-      isMenstruatingNow: true,
       cycleStart: dateStr,
       cycleLength: newLen, // ENABLED: App learns from history
       periodLength: newPeriodLen,
@@ -1308,8 +1313,8 @@ export function UserProvider({ children }) {
       cycleHistory: newHistory,
       manualPhaseOverride: false, // Ensure learning takes precedence
       manualPhase: null,
-      // Add to logs
-      menstruationLogs: [...user.menstruationLogs.filter(l => l.date !== dateStr), { date: dateStr, status: 'yes' }]
+      // Add to logs — this drives isMenstruatingNow via isDateInPeriod useMemo
+      menstruationLogs: [...(user.menstruationLogs || []).filter(l => l.date !== dateStr), { date: dateStr, status: 'yes' }]
     })
   }
 
@@ -1345,10 +1350,10 @@ export function UserProvider({ children }) {
         }
       } catch (e) { console.error(e) }
 
+      // NOTE: isMenstruatingNow is derived — only update menstruationLogs
       updateUser({
-        isMenstruatingNow: true,
         lastCheckInDate: todayStr,
-        menstruationLogs: [...user.menstruationLogs.filter(l => l.date !== todayStr), { date: todayStr, status: 'yes' }]
+        menstruationLogs: [...(user.menstruationLogs || []).filter(l => l.date !== todayStr), { date: todayStr, status: 'yes' }]
       })
     }
   }
@@ -1370,13 +1375,13 @@ export function UserProvider({ children }) {
       }
     } catch (e) { console.error(e) }
 
+    // NOTE: isMenstruatingNow is derived — log 'no' status which drives it to false via useMemo
     updateUser({
-      isMenstruatingNow: false,
       currentPeriodLength: newLen,
       lastCheckInDate: todayStr,
-      manualPhaseOverride: false, // CRITICAL: Clear any overrides so phase logic calculates naturally
+      manualPhaseOverride: false, // Clear any overrides so phase logic calculates naturally
       manualPhase: null,
-      menstruationLogs: [...user.menstruationLogs.filter(l => l.date !== todayStr), { date: todayStr, status: 'no' }]
+      menstruationLogs: [...(user.menstruationLogs || []).filter(l => l.date !== todayStr), { date: todayStr, status: 'no' }]
     })
   }
 
@@ -1387,11 +1392,9 @@ export function UserProvider({ children }) {
     const dateStr = newStartDate.toISOString()
 
     // Set manual override - this phase will be used until cycle naturally progresses
-    const isMenstruating = targetPhase === 'menstrual'
-
+    // NOTE: isMenstruatingNow is derived from menstruationLogs, not manually set
     updateUser({
       cycleStart: dateStr,
-      isMenstruatingNow: isMenstruating,
       manualPhaseOverride: true,
       manualPhase: targetPhase
     })
@@ -1405,11 +1408,12 @@ export function UserProvider({ children }) {
     const { periodStartDates: newStarts } = addPeriodStartToHistory(todayStr, user.periodStartDates || [])
     const stats = calculateCycleStats(newStarts, user.cycleLength)
 
+    // NOTE: isMenstruatingNow is derived from menstruationLogs via useMemo — do NOT set it directly
     updateUser({
       periodStartDates: newStarts,
       cycleLengthHistory: stats.cycleLengthHistory,
       // Keep main cycleLength in sync with learned stats
-      cycleLength: stats.learnedCycleLength,
+      ...(stats.learnedCycleLength ? { cycleLength: stats.learnedCycleLength } : {}),
       cycleStats: {
         learnedCycleLength: stats.learnedCycleLength,
         variability: stats.variability,
@@ -1417,10 +1421,10 @@ export function UserProvider({ children }) {
       },
       // Also set cycle start to this date (for backwards compatibility)
       cycleStart: new Date(todayStr).toISOString(),
-      isMenstruatingNow: true,
       // Clear manual override when new period is logged
       manualPhaseOverride: false,
       manualPhase: null,
+      // Adding 'yes' log for this date drives isMenstruatingNow=true via useMemo
       menstruationLogs: [...(user.menstruationLogs || []).filter(l => l.date !== todayStr), { date: todayStr, status: 'yes' }]
     })
   }
@@ -1530,6 +1534,7 @@ export function UserProvider({ children }) {
     getPhaseForDate,
     currentDay,
     currentPhase,
+    isMenstruatingNow,
     isPeriodOverridden: user?.currentPeriodLength !== null,
     targets,
     movementLogs: user?.movementLogs || [],
@@ -1554,7 +1559,8 @@ export function UserProvider({ children }) {
     currentPhase,
     targets,
     getStatsForDate,
-    getPhaseForDate
+    getPhaseForDate,
+    isMenstruatingNow
   ])
 
   return (
