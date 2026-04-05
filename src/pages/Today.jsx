@@ -349,24 +349,28 @@ export default function Today({ onNavigate }) {
           {(() => {
             const PHASE_TEXT = {
               menstrual: {
-                title: "Menstruatiefase",
-                normal: "Krampen of moe? Gun jezelf 'Comfort Modus'. Laat je strakke macro's los en focus op voldoende eten en rust. Jouw lichaam, jouw regels.",
-                nutrition: "IJzerrijke voeding, magnesium en omega-3 ondersteunen nu je herstel en energiebalans."
+                title: "Menstruatie fase",
+                prefix: "",
+                normal: "Krampen of moe? Wees mild voor jezelf, maar blijf goed voor je lichaam zorgen. Houd jezelf warm en neem rust wanneer dat nodig is.",
+                nutrition: "IJzerrijke voeding, magnesium en omega-3 ondersteunen je van binnenuit."
               },
               follicular: {
                 title: "Folliculaire fase",
-                normal: "Een periode van hoge energie. Een perfect moment om alles uit je dag te halen!",
-                nutrition: "Koolhydraten zijn nu je beste vriend. Eiwitten helpen bij opbouw en herstel."
+                prefix: "Je zit waarschijnlijk in je",
+                normal: "Je energie bouwt zich weer op. Een fase waarin je vooruit wilt en dingen in beweging brengt.",
+                nutrition: "Koolhydraten geven je energie, terwijl eiwitten bijdragen aan opbouw en herstel."
               },
               ovulatory: {
-                title: "Ovulatiefase",
-                normal: "Vaker je meest energieke en krachtige periode. Vertrouw op je lichaam.",
-                nutrition: "Antioxidantenrijke, lichte en voedzame maaltijden ondersteunen je vitaliteit."
+                title: "Ovulatie fase",
+                prefix: "Je zit waarschijnlijk in je",
+                normal: "Je zit vaak op je sterkst — energiek, helder en krachtig. Vertrouw op je lichaam en benut deze fase op een manier die bij je past.",
+                nutrition: "Lichte, voedzame maaltijden en antioxidanten ondersteunen je energie en vitaliteit."
               },
               luteal: {
                 title: "Luteale fase",
-                normal: "Wist je dat je lichaam in deze fase vaak ~100-300 kcal extra verbrandt? Heb je meer trek? Eet gerust iets meer dan je doel. Wees lief voor jezelf.",
-                nutrition: "Complexe koolhydraten, extra eiwitten en magnesium helpen voor een verzadigd gevoel."
+                prefix: "Je zit waarschijnlijk in je",
+                normal: "Je lichaam vraagt om iets meer rust en stabiliteit. Merk je meer trek? Dat is normaal. Blijf goed voor jezelf zorgen en luister naar wat je nodig hebt.",
+                nutrition: "Complexe koolhydraten, extra eiwitten en magnesium ondersteunen je verzadiging en energiebalans."
               }
             }
 
@@ -374,27 +378,29 @@ export default function Today({ onNavigate }) {
 
             return (
               <div style={{
-                marginTop: '0.5rem', 
+                marginTop: '0.5rem',
                 textAlign: 'center',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: '0.25rem' 
+                gap: '0.25rem'
               }}>
-                <div style={{
-                  fontSize: '0.8rem',
-                  color: 'var(--color-text-muted)',
-                  fontWeight: '600',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  opacity: 0.8,
-                  marginBottom: '2px'
-                }}>
-                  Je zit waarschijnlijk in je
-                </div>
+                {currentText.prefix && (
+                  <div style={{
+                    fontSize: '0.8rem',
+                    color: 'var(--color-text-muted)',
+                    fontWeight: '600',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    opacity: 0.8,
+                    marginBottom: '2px'
+                  }}>
+                    {currentText.prefix}
+                  </div>
+                )}
 
                 <h2 style={{
-                  fontSize: '2.1rem', 
+                  fontSize: '2.1rem',
                   color: phaseStyle.text,
                   margin: '0',
                   fontWeight: '700',
@@ -405,7 +411,7 @@ export default function Today({ onNavigate }) {
                 </h2>
 
                 <p style={{
-                  fontSize: '0.95rem', 
+                  fontSize: '0.95rem',
                   color: 'var(--color-text)',
                   lineHeight: '1.4',
                   margin: '0.25rem 0 0 0',
