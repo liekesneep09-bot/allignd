@@ -115,9 +115,29 @@ export function UserProvider({ children }) {
 
     if (pastYesLogs.length === 0) return false
 
-    const startDateStr = pastYesLogs[0].date
-    const startDate = new Date(startDateStr)
-    startDate.setHours(0, 0, 0, 0)
+    // We need to find the TRUE start date of the current cluster.
+    // If the database has consecutive explicit 'yes' logs (e.g. from old auto-fill),
+    // pastYesLogs[0] might be the LAST day of the explicit logs, not the first!
+    // So we walk backwards through the consecutive days.
+    let clusterStartDate = new Date(pastYesLogs[0].date)
+    clusterStartDate.setHours(0, 0, 0, 0)
+
+    for (let i = 1; i < pastYesLogs.length; i++) {
+      const prevDate = new Date(pastYesLogs[i].date)
+      prevDate.setHours(0, 0, 0, 0)
+      const diff = Math.round((clusterStartDate - prevDate) / (1000 * 60 * 60 * 24))
+      if (diff === 1) {
+        // It's consecutive, so push the start date back
+        clusterStartDate = prevDate
+      } else if (diff === 0) {
+        // Redundant log for same day, ignore
+      } else {
+        // Gap > 1 day, we found the boundary
+        break
+      }
+    }
+
+    const startDate = clusterStartDate
 
     // Find if there is a 'no' (stop event) AFTER this start date
     // Sort ascending to find the FIRST stop event
