@@ -47,7 +47,8 @@ export default function WeightTracker({ date }) {
     }
 
     const handleSaveManual = () => {
-        const val = parseFloat(tempWeight.replace(',', '.'))
+        const strVal = String(tempWeight).replace(',', '.')
+        const val = parseFloat(strVal)
         if (!isNaN(val) && val > 0) {
             logWeight(date, val)
         }
@@ -377,6 +378,7 @@ export default function WeightTracker({ date }) {
                         display: 'flex', 
                         flexDirection: 'column', 
                         justifyContent: 'flex-end',
+                        alignItems: 'center',
                         animation: 'fadeIn 0.2s ease-out'
                     }}
                     onClick={() => setShowSheet(false)}
@@ -388,7 +390,10 @@ export default function WeightTracker({ date }) {
                             borderTopLeftRadius: '24px', 
                             borderTopRightRadius: '24px',
                             boxShadow: '0 -4px 24px rgba(0,0,0,0.1)',
-                            animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+                            animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                            width: '100%',
+                            maxWidth: '480px',
+                            paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))'
                         }}
                         onClick={e => e.stopPropagation()} /* Prevent closing when clicking inside */
                     >
@@ -398,8 +403,8 @@ export default function WeightTracker({ date }) {
                         
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '2rem' }}>
                             <input
-                                type="number"
-                                step="0.1"
+                                type="text"
+                                inputMode="decimal"
                                 value={tempWeight}
                                 onChange={(e) => setTempWeight(e.target.value)}
                                 placeholder="65.0"
