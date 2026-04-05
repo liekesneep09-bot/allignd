@@ -97,32 +97,60 @@ export function UserProvider({ children }) {
     const logs = currentUser?.menstruationLogs || []
     const explicitLog = logs.find(l => l.date === dateStr)
 
-    // 1. Exact match
+    // 1. Explicit match overrides everything
     if (explicitLog) {
       return explicitLog.status === 'yes'
     }
 
-    // 2. Auto-fill logic
+    // 2. Intelligent Auto-fill logic
     const checkDate = new Date(dateStr)
     checkDate.setHours(0, 0, 0, 0)
+    const today = new Date(getLocalDateStr())
+    today.setHours(0, 0, 0, 0)
 
-    // Find most recent 'yes' BEFORE this date
+    // Find most recent 'yes' BEFORE or EXACTLY at this checkDate
     const pastYesLogs = logs
-      .filter(l => l.status === 'yes' && new Date(l.date) < checkDate)
+      .filter(l => l.status === 'yes' && new Date(l.date) <= checkDate)
       .sort((a, b) => new Date(b.date) - new Date(a.date))
 
     if (pastYesLogs.length === 0) return false
 
-    const mostRecentYes = new Date(pastYesLogs[0].date)
+    const startDateStr = pastYesLogs[0].date
+    const startDate = new Date(startDateStr)
+    startDate.setHours(0, 0, 0, 0)
+
+    // Find if there is a 'no' (stop event) AFTER this start date
+    // Sort ascending to find the FIRST stop event
+    const stopLogs = logs
+      .filter(l => l.status === 'no' && new Date(l.date) > startDate)
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+
+    const stopDate = stopLogs.length > 0 ? new Date(stopLogs[0].date) : null
+    if (stopDate) stopDate.setHours(0, 0, 0, 0)
+
+    const expectedLength = currentUser.bleedingLengthDays || currentUser.periodLength || 5
+    const expectedEndDate = new Date(startDate)
+    expectedEndDate.setDate(startDate.getDate() + expectedLength - 1)
+
+    // Three rules for being an active period day:
+    // Case A: The period was explicitly stopped
+    if (stopDate) {
+      // It is a period day if it falls BEFORE the stop date
+      return checkDate >= startDate && checkDate < stopDate
+    }
+
+    // Case B: The period has NOT been stopped yet
+    // Rule B1: Up to today, EVERY day since startDate is a period day
+    if (checkDate <= today) {
+      return checkDate >= startDate
+    }
     
-    // Find most recent 'no' BETWEEN that 'yes' and now
-    const interveningNo = logs.find(l =>
-      l.status === 'no' &&
-      new Date(l.date) > mostRecentYes &&
-      new Date(l.date) <= checkDate
-    )
-    
-    return !interveningNo
+    // Rule B2: For future dates (> today), it projects linearly up to expectedEndDate
+    if (checkDate > today) {
+      return checkDate <= expectedEndDate
+    }
+
+    return false
   }
 
   const getPhaseForDate = (dateStr) => {
@@ -1147,24 +1175,11 @@ export function UserProvider({ children }) {
 
   // NEW: Helper function to determine if a day is a period day (explicit or auto-filled)
 
-  // CORE: Log period start — auto-fills expected period days in menstruationLogs
+  // CORE: Log period start -> explicit 'yes' anchor
   const startPeriod = (dateStr) => {
-    const bleedingDays = user.bleedingLengthDays || user.periodLength || 5
-
-    // Build new logs: keep all existing logs except any on dates we're about to fill
-    let newLogs = [...(user.menstruationLogs || [])]
-
-    // Auto-fill dateStr + next (bleedingDays - 1) days as 'yes'
-    // This gives immediate visual feedback on the calendar
-    for (let d = 0; d < bleedingDays; d++) {
-      const fillDate = new Date(dateStr)
-      fillDate.setDate(fillDate.getDate() + d)
-      const pad = (n) => String(n).padStart(2, '0')
-      const fillDateStr = `${fillDate.getFullYear()}-${pad(fillDate.getMonth() + 1)}-${pad(fillDate.getDate())}`
-      // Remove any existing log for this date, then add 'yes'
-      newLogs = newLogs.filter(l => l.date !== fillDateStr)
-      newLogs.push({ date: fillDateStr, status: 'yes' })
-    }
+    // Only insert a single 'yes' event – isDateInPeriod handles the continuity intelligently
+    let newLogs = [...(user.menstruationLogs || []).filter(l => l.date !== dateStr)]
+    newLogs.push({ date: dateStr, status: 'yes' })
 
     // Recalculate period start dates from all 'yes' logs (cluster consecutive days)
     const sortedYes = newLogs
@@ -1218,46 +1233,47 @@ export function UserProvider({ children }) {
     } catch (e) { console.error(e) }
   }
 
-  // CORE: Stop period — marks today as 'no' and removes auto-filled future days
+  // CORE: Stop period — explicitly mark end and allow learning
   const stopPeriod = (dateStr) => {
     const today = new Date(dateStr)
     today.setHours(0, 0, 0, 0)
 
-    // Remove all 'yes' logs for today and any FUTURE dates (clear the auto-fill)
-    // Keep past 'yes' logs (they're history)
-    let newLogs = (user.menstruationLogs || []).filter(l => {
-      if (l.status !== 'yes') return true // keep all 'no' logs
-      const logDate = new Date(l.date)
-      logDate.setHours(0, 0, 0, 0)
-      return logDate < today // keep past 'yes' logs, remove today+future yes
-    })
-
-    // Explicitly mark today as 'no' (stopper)
-    newLogs = newLogs.filter(l => l.date !== dateStr)
+    // Remove any explicit 'no' for this date if it exists, then add the new 'no'
+    let newLogs = (user.menstruationLogs || []).filter(l => l.date !== dateStr)
     newLogs.push({ date: dateStr, status: 'no' })
 
-    // How many days did the period last? Count consecutive 'yes' before today
-    const sortedYes = newLogs
+    // To calculate cycle stats and actual bleeding length, we need the raw logs
+    // find the most recent 'yes' BEFORE this 'no'
+    const pastYes = newLogs
+      .filter(l => l.status === 'yes' && new Date(l.date) < today)
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+
+
+
+    // Now recalculate StartDates across all history
+    // A start date is a 'yes' that comes after > 10 days of gap from previous 'yes' 
+    // OR it follows a 'no' stop event. So we just filter the sorted 'yes' logs.
+    const sortedYesLogs = newLogs
       .filter(l => l.status === 'yes')
       .map(l => l.date)
       .sort()
 
     // Recalculate cycle stats
     const newStartDates = []
-    if (sortedYes.length > 0) {
-      newStartDates.push(sortedYes[0])
-      for (let i = 1; i < sortedYes.length; i++) {
-        const prev = new Date(sortedYes[i - 1])
-        const curr = new Date(sortedYes[i])
+    if (sortedYesLogs.length > 0) {
+      newStartDates.push(sortedYesLogs[0])
+      for (let i = 1; i < sortedYesLogs.length; i++) {
+        const prev = new Date(sortedYesLogs[i - 1])
+        const curr = new Date(sortedYesLogs[i])
         const diffDays = (curr - prev) / (1000 * 60 * 60 * 24)
-        if (diffDays > 10) newStartDates.push(sortedYes[i])
+        if (diffDays > 10) newStartDates.push(sortedYesLogs[i])
       }
     }
 
     // Calculate actual period length (days from cycle start to today)
     let actualPeriodLength = null
-    if (newStartDates.length > 0) {
-      const latestStart = new Date(newStartDates[newStartDates.length - 1])
+    if (pastYes.length > 0) {
+      const latestStart = new Date(pastYes[0].date)
       latestStart.setHours(0, 0, 0, 0)
       actualPeriodLength = Math.round((today - latestStart) / (1000 * 60 * 60 * 24))
     }
@@ -1646,7 +1662,6 @@ export function UserProvider({ children }) {
     menstruationLogs: user?.menstruationLogs || [],
     waterLogs: user?.waterLogs || [], // NEW
     stepLogs: user?.stepLogs || [], // NEW
-    weightLogs: user?.weightLogs || [], // NEW
     symptomLogs: user?.symptomLogs || [], // NEW
     logWater, // NEW
     logSteps, // NEW
