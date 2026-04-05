@@ -329,35 +329,55 @@ export function calculateAveragePeriodLength(logs = [], fallbackLength = 5) {
     
     const periods = [];
     let currentPeriodStart = null;
+    let lastYesDate = null;
 
     for (let i = 0; i < sortedLogs.length; i++) {
         const log = sortedLogs[i];
+        const logDate = new Date(log.date);
+        logDate.setHours(0, 0, 0, 0);
         
         if (log.status === 'yes') {
             if (!currentPeriodStart) {
-                currentPeriodStart = new Date(log.date);
-                currentPeriodStart.setHours(0, 0, 0, 0);
-            } else if (i > 0) {
-                // If there's a gap > 10 days, a new period started implicitly
-                const currDate = new Date(log.date);
-                currDate.setHours(0, 0, 0, 0);
-                const prevDate = new Date(sortedLogs[i-1].date);
-                prevDate.setHours(0, 0, 0, 0);
+                currentPeriodStart = logDate;
+                lastYesDate = logDate;
+            } else {
+                const gap = Math.round((logDate - lastYesDate) / (1000 * 60 * 60 * 24));
                 
-                if ((currDate - prevDate) / (1000 * 60 * 60 * 24) > 10) {
-                    currentPeriodStart = currDate;
+                if (gap > 10) {
+                    // Implicit end of previous period due to large gap
+                    // The previous period ended on lastYesDate. Length is inclusive.
+                    // But in our model, period ends usually exclude the stop day, so +1
+                    const length = Math.round((lastYesDate - currentPeriodStart) / (1000 * 60 * 60 * 24)) + 1;
+                    if (length >= 1 && length <= 14) {
+                        periods.push(length);
+                    }
+                    currentPeriodStart = logDate;
                 }
+                lastYesDate = logDate;
             }
         } else if (log.status === 'no' && currentPeriodStart) {
-            const stopDate = new Date(log.date);
-            stopDate.setHours(0, 0, 0, 0);
-            const length = Math.round((stopDate - currentPeriodStart) / (1000 * 60 * 60 * 24));
-            
-            // Only consider reasonable lengths (1 to 14 days) to avoid data corruption from runaway errors
+            // Explicit end of period
+            // length is just stopDate - startDate (e.g. 10th to 15th = 5 days)
+            const length = Math.round((logDate - currentPeriodStart) / (1000 * 60 * 60 * 24));
             if (length >= 1 && length <= 14) {
                 periods.push(length);
             }
-            currentPeriodStart = null; // Reset for next period
+            currentPeriodStart = null; 
+            lastYesDate = null;
+        }
+    }
+
+    // What if the last period was never explicitly stopped with a 'no'?
+    // If it's far in the past (> 10 days ago), consider it implicitly closed.
+    if (currentPeriodStart && lastYesDate) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const daysSinceLastYes = Math.round((today - lastYesDate) / (1000 * 60 * 60 * 24));
+        if (daysSinceLastYes > 10) {
+            const length = Math.round((lastYesDate - currentPeriodStart) / (1000 * 60 * 60 * 24)) + 1;
+            if (length >= 1 && length <= 14) {
+                periods.push(length);
+            }
         }
     }
 
