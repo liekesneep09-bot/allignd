@@ -208,7 +208,7 @@ function DayStrip({ selectedDate, onSelect, accentColor }) {
 // --- MAIN COMPONENT ---
 
 export default function Today({ onNavigate }) {
-  const { user, targets, logFood, getStatsForDate, deleteFoodLog, logPeriodStart, logMovement, resetOnboarding, isLoading, endPeriodToday, getPhaseForDate, isDateInPeriod, togglePeriodDate } = useUser()
+  const { user, targets, logFood, getStatsForDate, deleteFoodLog, logPeriodStart, logMovement, resetOnboarding, isLoading, endPeriodToday, getPhaseForDate, isDateInPeriod, togglePeriodDate, startPeriod, stopPeriod, isMenstruatingNow } = useUser()
 
   const [viewDate, setViewDate] = useState(new Date())
   const viewDateStr = getLocalDateStr(viewDate)
@@ -466,33 +466,69 @@ export default function Today({ onNavigate }) {
                   </div>
                 </div>
 
-                {/* Period log button: show in all phases so users can always correct the app */}
+                {/* Menstruation button — smart UX:
+                    - During menstrual phase: show 'Menstruatie gestopt' (stop button)
+                    - All other phases / past dates: show 'Menstruatie loggen +'
+                    - Future dates: never show */}
                 {(() => {
-                  const isPeriodForViewDate = isDateInPeriod(viewDateStr);
-                  // Only show for today or past dates (not future)
                   const isNotFuture = viewDateStr <= todayDateStr;
                   if (!isNotFuture) return null;
+
+                  const isPeriodToday = isDateInPeriod(viewDateStr);
+                  const isViewingToday = viewDateStr === todayDateStr;
+
+                  // If currently menstruating AND viewing today → show STOP button
+                  if (isPeriodToday && isViewingToday && viewPhase === 'menstrual') {
+                    return (
+                      <button
+                        onClick={() => stopPeriod(viewDateStr)}
+                        style={{
+                          marginTop: '0.75rem',
+                          background: 'var(--color-primary)',
+                          border: '1px solid var(--color-primary)',
+                          padding: '0.8rem 1.5rem',
+                          borderRadius: '30px',
+                          fontSize: '0.9rem',
+                          fontWeight: '600',
+                          color: '#fff',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          boxShadow: '0 4px 12px rgba(255, 174, 185, 0.4)'
+                        }}
+                      >
+                        Menstruatie gestopt
+                      </button>
+                    )
+                  }
+
+                  // Otherwise show LOG button (for any past date or today in non-menstrual phase)
+                  // If already logged for a past date, show it as 'logged' with ability to undo
                   return (
                     <button
                       onClick={() => {
-                        togglePeriodDate(viewDateStr)
+                        if (isPeriodToday) {
+                          // Toggle off for this specific date (calendar correction)
+                          togglePeriodDate(viewDateStr)
+                        } else {
+                          startPeriod(viewDateStr)
+                        }
                       }}
                       style={{
                         marginTop: '0.75rem',
-                        background: isPeriodForViewDate ? 'var(--color-primary)' : 'rgba(255,255,255,0.5)',
-                        border: isPeriodForViewDate ? '1px solid var(--color-primary)' : '1px solid rgba(255,255,255,0.8)',
+                        background: isPeriodToday ? 'var(--color-primary)' : 'rgba(255,255,255,0.5)',
+                        border: isPeriodToday ? '1px solid var(--color-primary)' : '1px solid rgba(255,255,255,0.8)',
                         padding: '0.8rem 1.5rem',
                         borderRadius: '30px',
                         fontSize: '0.9rem',
                         fontWeight: '600',
-                        color: isPeriodForViewDate ? '#fff' : phaseStyle.text,
+                        color: isPeriodToday ? '#fff' : phaseStyle.text,
                         cursor: 'pointer',
                         backdropFilter: 'blur(4px)',
                         transition: 'all 0.2s',
-                        boxShadow: isPeriodForViewDate ? '0 4px 12px rgba(255, 174, 185, 0.4)' : 'none'
+                        boxShadow: isPeriodToday ? '0 4px 12px rgba(255, 174, 185, 0.4)' : 'none'
                       }}
                     >
-                      {isPeriodForViewDate ? 'Menstruatie gelogd ✓' : 'Menstruatie loggen +'}
+                      {isPeriodToday ? 'Menstruatie gelogd ✓' : 'Menstruatie loggen +'}
                     </button>
                   )
                 })()}
