@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
 // ... (omitting lines for brevity, targeting the import)
 import { calculateCycleDay, getPhaseForDay, calculateStartDateFromPhase, getCyclePrediction } from '../logic/cycle'
-import { calculateCycleStats, addPeriodStart as addPeriodStartToHistory, predictNextPeriodStart, getOvulationWindow } from '../logic/cycle-learning'
+import { calculateCycleStats, addPeriodStart as addPeriodStartToHistory, predictNextPeriodStart, getOvulationWindow, calculateAveragePeriodLength } from '../logic/cycle-learning'
 import { calculateTargetRanges } from '../logic/nutrition'
 import { FOOD_DATABASE } from '../data/foods'
 import { scanDayLogs, loadDayLog, saveDayLog, loadUserProfile, saveUserProfile, loadCustomFoods, saveCustomFoods } from '../utils/storage'
@@ -1270,13 +1270,8 @@ export function UserProvider({ children }) {
       }
     }
 
-    // Calculate actual period length (days from cycle start to today)
-    let actualPeriodLength = null
-    if (pastYes.length > 0) {
-      const latestStart = new Date(pastYes[0].date)
-      latestStart.setHours(0, 0, 0, 0)
-      actualPeriodLength = Math.round((today - latestStart) / (1000 * 60 * 60 * 24))
-    }
+    // Calculate actual period length (average over history)
+    const actualPeriodLength = calculateAveragePeriodLength(newLogs, user.bleedingLengthDays || 5)
 
     const stats = calculateCycleStats(newStartDates, user.cycleLength)
 
@@ -1292,8 +1287,8 @@ export function UserProvider({ children }) {
       },
       manualPhaseOverride: false,
       manualPhase: null,
-      // Learn the actual period length
-      ...(actualPeriodLength !== null && actualPeriodLength > 1
+      // Learn the actual period length using the robust history average
+      ...(actualPeriodLength > 1
         ? { bleedingLengthDays: actualPeriodLength, periodLength: actualPeriodLength }
         : {})
     }

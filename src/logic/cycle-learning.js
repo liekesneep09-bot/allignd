@@ -315,3 +315,58 @@ export function getFuturePeriodWindows(periodStartDates = [], cycleLength = 28, 
 
     return predictions
 }
+
+/**
+ * Calculates average historical period length from raw logs
+ * @param {{ date: string, status: 'yes'|'no' }[]} logs 
+ * @param {number} fallbackLength 
+ * @returns {number}
+ */
+export function calculateAveragePeriodLength(logs = [], fallbackLength = 5) {
+    if (!logs || logs.length === 0) return fallbackLength;
+
+    const sortedLogs = [...logs].sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    const periods = [];
+    let currentPeriodStart = null;
+
+    for (let i = 0; i < sortedLogs.length; i++) {
+        const log = sortedLogs[i];
+        
+        if (log.status === 'yes') {
+            if (!currentPeriodStart) {
+                currentPeriodStart = new Date(log.date);
+                currentPeriodStart.setHours(0, 0, 0, 0);
+            } else if (i > 0) {
+                // If there's a gap > 10 days, a new period started implicitly
+                const currDate = new Date(log.date);
+                currDate.setHours(0, 0, 0, 0);
+                const prevDate = new Date(sortedLogs[i-1].date);
+                prevDate.setHours(0, 0, 0, 0);
+                
+                if ((currDate - prevDate) / (1000 * 60 * 60 * 24) > 10) {
+                    currentPeriodStart = currDate;
+                }
+            }
+        } else if (log.status === 'no' && currentPeriodStart) {
+            const stopDate = new Date(log.date);
+            stopDate.setHours(0, 0, 0, 0);
+            const length = Math.round((stopDate - currentPeriodStart) / (1000 * 60 * 60 * 24));
+            
+            // Only consider reasonable lengths (1 to 14 days) to avoid data corruption from runaway errors
+            if (length >= 1 && length <= 14) {
+                periods.push(length);
+            }
+            currentPeriodStart = null; // Reset for next period
+        }
+    }
+
+    if (periods.length === 0) return fallbackLength;
+
+    // Use median to be robust against outliers
+    const sortedPeriods = [...periods].sort((a, b) => a - b);
+    const mid = Math.floor(sortedPeriods.length / 2);
+    const median = sortedPeriods.length % 2 !== 0 ? sortedPeriods[mid] : (sortedPeriods[mid - 1] + sortedPeriods[mid]) / 2;
+    
+    return Math.round(median);
+}
