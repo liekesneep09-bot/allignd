@@ -1305,8 +1305,9 @@ export function UserProvider({ children }) {
         variability: stats.variability,
         confidence: stats.confidence
       },
-      manualPhaseOverride: false,
-      manualPhase: null,
+      // Force phase update to follicular when stopped early, overriding auto-fallback
+      manualPhaseOverride: true,
+      manualPhase: 'follicular',
       // Learn the actual period length using the robust history average
       ...(actualPeriodLength > 1
         ? { bleedingLengthDays: actualPeriodLength, periodLength: actualPeriodLength }
@@ -1326,54 +1327,54 @@ export function UserProvider({ children }) {
     } catch (e) { console.error(e) }
   }
 
+  // Completely delete a log for a specific date (Undo mistake)
+  const deletePeriodLog = (dateStr) => {
+    let newLogs = (user.menstruationLogs || []).filter(l => l.date !== dateStr)
+    
+    // Recalculate stats based on remaining 'yes' logs
+    const sortedYes = newLogs.filter(l => l.status === 'yes').map(l => l.date).sort()
+    const newStartDates = []
+    if (sortedYes.length > 0) {
+      newStartDates.push(sortedYes[0])
+      for (let i = 1; i < sortedYes.length; i++) {
+        const prev = new Date(sortedYes[i - 1])
+        const curr = new Date(sortedYes[i])
+        if ((curr - prev) / (1000 * 60 * 60 * 24) > 10) newStartDates.push(sortedYes[i])
+      }
+    }
+    const stats = calculateCycleStats(newStartDates, user.cycleLength)
+    const updates = {
+      menstruationLogs: newLogs,
+      periodStartDates: newStartDates,
+      cycleLengthHistory: stats.cycleLengthHistory,
+      ...(stats.learnedCycleLength ? { cycleLength: stats.learnedCycleLength } : {}),
+      cycleStats: { learnedCycleLength: stats.learnedCycleLength, variability: stats.variability, confidence: stats.confidence },
+      manualPhaseOverride: false,
+      manualPhase: null
+    }
+    if (newStartDates.length > 0) updates.cycleStart = new Date(newStartDates[newStartDates.length - 1]).toISOString()
+    updateUser(updates)
+
+    try {
+      if (authUser?.id) {
+        const dayData = loadDayLog(dateStr, authUser.id)
+        dayData.menstruation = null // Wipe it from local storage
+        saveDayLog(dateStr, dayData, authUser.id)
+        syncDayLogToCloud(dateStr, dayData)
+      }
+    } catch (e) { console.error(e) }
+  }
+
   // LEGACY: togglePeriodDate — used in calendar for manual corrections on past dates
   const togglePeriodDate = (dateStr) => {
-    const explicitLog = (user.menstruationLogs || []).find(l => l.date === dateStr)
     const currentlyActive = isDateInPeriod(dateStr, user)
 
-    if (explicitLog || currentlyActive) {
-      let newLogs = [...(user.menstruationLogs || [])]
-      
-      if (explicitLog) {
-        // Undo: Completely remove the explicit log for this date
-        newLogs = newLogs.filter(l => l.date !== dateStr)
-      } else {
-        // Active by projection -> user wants to force-stop the period here
-        newLogs = newLogs.filter(l => l.date !== dateStr)
-        newLogs.push({ date: dateStr, status: 'no' })
-      }
-
-      const sortedYes = newLogs.filter(l => l.status === 'yes').map(l => l.date).sort()
-      const newStartDates = []
-      if (sortedYes.length > 0) {
-        newStartDates.push(sortedYes[0])
-        for (let i = 1; i < sortedYes.length; i++) {
-          const prev = new Date(sortedYes[i - 1])
-          const curr = new Date(sortedYes[i])
-          if ((curr - prev) / (1000 * 60 * 60 * 24) > 10) newStartDates.push(sortedYes[i])
-        }
-      }
-      const stats = calculateCycleStats(newStartDates, user.cycleLength)
-      const updates = {
-        menstruationLogs: newLogs,
-        periodStartDates: newStartDates,
-        cycleLengthHistory: stats.cycleLengthHistory,
-        ...(stats.learnedCycleLength ? { cycleLength: stats.learnedCycleLength } : {}),
-        cycleStats: { learnedCycleLength: stats.learnedCycleLength, variability: stats.variability, confidence: stats.confidence }
-      }
-      if (newStartDates.length > 0) updates.cycleStart = new Date(newStartDates[newStartDates.length - 1]).toISOString()
-      updateUser(updates)
-
-      try {
-        if (authUser?.id) {
-          const dayData = loadDayLog(dateStr, authUser.id)
-          dayData.menstruation = explicitLog ? null : { status: 'no', updatedAt: new Date().toISOString() }
-          saveDayLog(dateStr, dayData, authUser.id)
-          syncDayLogToCloud(dateStr, dayData)
-        }
-      } catch (e) { console.error(e) }
+    if (currentlyActive) {
+      // User tapped "Verwijderen" / undo — completely delete any log for this date 
+      // instead of force-stopping it with 'no'. This allows the cycle to fully return to normal.
+      deletePeriodLog(dateStr)
     } else {
-      // Start period from this date (auto-fill days)
+      // User tapped "Loggen +"
       startPeriod(dateStr)
     }
   }
