@@ -57,30 +57,18 @@ export default function WeightTracker({ date }) {
     const trends = useMemo(() => {
         if (!user.weightLogs || user.weightLogs.length < 1) return null
 
-        const sorted = [...user.weightLogs].sort((a, b) => b.date.localeCompare(a.date))
-        const today = new Date()
-        const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
-        const fourteenDaysAgo = new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000)
-
-        const last7DaysLogs = sorted.filter(l => parseLocalDate(l.date) >= sevenDaysAgo)
-        const prev7DaysLogs = sorted.filter(l => {
-            const d = parseLocalDate(l.date)
-            return d < sevenDaysAgo && d >= fourteenDaysAgo
-        })
-
-        if (last7DaysLogs.length === 0) return null
-
-        const avgNow = last7DaysLogs.reduce((acc, curr) => acc + curr.weight, 0) / last7DaysLogs.length
-        const avgPrev = prev7DaysLogs.length > 0
-            ? prev7DaysLogs.reduce((acc, curr) => acc + curr.weight, 0) / prev7DaysLogs.length
-            : null
-
-        const diff = avgPrev ? (avgNow - avgPrev).toFixed(1) : null
-
+        const sorted = [...user.weightLogs].sort((a, b) => a.date.localeCompare(b.date))
+        
+        const firstWeight = sorted[0].weight
+        const latestWeight = sorted[sorted.length - 1].weight
+        
+        const totalDiff = (latestWeight - firstWeight).toFixed(1)
+        
         return {
-            avgNow: avgNow.toFixed(1),
-            diff: diff ? Number(diff) : null,
-            label: diff ? (diff > 0 ? `+${diff} kg` : `${diff} kg`) : 'Eerste week'
+            firstWeight,
+            latestWeight,
+            totalDiff: Number(totalDiff),
+            label: totalDiff > 0 ? `+${totalDiff} kg` : `${totalDiff} kg`
         }
     }, [user.weightLogs])
 
@@ -224,46 +212,52 @@ export default function WeightTracker({ date }) {
     return (
         <section className="card" style={{ marginBottom: '1.25rem', padding: '0', overflow: 'hidden' }}>
             <div style={{ padding: '1.25rem', paddingBottom: '0.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <div>
-                        <h2 style={{ fontSize: '1.1rem', margin: '0 0 0.25rem 0' }}>Gewicht</h2>
-                        {trends && (
-                            <div style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)' }}>
-                                Gem.&nbsp;
-                                <span style={{ fontWeight: '700', color: 'var(--color-text)' }}>{trends.avgNow} kg</span>
-                                {trends.diff !== null && (
-                                    <span style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '2px',
-                                        color: trends.diff > 0 ? '#ff8a9a' : 'var(--color-movement)',
-                                        marginLeft: '6px',
-                                        fontWeight: '600'
-                                    }}>
-                                        {trends.diff > 0 ? '▲' : '▼'} {trends.label}
-                                    </span>
-                                )}
-                                {trends.diff === null && (
-                                    <span style={{ color: 'var(--color-text-muted)', marginLeft: '6px' }}>
-                                        ({trends.label})
-                                    </span>
-                                )}
-                            </div>
-                        )}
-                    </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h2 style={{ fontSize: '1.1rem', margin: '0 0 0.5rem 0' }}>Gewicht</h2>
                     <div
                         onClick={() => {
                             setTempWeight(currentWeight ? String(currentWeight) : '')
                             setShowSheet(true)
                         }}
-                        style={{ textAlign: 'right', cursor: 'pointer' }}
+                        style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
                     >
-                        <div style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--color-primary)' }}>
-                            {currentWeight || '-.-'} <span style={{ fontSize: '0.85rem', fontWeight: '500' }}>kg</span>
-                        </div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Vandaag</div>
+                        <span style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--color-primary)' }}>
+                            {currentWeight || '-.-'}
+                        </span>
+                        <span style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--color-text-muted)' }}>kg</span>
                     </div>
                 </div>
+
+                {/* Info block resembling the reference screenshot */}
+                {trends && (
+                    <div style={{
+                        display: 'flex',
+                        border: '1px solid var(--color-border)',
+                        borderRadius: '12px',
+                        marginTop: '0.5rem',
+                        overflow: 'hidden',
+                        background: 'var(--color-surface)'
+                    }}>
+                        <div style={{ flex: 1, padding: '0.75rem', textAlign: 'center', borderRight: '1px solid var(--color-border)' }}>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--color-primary)', fontWeight: '600', marginBottom: '4px', textTransform: 'uppercase' }}>Verschil</div>
+                            <div style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--color-text)' }}>
+                                {trends.label}
+                            </div>
+                        </div>
+                        <div style={{ flex: 1, padding: '0.75rem', textAlign: 'center', borderRight: '1px solid var(--color-border)' }}>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--color-primary)', fontWeight: '600', marginBottom: '4px', textTransform: 'uppercase' }}>Start</div>
+                            <div style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--color-text)' }}>
+                                {trends.firstWeight} <span style={{ fontSize: '0.75rem', fontWeight: '500', color: 'var(--color-text-muted)' }}>kg</span>
+                            </div>
+                        </div>
+                        <div style={{ flex: 1, padding: '0.75rem', textAlign: 'center' }}>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--color-primary)', fontWeight: '600', marginBottom: '4px', textTransform: 'uppercase' }}>Fase Nu</div>
+                            <div style={{ fontSize: '0.8rem', fontWeight: '700', color: PHASE_COLORS[currentPhase] || 'var(--color-text)', textTransform: 'capitalize' }}>
+                                {currentPhase === 'menstrual' ? 'menstr.' : currentPhase}
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Chart area */}
@@ -299,6 +293,17 @@ export default function WeightTracker({ date }) {
                             <div style={{ fontSize: '0.6rem', opacity: 0.7, textAlign: 'center', fontWeight: '400' }}>
                                 {parseLocalDate(scrubPoint.date).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}
                             </div>
+                            <div style={{ 
+                                fontSize: '0.65rem', 
+                                color: scrubPoint.phaseColor, 
+                                textAlign: 'center', 
+                                marginTop: '3px', 
+                                textTransform: 'uppercase', 
+                                fontWeight: 800,
+                                filter: 'brightness(1.5)' // make it pop on dark tooltip bg
+                            }}>
+                                {scrubPoint.phaseName === 'menstrual' ? 'menstruatie' : scrubPoint.phaseName}
+                            </div>
                         </div>
                     )}
 
@@ -327,8 +332,8 @@ export default function WeightTracker({ date }) {
                         width="100%"
                         height="120"
                         viewBox={`0 0 ${chartData.W} ${chartData.H}`}
-                        preserveAspectRatio="xMidYMid meet"
-                        style={{ display: 'block', cursor: 'crosshair' }}
+                        preserveAspectRatio="none"
+                        style={{ display: 'block', cursor: 'crosshair', marginTop: '10px' }}
                     >
                         <defs>
                             <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
@@ -354,12 +359,12 @@ export default function WeightTracker({ date }) {
                             />
                         )}
 
-                        {/* Trend Line (Smooth) */}
+                        {/* Trend Line (Smooth & Bold) */}
                         {chartData.linePathStr && (
                             <path
                                 fill="none"
                                 stroke="var(--color-primary)"
-                                strokeWidth="1.8"
+                                strokeWidth="3"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 d={chartData.linePathStr}
@@ -371,22 +376,10 @@ export default function WeightTracker({ date }) {
                             <circle
                                 cx={chartData.pointsArray[0].x}
                                 cy={chartData.pointsArray[0].y}
-                                r="3"
+                                r="4"
                                 fill="var(--color-primary)"
                             />
                         )}
-
-                        {/* All data-point dots (colored by cycle phase) */}
-                        {chartData.pointsArray.map((p, i) => (
-                            <circle
-                                key={i}
-                                cx={p.x}
-                                cy={p.y}
-                                r="1.8"
-                                fill={p.phaseColor}
-                                opacity="1"
-                            />
-                        ))}
 
                         {/* Scrubber Line */}
                         {scrubPoint && (
