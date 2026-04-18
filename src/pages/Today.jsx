@@ -7,8 +7,7 @@ import FoodModal from '../components/FoodModal'
 import PeriodCalendar from '../components/PeriodCalendar'
 import { toNum, calculateProgress } from '../utils/numbers'
 import { getLocalDateStr } from '../utils/date'
-import WaterTracker from '../components/WaterTracker'
-import StepTracker from '../components/StepTracker'
+import HabitsCard from '../components/HabitsCard'
 import WeightTracker from '../components/WeightTracker'
 import CheckInModal, { SYMPTOMS_LIST } from '../components/CheckInModal'
 
@@ -630,8 +629,7 @@ export default function Today({ onNavigate }) {
 
               {/* NEW: WATER TRACKER WIDGET */}
               <div style={{ marginTop: '2rem' }}>
-                <WaterTracker date={viewDateStr} />
-                <StepTracker date={viewDateStr} />
+                <HabitsCard date={viewDateStr} />
                 <WeightTracker date={viewDateStr} />
               </div>
 
