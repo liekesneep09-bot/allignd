@@ -688,12 +688,21 @@ export function UserProvider({ children }) {
       const newWeight = cleanProfile.weight_kg
       if (newWeight && newWeight > 0) {
         const todayStr = new Date().toISOString().split('T')[0]
-        await supabase.from('weight_logs').upsert({
-          user_id: userId,
-          weight: newWeight,
-          date: todayStr
-        }, { onConflict: 'user_id,date' })
-        // Update local weight logs
+        
+        // Manual check-and-update to avoid missing unique constraint crashing the upsert
+        const { data: existingLog } = await supabase
+          .from('weight_logs')
+          .select('id')
+          .eq('user_id', userId)
+          .eq('date', todayStr)
+          .single()
+
+        if (existingLog) {
+          await supabase.from('weight_logs').update({ weight: newWeight, updated_at: new Date().toISOString() }).eq('id', existingLog.id)
+        } else {
+          await supabase.from('weight_logs').insert({ user_id: userId, weight: newWeight, date: todayStr, updated_at: new Date().toISOString() })
+        }
+                // Update local weight logs
         setUser(prev => {
           const existing = (prev.weightLogs || []).filter(l => l.date !== todayStr)
           return { ...prev, weightLogs: [...existing, { date: todayStr, weight: newWeight }].sort((a, b) => a.date.localeCompare(b.date)) }
@@ -1158,22 +1167,37 @@ export function UserProvider({ children }) {
       }
     })
 
-    // 2. Persist DB
+    // 2. Persist DB safely without relying on a potentially missing unique constraint
     try {
-      const { error } = await supabase.from('weight_logs').upsert({
-        user_id: authUser.id,
-        date: dateStr,
-        weight: newWeight,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'user_id,date' })
+      // First check if it exists
+      const { data: existing } = await supabase
+        .from('weight_logs')
+        .select('id')
+        .eq('user_id', authUser.id)
+        .eq('date', dateStr)
+        .single()
+
+      let dbError = null
+      if (existing) {
+        const { error } = await supabase.from('weight_logs')
+          .update({ weight: newWeight, updated_at: new Date().toISOString() })
+          .eq('id', existing.id)
+        dbError = error
+      } else {
+        const { error } = await supabase.from('weight_logs')
+          .insert({ user_id: authUser.id, date: dateStr, weight: newWeight, updated_at: new Date().toISOString() })
+        dbError = error
+      }
+      
+      if (dbError) throw dbError
 
       // Also update profile if it's today's weight
       if (dateStr === getLocalDateStr(new Date())) {
         await supabase.from('profiles').update({ weight: newWeight }).eq('id', authUser.id)
       }
-
-      if (error) throw error
-    } catch (e) { console.error("Failed to log weight", e) }
+    } catch (e) {
+      console.error("Failed to log weight", e) 
+    }
   }
 
   // NEW: Save Symptoms
