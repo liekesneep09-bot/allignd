@@ -38,7 +38,7 @@ function Ring({ value, max, size = 88, stroke = 8, color, label, sublabel }) {
                     alignItems: 'center', justifyContent: 'center',
                     gap: '1px'
                 }}>
-                    <span style={{ fontSize: '0.85rem', fontWeight: '800', color, lineHeight: 1 }}>{label}</span>
+                    <span style={{ fontSize: '0.85rem', fontWeight: '800', color: '#333333', lineHeight: 1 }}>{label}</span>
                     <span style={{ fontSize: '0.55rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>{sublabel}</span>
                 </div>
             </div>
