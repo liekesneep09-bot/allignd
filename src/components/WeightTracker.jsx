@@ -127,37 +127,39 @@ export default function WeightTracker({ date }) {
         })
 
         // Only draw line / area when we have ≥2 points
-        let linePoints = null
-        let areaPoints = null
+        let linePathStr = null
+        let areaPathStr = null
+        
+        // Generate smooth cubic bezier curve (Catmull-Rom to Bezier approximate)
         if (pointsArray.length >= 2) {
-            linePoints = pointsArray.map(p => `${p.x},${p.y}`).join(' ')
-            areaPoints = `${pointsArray[0].x},${H} ${linePoints} ${pointsArray[pointsArray.length - 1].x},${H}`
+            linePathStr = `M ${pointsArray[0].x},${pointsArray[0].y}`
+            
+            for (let i = 0; i < pointsArray.length - 1; i++) {
+                const p0 = pointsArray[Math.max(0, i - 1)]
+                const p1 = pointsArray[i]
+                const p2 = pointsArray[i + 1]
+                const p3 = pointsArray[Math.min(pointsArray.length - 1, i + 2)]
+
+                // Control points distance
+                const tension = 0.2
+                
+                const cp1x = p1.x + (p2.x - p0.x) * tension
+                const cp1y = p1.y + (p2.y - p0.y) * tension
+                const cp2x = p2.x - (p3.x - p1.x) * tension
+                const cp2y = p2.y - (p3.y - p1.y) * tension
+                
+                linePathStr += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`
+            }
+            
+            areaPathStr = `${linePathStr} L ${pointsArray[pointsArray.length - 1].x},${H} L ${pointsArray[0].x},${H} Z`
         }
 
-        // Phase background blocks
-        const phaseBlocks = []
-        if (pointsArray.length >= 2) {
-            let currentPhaseBg = null
-            let currentPhaseStart = 0
-
+        // Phase colored points (instead of block backgrounds)
+        if (pointsArray.length >= 1) {
             for (let i = 0; i < pointsArray.length; i++) {
                 const phase = getPhaseForDate(sorted[i].date)
-                const color = PHASE_COLORS[phase]
-                    ? `${PHASE_COLORS[phase]}18` // ~9% opacity hex
-                    : 'transparent'
-                const cx = pointsArray[i].x
-
-                if (i === 0) {
-                    currentPhaseBg = color
-                    currentPhaseStart = 0
-                } else if (color !== currentPhaseBg) {
-                    phaseBlocks.push({ x: currentPhaseStart, width: cx - currentPhaseStart, color: currentPhaseBg })
-                    currentPhaseStart = cx
-                    currentPhaseBg = color
-                }
-                if (i === pointsArray.length - 1) {
-                    phaseBlocks.push({ x: currentPhaseStart, width: W - currentPhaseStart, color: currentPhaseBg })
-                }
+                pointsArray[i].phaseColor = PHASE_COLORS[phase] || 'var(--color-primary)'
+                pointsArray[i].phaseName = phase
             }
         }
 
@@ -169,7 +171,7 @@ export default function WeightTracker({ date }) {
         const yLabelLow = Math.ceil(rawMin)
         const yLabelHigh = Math.floor(rawMax)
 
-        return { pointsArray, linePoints, areaPoints, phaseBlocks, H, W, min, max, startLabel, endLabel, yLabelLow, yLabelHigh }
+        return { pointsArray, linePathStr, areaPathStr, H, W, min, max, startLabel, endLabel, yLabelLow, yLabelHigh }
     }, [user.weightLogs, getPhaseForDate])
 
     // ── Interaction ──────────────────────────────────────────────────────────
@@ -325,18 +327,6 @@ export default function WeightTracker({ date }) {
                             </linearGradient>
                         </defs>
 
-                        {/* Phase Backgrounds */}
-                        {chartData.phaseBlocks.map((block, idx) => (
-                            <rect
-                                key={idx}
-                                x={block.x}
-                                y="0"
-                                width={block.width}
-                                height={chartData.H}
-                                fill={block.color}
-                            />
-                        ))}
-
                         {/* Horizontal grid line (midpoint) */}
                         <line
                             x1="0" y1={chartData.H * 0.5}
@@ -347,22 +337,22 @@ export default function WeightTracker({ date }) {
                         />
 
                         {/* Area Fill */}
-                        {chartData.areaPoints && (
-                            <polygon
-                                points={chartData.areaPoints}
+                        {chartData.areaPathStr && (
+                            <path
+                                d={chartData.areaPathStr}
                                 fill="url(#weightGradient)"
                             />
                         )}
 
-                        {/* Trend Line */}
-                        {chartData.linePoints && (
-                            <polyline
+                        {/* Trend Line (Smooth) */}
+                        {chartData.linePathStr && (
+                            <path
                                 fill="none"
                                 stroke="var(--color-primary)"
                                 strokeWidth="1.8"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
-                                points={chartData.linePoints}
+                                d={chartData.linePathStr}
                             />
                         )}
 
@@ -376,15 +366,15 @@ export default function WeightTracker({ date }) {
                             />
                         )}
 
-                        {/* All data-point dots (subtle) */}
+                        {/* All data-point dots (colored by cycle phase) */}
                         {chartData.pointsArray.map((p, i) => (
                             <circle
                                 key={i}
                                 cx={p.x}
                                 cy={p.y}
-                                r="1.2"
-                                fill="var(--color-primary)"
-                                opacity="0.5"
+                                r="1.8"
+                                fill={p.phaseColor}
+                                opacity="1"
                             />
                         ))}
 
