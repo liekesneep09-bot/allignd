@@ -99,10 +99,17 @@ function MainLayout() {
 
     const phaseStyle = getPhaseColor(currentPhase)
 
-    // Show splash while loading (prevents blank flash)
+    // Show splash while loading
     if (isLoading) return <SplashScreen />
 
+    // Fix for PWA background state flash:
+    // If the app reloads from background while offline, the profile fetch might fail.
+    // If it fails, hasOnboarded defaults to false. We don't want to show Onboarding if they were already in the app.
     if (!hasOnboarded) {
+        // If they are offline, don't force them to Onboarding
+        if (!navigator.onLine) {
+            return <SplashScreen /> // Stay on splash until network returns
+        }
         return <Onboarding />
     }
 
@@ -269,18 +276,7 @@ function AuthenticatedApp() {
     const { user, loading } = useAuth()
 
     if (loading) {
-        return (
-            <div style={{
-                minHeight: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'var(--color-bg)',
-                color: 'var(--color-text-muted)'
-            }}>
-                Even laden...
-            </div>
-        )
+        return <SplashScreen />
     }
 
     if (!user) {

@@ -457,6 +457,7 @@ export function UserProvider({ children }) {
             symptomLogs: dbSymptomLogs.map(s => ({ date: s.date, symptoms: s.symptoms || [] }))
           }))
         }
+        
         // B8. Fetch Step Logs
         const { data: dbStepLogs } = await supabase
           .from('step_logs')
@@ -470,9 +471,16 @@ export function UserProvider({ children }) {
           }))
         }
 
+        // End of try
+        setIsLoading(false)
       } catch (err) {
         console.error('User init/sync failed:', err)
-      } finally {
+        // If we fail critically and don't know the onboarding state, DO NOT stop loading!
+        // Stopping loading would force the user to Onboarding by mistake.
+        if (!isOnboarded && authUser) {
+           console.error('Critical sync failed! Staying in loading state to prevent onboarding flash.')
+           return // Keep isLoading true
+        }
         setIsLoading(false)
       }
     }
