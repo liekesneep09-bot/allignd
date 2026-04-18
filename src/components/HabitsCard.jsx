@@ -159,7 +159,7 @@ export default function HabitsCard({ date }) {
                         <Ring
                             value={amountMl}
                             max={WATER_GOAL}
-                            color="#4ab5f5"
+                            color="#89C4F4"
                             label={`${waterLiters}L`}
                             sublabel={`/ ${(WATER_GOAL / 1000).toFixed(1)}L`}
                         />
@@ -182,7 +182,7 @@ export default function HabitsCard({ date }) {
                         <Ring
                             value={steps}
                             max={STEP_GOAL}
-                            color="var(--color-movement)"
+                            color="#D4A800"
                             label={stepsLabel}
                             sublabel="/ 10k"
                         />
@@ -206,7 +206,7 @@ export default function HabitsCard({ date }) {
                             borderRadius: '16px',
                             fontSize: '0.9rem',
                             fontWeight: '600',
-                            background: '#4ab5f5'
+                            background: '#89C4F4'
                         }}
                     >
                         + Water
@@ -220,7 +220,7 @@ export default function HabitsCard({ date }) {
                             borderRadius: '16px',
                             fontSize: '0.9rem',
                             fontWeight: '600',
-                            background: 'var(--color-movement)'
+                            background: '#F5D98B'
                         }}
                     >
                         + Stappen
@@ -234,7 +234,7 @@ export default function HabitsCard({ date }) {
 
                     {/* Big current number */}
                     <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                        <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#4ab5f5', lineHeight: 1 }}>
+                        <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#89C4F4', lineHeight: 1 }}>
                             {waterLiters} <span style={{ fontSize: '1.2rem', fontWeight: '500', color: 'var(--color-text-muted)' }}>L</span>
                         </div>
                         <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
@@ -255,13 +255,13 @@ export default function HabitsCard({ date }) {
                                 style={{
                                     padding: '0.9rem 0.5rem',
                                     borderRadius: '16px',
-                                    border: '1.5px solid #4ab5f520',
-                                    background: '#4ab5f510',
+                                    border: '1.5px solid #89C4F420',
+                                    background: '#89C4F410',
                                     cursor: 'pointer',
                                     textAlign: 'center'
                                 }}
                             >
-                                <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#4ab5f5' }}>+ {opt.label}</div>
+                                <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#89C4F4' }}>+ {opt.label}</div>
                                 <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>{opt.sub}</div>
                             </button>
                         ))}
@@ -286,7 +286,7 @@ export default function HabitsCard({ date }) {
                                 flex: 1,
                                 padding: '14px 16px',
                                 borderRadius: '14px',
-                                border: '2px solid #4ab5f5',
+                                border: '2px solid #89C4F4',
                                 fontSize: '1.15rem',
                                 fontWeight: '700',
                                 textAlign: 'center',
@@ -307,7 +307,7 @@ export default function HabitsCard({ date }) {
                         <button
                             onClick={handleSaveWater}
                             className="btn btn-primary"
-                            style={{ flex: 2, padding: '1rem', borderRadius: '16px', fontWeight: '600', fontSize: '1rem', background: '#4ab5f5' }}
+                            style={{ flex: 2, padding: '1rem', borderRadius: '16px', fontWeight: '600', fontSize: '1rem', background: '#89C4F4' }}
                         >
                             Opslaan
                         </button>
@@ -333,7 +333,7 @@ export default function HabitsCard({ date }) {
 
                     {/* Big current number */}
                     <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                        <div style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--color-movement)', lineHeight: 1 }}>
+                        <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#D4A800', lineHeight: 1 }}>
                             {steps.toLocaleString('nl-NL')}
                         </div>
                         <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
@@ -355,13 +355,13 @@ export default function HabitsCard({ date }) {
                                 style={{
                                     padding: '0.9rem 0.5rem',
                                     borderRadius: '16px',
-                                    border: '1.5px solid rgba(56,178,172,0.15)',
-                                    background: 'rgba(56,178,172,0.07)',
+                                    border: '1.5px solid rgba(245,217,139,0.5)',
+                                    background: 'rgba(245,217,139,0.18)',
                                     cursor: 'pointer',
                                     textAlign: 'center'
                                 }}
                             >
-                                <div style={{ fontWeight: '700', fontSize: '0.9rem', color: 'var(--color-movement)' }}>{opt.label}</div>
+                                <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#D4A800' }}>{opt.label}</div>
                             </button>
                         ))}
                     </div>
@@ -386,7 +386,7 @@ export default function HabitsCard({ date }) {
                                 flex: 1,
                                 padding: '14px 16px',
                                 borderRadius: '14px',
-                                border: '2px solid var(--color-movement)',
+                                border: '2px solid #F5D98B',
                                 fontSize: '1.15rem',
                                 fontWeight: '700',
                                 textAlign: 'center',
