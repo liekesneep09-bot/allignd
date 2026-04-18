@@ -107,9 +107,22 @@ export default function WeightTracker({ date }) {
         const weights = sorted.map(l => l.weight)
         const rawMin = Math.min(...weights)
         const rawMax = Math.max(...weights)
-        // Pad by 1kg so the line doesn't touch the edges
-        const min = rawMin - 1
-        const max = rawMax + 1
+        let yLabelLow = Math.floor(rawMin)
+        let yLabelHigh = Math.ceil(rawMax)
+        
+        // Prevent identical labels if the user's weight hasn't changed or changed < 1kg
+        if (yLabelLow === yLabelHigh) {
+            yLabelLow -= 1
+            yLabelHigh += 1
+        } else if (yLabelHigh - yLabelLow === 1) {
+            // Give a bit more padding if it's only a 1kg difference
+            yLabelLow -= 1
+            yLabelHigh += 1
+        }
+
+        // Set viewBox padding proportionally
+        const min = yLabelLow - 0.5
+        const max = yLabelHigh + 0.5
 
         const W = 100  // viewBox width
         const H = 60   // viewBox height
@@ -167,10 +180,7 @@ export default function WeightTracker({ date }) {
         const startLabel = parseLocalDate(sorted[0].date).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
         const endLabel = parseLocalDate(sorted[sorted.length - 1].date).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
 
-        // Y-axis labels (two readable grid values)
-        const yLabelLow = Math.ceil(rawMin)
-        const yLabelHigh = Math.floor(rawMax)
-
+        // Y-axis labels are computed at the top
         return { pointsArray, linePathStr, areaPathStr, H, W, min, max, startLabel, endLabel, yLabelLow, yLabelHigh }
     }, [user.weightLogs, getPhaseForDate])
 
