@@ -1,8 +1,13 @@
 import React, { useState, useMemo } from 'react'
 import { useUser } from '../context/UserContext'
-import { IconAccount, IconCalendar } from './Icons'
-import { getFuturePeriodWindows } from '../logic/cycle-learning'
 import { SYMPTOMS_LIST } from './CheckInModal'
+import { getFuturePeriodWindows } from '../logic/cycle-learning'
+
+// Parse "YYYY-MM-DD" in local time
+function parseLocal(dateStr) {
+    const [y, m, d] = dateStr.split('-').map(Number)
+    return new Date(y, m - 1, d)
+}
 
 export default function PeriodCalendar({ user, onClose, onSelect }) {
     const { togglePeriodDate, isDateInPeriod } = useUser()
@@ -12,10 +17,21 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
         () => localStorage.getItem('allignd:calendar-hint-dismissed') === 'true'
     )
     const [selectedSummaryDateStr, setSelectedSummaryDateStr] = useState(null)
+    const [justLogged, setJustLogged] = useState(false) // feedback flash
 
-    // Generate Month Range (e.g., 12 months past, 12 months future)
+    const today = useMemo(() => {
+        const t = new Date()
+        t.setHours(0, 0, 0, 0)
+        return t
+    }, [])
+
+    const todayStr = useMemo(() => {
+        const pad = n => String(n).padStart(2, '0')
+        return `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`
+    }, [today])
+
+    // Generate Month Range: 12 past, 12 future
     const months = useMemo(() => {
-        const today = new Date()
         const list = []
         for (let i = -12; i <= 12; i++) {
             const d = new Date(today.getFullYear(), today.getMonth() + i, 1)
@@ -24,16 +40,15 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
         return list
     }, [])
 
-    // Calculate Predictions (Memoized)
+    // Predictions
     const predictedWindows = useMemo(() => {
         if (!user?.periodStartDates || user.periodStartDates.length === 0) return {}
-
         return getFuturePeriodWindows(
             user.periodStartDates,
             user.cycleStats?.learnedCycleLength || user.cycleLength || 28,
             user.periodLength || 5,
             user.cycleStats?.variability || 0,
-            4 // Predict 4 cycles ahead
+            4
         )
     }, [user?.periodStartDates, user?.cycleStats, user?.cycleLength, user?.periodLength])
 
@@ -44,31 +59,36 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
         }
     }, [])
 
+    // Any date ≤ today is clickable (including today)
     const handleDayClick = (dateStr) => {
-        const checkDate = new Date(dateStr)
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-
-        const isFuture = checkDate > today
-        if (isFuture) return
-
+        const d = parseLocal(dateStr)
+        if (d > today) return // block future only
+        setJustLogged(false)
         setSelectedSummaryDateStr(dateStr)
     }
 
-    // Helper data for the summary sheet
+    const handleTogglePeriod = () => {
+        togglePeriodDate(selectedSummaryDateStr)
+        setJustLogged(true)
+        // After a short moment, close the sheet so the user sees the calendar update
+        setTimeout(() => {
+            setSelectedSummaryDateStr(null)
+            setJustLogged(false)
+        }, 800)
+    }
+
+    // Summary data for selected date
     const summaryData = useMemo(() => {
         if (!selectedSummaryDateStr) return null
-
         const isPeriod = isDateInPeriod(selectedSummaryDateStr)
         const hasMoved = user?.movementLogs?.some(l => l.date === selectedSummaryDateStr && l.status === 'moved')
         const waterAmount = user?.waterLogs?.find(l => l.date === selectedSummaryDateStr)?.amount_ml || 0
         const symptomsIds = user?.symptomLogs?.find(l => l.date === selectedSummaryDateStr)?.symptoms || []
-
-        // Simple text representation of symptoms
         const symptomLabels = symptomsIds.map(id => SYMPTOMS_LIST.find(s => s.id === id)?.label).filter(Boolean)
+        const isToday = selectedSummaryDateStr === todayStr
 
-        return { isPeriod, hasMoved, waterAmount, symptomLabels }
-    }, [selectedSummaryDateStr, user])
+        return { isPeriod, hasMoved, waterAmount, symptomLabels, isToday }
+    }, [selectedSummaryDateStr, user, justLogged]) // re-run when justLogged toggles to catch state update
 
     return (
         <div style={{
@@ -79,7 +99,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
             width: '100%',
             maxWidth: '480px',
             bottom: 0,
-            background: '#FFFFFF', // Clean White like Flo
+            background: '#FFFFFF',
             zIndex: 2000,
             display: 'flex',
             flexDirection: 'column',
@@ -93,40 +113,30 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 background: '#fff',
-                zIndex: 10,
                 borderBottom: '1px solid #f0f0f0'
             }}>
                 <button
                     onClick={onClose}
-                    style={{
-                        background: 'none',
-                        border: 'none',
-                        fontSize: '1.5rem',
-                        color: 'var(--color-text)',
-                        cursor: 'pointer',
-                        padding: 0
-                    }}
+                    style={{ background: 'none', border: 'none', fontSize: '1.5rem', color: 'var(--color-text)', cursor: 'pointer', padding: 0 }}
                 >
                     ✕
                 </button>
-
-                <div style={{ fontWeight: '600', fontSize: '1.1rem' }}>Kalender</div>
-
-                <div style={{ width: '24px' }}></div> {/* Spacer */}
+                <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>Kalender</div>
+                <div style={{ width: '24px' }} />
             </div>
 
-            {/* Days of Week Header (Sticky below main header) */}
+            {/* Day of week headers */}
             <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(7, 1fr)',
-                padding: '0.5rem 1rem',
+                padding: '0.5rem 1rem 0.25rem',
                 borderBottom: '1px solid #f0f0f0',
                 background: '#fafafa'
             }}>
                 {['ma', 'di', 'wo', 'do', 'vr', 'za', 'zo'].map(d => (
                     <div key={d} style={{
                         textAlign: 'center',
-                        fontSize: '0.75rem',
+                        fontSize: '0.72rem',
                         color: 'var(--color-text-muted)',
                         textTransform: 'uppercase',
                         fontWeight: '600'
@@ -136,12 +146,12 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                 ))}
             </div>
 
-            {/* Hint Banner for new users */}
+            {/* Hint banner */}
             {!hintDismissed && (user?.periodStartDates?.length || 0) < 3 && (
                 <div style={{
-                    margin: '0 1rem',
+                    margin: '0.75rem 1rem 0',
                     padding: '10px 14px',
-                    background: 'linear-gradient(135deg, #a3b89920, #a3b89910)',
+                    background: 'rgba(168,100,115,0.07)',
                     borderRadius: '12px',
                     display: 'flex',
                     alignItems: 'flex-start',
@@ -149,41 +159,27 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                     fontSize: '0.82rem',
                     color: '#5D4037',
                     lineHeight: '1.45',
-                    border: '1px solid rgba(163,184,153,0.3)'
+                    border: '1px solid rgba(168,100,115,0.15)'
                 }}>
-                    <span style={{ fontSize: '1rem', flexShrink: 0, marginTop: '1px' }}>💡</span>
+                    <span style={{ flexShrink: 0 }}>💡</span>
                     <div style={{ flex: 1 }}>
-                        <strong>Tip:</strong> Tik op een dag om je menstruatie, symptomen en logs te bekijken of bij te werken.
+                        <strong>Tip:</strong> Tik op een dag om je menstruatie te loggen of te bekijken.
                     </div>
                     <button
-                        onClick={(e) => {
+                        onClick={e => {
                             e.stopPropagation()
                             setHintDismissed(true)
                             localStorage.setItem('allignd:calendar-hint-dismissed', 'true')
                         }}
-                        style={{
-                            background: 'none',
-                            border: 'none',
-                            color: '#9E9E9E',
-                            fontSize: '1rem',
-                            cursor: 'pointer',
-                            padding: '0',
-                            lineHeight: 1,
-                            flexShrink: 0
-                        }}
+                        style={{ background: 'none', border: 'none', color: '#9E9E9E', fontSize: '1rem', cursor: 'pointer', padding: 0, flexShrink: 0 }}
                     >✕</button>
                 </div>
             )}
 
-            {/* Scrollable Content */}
+            {/* Scrollable months */}
             <div
                 ref={scrollRef}
-                style={{
-                    flex: 1,
-                    overflowY: 'auto',
-                    padding: '1rem',
-                    paddingBottom: '140px' // Space for fixed legend + button bar
-                }}
+                style={{ flex: 1, overflowY: 'auto', padding: '0.75rem 1rem', paddingBottom: '130px' }}
             >
                 {months.map((monthDate, index) => (
                     <MonthGrid
@@ -192,59 +188,32 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                         user={user}
                         predictedWindows={predictedWindows}
                         onDayClick={handleDayClick}
-                        todayRef={index === 12 ? todayRef : null} // Index 12 is "Today" (offset 0)
+                        todayRef={index === 12 ? todayRef : null}
                         isDateInPeriod={isDateInPeriod}
+                        todayStr={todayStr}
                     />
                 ))}
-
             </div>
 
-            {/* FIXED BOTTOM: Legenda + Klaar Button */}
+            {/* Fixed bottom: legend + button */}
             <div style={{
                 position: 'absolute',
-                bottom: '0',
-                left: '0',
-                right: '0',
-                background: '#FFFFFF',
+                bottom: 0, left: 0, right: 0,
+                background: '#fff',
                 borderTop: '1px solid #f0f0f0',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 padding: '0.75rem 1.25rem 1.5rem',
-                gap: '0.75rem',
-                zIndex: 10
+                gap: '0.65rem'
             }}>
-                {/* Legenda ... */}
-                <div style={{
-                    display: 'flex',
-                    gap: '1rem',
-                    flexWrap: 'wrap',
-                    justifyContent: 'center',
-                    width: '100%'
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#a86473' }} />
-                        <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Menstruatie</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <div style={{ width: 10, height: 10, borderRadius: '50%', border: '2px dashed #a86473', boxSizing: 'border-box' }} />
-                        <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Verwacht</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#4DB6AC' }} />
-                        <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Gesport</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#f0f0f0' }} />
-                        <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Vandaag</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#f5a89c' }} />
-                        <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>Symptomen</span>
-                    </div>
+                {/* Legend — "Vandaag" removed */}
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    <LegendItem color="#a86473" filled label="Menstruatie" />
+                    <LegendItem color="#a86473" dashed label="Verwacht" />
+                    <LegendItem color="#4DB6AC" dot label="Gesport" />
+                    <LegendItem color="#f5a89c" dot label="Symptomen" />
                 </div>
-
-                {/* Klaar Button */}
                 <button
                     onClick={onClose}
                     style={{
@@ -256,163 +225,186 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                         fontWeight: '600',
                         fontSize: '1rem',
                         boxShadow: '0 4px 12px rgba(255, 174, 185, 0.4)',
-                        cursor: 'pointer',
-                        transition: 'transform 0.1s'
+                        cursor: 'pointer'
                     }}
                 >
                     Klaar
                 </button>
             </div>
 
-            {/* DAY SUMMARY OVERLAY SHEET */}
-            {selectedSummaryDateStr && summaryData && (() => {
-                const dateObj = new Date(selectedSummaryDateStr)
-                const dateHeader = dateObj.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' })
-
-                return (
-                    <div style={{
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        background: '#fff',
-                        borderTopLeftRadius: '24px',
-                        borderTopRightRadius: '24px',
-                        boxShadow: '0 -4px 30px rgba(0,0,0,0.1)',
-                        zIndex: 3000,
-                        padding: '1.5rem',
-                        animation: 'slideUp 0.3s ease-out'
-                    }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                            <h3 style={{ margin: 0, fontSize: '1.15rem', color: 'var(--color-text)' }}>
-                                <span style={{ textTransform: 'capitalize' }}>{dateHeader}</span>
-                            </h3>
-                            <button
-                                onClick={() => setSelectedSummaryDateStr(null)}
-                                style={{ background: 'none', border: 'none', fontSize: '1.5rem', lineHeight: 1, padding: 0, cursor: 'pointer', color: 'var(--color-text-muted)' }}
-                            >✕</button>
-                        </div>
-
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
-                            {/* Menstruation Status */}
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                    <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: summaryData.isPeriod ? '#a86473' : '#f0f0f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                        {summaryData.isPeriod && <span style={{ color: '#fff', fontSize: '0.8rem' }}>✓</span>}
-                                    </div>
-                                    <span style={{ fontSize: '0.95rem', color: 'var(--color-text)', fontWeight: summaryData.isPeriod ? '600' : '400' }}>
-                                        {summaryData.isPeriod ? 'Menstruatie gelogd' : 'Geen menstruatie'}
-                                    </span>
-                                </div>
-                                <button
-                                    onClick={() => togglePeriodDate(selectedSummaryDateStr)}
-                                    style={{
-                                        background: summaryData.isPeriod ? 'none' : 'rgba(168, 100, 115, 0.1)',
-                                        color: summaryData.isPeriod ? 'var(--color-text-muted)' : '#a86473',
-                                        border: summaryData.isPeriod ? '1px solid var(--color-border)' : 'none',
-                                        padding: '0.4rem 0.8rem',
-                                        borderRadius: '20px',
-                                        fontSize: '0.8rem',
-                                        fontWeight: '600',
-                                        cursor: 'pointer'
-                                    }}
-                                >
-                                    {summaryData.isPeriod ? 'Verwijder' : 'Loggen +'}
-                                </button>
-                            </div>
-
-                            {/* Movement Status */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: summaryData.hasMoved ? '#4DB6AC' : '#f0f0f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                    {summaryData.hasMoved && <span style={{ color: '#fff', fontSize: '0.8rem' }}>✓</span>}
-                                </div>
-                                <span style={{ fontSize: '0.95rem', color: 'var(--color-text)', fontWeight: summaryData.hasMoved ? '600' : '400' }}>
-                                    {summaryData.hasMoved ? 'Beweging / Sport gelogd' : 'Geen beweging gelogd'}
-                                </span>
-                            </div>
-
-                            {/* Water Status */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: summaryData.waterAmount > 0 ? '#4da6b3' : '#f0f0f0', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                    {summaryData.waterAmount > 0 && <span style={{ color: '#fff', fontSize: '0.8rem' }}>💧</span>}
-                                </div>
-                                <span style={{ fontSize: '0.95rem', color: 'var(--color-text)', fontWeight: summaryData.waterAmount > 0 ? '600' : '400' }}>
-                                    {summaryData.waterAmount > 0 ? `${(summaryData.waterAmount / 1000).toFixed(1)}L Water gedronken` : 'Geen water gelogd'}
-                                </span>
-                            </div>
-
-                            {/* Symptoms Status */}
-                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: summaryData.symptomLabels.length > 0 ? '#f5a89c' : '#f0f0f0', display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 0 }}>
-                                    {summaryData.symptomLabels.length > 0 && <span style={{ color: '#fff', fontSize: '0.8rem' }}>✨</span>}
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                    <span style={{ fontSize: '0.95rem', color: 'var(--color-text)', fontWeight: summaryData.symptomLabels.length > 0 ? '600' : '400', marginTop: '4px' }}>
-                                        {summaryData.symptomLabels.length > 0 ? 'Symptomen gelogd' : 'Geen symptomen gelogd'}
-                                    </span>
-                                    {summaryData.symptomLabels.length > 0 && (
-                                        <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
-                                            {summaryData.symptomLabels.join(', ')}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-
-                    </div>
-                )
-            })()}
-
+            {/* Day summary sheet */}
+            {selectedSummaryDateStr && summaryData && (
+                <DaySummarySheet
+                    dateStr={selectedSummaryDateStr}
+                    summaryData={summaryData}
+                    justLogged={justLogged}
+                    onClose={() => setSelectedSummaryDateStr(null)}
+                    onToggle={handleTogglePeriod}
+                />
+            )}
         </div>
     )
 }
 
-// Sub-component for a single month
-function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef, isDateInPeriod }) {
+// ── Legend item ───────────────────────────────────────────────────────────────
+function LegendItem({ color, filled, dashed, dot, label }) {
+    return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            {dot ? (
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: color }} />
+            ) : dashed ? (
+                <div style={{ width: 10, height: 10, borderRadius: '50%', border: `2px dashed ${color}`, boxSizing: 'border-box' }} />
+            ) : (
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: color }} />
+            )}
+            <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>{label}</span>
+        </div>
+    )
+}
+
+// ── Day Summary Sheet ─────────────────────────────────────────────────────────
+function DaySummarySheet({ dateStr, summaryData, justLogged, onClose, onToggle }) {
+    const dateObj = parseLocal(dateStr)
+    const dateHeader = dateObj.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' })
+    const { isPeriod, hasMoved, waterAmount, symptomLabels, isToday } = summaryData
+
+    return (
+        <>
+            {/* Backdrop */}
+            <div
+                onClick={onClose}
+                style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 2999 }}
+            />
+            <div style={{
+                position: 'absolute',
+                bottom: 0, left: 0, right: 0,
+                background: '#fff',
+                borderTopLeftRadius: '24px',
+                borderTopRightRadius: '24px',
+                boxShadow: '0 -4px 30px rgba(0,0,0,0.12)',
+                zIndex: 3000,
+                padding: '1.5rem',
+                animation: 'slideUp 0.25s ease-out'
+            }}>
+                {/* Handle */}
+                <div style={{ width: '40px', height: '4px', background: 'var(--color-border)', borderRadius: '2px', margin: '0 auto 1.25rem' }} />
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                    <h3 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--color-text)', textTransform: 'capitalize' }}>
+                        {isToday ? 'Vandaag' : dateHeader}
+                    </h3>
+                    <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '1.4rem', padding: 0, cursor: 'pointer', color: 'var(--color-text-muted)' }}>✕</button>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.25rem' }}>
+                    {/* Menstruation row */}
+                    <SummaryRow
+                        color={isPeriod ? '#a86473' : '#f0f0f0'}
+                        iconColor={isPeriod ? '#fff' : 'transparent'}
+                        label={isPeriod ? 'Menstruatie gelogd' : 'Geen menstruatie gelogd'}
+                        active={isPeriod}
+                    />
+
+                    {/* Movement */}
+                    <SummaryRow color={hasMoved ? '#4DB6AC' : '#f0f0f0'} iconColor={hasMoved ? '#fff' : 'transparent'} label={hasMoved ? 'Beweging gelogd' : 'Geen beweging gelogd'} active={hasMoved} />
+
+                    {/* Water */}
+                    <SummaryRow
+                        color={waterAmount > 0 ? '#89C4F4' : '#f0f0f0'}
+                        iconColor={waterAmount > 0 ? '#fff' : 'transparent'}
+                        label={waterAmount > 0 ? `${(waterAmount / 1000).toFixed(1)}L water gedronken` : 'Geen water gelogd'}
+                        active={waterAmount > 0}
+                    />
+
+                    {/* Symptoms */}
+                    {symptomLabels.length > 0 && (
+                        <SummaryRow color="#f5a89c" iconColor="#fff" label={`Symptomen: ${symptomLabels.join(', ')}`} active={true} />
+                    )}
+                </div>
+
+                {/* CTA: Toggle period */}
+                {justLogged ? (
+                    <div style={{
+                        textAlign: 'center',
+                        padding: '1rem',
+                        background: 'rgba(168,100,115,0.08)',
+                        borderRadius: '16px',
+                        color: '#a86473',
+                        fontWeight: '600',
+                        fontSize: '0.95rem'
+                    }}>
+                        ✓ {isPeriod ? 'Menstruatie gelogd!' : 'Verwijderd'}
+                    </div>
+                ) : (
+                    <button
+                        onClick={onToggle}
+                        style={{
+                            width: '100%',
+                            padding: '1rem',
+                            borderRadius: '16px',
+                            border: 'none',
+                            background: isPeriod ? 'rgba(168,100,115,0.08)' : '#a86473',
+                            color: isPeriod ? '#a86473' : '#fff',
+                            fontWeight: '700',
+                            fontSize: '1rem',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        {isPeriod ? 'Menstruatie verwijderen' : '+ Menstruatie loggen'}
+                    </button>
+                )}
+            </div>
+        </>
+    )
+}
+
+function SummaryRow({ color, label, active }) {
+    return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{
+                width: '26px', height: '26px', borderRadius: '50%',
+                background: color,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0
+            }}>
+                {active && <span style={{ color: '#fff', fontSize: '0.75rem' }}>✓</span>}
+            </div>
+            <span style={{ fontSize: '0.9rem', color: 'var(--color-text)', fontWeight: active ? '600' : '400' }}>
+                {label}
+            </span>
+        </div>
+    )
+}
+
+// ── Month Grid ────────────────────────────────────────────────────────────────
+function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef, isDateInPeriod, todayStr }) {
     const year = monthDate.getFullYear()
     const month = monthDate.getMonth()
     const daysInMonth = new Date(year, month + 1, 0).getDate()
     const firstDay = new Date(year, month, 1).getDay()
     const startOffset = firstDay === 0 ? 6 : firstDay - 1
 
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-
     const grid = []
 
-    // Empty slots
     for (let i = 0; i < startOffset; i++) {
-        grid.push(<div key={`empty-${i}`} />)
+        grid.push(<div key={`e-${i}`} />)
     }
 
-    // Days
     for (let i = 1; i <= daysInMonth; i++) {
-        const currentCheckDate = new Date(year, month, i)
-        currentCheckDate.setHours(0, 0, 0, 0)
+        const pad = n => String(n).padStart(2, '0')
+        const dateStr = `${year}-${pad(month + 1)}-${pad(i)}`
+        const isToday = dateStr === todayStr
 
-        // Use local date string to match getLocalDateStr() used throughout the app
-        const localDate = new Date(year, month, i)
-        const pad = (n) => String(n).padStart(2, '0')
-        const dateStr = `${localDate.getFullYear()}-${pad(localDate.getMonth() + 1)}-${pad(localDate.getDate())}`
-
-        const isToday = currentCheckDate.getTime() === today.getTime()
-        const isFuture = currentCheckDate > today
-
-        // Check Status
-        // 1. Explicit or Auto-fill Log
         const isPeriod = isDateInPeriod?.(dateStr) || false
-
-        // 2. Prediction Logic (Visuals)
         const isPredicted = !isPeriod && predictedWindows[dateStr]
+        const hasMoved = user.movementLogs?.some(l => l.date === dateStr && l.status === 'moved')
+        const hasSymptoms = user.symptomLogs?.some(l => l.date === dateStr && l.symptoms?.length > 0)
 
-        // 3. Movement Logic
-        const flowLog = user.movementLogs?.find(l => l.date === dateStr)
-        const hasMoved = flowLog?.status === 'moved'
-
-        // 4. Symptoms Logic
-        const symptomLog = user.symptomLogs?.find(l => l.date === dateStr)
-        const hasSymptoms = symptomLog?.symptoms?.length > 0
+        // Is future (strictly after today)
+        const dDate = parseLocal(dateStr)
+        const dToday = parseLocal(todayStr)
+        const isFuture = dDate > dToday
 
         grid.push(
             <div
@@ -425,11 +417,10 @@ function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef, is
                     alignItems: 'center',
                     justifyContent: 'center',
                     position: 'relative',
-                    cursor: 'pointer',
-                    opacity: 1
+                    cursor: isFuture ? 'default' : 'pointer',
+                    opacity: isFuture ? 0.4 : 1
                 }}
             >
-                {/* Number */}
                 <div style={{
                     width: '32px',
                     height: '32px',
@@ -437,42 +428,39 @@ function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef, is
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '0.9rem',
+                    fontSize: '0.88rem',
                     fontWeight: isToday || isPeriod ? '700' : '400',
-                    background: isPeriod ? '#a86473' : (isToday ? '#f0f0f0' : 'transparent'),
+                    background: isPeriod ? '#a86473' : 'transparent',
                     color: isPeriod ? '#fff' : (isPredicted ? '#a86473' : '#2D3436'),
-                    border: isPredicted ? '2px dashed #a86473' : '2px solid transparent',
-                    boxSizing: 'border-box',
-                    position: 'relative' // For dot positioning
+                    border: isToday && !isPeriod
+                        ? '2px solid var(--color-primary)'
+                        : isPredicted
+                            ? '2px dashed #a86473'
+                            : '2px solid transparent',
+                    boxSizing: 'border-box'
                 }}>
                     {i}
                 </div>
 
-                {/* Indicators Container */}
+                {/* Indicator dots */}
                 <div style={{
                     display: 'flex',
-                    gap: '3px',
-                    position: isPeriod ? 'absolute' : 'static',
-                    bottom: isPeriod ? '3px' : 'auto',
-                    marginTop: isPeriod ? '0' : '2px',
+                    gap: '2px',
+                    marginTop: '2px',
+                    height: '5px',
                     justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '5px'
+                    alignItems: 'center'
                 }}>
                     {hasMoved && (
                         <div style={{
-                            width: isPeriod ? '4px' : '5px',
-                            height: isPeriod ? '4px' : '5px',
-                            borderRadius: '50%',
-                            background: isPeriod ? '#fff' : '#4DB6AC',
+                            width: 4, height: 4, borderRadius: '50%',
+                            background: isPeriod ? 'rgba(255,255,255,0.8)' : '#4DB6AC'
                         }} />
                     )}
                     {hasSymptoms && (
                         <div style={{
-                            width: isPeriod ? '4px' : '5px',
-                            height: isPeriod ? '4px' : '5px',
-                            borderRadius: '50%',
-                            background: isPeriod ? 'rgba(255,255,255,0.7)' : '#f5a89c'
+                            width: 4, height: 4, borderRadius: '50%',
+                            background: isPeriod ? 'rgba(255,255,255,0.6)' : '#f5a89c'
                         }} />
                     )}
                 </div>
@@ -481,21 +469,18 @@ function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef, is
     }
 
     return (
-        <div ref={todayRef} style={{ marginBottom: '2rem' }}>
+        <div ref={todayRef} style={{ marginBottom: '1.75rem' }}>
             <h3 style={{
-                fontSize: '1rem',
+                fontSize: '0.95rem',
                 fontWeight: '700',
-                marginBottom: '1rem',
-                paddingLeft: '0.5rem',
-                color: '#2D3436'
+                marginBottom: '0.75rem',
+                paddingLeft: '0.25rem',
+                color: '#2D3436',
+                textTransform: 'capitalize'
             }}>
                 {monthDate.toLocaleDateString('nl-NL', { month: 'long', year: 'numeric' })}
             </h3>
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(7, 1fr)',
-                rowGap: '0.5rem'
-            }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', rowGap: '0.35rem' }}>
                 {grid}
             </div>
         </div>

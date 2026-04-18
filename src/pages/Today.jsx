@@ -473,8 +473,9 @@ export default function Today({ onNavigate }) {
 
                 {/* Menstruation button — smart UX:
                     - During menstrual phase: show 'Menstruatie gestopt' (stop button)
-                    - All other phases / past dates: show 'Menstruatie loggen +'
-                    - Future dates: never show */}
+                    - In luteal phase: show 'Menstruatie loggen +' (period expected soon)
+                    - Already menstruating in any phase: show status + stop option
+                    - All other phases: no button (use calendar instead) */}
                 {(() => {
                   const isNotFuture = viewDateStr <= todayDateStr;
                   if (!isNotFuture) return null;
@@ -482,7 +483,7 @@ export default function Today({ onNavigate }) {
                   const isPeriodToday = isDateInPeriod(viewDateStr);
                   const isViewingToday = viewDateStr === todayDateStr;
 
-                  // If currently menstruating AND viewing today → show STOP button
+                  // If currently menstruating → STOP button (any phase)
                   if (isPeriodToday && isViewingToday && viewPhase === 'menstrual') {
                     return (
                       <button
@@ -506,13 +507,14 @@ export default function Today({ onNavigate }) {
                     )
                   }
 
-                  // Otherwise show LOG button (for any past date or today in non-menstrual phase)
-                  // If already logged for a past date, show it as 'logged' with ability to undo
+                  // Only show LOG button in luteal phase (period expected soon)
+                  // or if already logged (so user can toggle it off)
+                  if (!isPeriodToday && viewPhase !== 'luteal') return null;
+
                   return (
                     <button
                       onClick={() => {
                         if (isPeriodToday) {
-                          // Toggle off for this specific date (calendar correction)
                           togglePeriodDate(viewDateStr)
                         } else {
                           startPeriod(viewDateStr)

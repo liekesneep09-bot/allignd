@@ -22,9 +22,54 @@ import AuthCallback from './components/AuthCallback'
 import { IconHome, IconActivity, IconRecipe, IconAccount, IconCommunity } from './components/Icons'
 import logo from './assets/logo-primary.png'
 
+function SplashScreen() {
+    return (
+        <div style={{
+            minHeight: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#fff',
+            animation: 'fadeIn 0.3s ease-out'
+        }}>
+            <img
+                src={logo}
+                alt="Allignd"
+                style={{ height: '90px', width: 'auto', objectFit: 'contain' }}
+            />
+            <div style={{
+                marginTop: '1.5rem',
+                width: '36px',
+                height: '3px',
+                borderRadius: '2px',
+                background: 'var(--color-primary)',
+                opacity: 0.4,
+                animation: 'pulse 1.2s ease-in-out infinite'
+            }} />
+            <style>{`
+                @keyframes pulse {
+                    0%, 100% { opacity: 0.2; transform: scaleX(0.7); }
+                    50% { opacity: 0.6; transform: scaleX(1); }
+                }
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+            `}</style>
+        </div>
+    )
+}
+
 function MainLayout() {
     const { hasOnboarded, isLoading, currentPhase } = useUser()
     const [currentView, setCurrentView] = useState('today')
+    // Track if we've shown the app at least once — prevents flash back to onboarding
+    const [appReady, setAppReady] = useState(false)
+
+    useEffect(() => {
+        if (!isLoading) setAppReady(true)
+    }, [isLoading])
 
     // Phase colors for background gradient
     const getPhaseColor = (phase) => {
@@ -54,7 +99,8 @@ function MainLayout() {
 
     const phaseStyle = getPhaseColor(currentPhase)
 
-    if (isLoading) return null // or a loading spinner
+    // Show splash while loading (prevents blank flash)
+    if (isLoading) return <SplashScreen />
 
     if (!hasOnboarded) {
         return <Onboarding />
