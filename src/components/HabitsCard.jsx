@@ -182,7 +182,7 @@ export default function HabitsCard({ date }) {
                         <Ring
                             value={steps}
                             max={STEP_GOAL}
-                            color="#D4A800"
+                            color="#F5D98B"
                             label={stepsLabel}
                             sublabel="/ 10k"
                         />
@@ -333,7 +333,7 @@ export default function HabitsCard({ date }) {
 
                     {/* Big current number */}
                     <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                        <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#D4A800', lineHeight: 1 }}>
+                        <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#F5D98B', lineHeight: 1 }}>
                             {steps.toLocaleString('nl-NL')}
                         </div>
                         <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
@@ -361,7 +361,7 @@ export default function HabitsCard({ date }) {
                                     textAlign: 'center'
                                 }}
                             >
-                                <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#D4A800' }}>{opt.label}</div>
+                                <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#F5D98B' }}>{opt.label}</div>
                             </button>
                         ))}
                     </div>
