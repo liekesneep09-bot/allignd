@@ -58,18 +58,40 @@ export default function WeightTracker({ date }) {
         if (!user.weightLogs || user.weightLogs.length < 1) return null
 
         const sorted = [...user.weightLogs].sort((a, b) => a.date.localeCompare(b.date))
-        
+
         const firstWeight = sorted[0].weight
         const latestWeight = sorted[sorted.length - 1].weight
-        
-        const totalDiff = (latestWeight - firstWeight).toFixed(1)
-        
-        return {
-            firstWeight,
-            latestWeight,
-            totalDiff: Number(totalDiff),
-            label: totalDiff > 0 ? `+${totalDiff} kg` : `${totalDiff} kg`
+        const totalDiff = Number((latestWeight - firstWeight).toFixed(1))
+
+        // Helper: get YYYY-MM-DD string for N days ago (local time)
+        const getDateStr = (daysAgo) => {
+            const d = new Date()
+            d.setDate(d.getDate() - daysAgo)
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
         }
+        const todayStr = getDateStr(0)
+        const sevenAgo = getDateStr(7)
+        const fourteenAgo = getDateStr(14)
+
+        const thisWeekLogs = sorted.filter(l => l.date >= sevenAgo && l.date <= todayStr)
+        const lastWeekLogs = sorted.filter(l => l.date >= fourteenAgo && l.date < sevenAgo)
+
+        let weeklyTrend = null
+        let weeklyLabel = 'log meer voor trend'
+
+        if (thisWeekLogs.length > 0 && lastWeekLogs.length > 0) {
+            const thisAvg = thisWeekLogs.reduce((s, l) => s + l.weight, 0) / thisWeekLogs.length
+            const lastAvg = lastWeekLogs.reduce((s, l) => s + l.weight, 0) / lastWeekLogs.length
+            weeklyTrend = Number((thisAvg - lastAvg).toFixed(1))
+            weeklyLabel = 't.o.v. vorige week'
+        } else if (thisWeekLogs.length >= 2) {
+            weeklyTrend = Number((thisWeekLogs[thisWeekLogs.length - 1].weight - thisWeekLogs[0].weight).toFixed(1))
+            weeklyLabel = 'deze week'
+        } else if (sorted.length >= 2) {
+            weeklyLabel = 'eerste week'
+        }
+
+        return { firstWeight, latestWeight, totalDiff, weeklyTrend, weeklyLabel }
     }, [user.weightLogs])
 
     const chartData = useMemo(() => {
@@ -228,36 +250,68 @@ export default function WeightTracker({ date }) {
                     </div>
                 </div>
 
-                {/* Info block resembling the reference screenshot */}
-                {trends && (
-                    <div style={{
-                        display: 'flex',
+                {/* Two-stat summary: Totaal + Deze week */}
+                {trends && (() => {
+                    // Totaal
+                    const totalAbs = Math.abs(trends.totalDiff)
+                    const totalArrow = trends.totalDiff > 0.05 ? '▲' : trends.totalDiff < -0.05 ? '▼' : '→'
+                    const totalLabel = Math.abs(trends.totalDiff) <= 0.05 ? 'geen verandering' : 'sinds je start'
+                    const totalDisplay = Math.abs(trends.totalDiff) <= 0.05 ? '→ stabiel' : `${totalArrow} ${totalAbs} kg`
+
+                    // Deze week
+                    const wt = trends.weeklyTrend
+                    const weekArrow = wt === null ? null : wt > 0.05 ? '▲' : wt < -0.05 ? '▼' : '→'
+                    const weekAbs = wt !== null ? Math.abs(wt) : null
+                    const weekDisplay = wt === null
+                        ? '—'
+                        : Math.abs(wt) <= 0.05
+                            ? '→ stabiel'
+                            : `${weekArrow} ${weekAbs} kg`
+
+                    const cardStyle = {
+                        flex: 1,
+                        background: 'var(--color-surface)',
                         border: '1px solid var(--color-border)',
-                        borderRadius: '12px',
-                        marginTop: '0.5rem',
-                        overflow: 'hidden',
-                        background: 'var(--color-surface)'
-                    }}>
-                        <div style={{ flex: 1, padding: '0.75rem', textAlign: 'center', borderRight: '1px solid var(--color-border)' }}>
-                            <div style={{ fontSize: '0.7rem', color: 'var(--color-primary)', fontWeight: '600', marginBottom: '4px', textTransform: 'uppercase' }}>Verschil</div>
-                            <div style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--color-text)' }}>
-                                {trends.label}
+                        borderRadius: '14px',
+                        padding: '0.85rem 0.75rem',
+                        textAlign: 'center'
+                    }
+                    const labelStyle = {
+                        fontSize: '0.65rem',
+                        color: 'var(--color-text-muted)',
+                        fontWeight: '600',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        marginBottom: '6px'
+                    }
+                    const valueStyle = {
+                        fontSize: '1.1rem',
+                        fontWeight: '800',
+                        color: 'var(--color-text)',
+                        letterSpacing: '-0.01em',
+                        lineHeight: 1.1
+                    }
+                    const subStyle = {
+                        fontSize: '0.65rem',
+                        color: 'var(--color-text-muted)',
+                        marginTop: '4px'
+                    }
+
+                    return (
+                        <div style={{ display: 'flex', gap: '0.6rem', marginTop: '0.75rem' }}>
+                            <div style={cardStyle}>
+                                <div style={labelStyle}>Totaal</div>
+                                <div style={valueStyle}>{totalDisplay}</div>
+                                <div style={subStyle}>{totalLabel}</div>
+                            </div>
+                            <div style={cardStyle}>
+                                <div style={labelStyle}>Deze week</div>
+                                <div style={valueStyle}>{weekDisplay}</div>
+                                <div style={subStyle}>{trends.weeklyLabel}</div>
                             </div>
                         </div>
-                        <div style={{ flex: 1, padding: '0.75rem', textAlign: 'center', borderRight: '1px solid var(--color-border)' }}>
-                            <div style={{ fontSize: '0.7rem', color: 'var(--color-primary)', fontWeight: '600', marginBottom: '4px', textTransform: 'uppercase' }}>Start</div>
-                            <div style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--color-text)' }}>
-                                {trends.firstWeight} <span style={{ fontSize: '0.75rem', fontWeight: '500', color: 'var(--color-text-muted)' }}>kg</span>
-                            </div>
-                        </div>
-                        <div style={{ flex: 1, padding: '0.75rem', textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.7rem', color: 'var(--color-primary)', fontWeight: '600', marginBottom: '4px', textTransform: 'uppercase' }}>Fase Nu</div>
-                            <div style={{ fontSize: '0.8rem', fontWeight: '700', color: PHASE_COLORS[currentPhase] || 'var(--color-text)', textTransform: 'capitalize' }}>
-                                {currentPhase === 'menstrual' ? 'menstr.' : currentPhase}
-                            </div>
-                        </div>
-                    </div>
-                )}
+                    )
+                })()}
             </div>
 
             {/* Chart area */}
