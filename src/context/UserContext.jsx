@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react'
 // ... (omitting lines for brevity, targeting the import)
 import { calculateCycleDay, getPhaseForDay, calculateStartDateFromPhase, getCyclePrediction } from '../logic/cycle'
 import { calculateCycleStats, addPeriodStart as addPeriodStartToHistory, predictNextPeriodStart, getOvulationWindow, calculateAveragePeriodLength } from '../logic/cycle-learning'
@@ -173,7 +173,7 @@ export function UserProvider({ children }) {
     return false
   }
 
-  const getPhaseForDate = (dateStr) => {
+  const getPhaseForDate = useCallback((dateStr) => {
     if (!user) return { phase: 'follicular', day: 1, confidence: 'low' }
     const effectiveCycleLength = user.cycleStats?.learnedCycleLength || user.cycleLength || 28
     const effectiveBleedingDays = user.bleedingLengthDays || user.periodLength || 5
@@ -208,7 +208,8 @@ export function UserProvider({ children }) {
       day: dayCount,
       confidence: user.cycleStats?.confidence || 'low'
     }
-  }
+  // Only regenerate when cycle-related data changes, NOT on food/water/step log changes
+  }, [user.cycleStart, user.cycleLength, user.cycleStats, user.bleedingLengthDays, user.periodLength, user.menstruationLogs, user.isMenstruatingNow, user.manualPhaseOverride, user.manualPhase])
 
   // Determine current phase - MUST match getPhaseForDate logic for today
   const currentPhase = useMemo(() => {
@@ -1646,7 +1647,7 @@ export function UserProvider({ children }) {
 
 
   // NEW: Get Stats for ANY Date
-  const getStatsForDate = (dateStr) => {
+  const getStatsForDate = useCallback((dateStr) => {
     // dateStr should be YYYY-MM-DD
     const logs = user.foodLogs?.filter(log => log.date === dateStr) || []
 
@@ -1657,7 +1658,8 @@ export function UserProvider({ children }) {
       f: acc.f + toNum(log.f),
       fiber: acc.fiber + toNum(log.fiber || 0)
     }), { kcal: 0, p: 0, c: 0, f: 0, fiber: 0 })
-  }
+  // Only regenerate when food logs change, NOT on cycle/water/step changes
+  }, [user.foodLogs])
 
 
   // DEPRECATED: Legacy manual log (keeping for compatibility if needed, but UI will stop using it)

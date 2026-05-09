@@ -177,12 +177,12 @@ export default function WeightTracker({ date }) {
             areaPathStr = `${linePathStr} L ${pointsArray[pointsArray.length - 1].x},${H} L ${pointsArray[0].x},${H} Z`
         }
 
-        // Phase colored points (instead of block backgrounds)
+        // Phase colored points — destructure .phase because getPhaseForDate returns {phase, day, confidence}
         if (pointsArray.length >= 1) {
             for (let i = 0; i < pointsArray.length; i++) {
-                const phase = getPhaseForDate(sorted[i].date)
+                const { phase } = getPhaseForDate(sorted[i].date)
                 pointsArray[i].phaseColor = PHASE_COLORS[phase] || 'var(--color-primary)'
-                pointsArray[i].phaseName = phase
+                pointsArray[i].phaseName = phase  // now a string, safe to render
             }
         }
 
@@ -192,7 +192,7 @@ export default function WeightTracker({ date }) {
 
         // Y-axis labels are computed at the top
         return { pointsArray, linePathStr, areaPathStr, H, W, min, max, startLabel, endLabel, yLabelLow, yLabelHigh }
-    }, [user.weightLogs, getPhaseForDate])
+    }, [user.weightLogs, user.menstruationLogs, user.cycleStart, user.cycleLength])
 
     // ── Interaction ──────────────────────────────────────────────────────────
     const handleMove = useCallback((e) => {
