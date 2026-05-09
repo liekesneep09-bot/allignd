@@ -62,36 +62,10 @@ export default function WeightTracker({ date }) {
         const firstWeight = sorted[0].weight
         const latestWeight = sorted[sorted.length - 1].weight
         const totalDiff = Number((latestWeight - firstWeight).toFixed(1))
+        const firstDate = sorted[0].date  // YYYY-MM-DD of first log
+        const logCount = sorted.length
 
-        // Helper: get YYYY-MM-DD string for N days ago (local time)
-        const getDateStr = (daysAgo) => {
-            const d = new Date()
-            d.setDate(d.getDate() - daysAgo)
-            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-        }
-        const todayStr = getDateStr(0)
-        const sevenAgo = getDateStr(7)
-        const fourteenAgo = getDateStr(14)
-
-        const thisWeekLogs = sorted.filter(l => l.date >= sevenAgo && l.date <= todayStr)
-        const lastWeekLogs = sorted.filter(l => l.date >= fourteenAgo && l.date < sevenAgo)
-
-        let weeklyTrend = null
-        let weeklyLabel = 'log meer voor trend'
-
-        if (thisWeekLogs.length > 0 && lastWeekLogs.length > 0) {
-            const thisAvg = thisWeekLogs.reduce((s, l) => s + l.weight, 0) / thisWeekLogs.length
-            const lastAvg = lastWeekLogs.reduce((s, l) => s + l.weight, 0) / lastWeekLogs.length
-            weeklyTrend = Number((thisAvg - lastAvg).toFixed(1))
-            weeklyLabel = 't.o.v. vorige week'
-        } else if (thisWeekLogs.length >= 2) {
-            weeklyTrend = Number((thisWeekLogs[thisWeekLogs.length - 1].weight - thisWeekLogs[0].weight).toFixed(1))
-            weeklyLabel = 'deze week'
-        } else if (sorted.length >= 2) {
-            weeklyLabel = 'eerste week'
-        }
-
-        return { firstWeight, latestWeight, totalDiff, weeklyTrend, weeklyLabel }
+        return { firstWeight, latestWeight, totalDiff, firstDate, logCount }
     }, [user.weightLogs])
 
     const chartData = useMemo(() => {
@@ -231,90 +205,45 @@ export default function WeightTracker({ date }) {
                 : `${scrubPoint.x}%`
         : '50%'
 
+    // Phase color for this render
+    const phaseColor = PHASE_COLORS[currentPhase] || 'var(--color-primary)'
+
+    // Build simple trend sentence (only when 2+ logs)
+    const trendSentence = (() => {
+        if (!trends || trends.logCount < 2) return null
+        const diff = trends.totalDiff
+        const absVal = Math.abs(diff).toFixed(1)
+        const firstDateObj = parseLocalDate(trends.firstDate)
+        const dateStr = firstDateObj.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long' })
+        if (Math.abs(diff) <= 0.05) return `Stabiel sinds ${dateStr}`
+        return `${diff > 0 ? '↑' : '↓'} ${absVal} kg ${diff > 0 ? 'meer' : 'minder'} dan op ${dateStr}`
+    })()
+
     return (
         <section className="card" style={{ marginBottom: '1.25rem', padding: '0', overflow: 'hidden' }}>
-            <div style={{ padding: '1.25rem', paddingBottom: '0.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h2 style={{ fontSize: '1.1rem', margin: '0 0 0.5rem 0' }}>Gewicht</h2>
-                    <div
-                        onClick={() => {
-                            setTempWeight(currentWeight ? String(currentWeight) : '')
-                            setShowSheet(true)
-                        }}
-                        style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-                    >
-                        <span style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--color-primary)' }}>
-                            {currentWeight || '-.-'}
-                        </span>
-                        <span style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--color-text-muted)' }}>kg</span>
-                    </div>
-                </div>
 
-                {/* Two-stat summary: Totaal + Deze week */}
-                {trends && (() => {
-                    // Totaal
-                    const totalAbs = Math.abs(trends.totalDiff)
-                    const totalArrow = trends.totalDiff > 0.05 ? '▲' : trends.totalDiff < -0.05 ? '▼' : '→'
-                    const totalLabel = Math.abs(trends.totalDiff) <= 0.05 ? 'geen verandering' : 'sinds je start'
-                    const totalDisplay = Math.abs(trends.totalDiff) <= 0.05 ? '→ stabiel' : `${totalArrow} ${totalAbs} kg`
-
-                    // Deze week
-                    const wt = trends.weeklyTrend
-                    const weekArrow = wt === null ? null : wt > 0.05 ? '▲' : wt < -0.05 ? '▼' : '→'
-                    const weekAbs = wt !== null ? Math.abs(wt) : null
-                    const weekDisplay = wt === null
-                        ? '—'
-                        : Math.abs(wt) <= 0.05
-                            ? '→ stabiel'
-                            : `${weekArrow} ${weekAbs} kg`
-
-                    const cardStyle = {
-                        flex: 1,
-                        background: 'var(--color-surface)',
-                        border: '1px solid var(--color-border)',
-                        borderRadius: '14px',
-                        padding: '0.85rem 0.75rem',
-                        textAlign: 'center'
-                    }
-                    const labelStyle = {
-                        fontSize: '0.65rem',
-                        color: 'var(--color-text-muted)',
-                        fontWeight: '600',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        marginBottom: '6px'
-                    }
-                    const valueStyle = {
-                        fontSize: '1.1rem',
-                        fontWeight: '800',
-                        color: 'var(--color-text)',
-                        letterSpacing: '-0.01em',
-                        lineHeight: 1.1
-                    }
-                    const subStyle = {
-                        fontSize: '0.65rem',
-                        color: 'var(--color-text-muted)',
-                        marginTop: '4px'
-                    }
-
-                    return (
-                        <div style={{ display: 'flex', gap: '0.6rem', marginTop: '0.75rem' }}>
-                            <div style={cardStyle}>
-                                <div style={labelStyle}>Totaal</div>
-                                <div style={valueStyle}>{totalDisplay}</div>
-                                <div style={subStyle}>{totalLabel}</div>
-                            </div>
-                            <div style={cardStyle}>
-                                <div style={labelStyle}>Deze week</div>
-                                <div style={valueStyle}>{weekDisplay}</div>
-                                <div style={subStyle}>{trends.weeklyLabel}</div>
-                            </div>
-                        </div>
-                    )
-                })()}
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.25rem 0.75rem' }}>
+                <h2 style={{ fontSize: '1.1rem', margin: 0 }}>Gewicht</h2>
+                <button
+                    onClick={() => { setTempWeight(currentWeight ? String(currentWeight) : ''); setShowSheet(true) }}
+                    style={{
+                        background: phaseColor,
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '20px',
+                        padding: '6px 16px',
+                        fontSize: '0.82rem',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        letterSpacing: '0.01em'
+                    }}
+                >
+                    + Log
+                </button>
             </div>
 
-            {/* Chart area */}
+            {/* Graph */}
             {chartData ? (
                 <div
                     style={{ position: 'relative', width: '100%', touchAction: 'none', userSelect: 'none' }}
@@ -329,188 +258,133 @@ export default function WeightTracker({ date }) {
                         <div style={{
                             position: 'absolute',
                             left: tooltipLeft,
-                            top: '6px',
+                            top: '8px',
                             transform: 'translateX(-50%)',
                             background: 'var(--color-text)',
-                            color: 'var(--color-bg, #fff)',
-                            padding: '5px 10px',
-                            borderRadius: '10px',
-                            fontSize: '0.72rem',
+                            color: '#fff',
+                            padding: '6px 12px',
+                            borderRadius: '12px',
+                            fontSize: '0.75rem',
                             fontWeight: '700',
                             pointerEvents: 'none',
                             zIndex: 10,
                             whiteSpace: 'nowrap',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                            boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
                             lineHeight: 1.4
                         }}>
                             {scrubPoint.weight} kg
-                            <div style={{ fontSize: '0.6rem', opacity: 0.7, textAlign: 'center', fontWeight: '400' }}>
+                            <div style={{ fontSize: '0.62rem', opacity: 0.7, textAlign: 'center', fontWeight: '400' }}>
                                 {parseLocalDate(scrubPoint.date).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}
                             </div>
-                            <div style={{ 
-                                fontSize: '0.65rem', 
-                                color: scrubPoint.phaseColor, 
-                                textAlign: 'center', 
-                                marginTop: '3px', 
-                                textTransform: 'uppercase', 
-                                fontWeight: 800,
-                                filter: 'brightness(1.5)' // make it pop on dark tooltip bg
-                            }}>
-                                {scrubPoint.phaseName === 'menstrual' ? 'menstruatie' : scrubPoint.phaseName}
-                            </div>
+                            {scrubPoint.phaseName && (
+                                <div style={{ fontSize: '0.62rem', color: scrubPoint.phaseColor, textAlign: 'center', marginTop: '2px', fontWeight: 800, filter: 'brightness(1.6)' }}>
+                                    {scrubPoint.phaseName === 'menstrual' ? 'menstruatie'
+                                        : scrubPoint.phaseName === 'follicular' ? 'folliculair'
+                                        : scrubPoint.phaseName === 'ovulatory' ? 'ovulatie'
+                                        : 'luteaal'}
+                                </div>
+                            )}
                         </div>
                     )}
 
                     {/* Y-axis labels */}
-                    <div style={{
-                        position: 'absolute',
-                        left: '6px',
-                        top: 0,
-                        bottom: '18px', // above x-axis labels
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        pointerEvents: 'none',
-                        zIndex: 5
-                    }}>
-                        <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', lineHeight: 1 }}>
-                            {chartData.yLabelHigh} kg
-                        </span>
-                        <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', lineHeight: 1 }}>
-                            {chartData.yLabelLow} kg
-                        </span>
+                    <div style={{ position: 'absolute', left: '8px', top: '4px', bottom: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', pointerEvents: 'none', zIndex: 5 }}>
+                        <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', lineHeight: 1 }}>{chartData.yLabelHigh} kg</span>
+                        <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', lineHeight: 1 }}>{chartData.yLabelLow} kg</span>
                     </div>
 
                     <svg
                         ref={svgRef}
                         width="100%"
-                        height="120"
+                        height="160"
                         viewBox={`0 0 ${chartData.W} ${chartData.H}`}
                         preserveAspectRatio="none"
-                        style={{ display: 'block', cursor: 'crosshair', marginTop: '10px' }}
+                        style={{ display: 'block', cursor: 'crosshair' }}
                     >
                         <defs>
                             <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.25" />
-                                <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0.0" />
+                                <stop offset="0%" stopColor={phaseColor} stopOpacity="0.3" />
+                                <stop offset="100%" stopColor={phaseColor} stopOpacity="0.0" />
                             </linearGradient>
                         </defs>
 
-                        {/* Horizontal grid line (midpoint) */}
-                        <line
-                            x1="0" y1={chartData.H * 0.5}
-                            x2={chartData.W} y2={chartData.H * 0.5}
-                            stroke="var(--color-border)"
-                            strokeWidth="0.3"
-                            strokeDasharray="2 3"
-                        />
+                        {/* Grid line */}
+                        <line x1="0" y1={chartData.H * 0.5} x2={chartData.W} y2={chartData.H * 0.5}
+                            stroke="var(--color-border)" strokeWidth="0.3" strokeDasharray="2 3" />
 
-                        {/* Area Fill */}
-                        {chartData.areaPathStr && (
-                            <path
-                                d={chartData.areaPathStr}
-                                fill="url(#weightGradient)"
-                            />
-                        )}
+                        {/* Area fill — phase colored */}
+                        {chartData.areaPathStr && <path d={chartData.areaPathStr} fill="url(#weightGradient)" />}
 
-                        {/* Trend Line (Smooth & Bold) */}
+                        {/* Line — phase colored */}
                         {chartData.linePathStr && (
-                            <path
-                                fill="none"
-                                stroke="var(--color-primary)"
-                                strokeWidth="3"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d={chartData.linePathStr}
-                            />
+                            <path fill="none" stroke={phaseColor} strokeWidth="3"
+                                strokeLinecap="round" strokeLinejoin="round" d={chartData.linePathStr} />
                         )}
 
-                        {/* Single-point dot (when only 1 log) */}
+                        {/* Single dot when only 1 log */}
                         {chartData.pointsArray.length === 1 && (
-                            <circle
-                                cx={chartData.pointsArray[0].x}
-                                cy={chartData.pointsArray[0].y}
-                                r="4"
-                                fill="var(--color-primary)"
-                            />
+                            <circle cx={chartData.pointsArray[0].x} cy={chartData.pointsArray[0].y} r="5" fill={phaseColor} />
                         )}
 
-                        {/* Scrubber Line */}
-                        {scrubPoint && (
-                            <line
-                                x1={scrubPoint.x} y1="0"
-                                x2={scrubPoint.x} y2={chartData.H}
-                                stroke="var(--color-text)"
-                                strokeWidth="0.4"
-                                strokeDasharray="2 2"
-                                opacity="0.4"
-                            />
-                        )}
-
-                        {/* Scrubber Dot (highlighted) */}
+                        {/* Scrubber */}
                         {scrubPoint && (
                             <>
-                                <circle cx={scrubPoint.x} cy={scrubPoint.y} r="3.5" fill="var(--color-primary)" opacity="0.2" />
-                                <circle cx={scrubPoint.x} cy={scrubPoint.y} r="2" fill="#fff" stroke="var(--color-primary)" strokeWidth="1.2" />
+                                <line x1={scrubPoint.x} y1="0" x2={scrubPoint.x} y2={chartData.H}
+                                    stroke="var(--color-text)" strokeWidth="0.5" strokeDasharray="3 3" opacity="0.35" />
+                                <circle cx={scrubPoint.x} cy={scrubPoint.y} r="4" fill={phaseColor} opacity="0.25" />
+                                <circle cx={scrubPoint.x} cy={scrubPoint.y} r="2.5" fill="#fff" stroke={phaseColor} strokeWidth="1.5" />
                             </>
                         )}
                     </svg>
 
-                    {/* X-axis date labels */}
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        padding: '2px 8px 4px 8px',
-                        pointerEvents: 'none'
-                    }}>
+                    {/* X-axis labels */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '2px 10px 4px 10px', pointerEvents: 'none' }}>
                         <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)' }}>{chartData.startLabel}</span>
                         <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)' }}>{chartData.endLabel}</span>
                     </div>
                 </div>
             ) : (
-                <div style={{ padding: '2rem 1.25rem', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
+                <div style={{ padding: '2.5rem 1.25rem', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
                     Log je eerste gewicht om te beginnen!
                 </div>
             )}
 
-            <div style={{ padding: '0 1.25rem 1.25rem 1.25rem' }}>
-                {/* Insight */}
-                <div style={{
-                    background: 'var(--color-bg)',
-                    padding: '1rem',
-                    borderRadius: '16px',
-                    fontSize: '0.85rem',
-                    lineHeight: '1.5',
-                    marginBottom: '1rem',
-                    marginTop: '1rem',
-                    color: 'var(--color-text)',
-                    border: '1px solid var(--color-border)'
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: PHASE_COLORS[currentPhase] || 'var(--color-primary)' }} />
-                        <span style={{ fontWeight: '700', color: 'var(--color-text)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                            Cyclus Inzicht
-                        </span>
-                    </div>
-                    {getInsight(currentPhase)}
+            {/* Big weight hero + trend sentence */}
+            <div style={{ padding: '1rem 1.25rem 0.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
+                    <span style={{ fontSize: '2.8rem', fontWeight: '800', color: 'var(--color-text)', lineHeight: 1, letterSpacing: '-0.03em' }}>
+                        {currentWeight || '—'}
+                    </span>
+                    <span style={{ fontSize: '1.1rem', fontWeight: '500', color: 'var(--color-text-muted)' }}>kg</span>
                 </div>
+                {trendSentence && (
+                    <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '3px' }}>
+                        {trendSentence}
+                    </div>
+                )}
+                {trends && trends.logCount === 1 && (
+                    <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '3px' }}>
+                        Je eerste meting — log vaker voor een trend
+                    </div>
+                )}
+            </div>
 
-                <button
-                    onClick={() => {
-                        setTempWeight(currentWeight ? String(currentWeight) : '')
-                        setShowSheet(true)
-                    }}
-                    className="btn btn-primary"
-                    style={{
-                        width: '100%',
-                        padding: '1rem',
-                        fontSize: '0.95rem',
-                        borderRadius: '16px',
-                        fontWeight: '600'
-                    }}
-                >
-                    Log nieuw weegmoment
-                </button>
+            {/* Cyclus insight — compact inline */}
+            <div style={{ padding: '0.75rem 1.25rem 1.25rem' }}>
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '8px',
+                    padding: '0.75rem',
+                    background: 'var(--color-bg)',
+                    borderRadius: '12px',
+                    border: `1px solid ${phaseColor}30`
+                }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: phaseColor, marginTop: '4px', flexShrink: 0 }} />
+                    <span style={{ fontSize: '0.82rem', color: 'var(--color-text)', lineHeight: '1.45' }}>
+                        {getInsight(currentPhase)}
+                    </span>
+                </div>
             </div>
 
             {/* BOTTOM SHEET */}
@@ -559,7 +433,7 @@ export default function WeightTracker({ date }) {
                                     width: '140px',
                                     padding: '16px',
                                     borderRadius: '16px',
-                                    border: '2px solid var(--color-primary)',
+                                    border: `2px solid ${phaseColor}`,
                                     fontSize: '1.5rem',
                                     fontWeight: '800',
                                     textAlign: 'center',
@@ -574,29 +448,14 @@ export default function WeightTracker({ date }) {
                         <div style={{ display: 'flex', gap: '1rem' }}>
                             <button
                                 onClick={() => setShowSheet(false)}
-                                style={{
-                                    flex: 1,
-                                    padding: '1rem',
-                                    borderRadius: '16px',
-                                    border: 'none',
-                                    background: 'var(--color-bg)',
-                                    color: 'var(--color-text)',
-                                    fontWeight: '600',
-                                    fontSize: '1rem'
-                                }}
+                                style={{ flex: 1, padding: '1rem', borderRadius: '16px', border: 'none', background: 'var(--color-bg)', color: 'var(--color-text)', fontWeight: '600', fontSize: '1rem', cursor: 'pointer' }}
                             >
                                 Annuleer
                             </button>
                             <button
                                 onClick={handleSaveManual}
                                 className="btn btn-primary"
-                                style={{
-                                    flex: 2,
-                                    padding: '1rem',
-                                    borderRadius: '16px',
-                                    fontWeight: '600',
-                                    fontSize: '1rem'
-                                }}
+                                style={{ flex: 2, padding: '1rem', borderRadius: '16px', fontWeight: '600', fontSize: '1rem', background: phaseColor }}
                             >
                                 Opslaan
                             </button>
