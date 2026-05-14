@@ -206,7 +206,8 @@ export default function HabitsCard({ date }) {
                             borderRadius: '16px',
                             fontSize: '0.9rem',
                             fontWeight: '600',
-                            background: '#89C4F4'
+                            background: '#fee7e9',
+                            color: '#000'
                         }}
                     >
                         + Water
@@ -220,7 +221,8 @@ export default function HabitsCard({ date }) {
                             borderRadius: '16px',
                             fontSize: '0.9rem',
                             fontWeight: '600',
-                            background: '#F5D98B'
+                            background: '#fee7e9',
+                            color: '#000'
                         }}
                     >
                         + Stappen
