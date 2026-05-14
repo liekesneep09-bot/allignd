@@ -412,20 +412,20 @@ export default function Today({ onNavigate }) {
                 {
                   title: "Luteale fase",
                   prefix: "Je zit waarschijnlijk in je",
-                  normal: "Je lichaam vraagt om iets meer rust en stabiliteit. Merk je meer trek? Dat is normaal. Blijf goed voor jezelf zorgen en luister naar wat je nodig hebt.",
-                  nutrition: "Complexe koolhydraten, extra eiwitten en magnesium ondersteunen je verzadiging en energiebalans."
+                  normal: "Je lichaam schakelt langzaam over naar meer rust. Meer trek, minder energie of wat extra vocht vasthouden is helemaal normaal in deze fase.",
+                  nutrition: "Magnesium, complexe koolhydraten, calcium en vitamine B6 ondersteunen je verzadiging en energiebalans. Denk aan havermout, banaan, yoghurt, zoete aardappel en noten."
                 },
                 {
                   title: "Luteale fase",
                   prefix: "Je zit waarschijnlijk in je",
-                  normal: "Progesteron stijgt en dat kan zorgen voor meer vermoeidheid, prikkelgevoeligheid of een opgeblazen gevoel. Dat is je lichaam — niet iets wat je verkeerd doet.",
-                  nutrition: "Magnesium en vitamine B6 kunnen helpen bij prikkelgevoeligheid. Regelmatig eten voorkomt energiedips en cravings."
+                  normal: "Dit is vaak een fase waarin je lichaam meer behoefte heeft aan stabiliteit en herstel. Wat zachter voor jezelf zijn mag juist nu.",
+                  nutrition: "Magnesium, complexe koolhydraten, calcium en vitamine B6 ondersteunen je verzadiging en energiebalans. Kies bijvoorbeeld voor quinoa, pure chocolade, avocado, spinazie en eieren."
                 },
                 {
                   title: "Luteale fase",
                   prefix: "Je zit waarschijnlijk in je",
-                  normal: "Je lichaam schakelt langzaam over naar meer rust. Minder energie of meer trek is een teken dat je systeem hard werkt — niet dat je tekortkomt.",
-                  nutrition: "Zoete aardappel, noten, avocado en pure chocolade zijn fijne keuzes die je verzadiging en balans ondersteunen."
+                  normal: "Je energie kan deze dagen wat meer schommelen. Dat is normaal en hoort bij de veranderingen die in je lichaam plaatsvinden.",
+                  nutrition: "Magnesium, complexe koolhydraten, calcium en vitamine B6 ondersteunen je verzadiging en energiebalans. Denk aan volkoren pasta, amandelen, zalm, pompoenpitten en yoghurt."
                 }
               ]
             }
