@@ -533,20 +533,25 @@ export default function Today({ onNavigate }) {
                       <button
                         onClick={() => stopPeriod(viewDateStr)}
                         style={{
-                          marginTop: '0.75rem',
-                          background: 'var(--color-primary)',
-                          border: '1px solid var(--color-primary)',
-                          padding: '0.8rem 1.5rem',
-                          borderRadius: '30px',
-                          fontSize: '0.9rem',
-                          fontWeight: '600',
-                          color: '#fff',
+                          marginTop: '0.8rem',
+                          background: 'none',
+                          border: 'none',
+                          padding: '0.4rem 0.8rem',
+                          fontSize: '0.95rem',
+                          fontWeight: '700',
+                          color: phaseStyle.text,
                           cursor: 'pointer',
-                          transition: 'all 0.2s',
-                          boxShadow: '0 4px 12px rgba(255, 174, 185, 0.4)'
+                          transition: 'opacity 0.2s',
+                          opacity: 0.9,
+                          fontFamily: 'inherit',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
                         }}
+                        onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                        onMouseLeave={(e) => e.currentTarget.style.opacity = '0.9'}
                       >
-                        Menstruatie gestopt
+                        Menstruatie gestopt —
                       </button>
                     )
                   }
@@ -564,19 +569,23 @@ export default function Today({ onNavigate }) {
                         }
                       }}
                       style={{
-                        marginTop: '0.75rem',
-                        background: isPeriodToday ? 'var(--color-primary)' : 'rgba(255,255,255,0.5)',
-                        border: isPeriodToday ? '1px solid var(--color-primary)' : '1px solid rgba(255,255,255,0.8)',
-                        padding: '0.8rem 1.5rem',
-                        borderRadius: '30px',
-                        fontSize: '0.9rem',
-                        fontWeight: '600',
-                        color: isPeriodToday ? '#fff' : phaseStyle.text,
+                        marginTop: '0.8rem',
+                        background: 'none',
+                        border: 'none',
+                        padding: '0.4rem 0.8rem',
+                        fontSize: '0.95rem',
+                        fontWeight: '700',
+                        color: phaseStyle.text,
                         cursor: 'pointer',
-                        backdropFilter: 'blur(4px)',
-                        transition: 'all 0.2s',
-                        boxShadow: isPeriodToday ? '0 4px 12px rgba(255, 174, 185, 0.4)' : 'none'
+                        transition: 'opacity 0.2s',
+                        opacity: 0.9,
+                        fontFamily: 'inherit',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
                       }}
+                      onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                      onMouseLeave={(e) => e.currentTarget.style.opacity = '0.9'}
                     >
                       {isPeriodToday ? 'Menstruatie gelogd ✓' : 'Menstruatie loggen +'}
                     </button>
