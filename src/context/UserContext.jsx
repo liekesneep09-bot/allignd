@@ -696,7 +696,7 @@ export function UserProvider({ children }) {
           .select('id')
           .eq('user_id', userId)
           .eq('date', todayStr)
-          .single()
+          .maybeSingle()
 
         if (existingLog) {
           await supabase.from('weight_logs').update({ weight: newWeight, updated_at: new Date().toISOString() }).eq('id', existingLog.id)
@@ -1176,7 +1176,7 @@ export function UserProvider({ children }) {
         .select('id')
         .eq('user_id', authUser.id)
         .eq('date', dateStr)
-        .single()
+        .maybeSingle()
 
       let dbError = null
       if (existing) {
