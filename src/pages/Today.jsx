@@ -551,7 +551,7 @@ export default function Today({ onNavigate }) {
                         onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
                         onMouseLeave={(e) => e.currentTarget.style.opacity = '0.9'}
                       >
-                        Menstruatie gestopt —
+                        Menstruatie gestopt
                       </button>
                     )
                   }
@@ -587,7 +587,7 @@ export default function Today({ onNavigate }) {
                       onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
                       onMouseLeave={(e) => e.currentTarget.style.opacity = '0.9'}
                     >
-                      {isPeriodToday ? 'Menstruatie gelogd ✓' : 'Menstruatie loggen +'}
+                      {isPeriodToday ? 'Menstruatie gelogd' : 'Menstruatie loggen'}
                     </button>
                   )
                 })()}
