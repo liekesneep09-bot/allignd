@@ -469,11 +469,21 @@ export default function Today({ onNavigate }) {
                   {currentText.title}
                 </h2>
 
+                {/* Streepje onder de titel */}
+                <div style={{
+                  width: '48px',
+                  height: '2px',
+                  background: phaseStyle.text,
+                  borderRadius: '2px',
+                  margin: '0.6rem 0 0.5rem 0',
+                  opacity: 0.5
+                }} />
+
                 <p style={{
                   fontSize: '0.95rem',
                   color: 'var(--color-text)',
-                  lineHeight: '1.4',
-                  margin: '0.25rem 0 0 0',
+                  lineHeight: '1.5',
+                  margin: '0',
                   maxWidth: '280px',
                   opacity: 0.9,
                   fontWeight: '400'
@@ -481,61 +491,35 @@ export default function Today({ onNavigate }) {
                   {currentText.normal}
                 </p>
 
-                {phaseTransition && phaseTransition.isTransition && (
-                  <div style={{
-                    marginTop: '0.75rem',
-                    padding: '0.6rem 0.8rem',
-                    borderRadius: '12px',
-                    background: 'rgba(255,255,255,0.4)',
-                    border: '1px solid rgba(255,255,255,0.6)',
-                    maxWidth: '280px'
-                  }}>
-                    <p style={{
-                      fontSize: '0.85rem',
-                      color: 'var(--color-text)',
-                      lineHeight: '1.4',
-                      margin: 0,
-                      fontWeight: '500',
-                      opacity: 0.85
-                    }}>
-                      ⚡ Je nadert je {PHASE_TEXT[phaseTransition.nextPhase]?.title?.toLowerCase() || 'volgende fase'}. Het is normaal als je af en toe merkt dat je energie of behoeftes al licht verschuiven.
-                    </p>
-                  </div>
-                )}
-
-                {/* Integrated Nutrition Text - Minimalist Icon + Line */}
+                {/* Voedingskaartje met appeltje */}
                 <div style={{
-                  marginTop: '0.75rem', // Slightly more space above the nutrition block
+                  marginTop: '1rem',
+                  width: '100%',
+                  maxWidth: '300px',
+                  background: phaseStyle.accent,
+                  borderRadius: '16px',
+                  padding: '1rem 1.1rem',
+                  textAlign: 'left',
                   display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '0.4rem',
-                  opacity: 0.85
+                  gap: '0.75rem',
+                  alignItems: 'flex-start'
                 }}>
-                  {/* Minimalist Line Icon (Apple concept) */}
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: phaseStyle.text }}>
-                    {/* Apple Body */}
+                  {/* Appel icoon */}
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={phaseStyle.text} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}>
                     <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22 0-2.25-1.94-4.22-4.14-4.22-2.19 0-3.69 1.62-5.86 1.62-2.16 0-3.65-1.62-5.84-1.62C3.97 5.56 2 7.72 2 10.41c0 4.19 3 11.59 6 11.59 1.25 0 2.5-1.06 4-1.06Z" />
-                    {/* Stem/Leaf */}
                     <path d="M10 2c1 0 3.5 1.5 3.5 3.5" />
                   </svg>
-
-                  <div style={{
-                    fontSize: '0.95rem',
-                    color: 'var(--color-text)',
-                    lineHeight: '1.4',
-                    fontWeight: '400',
-                    maxWidth: '300px'
-                  }}>
-                    {currentText.nutrition}
+                  <div>
+                    <div style={{ fontSize: '0.85rem', fontWeight: '700', color: phaseStyle.text, marginBottom: '0.3rem' }}>
+                      Voeding die je ondersteunt
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--color-text)', lineHeight: '1.45', opacity: 0.85 }}>
+                      {currentText.nutrition}
+                    </div>
                   </div>
                 </div>
 
-                {/* Menstruation button — smart UX:
-                    - During menstrual phase: show 'Menstruatie gestopt' (stop button)
-                    - In luteal phase: show 'Menstruatie loggen +' (period expected soon)
-                    - Already menstruating in any phase: show status + stop option
-                    - All other phases: no button (use calendar instead) */}
+                {/* Menstruatie knop (luteaal + menstrueel) */}
                 {(() => {
                   const isNotFuture = viewDateStr <= todayDateStr;
                   if (!isNotFuture) return null;
@@ -543,7 +527,7 @@ export default function Today({ onNavigate }) {
                   const isPeriodToday = isDateInPeriod(viewDateStr);
                   const isViewingToday = viewDateStr === todayDateStr;
 
-                  // If currently menstruating → STOP button (any phase)
+                  // Menstruerende fase → STOP knop
                   if (isPeriodToday && isViewingToday && viewPhase === 'menstrual') {
                     return (
                       <button
@@ -567,8 +551,7 @@ export default function Today({ onNavigate }) {
                     )
                   }
 
-                  // Only show LOG button in luteal phase (period expected soon)
-                  // or if already logged (so user can toggle it off)
+                  // Alleen in luteale fase LOG knop tonen
                   if (!isPeriodToday && viewPhase !== 'luteal') return null;
 
                   return (
@@ -599,7 +582,6 @@ export default function Today({ onNavigate }) {
                     </button>
                   )
                 })()}
-
 
               </div>
             )
