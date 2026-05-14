@@ -505,12 +505,12 @@ export default function Today({ onNavigate }) {
                   boxSizing: 'border-box'
                 }}>
                   {/* Appel icoon */}
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={phaseStyle.text} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '1px' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-text)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '1px' }}>
                     <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22 0-2.25-1.94-4.22-4.14-4.22-2.19 0-3.69 1.62-5.86 1.62-2.16 0-3.65-1.62-5.84-1.62C3.97 5.56 2 7.72 2 10.41c0 4.19 3 11.59 6 11.59 1.25 0 2.5-1.06 4-1.06Z" />
                     <path d="M10 2c1 0 3.5 1.5 3.5 3.5" />
                   </svg>
                   <div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: '700', color: phaseStyle.text, marginBottom: '0.3rem' }}>
+                    <div style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--color-text)', marginBottom: '0.3rem' }}>
                       Voeding die je ondersteunt
                     </div>
                     <div style={{ fontSize: '0.85rem', color: 'var(--color-text)', lineHeight: '1.5', opacity: 0.85 }}>
