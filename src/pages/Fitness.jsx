@@ -4,7 +4,7 @@ import { getFitnessAdvice, BODY_PARTS, getBodyPartExercises, getBodyPartAdvice }
 import { PHASE_CONTENT } from '../data/phases'
 import { IconActivity } from '../components/Icons'
 import { getLocalDateStr } from '../utils/date'
-import StepTracker from '../components/StepTracker'
+import HabitsCard from '../components/HabitsCard'
 import WeightTracker from '../components/WeightTracker'
 import { calculateProgress } from '../utils/numbers'
 
@@ -181,7 +181,7 @@ export default function Fitness() {
                     <h1 style={{ fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>Fitness</h1>
                 </header>
 
-                <StepTracker date={todayStr} />
+                <HabitsCard date={todayStr} />
                 <WeightTracker date={todayStr} />
 
                 {/* WEEK STATUS BLOCK */}
