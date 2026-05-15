@@ -200,11 +200,11 @@ export default function Login() {
                     zIndex: 0
                 }} />
 
-                {/* Light Gradient Overlay for Readability with Dark Text - Slightly brighter */}
+                {/* Subtle Light Gradient Overlay for Readability */}
                 <div style={{
                     position: 'absolute',
                     top: 0, left: 0, right: 0, bottom: 0,
-                    background: 'linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.2) 40%, rgba(255,255,255,0.5) 70%, rgba(255,255,255,0.85) 100%)',
+                    background: 'linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 40%, rgba(255,255,255,0.3) 70%, rgba(255,255,255,0.6) 100%)',
                     zIndex: 1
                 }} />
 
@@ -219,7 +219,7 @@ export default function Login() {
                     height: '100vh',
                     maxWidth: '400px',
                     margin: '0 auto',
-                    padding: '2.5rem 1.5rem 2.5rem 1.5rem',
+                    padding: '1.5rem 1.5rem 2.5rem 1.5rem', // Reduced top padding
                     justifyContent: 'space-between'
                 }}>
 
@@ -235,7 +235,7 @@ export default function Login() {
                             src={logo}
                             alt="Allignd"
                             style={{
-                                height: '55px', // Increased size
+                                height: '55px',
                                 width: 'auto',
                                 objectFit: 'contain'
                             }}
@@ -276,10 +276,10 @@ export default function Login() {
                         <p style={{
                             fontSize: '1.05rem',
                             lineHeight: '1.5',
-                            color: '#4a4a4a',
+                            color: '#333333', // Darker for better visibility
                             marginTop: '1.5rem',
                             maxWidth: '280px',
-                            fontWeight: '400'
+                            fontWeight: '700' // Bold as requested
                         }}>
                             {t('auth.subtext')}
                         </p>
