@@ -68,9 +68,11 @@
     "footer_contact": "contact"
   },
   "auth": {
-    "login_btn": "Log in",
     "signup_btn": "Meld je aan",
-    "tagline": "Move with your cycle",
+    "login_btn_ghost": "Log in",
+    "tagline_main": "aligned,",
+    "tagline_highlight": "not perfect.",
+    "subtext": "Geen one-size-fits-all. Wel een plan dat bij jou past, elke dag opnieuw.",
     "invalid_email": "Vul een geldig e-mailadres in",
     "password_length": "Wachtwoord moet minimaal 6 tekens zijn",
     "check_inbox": "Check je inbox",

@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../utils/supabaseClient'
 import logo from '../assets/logo-primary.png'
-import startBg from '../assets/Ontwerp zonder titel.png'
+import startBg from '../assets/login-hero.png'
 import { useLanguage } from '../context/LanguageContext'
 
 export default function Login() {
@@ -180,7 +179,6 @@ export default function Login() {
     }
 
     // Start Screen (RE-RE-DESIGN)
-    // Removed: "Not against it", "White Block"
     if (view === 'start') {
         return (
             <div style={{
@@ -190,105 +188,117 @@ export default function Login() {
                 display: 'flex',
                 flexDirection: 'column',
                 backgroundColor: '#FFFFFF',
-                color: 'var(--color-text)'
             }}>
 
-                {/* Background: illustration */}
+                {/* Full-screen Background Image */}
                 <div style={{
                     position: 'absolute',
                     top: 0, left: 0, right: 0, bottom: 0,
                     backgroundImage: `url(${startBg})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                    transform: 'scale(1.25)', // Maakt de afbeelding een stuk groter
-                    opacity: 0.55, // Middle ground: niet te fel/dominant, maar de kleuren blijven helder
-                    filter: 'saturate(0.75)',
                     zIndex: 0
+                }} />
+
+                {/* Gradient Overlay for Text Readability */}
+                <div style={{
+                    position: 'absolute',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'linear-gradient(to bottom, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.2) 40%, rgba(0,0,0,0.1) 70%, rgba(0,0,0,0.4) 100%)',
+                    zIndex: 1
                 }} />
 
                 {/* Content */}
                 <div style={{
                     position: 'relative',
-                    zIndex: 1,
+                    zIndex: 2,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'center',
                     width: '100%',
                     height: '100vh',
                     maxWidth: '400px',
                     margin: '0 auto',
-                    padding: '2rem'
+                    padding: '3rem 2rem 2.5rem 2rem',
+                    justifyContent: 'space-between'
                 }}>
 
-                    {/* Logo + Tagline — perfectly centered in viewport */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                        <img
-                            src={logo}
-                            alt="Allignd"
-                            style={{
-                                height: '260px',
-                                width: 'auto',
-                                maxWidth: '90%',
-                                marginBottom: '1rem',
-                                objectFit: 'contain'
-                            }}
-                        />
+                    {/* Logo - Small at top */}
+                    <img
+                        src={logo}
+                        alt="Allignd"
+                        style={{
+                            height: '40px',
+                            width: 'auto',
+                            objectFit: 'contain'
+                        }}
+                    />
 
-                        <p style={{
-                            fontSize: '0.9rem',
-                            fontWeight: '400',
-                            fontStyle: 'italic',
-                            color: 'var(--color-text-muted)',
-                            letterSpacing: '0.2em',
-                            textTransform: 'uppercase',
-                            textAlign: 'center',
-                            margin: 0
+                    {/* Hero Text Section */}
+                    <div style={{ textAlign: 'left', width: '100%', marginTop: '-10rem' }}>
+                        <h1 style={{ 
+                            fontSize: '2.8rem', 
+                            lineHeight: 1.1, 
+                            fontWeight: '700', 
+                            color: '#1a1a1a', 
+                            margin: 0,
+                            letterSpacing: '-0.02em'
                         }}>
-                            {t('auth.tagline')}
+                            {t('auth.tagline_main')}<br />
+                            not <span style={{ 
+                                color: 'var(--color-primary)', 
+                                fontStyle: 'italic',
+                                fontWeight: '500'
+                            }}>{t('auth.tagline_highlight')}</span>
+                        </h1>
+                        
+                        <p style={{
+                            fontSize: '1.05rem',
+                            lineHeight: '1.5',
+                            color: '#4a4a4a',
+                            marginTop: '1.5rem',
+                            maxWidth: '280px',
+                            fontWeight: '400'
+                        }}>
+                            {t('auth.subtext')}
                         </p>
                     </div>
 
                     {/* Language Switcher */}
-                    <div style={{ position: 'absolute', top: '2rem', right: '2rem', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <div style={{ position: 'absolute', top: '2rem', right: '1.5rem', display: 'flex', gap: '8px', alignItems: 'center' }}>
                          <button 
                             onClick={() => setLanguage('nl')} 
-                            style={{ color: 'var(--color-text)', background: 'none', border: 'none', opacity: language === 'nl' ? 1 : 0.5, fontWeight: language === 'nl' ? 700 : 400, fontSize: '0.9rem', cursor: 'pointer' }}
+                            style={{ color: '#1a1a1a', background: 'none', border: 'none', opacity: language === 'nl' ? 1 : 0.4, fontWeight: language === 'nl' ? 700 : 400, fontSize: '0.85rem', cursor: 'pointer' }}
                          >NL</button>
-                         <span style={{ color: 'var(--color-text-muted)', opacity: 0.5 }}>|</span>
+                         <span style={{ color: '#1a1a1a', opacity: 0.2 }}>|</span>
                          <button 
                             onClick={() => setLanguage('en')} 
-                            style={{ color: 'var(--color-text)', background: 'none', border: 'none', opacity: language === 'en' ? 1 : 0.5, fontWeight: language === 'en' ? 700 : 400, fontSize: '0.9rem', cursor: 'pointer' }}
+                            style={{ color: '#1a1a1a', background: 'none', border: 'none', opacity: language === 'en' ? 1 : 0.4, fontWeight: language === 'en' ? 700 : 400, fontSize: '0.85rem', cursor: 'pointer' }}
                          >EN</button>
                     </div>
 
-                    {/* Buttons — pinned to bottom so they don't disrupt centering */}
+                    {/* Buttons Container */}
                     <div style={{
-                        position: 'absolute',
-                        bottom: '2.5rem',
-                        left: 0,
-                        right: 0,
-                        padding: '0 2rem',
+                        width: '100%',
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: '0.75rem',
-                        width: '100%'
+                        gap: '0.5rem',
+                        alignItems: 'center'
                     }}>
                         <button
                             onClick={() => setView('signup')}
                             style={{
                                 width: '100%',
-                                padding: '1.2rem',
-                                borderRadius: '14px',
+                                padding: '1.1rem',
+                                borderRadius: '16px',
                                 border: 'none',
                                 background: 'var(--color-primary)',
-                                color: '#333333',
-                                fontSize: '1.05rem',
+                                color: '#1a1a1a',
+                                fontSize: '1.1rem',
                                 fontWeight: '600',
                                 cursor: 'pointer',
-                                boxShadow: '0 6px 18px rgba(255, 174, 185, 0.25)',
-                                transition: 'transform 0.1s'
+                                boxShadow: '0 8px 24px rgba(255, 174, 185, 0.3)',
+                                transition: 'all 0.2s ease'
                             }}
                         >
                             {t('auth.signup_btn')}
@@ -298,17 +308,17 @@ export default function Login() {
                             onClick={() => setView('login')}
                             style={{
                                 width: '100%',
-                                padding: '0.9rem',
+                                padding: '1rem',
                                 background: 'transparent',
                                 border: 'none',
-                                color: 'var(--color-text)',
-                                fontSize: '0.95rem',
-                                fontWeight: '500',
+                                color: '#FFFFFF',
+                                fontSize: '1.05rem',
+                                fontWeight: '600',
                                 cursor: 'pointer',
-                                opacity: 0.7
+                                textShadow: '0 2px 4px rgba(0,0,0,0.3)'
                             }}
                         >
-                            {t('auth.login_btn')}
+                            {t('auth.login_btn_ghost')}
                         </button>
                     </div>
 
@@ -317,7 +327,7 @@ export default function Login() {
                         <p style={{
                             position: 'absolute',
                             bottom: 10,
-                            color: 'var(--color-text-muted)',
+                            color: 'rgba(255,255,255,0.5)',
                             fontSize: '0.75rem',
                             textAlign: 'center',
                             width: '100%'

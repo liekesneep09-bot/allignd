@@ -68,9 +68,11 @@
     "footer_contact": "contact"
   },
   "auth": {
-    "login_btn": "Log in",
     "signup_btn": "Sign up",
-    "tagline": "Move with your cycle",
+    "login_btn_ghost": "Log in",
+    "tagline_main": "aligned,",
+    "tagline_highlight": "not perfect.",
+    "subtext": "No one-size-fits-all. But a plan that fits you, every single day.",
     "invalid_email": "Please enter a valid email address",
     "password_length": "Password must be at least 6 characters",
     "check_inbox": "Check your inbox",
