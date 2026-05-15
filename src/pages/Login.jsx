@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../utils/supabaseClient'
 import logo from '../assets/logo-primary.png'
-import startBg from '../assets/login-hero.png'
+import startBg from '../assets/achtergrond_beginscherm_png.png'
 import { useLanguage } from '../context/LanguageContext'
 
 export default function Login() {
@@ -187,7 +187,7 @@ export default function Login() {
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
-                backgroundColor: '#FFFFFF',
+                backgroundColor: '#1E1B1B',
             }}>
 
                 {/* Full-screen Background Image */}
@@ -200,11 +200,11 @@ export default function Login() {
                     zIndex: 0
                 }} />
 
-                {/* Gradient Overlay for Text Readability */}
+                {/* Dark Gradient Overlay for Premium Look & Readability */}
                 <div style={{
                     position: 'absolute',
                     top: 0, left: 0, right: 0, bottom: 0,
-                    background: 'linear-gradient(to bottom, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.2) 40%, rgba(0,0,0,0.1) 70%, rgba(0,0,0,0.4) 100%)',
+                    background: 'linear-gradient(180deg, rgba(30,27,27,0.4) 0%, rgba(30,27,27,0.1) 40%, rgba(30,27,27,0.5) 70%, rgba(30,27,27,0.8) 100%)',
                     zIndex: 1
                 }} />
 
@@ -230,7 +230,8 @@ export default function Login() {
                         style={{
                             height: '40px',
                             width: 'auto',
-                            objectFit: 'contain'
+                            objectFit: 'contain',
+                            filter: 'brightness(0) invert(1)' // Make logo white for dark bg
                         }}
                     />
 
@@ -240,7 +241,7 @@ export default function Login() {
                             fontSize: '2.8rem', 
                             lineHeight: 1.1, 
                             fontWeight: '700', 
-                            color: '#1a1a1a', 
+                            color: '#FFFFFF', 
                             margin: 0,
                             letterSpacing: '-0.02em'
                         }}>
@@ -255,7 +256,7 @@ export default function Login() {
                         <p style={{
                             fontSize: '1.05rem',
                             lineHeight: '1.5',
-                            color: '#4a4a4a',
+                            color: 'rgba(255, 255, 255, 0.85)',
                             marginTop: '1.5rem',
                             maxWidth: '280px',
                             fontWeight: '400'
@@ -268,12 +269,12 @@ export default function Login() {
                     <div style={{ position: 'absolute', top: '2rem', right: '1.5rem', display: 'flex', gap: '8px', alignItems: 'center' }}>
                          <button 
                             onClick={() => setLanguage('nl')} 
-                            style={{ color: '#1a1a1a', background: 'none', border: 'none', opacity: language === 'nl' ? 1 : 0.4, fontWeight: language === 'nl' ? 700 : 400, fontSize: '0.85rem', cursor: 'pointer' }}
+                            style={{ color: '#FFFFFF', background: 'none', border: 'none', opacity: language === 'nl' ? 1 : 0.4, fontWeight: language === 'nl' ? 700 : 400, fontSize: '0.85rem', cursor: 'pointer' }}
                          >NL</button>
-                         <span style={{ color: '#1a1a1a', opacity: 0.2 }}>|</span>
+                         <span style={{ color: '#FFFFFF', opacity: 0.2 }}>|</span>
                          <button 
                             onClick={() => setLanguage('en')} 
-                            style={{ color: '#1a1a1a', background: 'none', border: 'none', opacity: language === 'en' ? 1 : 0.4, fontWeight: language === 'en' ? 700 : 400, fontSize: '0.85rem', cursor: 'pointer' }}
+                            style={{ color: '#FFFFFF', background: 'none', border: 'none', opacity: language === 'en' ? 1 : 0.4, fontWeight: language === 'en' ? 700 : 400, fontSize: '0.85rem', cursor: 'pointer' }}
                          >EN</button>
                     </div>
 
@@ -327,7 +328,7 @@ export default function Login() {
                         <p style={{
                             position: 'absolute',
                             bottom: 10,
-                            color: 'rgba(255,255,255,0.5)',
+                            color: 'rgba(255,255,255,0.4)',
                             fontSize: '0.75rem',
                             textAlign: 'center',
                             width: '100%'
