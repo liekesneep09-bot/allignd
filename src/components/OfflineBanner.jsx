@@ -1,7 +1,8 @@
-
 import React from 'react'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function OfflineBanner({ isOnline }) {
+    const { t } = useLanguage()
     if (isOnline) return null
 
     return (
@@ -22,7 +23,7 @@ export default function OfflineBanner({ isOnline }) {
             gap: '8px'
         }}>
             <span>📡</span>
-            <span>Je bent offline. Sommige functies werken mogelijk niet.</span>
+            <span>{t('common.offline')}</span>
         </div>
     )
 }

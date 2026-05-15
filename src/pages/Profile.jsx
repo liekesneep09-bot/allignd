@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useUser } from '../context/UserContext'
+import { useLanguage } from '../context/LanguageContext'
 import { IconAccount, IconCalendar } from '../components/Icons'
 
 /**
@@ -13,13 +14,16 @@ export default function Profile() {
     const {
         user,
         saveProfileAndCalculate,
+        updateUser,
         logout,
         deleteAccount,
         resetOnboarding,
         logPeriodStart,
-        endPeriodToday, // NEW
+        endPeriodToday,
         adjustCyclePhase
     } = useUser()
+
+    const { language, setLanguage, t } = useLanguage()
 
     const [isDirty, setIsDirty] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
@@ -79,7 +83,7 @@ export default function Profile() {
         try {
             await deleteAccount()
         } catch (err) {
-            alert("Fout bij verwijderen: " + err.message)
+            alert(t('profile.delete_error') + ": " + err.message)
             setIsDeleting(false)
             setShowDeleteConfirm(false)
         }
@@ -105,9 +109,10 @@ export default function Profile() {
                 trainingFrequency: Number(formData.trainingFrequency),
             })
             setIsDirty(false)
+            // alert(t('profile.save_success'))
         } catch (e) {
             console.error(e)
-            alert("Er ging iets mis bij het opslaan.")
+            alert(t('profile.save_error'))
         } finally {
             setIsSaving(false)
         }
@@ -115,31 +120,31 @@ export default function Profile() {
 
     // Goal Options
     const GOALS = [
-        { value: 'lose_fat', label: 'Vet verliezen' },
-        { value: 'recomp', label: 'Afvallen & Spieropbouw' },
-        { value: 'maintain', label: 'Gewicht behouden' },
-        { value: 'gain_muscle', label: 'Spier opbouwen' }
+        { value: 'lose_fat', label: t('profile.goals.lose_fat') },
+        { value: 'recomp', label: t('profile.goals.recomp') },
+        { value: 'maintain', label: t('profile.goals.maintain') },
+        { value: 'gain_muscle', label: t('profile.goals.gain_muscle') }
     ]
 
     // Activity / Lifestyle Options (New System)
     const LIFESTYLES = [
-        { value: 'sedentary', label: 'Zittend werk / weinig beweging' },
-        { value: 'lightly_active', label: 'Licht actief (staand werk/student)' },
-        { value: 'moderately_active', label: 'Actief (fysiek werk/veel lopen)' },
-        { value: 'very_active', label: 'Zeer actief (zwaar werk/atleet)' }
+        { value: 'sedentary', label: t('profile.lifestyles.sedentary') },
+        { value: 'lightly_active', label: t('profile.lifestyles.lightly_active') },
+        { value: 'moderately_active', label: t('profile.lifestyles.moderately_active') },
+        { value: 'very_active', label: t('profile.lifestyles.very_active') }
     ]
 
     const STEPS = [
-        { value: 'lt4k', label: 'Minder dan 4.000 stappen' },
-        { value: '4k_8k', label: '4.000 - 8.000 stappen' },
-        { value: '8k_12k', label: '8.000 - 12.000 stappen' },
-        { value: 'gt12k', label: 'Meer dan 12.000 stappen' }
+        { value: 'lt4k', label: t('profile.steps.lt4k') },
+        { value: '4k_8k', label: t('profile.steps.4k_8k') },
+        { value: '8k_12k', label: t('profile.steps.8k_12k') },
+        { value: 'gt12k', label: t('profile.steps.gt12k') }
     ]
 
     const TEMPOS = [
-        { value: 'slow', label: 'Rustig & duurzaam' },
-        { value: 'average', label: 'Gemiddeld tempo' },
-        { value: 'fast', label: 'Snel resultaat' }
+        { value: 'slow', label: t('profile.tempos.slow') },
+        { value: 'average', label: t('profile.tempos.average') },
+        { value: 'fast', label: t('profile.tempos.fast') }
     ]
 
     const labelStyle = {
@@ -154,21 +159,59 @@ export default function Profile() {
 
     return (
         <div className="container" style={{ paddingBottom: '10rem', backgroundColor: 'var(--color-bg)' }}>
-            <h1 className="page-title" style={{ fontSize: '2.2rem', fontWeight: '700', marginBottom: '2rem' }}>Profiel</h1>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                <h1 className="page-title" style={{ fontSize: '2.2rem', fontWeight: '700', margin: 0 }}>{t('profile.title')}</h1>
+                
+                {/* Language Switcher */}
+                <div style={{ display: 'flex', background: 'var(--color-surface)', borderRadius: '12px', padding: '4px', border: '1px solid var(--color-border)' }}>
+                    <button 
+                        onClick={() => updateUser({ user_language: 'nl' })}
+                        style={{ 
+                            padding: '6px 12px', 
+                            borderRadius: '8px', 
+                            border: 'none', 
+                            background: language === 'nl' ? 'var(--color-primary)' : 'transparent', 
+                            color: language === 'nl' ? '#333' : 'var(--color-text-muted)',
+                            fontWeight: language === 'nl' ? '700' : '500',
+                            fontSize: '0.85rem',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        NL
+                    </button>
+                    <button 
+                        onClick={() => updateUser({ user_language: 'en' })}
+                        style={{ 
+                            padding: '6px 12px', 
+                            borderRadius: '8px', 
+                            border: 'none', 
+                            background: language === 'en' ? 'var(--color-primary)' : 'transparent', 
+                            color: language === 'en' ? '#333' : 'var(--color-text-muted)',
+                            fontWeight: language === 'en' ? '700' : '500',
+                            fontSize: '0.85rem',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        EN
+                    </button>
+                </div>
+            </div>
 
             {/* SECTION 1: PERSONAL */}
             <section className="card" style={{ marginBottom: '1.5rem' }}>
                 <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <IconAccount opacity={1} /> Persoonlijk
+                    <IconAccount opacity={1} /> {t('profile.personal')}
                 </h2>
 
                 <div className="form-group">
-                    <label style={labelStyle}>Naam</label>
+                    <label style={labelStyle}>{t('profile.name')}</label>
                     <input
                         type="text"
                         value={formData.name}
                         onChange={e => handleChange('name', e.target.value)}
-                        placeholder="Je naam"
+                        placeholder={t('profile.name_placeholder')}
                         className="input-field"
                         style={{ padding: '1rem', fontSize: '1rem', borderRadius: '12px' }}
                     />
@@ -176,7 +219,7 @@ export default function Profile() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
                     <div className="form-group">
-                        <label style={labelStyle}>Leeftijd</label>
+                        <label style={labelStyle}>{t('profile.age')}</label>
                         <input
                             type="number"
                             value={formData.age}
@@ -186,7 +229,7 @@ export default function Profile() {
                         />
                     </div>
                     <div className="form-group">
-                        <label style={labelStyle}>Lengte (cm)</label>
+                        <label style={labelStyle}>{t('profile.height')}</label>
                         <input
                             type="number"
                             value={formData.height}
@@ -199,11 +242,11 @@ export default function Profile() {
             </section>
             {/* SECTION 2: BODY & GOALS */}
             <section className="card" style={{ marginBottom: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Lichaam & Doelen</h2>
+                <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>{t('profile.body_goals')}</h2>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem', marginBottom: '1.5rem' }}>
                     <div className="form-group">
-                        <label style={labelStyle}>Huidig Gewicht (kg)</label>
+                        <label style={labelStyle}>{t('profile.current_weight')}</label>
                         <input
                             type="number"
                             value={formData.weight}
@@ -213,20 +256,20 @@ export default function Profile() {
                         />
                     </div>
                     <div className="form-group">
-                        <label style={labelStyle}>Streefgewicht (kg)</label>
+                        <label style={labelStyle}>{t('profile.target_weight')}</label>
                         <input
                             type="number"
                             value={formData.targetWeight}
                             onChange={e => handleChange('targetWeight', e.target.value)}
                             className="input-field"
                             style={{ padding: '1rem', fontSize: '1rem', borderRadius: '12px' }}
-                            placeholder="Optioneel"
+                            placeholder={t('profile.optional')}
                         />
                     </div>
                 </div>
 
                 <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                    <label style={labelStyle}>Wat is je hoofddoel?</label>
+                    <label style={labelStyle}>{t('profile.main_goal')}</label>
                     <div style={{ display: 'grid', gap: '0.6rem' }}>
                         {GOALS.map(g => (
                             <SelectOption
@@ -241,7 +284,7 @@ export default function Profile() {
 
                 {formData.goal !== 'maintain' && (
                     <div className="form-group" style={{ marginBottom: '2rem' }}>
-                        <label style={labelStyle}>Hoe snel wil je resultaat?</label>
+                        <label style={labelStyle}>{t('profile.tempo')}</label>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.6rem' }}>
                             {TEMPOS.map(t => (
                                 <CompactOption
@@ -257,7 +300,7 @@ export default function Profile() {
 
                 <div style={{ marginBottom: '1.5rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
                     <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                        <label style={labelStyle}>Werk & leefstijl</label>
+                        <label style={labelStyle}>{t('profile.lifestyle')}</label>
                         <div style={{ display: 'grid', gap: '0.6rem' }}>
                             {LIFESTYLES.map(l => (
                                 <SelectOption
@@ -271,7 +314,7 @@ export default function Profile() {
                     </div>
 
                     <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                        <label style={labelStyle}>Dagelijkse stappen</label>
+                        <label style={labelStyle}>{t('profile.daily_steps')}</label>
                         <div style={{ display: 'grid', gap: '0.6rem' }}>
                             {STEPS.map(s => (
                                 <SelectOption
@@ -285,7 +328,7 @@ export default function Profile() {
                     </div>
 
                     <div className="form-group">
-                        <label style={labelStyle}>Sportdagen per week</label>
+                        <label style={labelStyle}>{t('profile.training_days')}</label>
                         <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', justifyContent: 'space-between' }}>
                             {[0, 1, 2, 3, 4, 5, 6, 7].map(n => (
                                 <button
@@ -314,11 +357,11 @@ export default function Profile() {
             {/* SECTION 3: CYCLE */}
             <section className="card" style={{ marginBottom: '1.5rem' }}>
                 <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <IconCalendar opacity={1} /> Jouw Cyclus
+                    <IconCalendar opacity={1} /> {t('profile.your_cycle')}
                 </h2>
 
                 <div className="form-group">
-                    <label style={labelStyle}>Gemiddelde cyclusduur (dagen)</label>
+                    <label style={labelStyle}>{t('profile.avg_cycle_length')}</label>
                     <div style={{ position: 'relative' }}>
                         <input
                             type="number"
@@ -329,16 +372,16 @@ export default function Profile() {
                         />
                     </div>
                     <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.5rem', fontStyle: 'italic' }}>
-                        De app leert van je logs en past dit automatisch aan.
+                        {t('profile.cycle_learning_tip')}
                     </p>
                 </div>
 
                 <div style={{ marginTop: '2rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
-                    <h3 style={{ fontSize: '0.8rem', fontWeight: '700', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: '1rem', letterSpacing: '0.05em' }}>Correcties</h3>
+                    <h3 style={{ fontSize: '0.8rem', fontWeight: '700', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: '1rem', letterSpacing: '0.05em' }}>{t('profile.corrections')}</h3>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                         <div>
-                            <label style={labelStyle}>Startdatum laatste menstruatie</label>
+                            <label style={labelStyle}>{t('profile.last_period_start')}</label>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                                 <input
                                     type="date"
@@ -350,30 +393,30 @@ export default function Profile() {
                                 {user.isMenstruatingNow ? (
                                     <button
                                         onClick={() => {
-                                            if (window.confirm("Is je menstruatie afgelopen?")) {
+                                            if (window.confirm(t('profile.period_ended_confirm'))) {
                                                 endPeriodToday()
-                                                alert("Menstruatie gestopt.")
+                                                alert(t('profile.period_stopped_success'))
                                             }
                                         }}
                                         className="btn"
                                         style={{ width: '100%', border: '1px solid #a8647340', background: '#a8647320', color: '#a86473', cursor: 'pointer', fontWeight: '600' }}
                                     >
-                                        Stop Menstruatie
+                                        {t('profile.stop_period')}
                                     </button>
                                 ) : (
                                     <button
                                         onClick={() => {
-                                            if (window.confirm("Is je menstruatie begonnen? Dit start een nieuwe cyclus.")) {
+                                            if (window.confirm(t('profile.period_started_confirm'))) {
                                                 if (formData.cycleStart) {
                                                     logPeriodStart(formData.cycleStart)
-                                                    alert("Nieuwe cyclus gestart!")
+                                                    alert(t('profile.cycle_started_success'))
                                                 }
                                             }
                                         }}
                                         className="btn btn-primary"
                                         style={{ width: '100%', border: 'none', color: '#fff' }}
                                     >
-                                        Nieuwe cyclus starten
+                                        {t('profile.start_new_cycle')}
                                     </button>
                                 )}
                             </div>
@@ -389,7 +432,7 @@ export default function Profile() {
                             }}
                             onClick={() => setShowCycleCorrection(!showCycleCorrection)}
                         >
-                            {showCycleCorrection ? "Sluit fase opties" : "Ik zit in een andere fase..."}
+                            {showCycleCorrection ? t('profile.close_phase_options') : t('profile.other_phase')}
                         </button>
 
                         {showCycleCorrection && (
@@ -399,10 +442,10 @@ export default function Profile() {
                                 borderRadius: '12px',
                                 display: 'grid', gap: '0.5rem'
                             }}>
-                                <SelectOption label="Menstruatie" onClick={() => adjustCyclePhase('menstrual')} />
-                                <SelectOption label="Folliculaire fase" onClick={() => adjustCyclePhase('follicular')} />
-                                <SelectOption label="Ovulatie" onClick={() => adjustCyclePhase('ovulatory')} />
-                                <SelectOption label="Luteale fase" onClick={() => adjustCyclePhase('luteal')} />
+                                <SelectOption label={t('profile.phases.menstrual')} onClick={() => adjustCyclePhase('menstrual')} />
+                                <SelectOption label={t('profile.phases.follicular')} onClick={() => adjustCyclePhase('follicular')} />
+                                <SelectOption label={t('profile.phases.ovulatory')} onClick={() => adjustCyclePhase('ovulatory')} />
+                                <SelectOption label={t('profile.phases.luteal')} onClick={() => adjustCyclePhase('luteal')} />
                             </div>
                         )}
                     </div>
@@ -413,20 +456,20 @@ export default function Profile() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '2rem', opacity: 0.8 }}>
                 <button
                     onClick={() => {
-                        if (window.confirm("Weet je zeker dat je de onboarding opnieuw wilt doen? Je instellingen worden gereset.")) {
+                        if (window.confirm(t('profile.onboarding_reset_confirm'))) {
                             resetOnboarding()
                         }
                     }}
                     style={{ background: 'transparent', border: 'none', color: 'var(--color-text)', textDecoration: 'underline', cursor: 'pointer' }}
                 >
-                    Onboarding opnieuw doen
+                    {t('profile.onboarding_reset')}
                 </button>
 
                 <button
                     onClick={logout}
                     style={{ background: 'transparent', border: 'none', color: 'var(--color-text)', cursor: 'pointer', textAlign: 'left', padding: 0 }}
                 >
-                    Uitloggen
+                    {t('profile.logout')}
                 </button>
 
                 {!showDeleteConfirm ? (
@@ -434,12 +477,12 @@ export default function Profile() {
                         onClick={() => setShowDeleteConfirm(true)}
                         style={{ background: 'transparent', border: 'none', color: '#D32F2F', fontSize: '0.8rem', cursor: 'pointer', textAlign: 'left', padding: 0, marginTop: '1rem' }}
                     >
-                        Account verwijderen
+                        {t('profile.delete_account')}
                     </button>
                 ) : (
                     <div style={{ background: '#FFF5F5', padding: '1rem', borderRadius: '12px', border: '1px solid #FFE3E3', marginTop: '1rem' }}>
                         <p style={{ fontSize: '0.85rem', color: '#D32F2F', marginBottom: '0.75rem', fontWeight: 600 }}>
-                            Weet je het zeker? Dit verwijdert definitief al je data (logs, profiel en account) en kan niet ongedaan gemaakt worden.
+                            {t('profile.delete_confirm_desc')}
                         </p>
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
                             <button
@@ -451,7 +494,7 @@ export default function Profile() {
                                     cursor: isDeleting ? 'not-allowed' : 'pointer', opacity: isDeleting ? 0.7 : 1
                                 }}
                             >
-                                {isDeleting ? 'Bezig...' : 'Ja, verwijder definitief'}
+                                {isDeleting ? t('common.deleting') : t('profile.delete_permanent')}
                             </button>
                             <button
                                 onClick={() => setShowDeleteConfirm(false)}
@@ -462,7 +505,7 @@ export default function Profile() {
                                     cursor: isDeleting ? 'not-allowed' : 'pointer'
                                 }}
                             >
-                                Annuleer
+                                {t('common.cancel')}
                             </button>
                         </div>
                     </div>
@@ -497,7 +540,7 @@ export default function Profile() {
                     onClick={handleSave}
                     disabled={isSaving}
                 >
-                    {isSaving ? "Opslaan..." : "Opslaan"}
+                    {isSaving ? t('common.saving') : t('common.save')}
                 </button>
             </div>
 

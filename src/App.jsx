@@ -18,6 +18,8 @@ import ConfigErrorScreen from './components/ConfigErrorScreen'
 import DebugPanel from './components/DebugPanel'
 import { supabaseConfigError } from './utils/supabaseClient'
 import AuthCallback from './components/AuthCallback'
+import LandingPage from './pages/LandingPage'
+import { LanguageProvider, useLanguage } from './context/LanguageContext'
 
 import { IconHome, IconActivity, IconRecipe, IconAccount, IconCommunity } from './components/Icons'
 import logo from './assets/logo-primary.png'
@@ -63,6 +65,7 @@ function SplashScreen() {
 
 function MainLayout() {
     const { hasOnboarded, isLoading, currentPhase } = useUser()
+    const { t } = useLanguage()
     const [currentView, setCurrentView] = useState('today')
     // Track if we've shown the app at least once — prevents flash back to onboarding
     const [appReady, setAppReady] = useState(false)
@@ -192,7 +195,7 @@ function MainLayout() {
                     }}
                 >
                     <IconHome size={24} />
-                    Vandaag
+                    {t('nav.today')}
                 </button>
 
                 <button
@@ -210,7 +213,7 @@ function MainLayout() {
                     }}
                 >
                     <IconCommunity size={24} />
-                    Community
+                    {t('nav.community')}
                 </button>
 
                 <button
@@ -228,7 +231,7 @@ function MainLayout() {
                     }}
                 >
                     <IconActivity size={24} />
-                    Fitness
+                    {t('nav.fitness')}
                 </button>
 
                 <button
@@ -246,7 +249,7 @@ function MainLayout() {
                     }}
                 >
                     <IconRecipe size={24} />
-                    Recepten
+                    {t('nav.recipes')}
                 </button>
 
                 <button
@@ -264,7 +267,7 @@ function MainLayout() {
                     }}
                 >
                     <IconAccount size={24} />
-                    Profiel
+                    {t('nav.profile')}
                 </button>
             </nav>
             {import.meta.env.DEV && <DebugView />}
@@ -280,7 +283,16 @@ function AuthenticatedApp() {
     }
 
     if (!user) {
+        // If we are on root and not logged in, show the Landing Page
+        if (window.location.pathname === '/') {
+            return <LandingPage onEnterApp={() => window.history.pushState({}, '', '/app') || window.dispatchEvent(new PopStateEvent('popstate'))} />
+        }
         return <Login />
+    }
+
+    // Force route back to / if they go to /app after logging in, just to keep URL clean (optional)
+    if (window.location.pathname === '/app') {
+        window.history.replaceState({}, '', '/')
     }
 
     return (
@@ -304,6 +316,14 @@ export default function App() {
             window.removeEventListener('online', handleOnline)
             window.removeEventListener('offline', handleOffline)
         }
+    }, [])
+
+    // Add listener for popstate to re-render when navigating between landing page and app
+    const [, forceUpdate] = useState({})
+    useEffect(() => {
+        const handlePopState = () => forceUpdate({})
+        window.addEventListener('popstate', handlePopState)
+        return () => window.removeEventListener('popstate', handlePopState)
     }, [])
 
     // PWA Service Worker is registered automatically by Vite PWA plugin when using 'prompt', 
@@ -330,12 +350,14 @@ export default function App() {
 
     return (
         <ErrorBoundary>
-            <AuthProvider>
-                <OfflineBanner isOnline={isOnline} />
-                <AuthenticatedApp />
-                <InstallPrompt />
-                {import.meta.env.DEV && <DebugPanel />}
-            </AuthProvider>
+            <LanguageProvider>
+                <AuthProvider>
+                    <OfflineBanner isOnline={isOnline} />
+                    <AuthenticatedApp />
+                    <InstallPrompt />
+                    {import.meta.env.DEV && <DebugPanel />}
+                </AuthProvider>
+            </LanguageProvider>
         </ErrorBoundary>
     )
 }

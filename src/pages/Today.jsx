@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { useUser } from '../context/UserContext'
+import { useLanguage } from '../context/LanguageContext'
 import { getCycleDisplayData, getPhaseTransition } from '../logic/cycle'
-import { PHASE_CONTENT } from '../data/phases'
+import { getPhaseContent } from '../data/phases'
 import { IconMap, IconAccount, IconCalendar } from '../components/Icons'
 import FoodModal from '../components/FoodModal'
 import PeriodCalendar from '../components/PeriodCalendar'
@@ -97,6 +98,7 @@ function MacroListItem({ label, current, target, color }) {
 }
 
 function RecipeTeaser({ item, cat }) {
+  const { t } = useLanguage()
   return (
     <div style={{
       padding: '1rem',
@@ -117,7 +119,7 @@ function RecipeTeaser({ item, cat }) {
         justifyContent: 'center',
         fontSize: '1rem'
       }}>
-        {cat === 'Ontbijt' ? '☕' : '🍲'}
+        {cat === t('meal_editor.breakfast') ? '☕' : '🍲'}
       </div>
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: '0.1rem' }}>
@@ -130,6 +132,7 @@ function RecipeTeaser({ item, cat }) {
 }
 
 function DayStrip({ selectedDate, onSelect, accentColor }) {
+  const { language } = useLanguage()
   const startOfWeek = new Date(selectedDate)
   const day = startOfWeek.getDay()
   const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
@@ -176,7 +179,7 @@ function DayStrip({ selectedDate, onSelect, accentColor }) {
               textTransform: 'uppercase',
               opacity: isSelected ? 1 : 0.6
             }}>
-              {date.toLocaleDateString('nl-NL', { weekday: 'narrow' })}
+              {date.toLocaleDateString(language === 'nl' ? 'nl-NL' : 'en-US', { weekday: 'narrow' })}
             </span>
             <span style={{
               fontSize: '0.9rem',
@@ -208,6 +211,7 @@ function DayStrip({ selectedDate, onSelect, accentColor }) {
 
 export default function Today({ onNavigate }) {
   const { user, targets, logFood, getStatsForDate, deleteFoodLog, logPeriodStart, logMovement, resetOnboarding, isLoading, endPeriodToday, getPhaseForDate, isDateInPeriod, togglePeriodDate, startPeriod, stopPeriod, isMenstruatingNow } = useUser()
+  const { t, language } = useLanguage()
 
   const [viewDate, setViewDate] = useState(new Date())
   const viewDateStr = getLocalDateStr(viewDate)
@@ -219,7 +223,7 @@ export default function Today({ onNavigate }) {
   const effectivePeriodLen = user?.bleedingLengthDays || user?.periodLength || 5
   const phaseTransition = getPhaseTransition(viewDay, effectiveCycleLen, effectivePeriodLen, viewPhase)
 
-  const content = PHASE_CONTENT[viewPhase]
+  const content = getPhaseContent(language, viewPhase)
   const stats = getStatsForDate(viewDateStr)
   const todaysLogs = (user.foodLogs && Array.isArray(user.foodLogs)) ? user.foodLogs.filter(l => l.date === viewDateStr) : []
 
@@ -281,11 +285,10 @@ export default function Today({ onNavigate }) {
         margin: '0 auto'
       }}>
         <h2 style={{ marginBottom: '1rem', color: 'var(--color-primary)' }}>
-          Start je afstemming
+          {t('today.start_alignment')}
         </h2>
         <p className="text-muted" style={{ marginBottom: '2rem' }}>
-          We hebben je persoonlijke doelen nog niet berekend.
-          Ga door de onboarding om je dagelijkse calorie- en macrodoelen te bepalen.
+          {t('today.no_goals_yet')}
         </p>
         <button
           className="btn btn-primary"
@@ -296,7 +299,7 @@ export default function Today({ onNavigate }) {
           }}
           style={{ minWidth: '200px' }}
         >
-          Start Onboarding
+          {t('today.start_onboarding')}
         </button>
       </div>
     )
@@ -327,7 +330,7 @@ export default function Today({ onNavigate }) {
 
             <div style={{ textAlign: 'center', opacity: 0.8 }}>
               <h1 style={{ fontSize: '0.9rem', fontWeight: '600', margin: 0, textTransform: 'capitalize', color: 'var(--color-text)' }}>
-                {viewDate.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long' })}
+                {viewDate.toLocaleDateString(language === 'nl' ? 'nl-NL' : 'en-US', { day: 'numeric', month: 'long' })}
               </h1>
             </div>
 
@@ -346,94 +349,11 @@ export default function Today({ onNavigate }) {
           />
 
           {(() => {
-            // 3 varianten per fase — roteren per cyclus op basis van aantal geregistreerde periodes
-            const PHASE_TEXT_VARIANTS = {
-              menstrual: [
-                {
-                  title: "Menstruatie fase",
-                  prefix: "",
-                  normal: "Krampen of moe? Wees mild voor jezelf, maar blijf goed voor je lichaam zorgen. Houd jezelf warm en neem rust wanneer dat nodig is.",
-                  nutrition: "IJzerrijke voeding, magnesium en omega-3 ondersteunen je van binnenuit."
-                },
-                {
-                  title: "Menstruatie fase",
-                  prefix: "",
-                  normal: "Je lichaam werkt hard achter de schermen. Zachte beweging, warmte en rust zijn nu je beste vrienden — geen verplichtingen, gewoon goed voor jezelf zorgen.",
-                  nutrition: "Soepen, warme maaltijden en ijzerrijke producten zoals spinazie of peulvruchten helpen je lichaam herstellen."
-                },
-                {
-                  title: "Menstruatie fase",
-                  prefix: "",
-                  normal: "Lagere energie is geen falen — het is je lichaam dat reset. Luister naar wat je nodig hebt en geef jezelf daar toestemming voor.",
-                  nutrition: "Magnesium en omega-3 kunnen helpen bij krampen. Vermijd te veel cafeïne als je er gevoelig voor bent."
-                }
-              ],
-              follicular: [
-                {
-                  title: "Folliculaire fase",
-                  prefix: "Je zit waarschijnlijk in je",
-                  normal: "Je energie bouwt zich weer op. Een fase waarin je vooruit wilt en dingen in beweging brengt.",
-                  nutrition: "Koolhydraten geven je energie, terwijl eiwitten bijdragen aan opbouw en herstel."
-                },
-                {
-                  title: "Folliculaire fase",
-                  prefix: "Je zit waarschijnlijk in je",
-                  normal: "Dit is een mooie fase om nieuwe dingen op te pakken of gewoontes weer aan te scherpen. Je hoofd is helder en je herstel gaat sneller.",
-                  nutrition: "B-vitamines en zink ondersteunen je energieproductie en herstel — denk aan eieren, noten en volle granen."
-                },
-                {
-                  title: "Folliculaire fase",
-                  prefix: "Je zit waarschijnlijk in je",
-                  normal: "Je oestrogeen stijgt en dat merk je: meer motivatie, betere focus en een lichtere stemming. Benut dit — maar houd ook ruimte voor wat rust.",
-                  nutrition: "Voldoende eiwitten en koolhydraten geven je lichaam de brandstof om op te bouwen."
-                }
-              ],
-              ovulatory: [
-                {
-                  title: "Ovulatie fase",
-                  prefix: "Je zit waarschijnlijk in je",
-                  normal: "Je zit vaak op je sterkst — energiek, helder en krachtig. Vertrouw op je lichaam en benut deze fase op een manier die bij je past.",
-                  nutrition: "Lichte, voedzame maaltijden en antioxidanten ondersteunen je energie en vitaliteit."
-                },
-                {
-                  title: "Ovulatie fase",
-                  prefix: "Je zit waarschijnlijk in je",
-                  normal: "Dit is je energiepiek. Je voelt je socialer, sterker en meer in flow. Een goede tijd om dingen aan te pakken waar je anders tegenop ziet.",
-                  nutrition: "Omega-3 vetzuren en antioxidanten — zoals in vette vis, bessen en noten — ondersteunen je bij hogere activiteit."
-                },
-                {
-                  title: "Ovulatie fase",
-                  prefix: "Je zit waarschijnlijk in je",
-                  normal: "Hormonen pieken nu en dat geeft je een natuurlijk voordeel. Geniet ervan, maar overdrijf het niet — herstel blijft ook in deze fase belangrijk.",
-                  nutrition: "Vezels helpen je hormoonhuishouding in balans te houden. Denk aan groenten, fruit en peulvruchten."
-                }
-              ],
-              luteal: [
-                {
-                  title: "Luteale fase",
-                  prefix: "Je zit waarschijnlijk in je",
-                  normal: "Je lichaam schakelt langzaam over naar meer rust. Meer trek, minder energie of wat extra vocht vasthouden is helemaal normaal in deze fase.",
-                  nutrition: "Magnesium, complexe koolhydraten, calcium en vitamine B6 ondersteunen je verzadiging en energiebalans. Denk aan havermout, banaan, yoghurt, zoete aardappel en noten."
-                },
-                {
-                  title: "Luteale fase",
-                  prefix: "Je zit waarschijnlijk in je",
-                  normal: "Dit is vaak een fase waarin je lichaam meer behoefte heeft aan stabiliteit en herstel. Wat zachter voor jezelf zijn mag juist nu.",
-                  nutrition: "Magnesium, complexe koolhydraten, calcium en vitamine B6 ondersteunen je verzadiging en energiebalans. Kies bijvoorbeeld voor quinoa, pure chocolade, avocado, spinazie en eieren."
-                },
-                {
-                  title: "Luteale fase",
-                  prefix: "Je zit waarschijnlijk in je",
-                  normal: "Je energie kan deze dagen wat meer schommelen. Dat is normaal en hoort bij de veranderingen die in je lichaam plaatsvinden.",
-                  nutrition: "Magnesium, complexe koolhydraten, calcium en vitamine B6 ondersteunen je verzadiging en energiebalans. Denk aan volkoren pasta, amandelen, zalm, pompoenpitten en yoghurt."
-                }
-              ]
-            }
+            const variants = t('phase_variants.' + viewPhase, { returnObjects: true }) || t('phase_variants.follicular', { returnObjects: true })
 
             // Kies variant op basis van cyclusnummer (roteert elke maand)
             const cycleIndex = (user?.periodStartDates?.length || 0) % 3
-            const variants = PHASE_TEXT_VARIANTS[viewPhase] || PHASE_TEXT_VARIANTS.follicular
-            const currentText = variants[cycleIndex]
+            const currentText = variants[cycleIndex] || variants[0]
 
             return (
               <div style={{
@@ -461,7 +381,6 @@ export default function Today({ onNavigate }) {
                 <h2 style={{
                   fontSize: '2.1rem',
                   color: phaseStyle.text,
-                  margin: '0',
                   fontWeight: '700',
                   letterSpacing: '-0.02em',
                   lineHeight: '1.1'
@@ -511,7 +430,7 @@ export default function Today({ onNavigate }) {
                   </svg>
                   <div>
                     <div style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--color-text)', marginBottom: '0.3rem' }}>
-                      Voeding die je ondersteunt
+                      {t('today.nutrition_title')}
                     </div>
                     <div style={{ fontSize: '0.85rem', color: 'var(--color-text)', lineHeight: '1.5', opacity: 0.85 }}>
                       {currentText.nutrition}
@@ -551,7 +470,7 @@ export default function Today({ onNavigate }) {
                         onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
                         onMouseLeave={(e) => e.currentTarget.style.opacity = '0.9'}
                       >
-                        Menstruatie gestopt
+                        {t('today.period_stopped')}
                       </button>
                     )
                   }
@@ -587,7 +506,7 @@ export default function Today({ onNavigate }) {
                       onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
                       onMouseLeave={(e) => e.currentTarget.style.opacity = '0.9'}
                     >
-                      {isPeriodToday ? 'Menstruatie gelogd' : 'Menstruatie loggen'}
+                      {isPeriodToday ? t('today.period_logged') : t('today.log_period')}
                     </button>
                   )
                 })()}
@@ -622,7 +541,7 @@ export default function Today({ onNavigate }) {
                 }}>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                      <span style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>Dagdoel</span>
+                      <span style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>{t('today.daily_goal')}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
                       <div style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--color-text)', lineHeight: 1 }}>
@@ -630,7 +549,7 @@ export default function Today({ onNavigate }) {
                       </div>
                     </div>
                     <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-calories)', marginTop: '0.25rem' }}>
-                      {Math.round(calculateProgress(stats.kcal, targets.calories) * 100)}% van dagdoel
+                      {Math.round(calculateProgress(stats.kcal, targets.calories) * 100)}% {t('today.of_daily_goal')}
                     </div>
                   </div>
 
@@ -649,20 +568,20 @@ export default function Today({ onNavigate }) {
 
                 <div className="card-minimal" style={{ padding: '1rem 1.25rem', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
                   <div style={{ marginBottom: '1rem' }}>
-                    <h2 style={{ fontSize: '0.95rem', margin: 0, fontWeight: '600', color: 'var(--color-text)' }}>Macro's</h2>
+                    <h2 style={{ fontSize: '0.95rem', margin: 0, fontWeight: '600', color: 'var(--color-text)' }}>{t('today.macros')}</h2>
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <MacroListItem label="Koolhydraten" current={toNum(stats.c)} target={toNum(targets.carbsMin)} color="var(--color-carbs)" />
-                    <MacroListItem label="Vetten" current={toNum(stats.f)} target={toNum(targets.fatMin)} color="var(--color-fat)" />
-                    <MacroListItem label="Eiwitten" current={toNum(stats.p)} target={toNum(targets.proteinMin)} color="var(--color-protein)" />
+                    <MacroListItem label={t('today.carbs')} current={toNum(stats.c)} target={toNum(targets.carbsMin)} color="var(--color-carbs)" />
+                    <MacroListItem label={t('today.fats')} current={toNum(stats.f)} target={toNum(targets.fatMin)} color="var(--color-fat)" />
+                    <MacroListItem label={t('today.proteins')} current={toNum(stats.p)} target={toNum(targets.proteinMin)} color="var(--color-protein)" />
                   </div>
                 </div>
 
                 {/* Subtiele Vezels weergave */}
                 <div style={{ textAlign: 'center', marginTop: '-0.25rem', marginBottom: '0.5rem' }}>
                   <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', opacity: 0.8 }}>
-                    🌿 Vezels: {Math.round(toNum(stats.fiber))}g <span style={{ opacity: 0.6 }}>/ 25g</span>
+                    🌿 {t('today.fiber')}: {Math.round(toNum(stats.fiber))}g <span style={{ opacity: 0.6 }}>/ 25g</span>
                   </span>
                 </div>
 
@@ -676,7 +595,7 @@ export default function Today({ onNavigate }) {
                     boxShadow: 'var(--shadow-soft)'
                   }}
                 >
-                  + Voeg eten toe
+                  {t('today.add_food')}
                 </button>
               </div>
 
@@ -707,7 +626,7 @@ export default function Today({ onNavigate }) {
                     boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
                   }}
                 >
-                  Hoe voel je je vandaag?
+                  {t('today.how_do_you_feel')}
                 </button>
                 {todaysSymptoms.length > 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem', justifyContent: 'center' }}>
@@ -728,12 +647,12 @@ export default function Today({ onNavigate }) {
               {todaysLogs.length > 0 && (
                 <div style={{ marginTop: '2rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                    <h3 style={{ fontSize: '1rem', color: 'var(--color-text-muted)', margin: 0 }}>Vandaag gelogd</h3>
+                    <h3 style={{ fontSize: '1rem', color: 'var(--color-text-muted)', margin: 0 }}>{t('today.logged_today')}</h3>
                     <button
                       onClick={() => setShowLog(!showLog)}
                       style={{ background: 'none', color: 'var(--color-primary)', fontSize: '0.9rem', fontWeight: '500' }}
                     >
-                      {showLog ? 'Verberg items ↑' : 'Toon items ↓'}
+                      {showLog ? t('today.hide_items') : t('today.show_items')}
                     </button>
                   </div>
 
@@ -807,9 +726,9 @@ export default function Today({ onNavigate }) {
       {showDatePicker && (
         <div className="modal-overlay" onClick={() => setShowDatePicker(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>Wanneer begon je laatste menstruatie?</h3>
+            <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>{t('today.when_last_period')}</h3>
             <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-              Kies de eerste dag van je laatste menstruatie. We gebruiken dit om je cyclus te berekenen.
+              {t('today.choose_first_day')}
             </p>
 
             <form onSubmit={(e) => {
@@ -841,7 +760,7 @@ export default function Today({ onNavigate }) {
                 className="btn btn-primary"
                 style={{ width: '100%', marginBottom: '0.5rem' }}
               >
-                Opslaan
+                {t('common.save')}
               </button>
             </form>
 
@@ -849,7 +768,7 @@ export default function Today({ onNavigate }) {
               onClick={() => setShowDatePicker(false)}
               className="btn-soft"
             >
-              Annuleren
+              {t('common.cancel')}
             </button>
           </div>
         </div>

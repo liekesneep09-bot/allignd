@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 
 // Simple Check Icon Component
@@ -9,6 +10,7 @@ const IconCheck = ({ size = 20, color = 'currentColor' }) => (
 );
 
 export default function Subscription() {
+    const { t } = useLanguage();
     const [selectedPlan, setSelectedPlan] = useState('yearly'); // Default to best value
     const [isLoading, setIsLoading] = useState(false);
 
@@ -38,11 +40,11 @@ export default function Subscription() {
             if (data.url) {
                 window.location.href = data.url;
             } else {
-                alert("Kon checkout niet starten. Probeer het later opnieuw.");
+                alert(t('subscription.failed'));
             }
         } catch (error) {
             console.error("Subscription Error:", error);
-            alert("Er ging iets mis. Controleer je verbinding.");
+            alert(t('subscription.error'));
         } finally {
             setIsLoading(false);
         }
@@ -58,10 +60,10 @@ export default function Subscription() {
         <div className="page-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', textAlign: 'center', padding: '2rem' }}>
 
             <h1 className="bricolage-font" style={{ fontSize: '2rem', marginBottom: '0.5rem', color: 'var(--color-primary)' }}>
-                Start jouw cycle-aligned journey
+                {t('subscription.title')}
             </h1>
             <p style={{ color: 'var(--color-text-muted)', marginBottom: '2.5rem', maxWidth: '400px' }}>
-                Krijg toegang tot persoonlijke schema's, recepten en inzichten afgestemd op jouw lichaam.
+                {t('subscription.subtitle')}
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%', maxWidth: '350px' }}>
@@ -87,17 +89,17 @@ export default function Subscription() {
                             fontSize: '0.75rem', fontWeight: 'bold', padding: '4px 8px',
                             borderRadius: '12px', textTransform: 'uppercase'
                         }}>
-                            BESTE WAARDE
+                            {t('subscription.best_value')}
                         </div>
                     )}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                        <span style={{ fontWeight: '600', fontSize: '1.1rem' }}>Jaarlijks</span>
+                        <span style={{ fontWeight: '600', fontSize: '1.1rem' }}>{t('subscription.yearly')}</span>
                         <span style={{ fontWeight: '700', fontSize: '1.2rem' }}>€99</span>
                     </div>
                     <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
-                        Betaal één keer per jaar.
+                        {t('subscription.pay_yearly')}
                         <br />
-                        <span style={{ color: 'var(--color-primary)', fontWeight: '500' }}>Bespaar 20%</span>
+                        <span style={{ color: 'var(--color-primary)', fontWeight: '500' }}>{t('subscription.save_20')}</span>
                     </p>
                 </div>
 
@@ -115,11 +117,11 @@ export default function Subscription() {
                     }}
                 >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                        <span style={{ fontWeight: '600', fontSize: '1.1rem' }}>Maandelijks</span>
+                        <span style={{ fontWeight: '600', fontSize: '1.1rem' }}>{t('subscription.monthly')}</span>
                         <span style={{ fontWeight: '700', fontSize: '1.2rem' }}>€9,99</span>
                     </div>
                     <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
-                        Flexibel opzegbaar.
+                        {t('subscription.flexible')}
                     </p>
                 </div>
 
@@ -132,10 +134,10 @@ export default function Subscription() {
                     disabled={isLoading}
                     style={{ width: '100%', padding: '1rem', fontSize: '1.1rem' }}
                 >
-                    {isLoading ? 'Laden...' : 'Start 7 dagen gratis'}
+                    {isLoading ? t('common.loading') : t('subscription.start_free')}
                 </button>
                 <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '1rem' }}>
-                    Geen kosten tijdens de proefperiode. Je kunt op elk moment annuleren.
+                    {t('subscription.trial_desc')}
                 </p>
             </div>
 

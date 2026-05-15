@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useUser } from '../context/UserContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../utils/supabaseClient'
+import { useLanguage } from '../context/LanguageContext'
 
 const CATEGORIES = [
     { key: 'alles', label: 'Alles' },
@@ -11,13 +12,6 @@ const CATEGORIES = [
     { key: 'algemeen', label: 'Algemeen' }
 ]
 
-const PHASE_LABELS = {
-    menstrual: 'Menstruatie',
-    follicular: 'Folliculair',
-    ovulatory: 'Ovulatie',
-    luteal: 'Luteaal'
-}
-
 const PHASE_COLORS = {
     menstrual: '#a86473',
     follicular: '#5bc4d4',
@@ -25,19 +19,19 @@ const PHASE_COLORS = {
     luteal: '#a3b899'
 }
 
-function timeAgo(dateStr) {
+function timeAgo(dateStr, t, language) {
     const now = new Date()
     const date = new Date(dateStr)
     const diff = Math.floor((now - date) / 1000)
-    if (diff < 60) return 'zojuist'
+    if (diff < 60) return t('community.just_now')
     if (diff < 3600) return `${Math.floor(diff / 60)}min`
     if (diff < 86400) return `${Math.floor(diff / 3600)}u`
     if (diff < 604800) return `${Math.floor(diff / 86400)}d`
-    return date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
+    return date.toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { day: 'numeric', month: 'short' })
 }
 
 // ─── Post Card ───────────────────────────────────────────
-function PostCard({ post, onOpen, onLike, isLiked }) {
+function PostCard({ post, onOpen, onLike, isLiked, t, language }) {
     return (
         <div
             onClick={() => onOpen(post)}
@@ -65,7 +59,7 @@ function PostCard({ post, onOpen, onLike, isLiked }) {
                     </span>
                     <div>
                         <span style={{ fontWeight: '600', fontSize: '0.9rem', color: 'var(--color-text)' }}>
-                            {post.is_anonymous ? 'Anoniem' : post.author_name}
+                            {post.is_anonymous ? t('community.anonymous') : post.author_name}
                         </span>
                         {post.phase_tag && (
                             <span style={{
@@ -77,12 +71,12 @@ function PostCard({ post, onOpen, onLike, isLiked }) {
                                 color: PHASE_COLORS[post.phase_tag],
                                 fontWeight: '500'
                             }}>
-                                {PHASE_LABELS[post.phase_tag]}
+                                {t(`community.phases.${post.phase_tag}`)}
                             </span>
                         )}
                     </div>
                 </div>
-                <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{timeAgo(post.created_at)}</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{timeAgo(post.created_at, t, language)}</span>
             </div>
 
             {/* Category pill */}
@@ -91,7 +85,7 @@ function PostCard({ post, onOpen, onLike, isLiked }) {
                     fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em',
                     color: 'var(--color-text-muted)', fontWeight: '500'
                 }}>
-                    {post.category}
+                    {t(`community.categories.${post.category.toLowerCase()}`)}
                 </span>
             </div>
 
@@ -125,6 +119,7 @@ function PostCard({ post, onOpen, onLike, isLiked }) {
 export default function Community() {
     const { user, currentPhase } = useUser()
     const { user: authUser } = useAuth()
+    const { t, language } = useLanguage()
 
     const [view, setView] = useState('feed')  // 'feed', 'detail', 'new'
     const [posts, setPosts] = useState([])
@@ -305,7 +300,7 @@ export default function Community() {
     // ─── Submit Comment ──────────────────────────────────
     const submitComment = async () => {
         if (!commentText.trim() || !authUser || !selectedPost) return
-        const authorName = user?.name || 'Gebruiker'
+        const authorName = user?.name || t('community.anonymous')
 
         const newComment = {
             post_id: selectedPost.id,
@@ -329,7 +324,7 @@ export default function Community() {
             setCommentText('')
         } catch (e) {
             console.error('Failed to post comment:', e)
-            alert('Reactie plaatsen mislukt')
+            alert(t('community.comment_failed'))
         } finally {
             setIsSubmitting(false)
         }
@@ -338,7 +333,7 @@ export default function Community() {
     // ─── Submit New Post ─────────────────────────────────
     const submitPost = async () => {
         if (!newTitle.trim() || !newBody.trim() || !authUser) return
-        const authorName = newAnonymous ? 'Anoniem' : (user?.name || 'Gebruiker')
+        const authorName = newAnonymous ? t('community.anonymous') : (user?.name || t('community.anonymous'))
 
         setIsSubmitting(true)
         try {
@@ -363,7 +358,7 @@ export default function Community() {
             fetchPosts()
         } catch (e) {
             console.error('Failed to create post:', e)
-            alert('Post plaatsen mislukt')
+            alert(t('community.post_failed'))
         } finally {
             setIsSubmitting(false)
         }
@@ -406,7 +401,7 @@ export default function Community() {
             fetchPosts()
         } catch (e) {
             console.error('Failed to delete post:', e)
-            alert('Verwijderen mislukt: ' + (e.message || 'Onbekende fout'))
+            alert(t('community.delete_failed') + ': ' + (e.message || 'Error'))
         }
     }
 
@@ -440,7 +435,7 @@ export default function Community() {
             fetchPosts()
         } catch (e) {
             console.error('Failed to delete comment:', e)
-            alert('Reactie verwijderen mislukt: ' + (e.message || 'Onbekende fout'))
+            alert(t('community.delete_failed') + ': ' + (e.message || 'Error'))
         }
     }
 
@@ -456,15 +451,15 @@ export default function Community() {
                         onClick={() => setView('feed')}
                         style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.95rem', cursor: 'pointer' }}
                     >
-                        ← Terug
+                        ← {t('community.back')}
                     </button>
-                    <h2 style={{ fontSize: '1.25rem', fontWeight: '600' }}>Nieuw bericht</h2>
+                    <h2 style={{ fontSize: '1.25rem', fontWeight: '600' }}>{t('community.new_post')}</h2>
                     <div style={{ width: '48px' }} />
                 </div>
 
                 {/* Category selector */}
                 <div style={{ marginBottom: '1rem' }}>
-                    <label style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--color-text-muted)', marginBottom: '0.5rem', display: 'block' }}>Categorie</label>
+                    <label style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--color-text-muted)', marginBottom: '0.5rem', display: 'block' }}>{t('community.category')}</label>
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                         {CATEGORIES.filter(c => c.key !== 'alles').map(cat => (
                             <button
@@ -481,7 +476,7 @@ export default function Community() {
                                     cursor: 'pointer'
                                 }}
                             >
-                                {cat.label}
+                                {t(`community.categories.${cat.key}`)}
                             </button>
                         ))}
                     </div>
@@ -490,25 +485,25 @@ export default function Community() {
                 {/* Phase tag */}
                 <div style={{ marginBottom: '1rem' }}>
                     <label style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--color-text-muted)', marginBottom: '0.5rem', display: 'block' }}>
-                        Fase-label <span style={{ fontWeight: '400' }}>(optioneel)</span>
+                        {t('community.phase_label')} <span style={{ fontWeight: '400' }}>{t('community.optional')}</span>
                     </label>
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                        {Object.entries(PHASE_LABELS).map(([key, label]) => (
+                        {Object.entries(PHASE_COLORS).map(([key, color]) => (
                             <button
                                 key={key}
                                 onClick={() => setNewPhaseTag(newPhaseTag === key ? null : key)}
                                 style={{
                                     padding: '0.4rem 0.8rem',
                                     borderRadius: '16px',
-                                    border: newPhaseTag === key ? `2px solid ${PHASE_COLORS[key]}` : '1px solid var(--color-border)',
-                                    background: newPhaseTag === key ? `${PHASE_COLORS[key]}20` : 'var(--color-surface)',
-                                    color: newPhaseTag === key ? PHASE_COLORS[key] : 'var(--color-text-muted)',
+                                    border: newPhaseTag === key ? `2px solid ${color}` : '1px solid var(--color-border)',
+                                    background: newPhaseTag === key ? `${color}20` : 'var(--color-surface)',
+                                    color: newPhaseTag === key ? color : 'var(--color-text-muted)',
                                     fontSize: '0.8rem',
                                     fontWeight: newPhaseTag === key ? '600' : '400',
                                     cursor: 'pointer'
                                 }}
                             >
-                                {label}
+                                {t(`community.phases.${key}`)}
                             </button>
                         ))}
                     </div>
@@ -518,7 +513,7 @@ export default function Community() {
                 <div style={{ marginBottom: '1rem' }}>
                     <input
                         type="text"
-                        placeholder="Titel van je bericht"
+                        placeholder={t('community.title_placeholder')}
                         value={newTitle}
                         onChange={e => setNewTitle(e.target.value)}
                         maxLength={120}
@@ -533,7 +528,7 @@ export default function Community() {
                 {/* Body */}
                 <div style={{ marginBottom: '1rem' }}>
                     <textarea
-                        placeholder="Wat wil je delen?"
+                        placeholder={t('community.body_placeholder')}
                         value={newBody}
                         onChange={e => setNewBody(e.target.value)}
                         rows={5}
@@ -554,9 +549,9 @@ export default function Community() {
                     marginBottom: '1.5rem'
                 }}>
                     <div>
-                        <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>Post anoniem</span>
+                        <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>{t('community.post_anonymous')}</span>
                         <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '2px 0 0' }}>
-                            Je naam wordt niet getoond
+                            {t('community.anonymous_desc')}
                         </p>
                     </div>
                     <button
@@ -590,7 +585,7 @@ export default function Community() {
                         boxShadow: '0 4px 12px rgba(255,174,185,0.25)'
                     }}
                 >
-                    {isSubmitting ? 'Plaatsen...' : 'Plaats bericht'}
+                    {isSubmitting ? t('community.posting') : t('community.post_button')}
                 </button>
             </div>
         )
@@ -609,7 +604,7 @@ export default function Community() {
                     onClick={() => { setView('feed'); setComments([]); fetchPosts() }}
                     style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.95rem', cursor: 'pointer', marginBottom: '1rem' }}
                 >
-                    ← Terug
+                    ← {t('community.back')}
                 </button>
 
                 {/* Full Post */}
@@ -627,7 +622,7 @@ export default function Community() {
                             </span>
                             <div>
                                 <span style={{ fontWeight: '600', fontSize: '0.95rem' }}>
-                                    {selectedPost.is_anonymous ? 'Anoniem' : selectedPost.author_name}
+                                    {selectedPost.is_anonymous ? t('community.anonymous') : selectedPost.author_name}
                                 </span>
                                 {selectedPost.phase_tag && (
                                     <span style={{
@@ -635,16 +630,16 @@ export default function Community() {
                                         borderRadius: '10px', background: `${PHASE_COLORS[selectedPost.phase_tag]}20`,
                                         color: PHASE_COLORS[selectedPost.phase_tag], fontWeight: '500'
                                     }}>
-                                        {PHASE_LABELS[selectedPost.phase_tag]}
+                                        {t(`community.phases.${selectedPost.phase_tag}`)}
                                     </span>
                                 )}
                             </div>
                         </div>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{timeAgo(selectedPost.created_at)}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{timeAgo(selectedPost.created_at, t, language)}</span>
                     </div>
 
                     <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-muted)', fontWeight: '500' }}>
-                        {selectedPost.category}
+                    {t(`community.categories.${selectedPost.category.toLowerCase()}`)}
                     </span>
 
                     <h2 style={{ fontSize: '1.15rem', fontWeight: '600', margin: '0.5rem 0', color: 'var(--color-text)' }}>
@@ -679,7 +674,7 @@ export default function Community() {
                                     borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.25rem'
                                 }}
                             >
-                                {user?.isAdmin && !isOwner && '🛡️ '}Verwijderen
+                                {user?.isAdmin && !isOwner && '🛡️ '}{t('community.delete')}
                             </button>
                         )}
                     </div>
@@ -687,12 +682,12 @@ export default function Community() {
 
                 {/* Comments */}
                 <h3 style={{ fontSize: '0.95rem', fontWeight: '600', marginBottom: '0.75rem', color: 'var(--color-text)' }}>
-                    Reacties ({comments.length})
+                    {t('community.reactions')} ({comments.length})
                 </h3>
 
                 {comments.length === 0 && (
                     <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', textAlign: 'center', padding: '1rem 0' }}>
-                        Nog geen reacties. Wees de eerste!
+                        {t('community.no_comments')}
                     </p>
                 )}
 
@@ -706,7 +701,7 @@ export default function Community() {
                                 {comment.author_name}
                             </span>
                             <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
-                                {timeAgo(comment.created_at)}
+                                {timeAgo(comment.created_at, t, language)}
                             </span>
                         </div>
                         <p style={{ fontSize: '0.9rem', color: 'var(--color-text)', lineHeight: '1.5', margin: 0 }}>
@@ -728,7 +723,7 @@ export default function Community() {
                             {(comment.user_id === authUser?.id || user?.isAdmin) && (
                                 <button
                                     onClick={() => {
-                                        if (confirm('Wil je deze reactie verwijderen?')) {
+                                        if (confirm(t('community.delete_confirm'))) {
                                             removeCommentFromUI(comment.id)
                                         }
                                     }}
@@ -758,7 +753,7 @@ export default function Community() {
                         type="text"
                         value={commentText}
                         onChange={e => setCommentText(e.target.value)}
-                        placeholder="Schrijf een reactie..."
+                        placeholder={t('community.write_comment')}
                         onKeyDown={e => e.key === 'Enter' && submitComment()}
                         style={{
                             flex: 1, padding: '0.7rem 1rem', borderRadius: '24px',
@@ -940,13 +935,13 @@ export default function Community() {
                 }
 
                 const emptyMessages = {
-                    mijn: 'Je hebt nog geen berichten geplaatst.',
-                    geliked: 'Je hebt nog geen berichten geliked.',
-                    gereageerd: 'Je hebt nog nergens op gereageerd.'
+                    mijn: t('community.empty_my_posts'),
+                    geliked: t('community.empty_liked'),
+                    gereageerd: t('community.empty_commented')
                 }
 
                 if (isLoading) {
-                    return <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', padding: '2rem 0' }}>Laden...</p>
+                    return <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', padding: '2rem 0' }}>{t('common.loading')}</p>
                 }
                 if (displayPosts.length === 0) {
                     return (
@@ -955,9 +950,9 @@ export default function Community() {
                             <p style={{ fontSize: '1rem' }}>
                                 {activeFilter
                                     ? emptyMessages[activeFilter]
-                                    : `Nog geen berichten${activeCategory !== 'alles' ? ` in ${activeCategory}` : ''}.`}
+                                    : t('community.no_posts_in_cat').replace('{category}', t(`community.categories.${activeCategory}`))}
                             </p>
-                            <p style={{ fontSize: '0.9rem' }}>{activeFilter ? '' : 'Wees de eerste die iets deelt!'}</p>
+                            <p style={{ fontSize: '0.9rem' }}>{activeFilter ? '' : t('community.be_first')}</p>
                         </div>
                     )
                 }
@@ -970,6 +965,8 @@ export default function Community() {
                                 onOpen={openPost}
                                 onLike={togglePostLike}
                                 isLiked={myLikes.has(post.id)}
+                                t={t}
+                                language={language}
                             />
                         ))}
                     </div>

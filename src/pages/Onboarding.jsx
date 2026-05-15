@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { useUser } from '../context/UserContext'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import { GOAL_TYPES } from '../logic/nutrition'
 import logo from '../assets/logo-primary.png'
 
 export default function Onboarding() {
     const { user, updateUser, completeOnboarding, saveProfileAndCalculate, logout } = useUser()
     const { signUp, user: authUser } = useAuth()
+    const { t } = useLanguage()
     const [step, setStep] = useState(0) // Start at Step 0 (Welcome)
 
     // NEW: Auto-skip Welcome Screen if already logged in
@@ -90,7 +92,7 @@ export default function Onboarding() {
                 console.log("User already authenticated:", authUser.email);
             }
 
-            if (!userId) throw new Error("Kon geen account aanmaken. Probeer een ander e-mailadres.");
+            if (!userId) throw new Error(t('onboarding.error_account_creation'));
 
             // 2. Save & Calculate Exact Targets (Server-Side Logic)
             console.log("Saving profile and calculating targets...");
@@ -115,7 +117,7 @@ export default function Onboarding() {
             console.error("❌ Onboarding Error:", error);
             console.error("Error message:", error.message);
             console.error("Error stack:", error.stack);
-            alert("Er ging iets mis: " + error.message); // Show error to user
+            alert(t('onboarding.error_generic') + ": " + error.message); // Show error to user
         } finally {
             setIsLoading(false);
         }
@@ -164,14 +166,14 @@ export default function Onboarding() {
                 </div>
 
                 <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#a86473', position: 'relative', zIndex: 1 }}>
-                    Train en eet afgestemd op jouw cyclus
+                    {t('onboarding.welcome_title')}
                 </h1>
                 <p className="text-muted" style={{ maxWidth: '300px', margin: '0 auto 3rem auto' }}>
-                    Op basis van jouw lichaam, doelen en energie
+                    {t('onboarding.welcome_subtitle')}
                 </p>
 
                 <button className="btn btn-primary" onClick={() => setStep(1)} style={{ minWidth: '200px', position: 'relative', zIndex: 1 }}>
-                    START NU
+                    {t('onboarding.start_now')}
                 </button>
 
                 <div style={{ marginTop: '2rem', position: 'relative', zIndex: 1 }}>
@@ -186,7 +188,7 @@ export default function Onboarding() {
                             fontSize: '0.9rem'
                         }}
                     >
-                        Log uit / Ander account
+                        {t('onboarding.logout_other')}
                     </button>
                 </div>
             </div>
@@ -227,7 +229,7 @@ export default function Onboarding() {
                         letterSpacing: '0.03em'
                     }}
                 >
-                    ← Terug
+                    &larr; {t('onboarding.back')}
                 </button>
 
                 <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -241,7 +243,7 @@ export default function Onboarding() {
                             objectFit: 'contain'
                         }}
                     />
-                    {step <= 6 && <p className="text-muted" style={{ fontSize: '0.8rem', margin: 0 }}>Stap {step} van 6</p>}
+                    {step <= 6 && <p className="text-muted" style={{ fontSize: '0.8rem', margin: 0 }}>{t('onboarding.step_x_of_y').replace('{step}', step)}</p>}
                 </div>
 
                 {/* Logout Button (Top Right) */}
@@ -259,7 +261,7 @@ export default function Onboarding() {
                                 textDecoration: 'underline'
                             }}
                         >
-                            Log uit
+                            {t('onboarding.logout')}
                         </button>
                     )}
                 </div>
@@ -270,11 +272,11 @@ export default function Onboarding() {
                 {/* STEP 1: CYCLUS */}
                 {step === 1 && (
                     <div className="fade-in">
-                        <h2 className="text-center" style={{ marginBottom: '1.5rem' }}>Jouw Cyclus</h2>
+                        <h2 className="text-center" style={{ marginBottom: '1.5rem' }}>{t('onboarding.step1_title')}</h2>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                             <div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.2rem' }}>
-                                    <label style={labelStyle}>Startdatum laatste menstruatie</label>
+                                    <label style={labelStyle}>{t('onboarding.last_period_start')}</label>
                                     <button
                                         onClick={() => handleChange('cycleStart', new Date().toISOString().split('T')[0])}
                                         style={{
@@ -288,7 +290,7 @@ export default function Onboarding() {
                                             padding: 0
                                         }}
                                     >
-                                        Vandaag
+                                        {t('onboarding.today')}
                                     </button>
                                 </div>
                                 <div style={{ position: 'relative' }}>
@@ -314,14 +316,14 @@ export default function Onboarding() {
                                             pointerEvents: 'none',
                                             fontSize: '1rem'
                                         }}>
-                                            Kies een datum (bijv. 12-03-2026)
+                                            {t('onboarding.pick_date')}
                                         </div>
                                     )}
                                 </div>
                             </div>
 
                             <div>
-                                <label style={labelStyle}>Gemiddelde cycluslengte (dagen)</label>
+                                <label style={labelStyle}>{t('onboarding.avg_cycle_length')}</label>
                                 <input
                                     type="number"
                                     value={formData.cycleLength}
@@ -329,7 +331,7 @@ export default function Onboarding() {
                                         const val = parseInt(e.target.value);
                                         handleChange('cycleLength', isNaN(val) ? '' : val);
                                     }}
-                                    placeholder="Bijv. 28"
+                                    placeholder={t('onboarding.placeholder_cycle_length')}
                                     style={inputStyle}
                                 />
 
@@ -348,7 +350,7 @@ export default function Onboarding() {
                                                 cursor: 'pointer'
                                             }}
                                         >
-                                            {len} dagen
+                                            {len} {t('onboarding.days')}
                                         </button>
                                     ))}
                                 </div>
@@ -356,7 +358,7 @@ export default function Onboarding() {
                             </div>
 
                             <div>
-                                <label style={labelStyle}>Gemiddelde menstruatieduur (optioneel)</label>
+                                <label style={labelStyle}>{t('onboarding.avg_period_length')}</label>
                                 <input
                                     type="number"
                                     value={formData.periodLength || ''}
@@ -376,36 +378,36 @@ export default function Onboarding() {
                 {/* STEP 2: LICHAAM */}
                 {step === 2 && (
                     <div className="fade-in">
-                        <h2 className="text-center" style={{ marginBottom: '1.5rem' }}>Over jouw lichaam</h2>
+                        <h2 className="text-center" style={{ marginBottom: '1.5rem' }}>{t('onboarding.step2_title')}</h2>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             <div>
-                                <label style={labelStyle}>Leeftijd</label>
+                                <label style={labelStyle}>{t('onboarding.age')}</label>
                                 <input
                                     type="number"
                                     value={formData.age}
                                     onChange={e => handleChange('age', e.target.value)}
-                                    placeholder="Bijv. 30"
+                                    placeholder={t('onboarding.placeholder_age')}
                                     style={inputStyle}
                                 />
                             </div>
                             <div style={{ display: 'flex', gap: '1rem' }}>
                                 <div style={{ flex: 1 }}>
-                                    <label style={labelStyle}>Lengte (cm)</label>
+                                    <label style={labelStyle}>{t('onboarding.height')}</label>
                                     <input
                                         type="number"
                                         value={formData.height}
                                         onChange={e => handleChange('height', e.target.value)}
-                                        placeholder="Bijv. 170"
+                                        placeholder={t('onboarding.placeholder_height')}
                                         style={inputStyle}
                                     />
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                    <label style={labelStyle}>Gewicht (kg)</label>
+                                    <label style={labelStyle}>{t('onboarding.weight')}</label>
                                     <input
                                         type="number"
                                         value={formData.weight}
                                         onChange={e => handleChange('weight', e.target.value)}
-                                        placeholder="Bijv. 65"
+                                        placeholder={t('onboarding.placeholder_weight')}
                                         style={inputStyle}
                                     />
                                 </div>
@@ -418,42 +420,42 @@ export default function Onboarding() {
                 {step === 3 && (
                     <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                         <div className="text-center">
-                            <h2 style={{ marginBottom: '0.5rem' }}>Wat is je doel?</h2>
+                            <h2 style={{ marginBottom: '0.5rem' }}>{t('onboarding.step3_title')}</h2>
                             <p className="text-muted" style={{ fontSize: '0.9rem' }}>
-                                Op basis hiervan berekenen we jouw calorieën en macro’s.
+                                {t('onboarding.step3_subtitle')}
                             </p>
                         </div>
 
                         {/* 1. Goal */}
                         <div>
-                            <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' }}>Jouw Doel</label>
+                            <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' }}>{t('onboarding.your_goal')}</label>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                <SelectOption label="Afvallen" selected={formData.goal === GOAL_TYPES.LOSE_FAT} onClick={() => handleChange('goal', GOAL_TYPES.LOSE_FAT)} />
-                                <SelectOption label="Afvallen met spieropbouw" selected={formData.goal === GOAL_TYPES.RECOMP} onClick={() => handleChange('goal', GOAL_TYPES.RECOMP)} />
-                                <SelectOption label="Op gewicht blijven" selected={formData.goal === GOAL_TYPES.MAINTAIN} onClick={() => handleChange('goal', GOAL_TYPES.MAINTAIN)} />
-                                <SelectOption label="Spiermassa opbouwen" selected={formData.goal === GOAL_TYPES.GAIN} onClick={() => handleChange('goal', GOAL_TYPES.GAIN)} />
+                                <SelectOption label={t('onboarding.goal_lose_fat')} selected={formData.goal === GOAL_TYPES.LOSE_FAT} onClick={() => handleChange('goal', GOAL_TYPES.LOSE_FAT)} />
+                                <SelectOption label={t('onboarding.goal_recomp')} selected={formData.goal === GOAL_TYPES.RECOMP} onClick={() => handleChange('goal', GOAL_TYPES.RECOMP)} />
+                                <SelectOption label={t('onboarding.goal_maintain')} selected={formData.goal === GOAL_TYPES.MAINTAIN} onClick={() => handleChange('goal', GOAL_TYPES.MAINTAIN)} />
+                                <SelectOption label={t('onboarding.goal_gain')} selected={formData.goal === GOAL_TYPES.GAIN} onClick={() => handleChange('goal', GOAL_TYPES.GAIN)} />
                             </div>
                         </div>
 
                         {/* 2. Target Weight */}
                         <div>
-                            <label style={labelStyle}>Streefgewicht (optioneel)</label>
+                            <label style={labelStyle}>{t('onboarding.target_weight')}</label>
                             <input
                                 type="number"
                                 value={formData.targetWeight}
                                 onChange={e => handleChange('targetWeight', e.target.value)}
-                                placeholder="Bijv. 60"
+                                placeholder={t('onboarding.placeholder_target_weight')}
                                 style={inputStyle}
                             />
                         </div>
 
                         {/* 3. Tempo */}
                         <div>
-                            <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' }}>Tempo</label>
+                            <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' }}>{t('onboarding.tempo')}</label>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                <CompactOption label="Rustig & duurzaam" selected={formData.resultTempo === 'slow'} onClick={() => handleChange('resultTempo', 'slow')} />
-                                <CompactOption label="Gemiddeld tempo" selected={formData.resultTempo === 'average'} onClick={() => handleChange('resultTempo', 'average')} />
-                                <CompactOption label="Snel resultaat" selected={formData.resultTempo === 'fast'} onClick={() => handleChange('resultTempo', 'fast')} />
+                                <CompactOption label={t('onboarding.tempo_slow')} selected={formData.resultTempo === 'slow'} onClick={() => handleChange('resultTempo', 'slow')} />
+                                <CompactOption label={t('onboarding.tempo_average')} selected={formData.resultTempo === 'average'} onClick={() => handleChange('resultTempo', 'average')} />
+                                <CompactOption label={t('onboarding.tempo_fast')} selected={formData.resultTempo === 'fast'} onClick={() => handleChange('resultTempo', 'fast')} />
                             </div>
                         </div>
                     </div>
@@ -463,28 +465,28 @@ export default function Onboarding() {
                 {step === 4 && (
                     <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                         <div className="text-center">
-                            <h2 style={{ marginBottom: '0.5rem' }}>Hoe beweeg jij?</h2>
+                            <h2 style={{ marginBottom: '0.5rem' }}>{t('onboarding.step4_title')}</h2>
                             <p className="text-muted" style={{ fontSize: '0.9rem' }}>
-                                Dit bepaalt hoeveel energie je dagelijks nodig hebt.
+                                {t('onboarding.step4_subtitle')}
                             </p>
                         </div>
 
                         {/* 1. Lifestyle Level */}
                         <div>
-                            <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' }}>Werk & leefstijl</label>
+                            <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' }}>{t('onboarding.lifestyle')}</label>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                                 <SelectOption
-                                    label="Vooral zittend"
+                                    label={t('onboarding.lifestyle_sedentary')}
                                     selected={formData.lifestyle_level === 'sedentary'}
                                     onClick={() => handleChange('lifestyle_level', 'sedentary')}
                                 />
                                 <SelectOption
-                                    label="Afwisselend"
+                                    label={t('onboarding.lifestyle_mixed')}
                                     selected={formData.lifestyle_level === 'mixed'}
                                     onClick={() => handleChange('lifestyle_level', 'mixed')}
                                 />
                                 <SelectOption
-                                    label="Vooral staand / fysiek"
+                                    label={t('onboarding.lifestyle_active')}
                                     selected={formData.lifestyle_level === 'active'}
                                     onClick={() => handleChange('lifestyle_level', 'active')}
                                 />
@@ -493,18 +495,18 @@ export default function Onboarding() {
 
                         {/* 2. Steps Range */}
                         <div>
-                            <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' }}>Dagelijkse stappen</label>
+                            <label className="text-muted" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' }}>{t('onboarding.steps')}</label>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.5rem' }}>
-                                <SelectOption label="Minder dan 4.000 stappen" selected={formData.steps_range === 'lt4k'} onClick={() => handleChange('steps_range', 'lt4k')} />
-                                <SelectOption label="4.000 – 8.000 stappen" selected={formData.steps_range === '4k_8k'} onClick={() => handleChange('steps_range', '4k_8k')} />
-                                <SelectOption label="8.000 – 12.000 stappen" selected={formData.steps_range === '8k_12k'} onClick={() => handleChange('steps_range', '8k_12k')} />
-                                <SelectOption label="Meer dan 12.000 stappen" selected={formData.steps_range === 'gt12k'} onClick={() => handleChange('steps_range', 'gt12k')} />
+                                <SelectOption label={t('onboarding.steps_lt4k')} selected={formData.steps_range === 'lt4k'} onClick={() => handleChange('steps_range', 'lt4k')} />
+                                <SelectOption label={t('onboarding.steps_4k_8k')} selected={formData.steps_range === '4k_8k'} onClick={() => handleChange('steps_range', '4k_8k')} />
+                                <SelectOption label={t('onboarding.steps_8k_12k')} selected={formData.steps_range === '8k_12k'} onClick={() => handleChange('steps_range', '8k_12k')} />
+                                <SelectOption label={t('onboarding.steps_gt12k')} selected={formData.steps_range === 'gt12k'} onClick={() => handleChange('steps_range', 'gt12k')} />
                             </div>
                         </div>
 
                         {/* 3. Frequency (0-7) */}
                         <div>
-                            <label style={labelStyle}>Kracht/Training (dagen p/w)</label>
+                            <label style={labelStyle}>{t('onboarding.training_days')}</label>
                             <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'space-between' }}>
                                 {[0, 1, 2, 3, 4, 5, 6, 7].map(val => (
                                     <button
@@ -534,20 +536,20 @@ export default function Onboarding() {
                 {/* STEP 5: ERVARING (Shifted) */}
                 {step === 5 && (
                     <div className="fade-in">
-                        <h2 className="text-center" style={{ marginBottom: '1.5rem' }}>Hoeveel ervaring heb je?</h2>
+                        <h2 className="text-center" style={{ marginBottom: '1.5rem' }}>{t('onboarding.step5_title')}</h2>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                             <SelectOption
-                                label="Beginner"
+                                label={t('onboarding.exp_beginner')}
                                 selected={formData.experienceLevel === 'beginner'}
                                 onClick={() => handleChange('experienceLevel', 'beginner')}
                             />
                             <SelectOption
-                                label="Enige ervaring"
+                                label={t('onboarding.exp_intermediate')}
                                 selected={formData.experienceLevel === 'intermediate'}
                                 onClick={() => handleChange('experienceLevel', 'intermediate')}
                             />
                             <SelectOption
-                                label="Gevorderd"
+                                label={t('onboarding.exp_advanced')}
                                 selected={formData.experienceLevel === 'advanced'}
                                 onClick={() => handleChange('experienceLevel', 'advanced')}
                             />
@@ -559,22 +561,22 @@ export default function Onboarding() {
                 {step === 6 && (
                     <div className="fade-in">
                         <h2 className="text-center" style={{ marginBottom: '1.5rem' }}>
-                            {authUser ? 'Bijna klaar!' : 'Maak je account aan'}
+                            {authUser ? t('onboarding.step6_title_authed') : t('onboarding.step6_title_new')}
                         </h2>
                         <p className="text-center text-muted" style={{ marginBottom: '2rem' }}>
                             {authUser
-                                ? 'We slaan je profiel veilig op.'
-                                : 'Sla je gegevens veilig op.'}
+                                ? t('onboarding.step6_sub_authed')
+                                : t('onboarding.step6_sub_new')}
                         </p>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             <div>
-                                <label style={labelStyle}>Naam</label>
+                                <label style={labelStyle}>{t('onboarding.name')}</label>
                                 <input
                                     type="text"
                                     value={formData.name}
                                     onChange={e => handleChange('name', e.target.value)}
-                                    placeholder="Je voornaam"
+                                    placeholder={t('onboarding.name_placeholder')}
                                     style={inputStyle}
                                 />
                             </div>
@@ -582,17 +584,17 @@ export default function Onboarding() {
                             {!authUser && (
                                 <>
                                     <div>
-                                        <label style={labelStyle}>Email</label>
+                                        <label style={labelStyle}>{t('onboarding.email')}</label>
                                         <input
                                             type="email"
                                             value={formData.email}
                                             onChange={e => handleChange('email', e.target.value)}
-                                            placeholder="jouw@email.com"
+                                            placeholder={t('onboarding.email_placeholder')}
                                             style={inputStyle}
                                         />
                                     </div>
                                     <div>
-                                        <label style={labelStyle}>Wachtwoord</label>
+                                        <label style={labelStyle}>{t('onboarding.password')}</label>
                                         <input
                                             type="password"
                                             value={formData.password}
@@ -611,7 +613,7 @@ export default function Onboarding() {
 
             <div style={{ marginTop: '2rem', paddingBottom: '2rem', position: 'relative', zIndex: 1 }}>
                     <button className="btn btn-primary" onClick={handleNext} disabled={isLoading || !isValid(step, formData, !!authUser)}>
-                        {isLoading ? 'Bezig met opslaan...' : (step === 6 ? (authUser ? 'Profiel Opslaan & Starten' : 'Account aanmaken & Starten') : 'Volgende')}
+                        {isLoading ? t('onboarding.saving') : (step === 6 ? (authUser ? t('onboarding.save_start_authed') : t('onboarding.save_start_new')) : t('onboarding.next'))}
                     </button>
             </div>
 

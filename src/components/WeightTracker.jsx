@@ -1,5 +1,5 @@
-import React, { useState, useRef, useMemo, useCallback } from 'react'
 import { useUser } from '../context/UserContext'
+import { useLanguage } from '../context/LanguageContext'
 
 // Parse "YYYY-MM-DD" strings correctly in local time (avoids UTC timezone shift)
 function parseLocalDate(dateStr) {
@@ -9,6 +9,7 @@ function parseLocalDate(dateStr) {
 
 export default function WeightTracker({ date }) {
     const { user, logWeight, currentPhase, getPhaseForDate } = useUser()
+    const { t, language } = useLanguage()
     const [showSheet, setShowSheet] = useState(false)
     const [tempWeight, setTempWeight] = useState('')
 
@@ -32,15 +33,15 @@ export default function WeightTracker({ date }) {
     const getInsight = (phase) => {
         switch (phase) {
             case 'menstrual':
-                return "Vocht verdwijnt langzaam. Je gewicht stabiliseert nu weer."
+                return t('weight.insights.menstrual')
             case 'follicular':
-                return "Dit is je meest stabiele fase. Je gewicht is nu het meest representatief."
+                return t('weight.insights.follicular')
             case 'ovulatory':
-                return "Rond de eisprong kun je soms een kleine schommeling in vocht zien. Volkomen normaal."
+                return t('weight.insights.ovulatory')
             case 'luteal':
-                return "Je houdt meer vocht vast (soms 1-2 kg). Raak niet in paniek, dit is tijdelijk."
+                return t('weight.insights.luteal')
             default:
-                return "Luister naar je lichaam en staar je niet blind op de weegschaal."
+                return t('weight.insights.default')
         }
     }
 
@@ -161,8 +162,8 @@ export default function WeightTracker({ date }) {
         }
 
         // X-axis date labels
-        const startLabel = parseLocalDate(sorted[0].date).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
-        const endLabel = parseLocalDate(sorted[sorted.length - 1].date).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
+        const startLabel = parseLocalDate(sorted[0].date).toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { day: 'numeric', month: 'short' })
+        const endLabel = parseLocalDate(sorted[sorted.length - 1].date).toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { day: 'numeric', month: 'short' })
 
         // Y-axis labels are computed at the top
         return { pointsArray, linePathStr, areaPathStr, H, W, min, max, startLabel, endLabel, yLabelLow, yLabelHigh }
@@ -214,9 +215,9 @@ export default function WeightTracker({ date }) {
         const diff = trends.totalDiff
         const absVal = Math.abs(diff).toFixed(1)
         const firstDateObj = parseLocalDate(trends.firstDate)
-        const dateStr = firstDateObj.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long' })
-        if (Math.abs(diff) <= 0.05) return `Stabiel sinds ${dateStr}`
-        return `${diff > 0 ? '↑' : '↓'} ${absVal} kg ${diff > 0 ? 'meer' : 'minder'} dan op ${dateStr}`
+        const dateStr = firstDateObj.toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { day: 'numeric', month: 'long' })
+        if (Math.abs(diff) <= 0.05) return `${t('weight.stable_since')} ${dateStr}`
+        return `${diff > 0 ? '↑' : '↓'} ${absVal} kg ${diff > 0 ? t('weight.more_than') : t('weight.less_than')} ${dateStr}`
     })()
 
     return (
@@ -224,7 +225,7 @@ export default function WeightTracker({ date }) {
 
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.25rem 0.75rem' }}>
-                <h2 style={{ fontSize: '1.1rem', margin: 0 }}>Gewicht</h2>
+                <h2 style={{ fontSize: '1.1rem', margin: 0 }}>{t('weight.title')}</h2>
                 <button
                     onClick={() => { setTempWeight(currentWeight ? String(currentWeight) : ''); setShowSheet(true) }}
                     style={{
@@ -274,14 +275,11 @@ export default function WeightTracker({ date }) {
                         }}>
                             {scrubPoint.weight} kg
                             <div style={{ fontSize: '0.62rem', opacity: 0.7, textAlign: 'center', fontWeight: '400' }}>
-                                {parseLocalDate(scrubPoint.date).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}
+                                {parseLocalDate(scrubPoint.date).toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { day: 'numeric', month: 'short' })}
                             </div>
                             {scrubPoint.phaseName && (
                                 <div style={{ fontSize: '0.62rem', color: scrubPoint.phaseColor, textAlign: 'center', marginTop: '2px', fontWeight: 800, filter: 'brightness(1.6)' }}>
-                                    {scrubPoint.phaseName === 'menstrual' ? 'menstruatie'
-                                        : scrubPoint.phaseName === 'follicular' ? 'folliculair'
-                                        : scrubPoint.phaseName === 'ovulatory' ? 'ovulatie'
-                                        : 'luteaal'}
+                                    {t(`weight.phases.${scrubPoint.phaseName}`)}
                                 </div>
                             )}
                         </div>
@@ -345,7 +343,7 @@ export default function WeightTracker({ date }) {
                 </div>
             ) : (
                 <div style={{ padding: '2.5rem 1.25rem', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
-                    Log je eerste gewicht om te beginnen!
+                    {t('weight.log_cta')}
                 </div>
             )}
 
@@ -364,7 +362,7 @@ export default function WeightTracker({ date }) {
                 )}
                 {trends && trends.logCount === 1 && (
                     <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '3px' }}>
-                        Je eerste meting — log vaker voor een trend
+                        {t('weight.first_log_hint')}
                     </div>
                 )}
             </div>
@@ -419,7 +417,7 @@ export default function WeightTracker({ date }) {
                     >
                         <div style={{ width: '40px', height: '4px', background: 'var(--color-border)', borderRadius: '2px', margin: '0 auto 1.5rem auto' }} />
 
-                        <h3 style={{ margin: '0 0 1.5rem 0', textAlign: 'center', fontSize: '1.2rem' }}>Wat weeg je vandaag?</h3>
+                        <h3 style={{ margin: '0 0 1.5rem 0', textAlign: 'center', fontSize: '1.2rem' }}>{t('weight.sheet_title')}</h3>
 
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '2rem' }}>
                             <input
@@ -450,14 +448,14 @@ export default function WeightTracker({ date }) {
                                 onClick={() => setShowSheet(false)}
                                 style={{ flex: 1, padding: '1rem', borderRadius: '16px', border: 'none', background: 'var(--color-bg)', color: 'var(--color-text)', fontWeight: '600', fontSize: '1rem', cursor: 'pointer' }}
                             >
-                                Annuleer
+                                {t('common.cancel')}
                             </button>
                             <button
                                 onClick={handleSaveManual}
                                 className="btn btn-primary"
                                 style={{ flex: 2, padding: '1rem', borderRadius: '16px', fontWeight: '600', fontSize: '1rem', background: phaseColor }}
                             >
-                                Opslaan
+                                {t('common.save')}
                             </button>
                         </div>
                     </div>

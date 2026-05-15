@@ -1,7 +1,9 @@
 
 import React, { useState, useEffect } from 'react'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function InstallPrompt() {
+    const { t } = useLanguage()
     const [deferredPrompt, setDeferredPrompt] = useState(null)
     const [showPrompt, setShowPrompt] = useState(false)
     const [isIOS, setIsIOS] = useState(false)
@@ -101,7 +103,7 @@ export default function InstallPrompt() {
                         fontWeight: '600',
                         color: 'var(--color-text)'
                     }}>
-                        Zet Allignd op je homescreen
+                        {t('install.title')}
                     </h3>
                     <p style={{
                         margin: '4px 0 0',
@@ -109,8 +111,8 @@ export default function InstallPrompt() {
                         color: 'var(--color-text-muted)'
                     }}>
                         {isIOS
-                            ? 'Tik op het Deel-icoon onderin en kies voor \'Zet op beginscherm\''
-                            : 'Klik op Installeren om de app direct op je beginscherm te plaatsen'}
+                            ? t('install.ios_desc')
+                            : t('install.android_desc')}
                     </p>
                 </div>
             </div>
@@ -132,7 +134,7 @@ export default function InstallPrompt() {
                         cursor: 'pointer'
                     }}
                 >
-                    Later
+                    {t('install.later')}
                 </button>
 
                 {!isIOS && (
@@ -149,7 +151,7 @@ export default function InstallPrompt() {
                             cursor: 'pointer'
                         }}
                     >
-                        Installeren
+                        {t('install.install')}
                     </button>
                 )}
             </div>

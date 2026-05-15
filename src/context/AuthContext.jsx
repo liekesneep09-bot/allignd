@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { supabase, isSupabaseConfigured } from '../utils/supabaseClient'
+import { useLanguage } from './LanguageContext'
 
 // Force Reload
 const AuthContext = createContext(null)
@@ -9,6 +10,7 @@ export function AuthProvider({ children }) {
     const [session, setSession] = useState(null)
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
+    const { t } = useLanguage()
 
     useEffect(() => {
         // If Supabase is not configured, skip auth entirely
@@ -38,7 +40,7 @@ export function AuthProvider({ children }) {
 
     const signIn = async (email, password) => {
         if (!isSupabaseConfigured()) {
-            throw new Error('Auth is niet geconfigureerd')
+            throw new Error(t('auth.error_not_configured'))
         }
 
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -49,10 +51,10 @@ export function AuthProvider({ children }) {
         if (error) {
             // Translate error messages to Dutch
             if (error.message.includes('Invalid login credentials')) {
-                throw new Error('Deze combinatie klopt niet')
+                throw new Error(t('auth.error_invalid_credentials'))
             }
             if (error.message.includes('Email not confirmed')) {
-                throw new Error('Bevestig eerst je e-mailadres')
+                throw new Error(t('auth.error_email_not_confirmed'))
             }
             throw new Error(error.message)
         }
@@ -62,7 +64,7 @@ export function AuthProvider({ children }) {
 
     const signUp = async (email, password) => {
         if (!isSupabaseConfigured()) {
-            throw new Error('Auth is niet geconfigureerd')
+            throw new Error(t('auth.error_not_configured'))
         }
 
         const { data, error } = await supabase.auth.signUp({
@@ -75,10 +77,10 @@ export function AuthProvider({ children }) {
 
         if (error) {
             if (error.message.includes('already registered')) {
-                throw new Error('Dit account bestaat al')
+                throw new Error(t('auth.error_already_registered'))
             }
             if (error.message.includes('Password')) {
-                throw new Error('Wachtwoord moet minimaal 6 tekens zijn')
+                throw new Error(t('auth.error_password_length'))
             }
             throw new Error(error.message)
         }
@@ -110,7 +112,7 @@ export function AuthProvider({ children }) {
 
     const resetPassword = async (email) => {
         if (!isSupabaseConfigured()) {
-            throw new Error('Auth is niet geconfigureerd')
+            throw new Error(t('auth.error_not_configured'))
         }
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
             redirectTo: window.location.origin

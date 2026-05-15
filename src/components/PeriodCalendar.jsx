@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react'
 import { useUser } from '../context/UserContext'
+import { useLanguage } from '../context/LanguageContext'
 import { SYMPTOMS_LIST } from './CheckInModal'
 import { getFuturePeriodWindows } from '../logic/cycle-learning'
 
@@ -11,6 +11,7 @@ function parseLocal(dateStr) {
 
 export default function PeriodCalendar({ user, onClose, onSelect }) {
     const { togglePeriodDate, isDateInPeriod } = useUser()
+    const { t, language } = useLanguage()
     const scrollRef = React.useRef(null)
     const todayRef = React.useRef(null)
     const [hintDismissed, setHintDismissed] = useState(
@@ -121,7 +122,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                 >
                     ✕
                 </button>
-                <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>Kalender</div>
+                <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>{t('calendar.title')}</div>
                 <div style={{ width: '24px' }} />
             </div>
 
@@ -133,7 +134,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                 borderBottom: '1px solid #f0f0f0',
                 background: '#fafafa'
             }}>
-                {['ma', 'di', 'wo', 'do', 'vr', 'za', 'zo'].map(d => (
+                {t('calendar.days', { returnObjects: true })?.map(d => (
                     <div key={d} style={{
                         textAlign: 'center',
                         fontSize: '0.72rem',
@@ -163,7 +164,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                 }}>
                     <span style={{ flexShrink: 0 }}>💡</span>
                     <div style={{ flex: 1 }}>
-                        <strong>Tip:</strong> Tik op een dag om je menstruatie te loggen of te bekijken.
+                        <strong>{t('calendar.tip')}</strong> {t('calendar.tip_desc')}
                     </div>
                     <button
                         onClick={e => {
@@ -209,10 +210,10 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
             }}>
                 {/* Legend — "Vandaag" removed */}
                 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-                    <LegendItem color="#a86473" filled label="Menstruatie" />
-                    <LegendItem color="#a86473" dashed label="Verwacht" />
-                    <LegendItem color="#4DB6AC" dot label="Gesport" />
-                    <LegendItem color="#f5a89c" dot label="Symptomen" />
+                    <LegendItem color="#a86473" filled label={t('calendar.period')} />
+                    <LegendItem color="#a86473" dashed label={t('calendar.expected')} />
+                    <LegendItem color="#4DB6AC" dot label={t('calendar.moved')} />
+                    <LegendItem color="#f5a89c" dot label={t('calendar.symptoms')} />
                 </div>
                 <button
                     onClick={onClose}
@@ -228,7 +229,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                         cursor: 'pointer'
                     }}
                 >
-                    Klaar
+                    {t('common.done')}
                 </button>
             </div>
 
@@ -264,8 +265,9 @@ function LegendItem({ color, filled, dashed, dot, label }) {
 
 // ── Day Summary Sheet ─────────────────────────────────────────────────────────
 function DaySummarySheet({ dateStr, summaryData, justLogged, onClose, onToggle }) {
+    const { t, language } = useLanguage()
     const dateObj = parseLocal(dateStr)
-    const dateHeader = dateObj.toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' })
+    const dateHeader = dateObj.toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { weekday: 'long', day: 'numeric', month: 'long' })
     const { isPeriod, hasMoved, waterAmount, symptomLabels, isToday } = summaryData
 
     return (
@@ -291,7 +293,7 @@ function DaySummarySheet({ dateStr, summaryData, justLogged, onClose, onToggle }
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
                     <h3 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--color-text)', textTransform: 'capitalize' }}>
-                        {isToday ? 'Vandaag' : dateHeader}
+                        {isToday ? t('calendar.today') : dateHeader}
                     </h3>
                     <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '1.4rem', padding: 0, cursor: 'pointer', color: 'var(--color-text-muted)' }}>✕</button>
                 </div>
@@ -301,24 +303,24 @@ function DaySummarySheet({ dateStr, summaryData, justLogged, onClose, onToggle }
                     <SummaryRow
                         color={isPeriod ? '#a86473' : '#f0f0f0'}
                         iconColor={isPeriod ? '#fff' : 'transparent'}
-                        label={isPeriod ? 'Menstruatie gelogd' : 'Geen menstruatie gelogd'}
+                        label={isPeriod ? t('calendar.period_logged') : t('calendar.no_period_logged')}
                         active={isPeriod}
                     />
 
                     {/* Movement */}
-                    <SummaryRow color={hasMoved ? '#4DB6AC' : '#f0f0f0'} iconColor={hasMoved ? '#fff' : 'transparent'} label={hasMoved ? 'Beweging gelogd' : 'Geen beweging gelogd'} active={hasMoved} />
+                    <SummaryRow color={hasMoved ? '#4DB6AC' : '#f0f0f0'} iconColor={hasMoved ? '#fff' : 'transparent'} label={hasMoved ? t('calendar.movement_logged') : t('calendar.no_movement_logged')} active={hasMoved} />
 
                     {/* Water */}
                     <SummaryRow
                         color={waterAmount > 0 ? '#89C4F4' : '#f0f0f0'}
                         iconColor={waterAmount > 0 ? '#fff' : 'transparent'}
-                        label={waterAmount > 0 ? `${(waterAmount / 1000).toFixed(1)}L water gedronken` : 'Geen water gelogd'}
+                        label={waterAmount > 0 ? `${(waterAmount / 1000).toFixed(1)}L ${t('calendar.water_logged')}` : t('calendar.no_water_logged')}
                         active={waterAmount > 0}
                     />
 
                     {/* Symptoms */}
                     {symptomLabels.length > 0 && (
-                        <SummaryRow color="#f5a89c" iconColor="#fff" label={`Symptomen: ${symptomLabels.join(', ')}`} active={true} />
+                        <SummaryRow color="#f5a89c" iconColor="#fff" label={`${t('calendar.symptoms_prefix')} ${symptomLabels.join(', ')}`} active={true} />
                     )}
                 </div>
 
@@ -333,7 +335,7 @@ function DaySummarySheet({ dateStr, summaryData, justLogged, onClose, onToggle }
                         fontWeight: '600',
                         fontSize: '0.95rem'
                     }}>
-                        ✓ {isPeriod ? 'Menstruatie gelogd!' : 'Verwijderd'}
+                        ✓ {isPeriod ? t('calendar.success_logged') : t('calendar.success_removed')}
                     </div>
                 ) : (
                     <button
@@ -351,7 +353,7 @@ function DaySummarySheet({ dateStr, summaryData, justLogged, onClose, onToggle }
                             transition: 'all 0.2s'
                         }}
                     >
-                        {isPeriod ? 'Menstruatie verwijderen' : '+ Menstruatie loggen'}
+                        {isPeriod ? t('calendar.remove_period') : t('calendar.add_period')}
                     </button>
                 )}
             </div>
@@ -379,6 +381,7 @@ function SummaryRow({ color, label, active }) {
 
 // ── Month Grid ────────────────────────────────────────────────────────────────
 function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef, isDateInPeriod, todayStr }) {
+    const { t, language } = useLanguage()
     const year = monthDate.getFullYear()
     const month = monthDate.getMonth()
     const daysInMonth = new Date(year, month + 1, 0).getDate()
@@ -478,7 +481,7 @@ function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef, is
                 color: '#2D3436',
                 textTransform: 'capitalize'
             }}>
-                {monthDate.toLocaleDateString('nl-NL', { month: 'long', year: 'numeric' })}
+                {monthDate.toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { month: 'long', year: 'numeric' })}
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', rowGap: '0.35rem' }}>
                 {grid}

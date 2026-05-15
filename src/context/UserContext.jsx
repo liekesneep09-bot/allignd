@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react'
+import { useLanguage } from './LanguageContext'
 // ... (omitting lines for brevity, targeting the import)
 import { calculateCycleDay, getPhaseForDay, calculateStartDateFromPhase, getCyclePrediction } from '../logic/cycle'
 import { calculateCycleStats, addPeriodStart as addPeriodStartToHistory, predictNextPeriodStart, getOvulationWindow, calculateAveragePeriodLength } from '../logic/cycle-learning'
@@ -16,7 +17,9 @@ const UserContext = createContext(null)
 
 export function UserProvider({ children }) {
   // Auth Context
+  // Contexts
   const { user: authUser, getAccessToken, signOut } = useAuth()
+  const { language: currentUiLanguage, setLanguage: setUiLanguage } = useLanguage()
 
   // 1. Loading State
   const [isLoading, setIsLoading] = useState(true)
@@ -78,7 +81,11 @@ export function UserProvider({ children }) {
     symptomLogs: [], // Array of { date, symptoms: [] }
 
     // Menstruation Logs (Explicit Check-ins)
-    menstruationLogs: [] // { date, status }
+    // Menstruation Logs (Explicit Check-ins)
+    menstruationLogs: [], // { date, status }
+    
+    // Language Preference
+    user_language: localStorage.getItem('app_language') || 'nl'
   }))
 
   // 4. Derived State (Prioritize calculations)
@@ -303,7 +310,13 @@ export function UserProvider({ children }) {
             macroTargets: null,
             isAdmin: profile.is_admin || false,
             // CRITICAL: Restore menstruationLogs from Supabase so phase persists across reloads
-            menstruationLogs: profile.menstruation_logs || []
+            menstruationLogs: profile.menstruation_logs || [],
+            user_language: profile.user_language || 'nl'
+          }
+
+          // Sync UI language with profile preference if they differ
+          if (profile.user_language && profile.user_language !== currentUiLanguage) {
+            setUiLanguage(profile.user_language)
           }
 
           if (profile.is_onboarded) {
@@ -569,6 +582,8 @@ export function UserProvider({ children }) {
       if (data.manualPhaseOverride !== undefined) updates.manual_phase_override = data.manualPhaseOverride
       if (data.manualPhase !== undefined) updates.manual_phase = data.manualPhase
 
+      if (data.user_language !== undefined) updates.user_language = data.user_language
+
       if (data.experienceLevel !== undefined) updates.experience_level = data.experienceLevel
       if (data.resultTempo !== undefined) updates.result_tempo = data.resultTempo
       if (data.trainingType !== undefined) updates.training_type = data.trainingType
@@ -609,6 +624,11 @@ export function UserProvider({ children }) {
 
     // 2. Sync to Supabase in background
     await syncProfileUpdateToSupabase(updates)
+
+    // 3. Sync UI Language if language was updated
+    if (updates.user_language) {
+      setUiLanguage(updates.user_language)
+    }
   }
 
   // ------------------------------------------------------------------

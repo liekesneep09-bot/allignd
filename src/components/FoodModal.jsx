@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react'
 import { useUser } from '../context/UserContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../utils/supabaseClient'
+import { useLanguage } from '../context/LanguageContext'
 import MealEditor from './MealEditor'
 
 export default function FoodModal({ onClose, onAdd }) {
     const { user, updateUser, addCustomFood } = useUser()
     const { getAccessToken } = useAuth()
+    const { language, t } = useLanguage()
 
     // Main tab state: 'producten' or 'gerechten'
     const [activeTab, setActiveTab] = useState('producten')
@@ -111,7 +113,7 @@ export default function FoodModal({ onClose, onAdd }) {
             setMeals(mealsWithTotals)
         } catch (e) {
             console.error('Fetch meals error:', e)
-            setMealsError('Kon gerechten niet laden')
+            setMealsError(t('food_modal.fetch_error'))
         } finally {
             setMealsLoading(false)
         }
@@ -132,7 +134,7 @@ export default function FoodModal({ onClose, onAdd }) {
             onClose() // Close modal after logging
         } catch (e) {
             console.error('Log meal error:', e)
-            alert('Kon gerecht niet loggen')
+            alert(t('food_modal.log_error'))
         }
     }
 
@@ -147,7 +149,7 @@ export default function FoodModal({ onClose, onAdd }) {
     }
 
     const handleDeleteMeal = async (mealId) => {
-        if (!confirm('Weet je zeker dat je dit gerecht wilt verwijderen?')) return
+        if (!confirm(t('food_modal.delete_confirm'))) return
         try {
             const { error } = await supabase
                 .from('meals')
@@ -158,7 +160,7 @@ export default function FoodModal({ onClose, onAdd }) {
             setMeals(meals.filter(m => m.id !== mealId))
         } catch (e) {
             console.error('Delete meal error:', e)
-            alert('Kon gerecht niet verwijderen')
+            alert(t('food_modal.delete_error'))
         }
     }
 
@@ -187,23 +189,23 @@ export default function FoodModal({ onClose, onAdd }) {
     const filteredFoods = (user.foods || [])
         .filter(food => {
             const term = searchTerm.toLowerCase()
-            const matchesName = food.name_nl.toLowerCase().includes(term)
+            const matchesNameNl = food.name_nl.toLowerCase().includes(term)
+            const matchesNameEn = (food.name_en || '').toLowerCase().includes(term)
             const matchesAlias = food.aliases?.some(a => a.toLowerCase().includes(term))
-            return matchesName || matchesAlias
+            return matchesNameNl || matchesNameEn || matchesAlias
         })
         .sort((a, b) => {
             const term = searchTerm.toLowerCase()
             if (!term) return 0
 
-            const aName = a.name_nl.toLowerCase()
-            const bName = b.name_nl.toLowerCase()
+            const aName = (language === 'en' && a.name_en ? a.name_en : a.name_nl).toLowerCase()
+            const bName = (language === 'en' && b.name_en ? b.name_en : b.name_nl).toLowerCase()
 
             // 1. Exact match
             if (aName === term && bName !== term) return -1
             if (bName === term && aName !== term) return 1
 
             // 2. Starts with "term " (word boundary)
-            // Prioritizes "Ei (gekookt)" over "Eierkoek" when searching "Ei"
             const aWordStart = aName.startsWith(term + ' ')
             const bWordStart = bName.startsWith(term + ' ')
             if (aWordStart && !bWordStart) return -1
@@ -246,6 +248,7 @@ export default function FoodModal({ onClose, onAdd }) {
         const createdFood = {
             id: crypto.randomUUID(), // Valid UUID for DB
             name_nl: newFood.name_nl,
+            name_en: newFood.name_nl, // Assuming custom foods are same in EN unless they edit
             aliases: [],
             unit_type: 'per_100g',
             unit_name: newFood.unit_name || null,
@@ -275,8 +278,6 @@ export default function FoodModal({ onClose, onAdd }) {
 
     const preview = calculatePreview()
 
-
-
     // If showing meal editor, render that instead
     if (showMealEditor) {
         return (
@@ -305,7 +306,7 @@ export default function FoodModal({ onClose, onAdd }) {
                             ...(activeTab === 'producten' ? tabStyles.activeTab : {})
                         }}
                     >
-                        Producten
+                        {t('food_modal.tab_products')}
                     </button>
                     <button
                         onClick={() => setActiveTab('gerechten')}
@@ -314,7 +315,7 @@ export default function FoodModal({ onClose, onAdd }) {
                             ...(activeTab === 'gerechten' ? tabStyles.activeTab : {})
                         }}
                     >
-                        Gerechten
+                        {t('food_modal.tab_meals')}
                     </button>
                 </div>
 
@@ -324,7 +325,7 @@ export default function FoodModal({ onClose, onAdd }) {
                         {view === 'list' && (
                             <>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                                    <h3 style={{ margin: 0, fontSize: '1.25rem' }}>Voeg eten toe</h3>
+                                    <h3 style={{ margin: 0, fontSize: '1.25rem' }}>{t('food_modal.add_food_title')}</h3>
                                     <button onClick={onClose} style={{ fontSize: '1.5rem', background: 'none', color: 'var(--color-text-muted)' }}>&times;</button>
                                 </div>
 
@@ -332,7 +333,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                 <div style={{ marginBottom: '1rem' }}>
                                     <input
                                         type="text"
-                                        placeholder="Zoek eten..."
+                                        placeholder={t('food_modal.search_placeholder')}
                                         value={searchTerm}
                                         onChange={e => setSearchTerm(e.target.value)}
                                         style={{
@@ -369,9 +370,11 @@ export default function FoodModal({ onClose, onAdd }) {
                                                     }}
                                                 >
                                                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                        <span style={{ fontWeight: '600', color: 'var(--color-text)' }}>{food.name_nl}</span>
+                                                        <span style={{ fontWeight: '600', color: 'var(--color-text)' }}>
+                                                            {language === 'en' && food.name_en ? food.name_en : food.name_nl}
+                                                        </span>
                                                     </div>
-                                                    <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{food.kcal_100} kcal/100g</span>
+                                                    <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{food.kcal_100} {t('food_modal.kcal_per_100g')}</span>
                                                 </button>
                                             ))}
                                         </div>
@@ -379,13 +382,13 @@ export default function FoodModal({ onClose, onAdd }) {
 
                                     {filteredFoods.length === 0 && (
                                         <div style={{ color: 'var(--color-text-muted)', textAlign: 'center', padding: '2rem' }}>
-                                            <div style={{ marginBottom: '1rem' }}>Geen resultaten gevonden.</div>
+                                            <div style={{ marginBottom: '1rem' }}>{t('food_modal.no_results')}</div>
                                             <button
                                                 onClick={() => setView('create')}
                                                 className="btn btn-primary"
                                                 style={{ width: 'auto', padding: '0.6rem 1.2rem', fontSize: '0.9rem' }}
                                             >
-                                                Nieuw product toevoegen
+                                                {t('food_modal.add_new_product')}
                                             </button>
                                         </div>
                                     )}
@@ -397,12 +400,10 @@ export default function FoodModal({ onClose, onAdd }) {
                                     className="btn btn-primary"
                                     style={{ width: '100%' }}
                                 >
-                                    + Nieuw product toevoegen
+                                    + {t('food_modal.add_new_product')}
                                 </button>
                             </>
                         )}
-
-
 
                         {view === 'create' && (
                             <>
@@ -418,22 +419,22 @@ export default function FoodModal({ onClose, onAdd }) {
                                     >
                                         ←
                                     </button>
-                                    <h3 style={{ margin: 0, fontSize: '1.25rem' }}>Nieuw product</h3>
+                                    <h3 style={{ margin: 0, fontSize: '1.25rem' }}>{t('food_modal.new_product_title')}</h3>
                                 </div>
 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1, minHeight: 0, overflowY: 'auto' }}>
                                     <div className="input-group">
-                                        <label>Naam product</label>
+                                        <label>{t('food_modal.product_name_label')}</label>
                                         <input
                                             type="text"
-                                            placeholder="Bijv. Eierkoek"
+                                            placeholder={t('food_modal.product_name_placeholder')}
                                             value={newFood.name_nl}
                                             onChange={e => setNewFood({ ...newFood, name_nl: e.target.value })}
                                         />
                                     </div>
 
                                     <div className="input-group">
-                                        <label>Kcal (per 100g)</label>
+                                        <label>{t('food_modal.kcal_label')}</label>
                                         <input
                                             type="text"
                                             inputMode="decimal"
@@ -445,7 +446,7 @@ export default function FoodModal({ onClose, onAdd }) {
 
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0.5rem' }}>
                                         <div className="input-group">
-                                            <label>Eiwit</label>
+                                            <label>{t('food_modal.protein_label')}</label>
                                             <input
                                                 type="text"
                                                 inputMode="decimal"
@@ -455,7 +456,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                             />
                                         </div>
                                         <div className="input-group">
-                                            <label>Koolh</label>
+                                            <label>{t('food_modal.carbs_label')}</label>
                                             <input
                                                 type="text"
                                                 inputMode="decimal"
@@ -465,7 +466,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                             />
                                         </div>
                                         <div className="input-group">
-                                            <label>Vet</label>
+                                            <label>{t('food_modal.fat_label')}</label>
                                             <input
                                                 type="text"
                                                 inputMode="decimal"
@@ -475,7 +476,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                             />
                                         </div>
                                         <div className="input-group">
-                                            <label>Vezel</label>
+                                            <label>{t('food_modal.fiber_label')}</label>
                                             <input
                                                 type="text"
                                                 inputMode="decimal"
@@ -488,21 +489,21 @@ export default function FoodModal({ onClose, onAdd }) {
 
                                     <div style={{ padding: '1rem', background: 'var(--color-bg)', borderRadius: '12px', border: '1px solid var(--color-border)' }}>
                                         <div style={{ fontWeight: '600', fontSize: '0.9rem', marginBottom: '0.75rem', color: 'var(--color-text)' }}>
-                                            Standaard eenheid (optioneel)
+                                            {t('food_modal.standard_unit_title')}
                                         </div>
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                                             <div className="input-group" style={{ marginBottom: 0 }}>
-                                                <label>Naam (bv. stuk)</label>
+                                                <label>{t('food_modal.unit_name_label')}</label>
                                                 <input
                                                     type="text"
-                                                    placeholder="stuk"
+                                                    placeholder={t('food_modal.unit_name_placeholder')}
                                                     style={{ fontSize: '1rem', padding: '0.75rem', fontWeight: '400' }}
                                                     value={newFood.unit_name}
                                                     onChange={e => setNewFood({ ...newFood, unit_name: e.target.value })}
                                                 />
                                             </div>
                                             <div className="input-group" style={{ marginBottom: 0 }}>
-                                                <label>Gewicht (gram)</label>
+                                                <label>{t('food_modal.unit_weight_label')}</label>
                                                 <input
                                                     type="text"
                                                     inputMode="decimal"
@@ -514,7 +515,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                             </div>
                                         </div>
                                         <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>
-                                            Zodat je vaker op "stuks" kunt loggen ipv grammen.
+                                            {t('food_modal.unit_info')}
                                         </div>
                                     </div>
                                 </div>
@@ -529,7 +530,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                         opacity: (!newFood.name_nl || !newFood.kcal_100) ? 0.5 : 1
                                     }}
                                 >
-                                    Opslaan en selecteren
+                                    {t('food_modal.save_select')}
                                 </button>
                             </>
                         )}
@@ -548,7 +549,9 @@ export default function FoodModal({ onClose, onAdd }) {
                                     >
                                         ←
                                     </button>
-                                    <h3 style={{ margin: 0, fontSize: '1.25rem' }}>{selectedFood.name_nl}</h3>
+                                    <h3 style={{ margin: 0, fontSize: '1.25rem' }}>
+                                        {language === 'en' && selectedFood.name_en ? selectedFood.name_en : selectedFood.name_nl}
+                                    </h3>
                                 </div>
 
                                 <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
@@ -564,7 +567,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                             fontWeight: '600'
                                         }}
                                     >
-                                        Gram
+                                        {t('food_modal.gram')}
                                     </button>
                                     {selectedFood.unit_name && (
                                         <button
@@ -586,7 +589,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                 </div>
 
                                 <div className="input-group">
-                                    <label>Hoeveelheid ({unitType === 'g' ? 'gram' : selectedFood.unit_name})</label>
+                                    <label>{t('food_modal.amount_label')} ({unitType === 'g' ? t('food_modal.gram').toLowerCase() : selectedFood.unit_name})</label>
                                     <input
                                         type="text"
                                         inputMode="decimal"
@@ -607,10 +610,10 @@ export default function FoodModal({ onClose, onAdd }) {
                                     justifyContent: 'space-between'
                                 }}>
                                     <PreviewStat label="Kcal" value={preview.kcal} />
-                                    <PreviewStat label="Eiwit" value={preview.p + 'g'} />
-                                    <PreviewStat label="Koolh" value={preview.c + 'g'} />
-                                    <PreviewStat label="Vet" value={preview.f + 'g'} />
-                                    <PreviewStat label="Vezel" value={preview.fiber + 'g'} />
+                                    <PreviewStat label={t('food_modal.protein_label')} value={preview.p + 'g'} />
+                                    <PreviewStat label={t('food_modal.carbs_label')} value={preview.c + 'g'} />
+                                    <PreviewStat label={t('food_modal.fat_label')} value={preview.f + 'g'} />
+                                    <PreviewStat label={t('food_modal.fiber_label')} value={preview.fiber + 'g'} />
                                 </div>
 
                                 <button
@@ -622,18 +625,17 @@ export default function FoodModal({ onClose, onAdd }) {
                                         opacity: (!grams || parseFloat(String(grams).replace(',', '.')) <= 0) ? 0.5 : 1
                                     }}
                                 >
-                                    Voeg toe aan vandaag
+                                    {t('food_modal.add_to_today')}
                                 </button>
                             </>
                         )}
                     </>
                 )}
 
-                {/* GERECHTEN TAB CONTENT */}
                 {activeTab === 'gerechten' && (
                     <>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                            <h3 style={{ margin: 0, fontSize: '1.25rem' }}>Mijn gerechten</h3>
+                            <h3 style={{ margin: 0, fontSize: '1.25rem' }}>{t('food_modal.my_meals_title')}</h3>
                             <button onClick={onClose} style={{ fontSize: '1.5rem', background: 'none', color: 'var(--color-text-muted)' }}>&times;</button>
                         </div>
 
@@ -652,7 +654,7 @@ export default function FoodModal({ onClose, onAdd }) {
 
                         {mealsLoading ? (
                             <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-text-muted)' }}>
-                                Laden...
+                                {t('food_modal.loading')}
                             </div>
                         ) : (
                             <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', marginBottom: '1rem' }}>
@@ -665,8 +667,8 @@ export default function FoodModal({ onClose, onAdd }) {
                                         borderRadius: '12px',
                                         border: '1px dashed var(--color-border)'
                                     }}>
-                                        <div style={{ marginBottom: '0.5rem' }}>Nog geen gerechten</div>
-                                        <div style={{ fontSize: '0.85rem' }}>Maak je eerste gerecht om snel te loggen</div>
+                                        <div style={{ marginBottom: '0.5rem' }}>{t('food_modal.no_meals_yet')}</div>
+                                        <div style={{ fontSize: '0.85rem' }}>{t('food_modal.no_meals_desc')}</div>
                                     </div>
                                 ) : (
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -695,9 +697,9 @@ export default function FoodModal({ onClose, onAdd }) {
                                                 </div>
 
                                                 <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.75rem' }}>
-                                                    <span>E: {meal.totals?.protein || 0}g</span>
-                                                    <span>K: {meal.totals?.carbs || 0}g</span>
-                                                    <span>V: {meal.totals?.fat || 0}g</span>
+                                                    <span>{t('food_modal.protein_label').charAt(0)}: {meal.totals?.protein || 0}g</span>
+                                                    <span>{t('food_modal.carbs_label').charAt(0)}: {meal.totals?.carbs || 0}g</span>
+                                                    <span>{t('food_modal.fat_label').charAt(0)}: {meal.totals?.fat || 0}g</span>
                                                 </div>
 
                                                 <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -715,7 +717,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                                             cursor: 'pointer'
                                                         }}
                                                     >
-                                                        Voeg toe
+                                                        {t('food_modal.add')}
                                                     </button>
                                                     <button
                                                         onClick={() => { setEditingMeal(meal); setShowMealEditor(true) }}
@@ -728,7 +730,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                                             cursor: 'pointer'
                                                         }}
                                                     >
-                                                        Bewerk
+                                                        {t('food_modal.edit')}
                                                     </button>
                                                     <button
                                                         onClick={() => handleDeleteMeal(meal.id)}
@@ -757,7 +759,7 @@ export default function FoodModal({ onClose, onAdd }) {
                             className="btn btn-primary"
                             style={{ width: '100%' }}
                         >
-                            + Nieuw gerecht maken
+                            {t('food_modal.create_new_meal')}
                         </button>
                     </>
                 )}
@@ -792,17 +794,16 @@ const tabStyles = {
         border: 'none',
         borderRadius: '8px',
         background: 'transparent',
-        fontSize: '0.9rem',
-        fontWeight: '500',
-        cursor: 'pointer',
         color: 'var(--color-text-muted)',
-        transition: 'all 0.2s ease'
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+        fontSize: '0.9rem'
     },
     activeTab: {
         background: 'var(--color-surface)',
-        color: 'var(--color-text)',
-        fontWeight: '600',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+        color: 'var(--color-primary)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
     }
 }
 
@@ -813,41 +814,25 @@ const modalStyles = `
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0,0,0,0.4);
+        background: rgba(0, 0, 0, 0.5);
         display: flex;
-        align-items: flex-end;
         justify-content: center;
+        align-items: flex-end;
         z-index: 1000;
-    }
-    
-    @media(min-width: 480px) {
-        .modal-overlay {
-            align-items: center;
-        }
+        backdrop-filter: blur(4px);
     }
 
     .modal-content {
-        background: #FFFFFF;
+        background: var(--color-surface);
         width: 100%;
-        height: 100vh;
-        max-width: none;
+        max-width: 500px;
+        max-height: 90vh;
+        border-radius: 24px 24px 0 0;
         padding: 1.5rem;
-        padding-bottom: env(safe-area-inset-bottom, 2rem);
-        border-radius: 0;
-        animation: slideUp 0.3s ease-out;
-        overflow-y: auto;
         display: flex;
         flex-direction: column;
-    }
-
-    @media(min-width: 480px) {
-        .modal-content {
-            height: auto;
-            max-height: 90vh;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 480px;
-        }
+        box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.1);
+        animation: slideUp 0.3s ease-out;
     }
 
     @keyframes slideUp {
@@ -856,23 +841,53 @@ const modalStyles = `
     }
 
     .input-group {
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
     }
-    
+
     .input-group label {
         display: block;
         margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
         color: var(--color-text-muted);
-        font-size: 0.9rem;
     }
 
-    .input-group input {
+    .input-group input, .input-group select {
         width: 100%;
-        padding: 1rem;
+        padding: 0.8rem 1rem;
         border: 1px solid var(--color-border);
         border-radius: 12px;
-        font-size: 1.5rem;
-        font-weight: 700;
         background: var(--color-bg);
+        color: var(--color-text);
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    .input-group input:focus {
+        border-color: var(--color-primary);
+    }
+
+    .btn {
+        padding: 1rem;
+        border-radius: 14px;
+        border: none;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: var(--color-primary);
+        color: white;
+    }
+
+    .btn-primary:active {
+        transform: scale(0.98);
     }
 `

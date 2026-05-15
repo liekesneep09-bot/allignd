@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
 import { useUser } from '../context/UserContext'
+import { useLanguage } from '../context/LanguageContext'
 
 // Circular progress ring — self-contained so no dependency on Today.jsx
 function Ring({ value, max, size = 88, stroke = 8, color, label, sublabel }) {
@@ -84,6 +84,7 @@ function Sheet({ title, onClose, children }) {
 
 export default function HabitsCard({ date }) {
     const { user, logWater, logSteps } = useUser()
+    const { t, language } = useLanguage()
 
     const [sheet, setSheet] = useState(null) // 'water' | 'steps' | null
 
@@ -142,9 +143,9 @@ export default function HabitsCard({ date }) {
 
                 {/* Header */}
                 <div style={{ marginBottom: '1.25rem' }}>
-                    <h2 style={{ fontSize: '1.1rem', margin: '0 0 2px 0' }}>Dagelijkse gewoontes</h2>
+                    <h2 style={{ fontSize: '1.1rem', margin: '0 0 2px 0' }}>{t('habits.title')}</h2>
                     <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                        Water &amp; beweging bijhouden
+                        {t('habits.subtitle')}
                     </div>
                 </div>
 
@@ -164,9 +165,9 @@ export default function HabitsCard({ date }) {
                             sublabel={`/ ${(WATER_GOAL / 1000).toFixed(1)}L`}
                         />
                         <div style={{ textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--color-text)' }}>Water</div>
+                            <div style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--color-text)' }}>{t('habits.water')}</div>
                             <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
-                                {Math.round((amountMl / WATER_GOAL) * 100)}% van doel
+                                {Math.round((amountMl / WATER_GOAL) * 100)}% {t('habits.of_goal')}
                             </div>
                         </div>
                     </button>
@@ -187,9 +188,9 @@ export default function HabitsCard({ date }) {
                             sublabel="/ 10k"
                         />
                         <div style={{ textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--color-text)' }}>Stappen</div>
+                            <div style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--color-text)' }}>{t('habits.steps')}</div>
                             <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
-                                {burnedKcal > 0 ? `≈ ${burnedKcal} kcal verbrand` : '0% van doel'}
+                                {burnedKcal > 0 ? `≈ ${burnedKcal} ${t('habits.kcal_burned')}` : `0% ${t('habits.of_goal')}`}
                             </div>
                         </div>
                     </button>
@@ -210,7 +211,7 @@ export default function HabitsCard({ date }) {
                             color: '#000'
                         }}
                     >
-                        + Water
+                        + {t('habits.water')}
                     </button>
                     <button
                         onClick={openSteps}
@@ -225,14 +226,14 @@ export default function HabitsCard({ date }) {
                             color: '#000'
                         }}
                     >
-                        + Stappen
+                        + {t('habits.steps')}
                     </button>
                 </div>
             </section>
 
             {/* ── Water Bottom Sheet ─────────────────────────────────────────── */}
             {sheet === 'water' && (
-                <Sheet title="Water bijhouden 💧" onClose={() => setSheet(null)}>
+                <Sheet title={t('habits.water_title')} onClose={() => setSheet(null)}>
 
                     {/* Big current number */}
                     <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
@@ -240,16 +241,16 @@ export default function HabitsCard({ date }) {
                             {waterLiters} <span style={{ fontSize: '1.2rem', fontWeight: '500', color: 'var(--color-text-muted)' }}>L</span>
                         </div>
                         <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-                            van {(WATER_GOAL / 1000).toFixed(1)} L doel
+                            {t('habits.of_goal')} {(WATER_GOAL / 1000).toFixed(1)} L
                         </div>
                     </div>
 
                     {/* Quick adds */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.6rem', marginBottom: '1.25rem' }}>
                         {[
-                            { label: 'Glas', sub: '250 ml', ml: 250 },
-                            { label: 'Fles', sub: '500 ml', ml: 500 },
-                            { label: 'Bidon', sub: '1 L', ml: 1000 },
+                            { label: t('habits.glass'), sub: '250 ml', ml: 250 },
+                            { label: t('habits.bottle'), sub: '500 ml', ml: 500 },
+                            { label: t('habits.shaker'), sub: '1 L', ml: 1000 },
                         ].map(opt => (
                             <button
                                 key={opt.ml}
@@ -272,7 +273,7 @@ export default function HabitsCard({ date }) {
                     {/* Divider */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
                         <div style={{ flex: 1, height: '1px', background: 'var(--color-border)' }} />
-                        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>of exacte hoeveelheid</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{t('habits.exact_amount')}</span>
                         <div style={{ flex: 1, height: '1px', background: 'var(--color-border)' }} />
                     </div>
 
@@ -304,14 +305,14 @@ export default function HabitsCard({ date }) {
                             onClick={() => setSheet(null)}
                             style={{ flex: 1, padding: '1rem', borderRadius: '16px', border: 'none', background: 'var(--color-bg)', fontWeight: '600', fontSize: '1rem', cursor: 'pointer' }}
                         >
-                            Annuleer
+                            {t('common.cancel')}
                         </button>
                         <button
                             onClick={handleSaveWater}
                             className="btn btn-primary"
                             style={{ flex: 2, padding: '1rem', borderRadius: '16px', fontWeight: '600', fontSize: '1rem', background: '#89C4F4' }}
                         >
-                            Opslaan
+                            {t('common.save')}
                         </button>
                     </div>
 
@@ -322,7 +323,7 @@ export default function HabitsCard({ date }) {
                                 onClick={() => { handleAddWater(-250); setSheet(null) }}
                                 style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.82rem', textDecoration: 'underline', cursor: 'pointer' }}
                             >
-                                Herstellen (−250 ml)
+                                {t('habits.undo')} (−250 ml)
                             </button>
                         </div>
                     )}
@@ -331,15 +332,15 @@ export default function HabitsCard({ date }) {
 
             {/* ── Steps Bottom Sheet ─────────────────────────────────────────── */}
             {sheet === 'steps' && (
-                <Sheet title="Stappen bijhouden 👟" onClose={() => setSheet(null)}>
+                <Sheet title={t('habits.steps_title')} onClose={() => setSheet(null)}>
 
                     {/* Big current number */}
                     <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
                         <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#F5D98B', lineHeight: 1 }}>
-                            {steps.toLocaleString('nl-NL')}
+                            {steps.toLocaleString(language === 'en' ? 'en-US' : 'nl-NL')}
                         </div>
                         <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-                            van {STEP_GOAL.toLocaleString('nl-NL')} stapdoel
+                            {t('habits.of_goal')} {STEP_GOAL.toLocaleString(language === 'en' ? 'en-US' : 'nl-NL')} {t('habits.steps_goal')}
                             {burnedKcal > 0 && ` · ≈ ${burnedKcal} kcal`}
                         </div>
                     </div>
@@ -371,7 +372,7 @@ export default function HabitsCard({ date }) {
                     {/* Divider */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
                         <div style={{ flex: 1, height: '1px', background: 'var(--color-border)' }} />
-                        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>of exacte stappen</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{t('habits.exact_steps')}</span>
                         <div style={{ flex: 1, height: '1px', background: 'var(--color-border)' }} />
                     </div>
 
@@ -396,7 +397,7 @@ export default function HabitsCard({ date }) {
                                 color: 'var(--color-text)'
                             }}
                         />
-                        <span style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>stappen</span>
+                        <span style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>{t('habits.steps').toLowerCase()}</span>
                     </div>
 
                     <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -404,14 +405,14 @@ export default function HabitsCard({ date }) {
                             onClick={() => setSheet(null)}
                             style={{ flex: 1, padding: '1rem', borderRadius: '16px', border: 'none', background: 'var(--color-bg)', fontWeight: '600', fontSize: '1rem', cursor: 'pointer' }}
                         >
-                            Annuleer
+                            {t('common.cancel')}
                         </button>
                         <button
                             onClick={handleSaveSteps}
                             className="btn btn-primary"
                             style={{ flex: 2, padding: '1rem', borderRadius: '16px', fontWeight: '600', fontSize: '1rem' }}
                         >
-                            Opslaan
+                            {t('common.save')}
                         </button>
                     </div>
                 </Sheet>

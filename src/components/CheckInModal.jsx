@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useUser } from '../context/UserContext'
+import { useLanguage } from '../context/LanguageContext'
 
 const SYMPTOMS_LIST = [
     { id: 'cramps', label: 'Krampen', category: 'Lichaam' },
@@ -18,6 +19,7 @@ const SYMPTOMS_LIST = [
 
 export default function CheckInModal({ isOpen, onClose, dateStr }) {
     const { user, saveSymptoms } = useUser()
+    const { t } = useLanguage()
     const [selected, setSelected] = useState([])
 
     // Load existing symptoms when modal opens
@@ -64,7 +66,7 @@ export default function CheckInModal({ isOpen, onClose, dateStr }) {
                     transition: 'all 0.2s ease'
                 }}
             >
-                {item.label}
+                {t(`checkin.symptoms.${item.id}`)}
             </button>
         )
     }
@@ -92,7 +94,7 @@ export default function CheckInModal({ isOpen, onClose, dateStr }) {
                 boxShadow: '0 -4px 20px rgba(0,0,0,0.1)'
             }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                    <h2 style={{ fontSize: '1.25rem', margin: 0 }}>Dagelijkse Check-in</h2>
+                    <h2 style={{ fontSize: '1.25rem', margin: 0 }}>{t('checkin.title')}</h2>
                     <button
                         onClick={onClose}
                         style={{ background: 'none', border: 'none', padding: '0.5rem', cursor: 'pointer', fontSize: '1.5rem', lineHeight: 1 }}
@@ -102,14 +104,14 @@ export default function CheckInModal({ isOpen, onClose, dateStr }) {
                 </div>
 
                 <div style={{ marginBottom: '2rem' }}>
-                    <h3 style={{ fontSize: '1rem', color: 'var(--color-text-muted)', marginBottom: '1rem', fontWeight: '500' }}>Mood</h3>
+                    <h3 style={{ fontSize: '1rem', color: 'var(--color-text-muted)', marginBottom: '1rem', fontWeight: '500' }}>{t('checkin.mood')}</h3>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                         {moodSymptoms.map(renderChip)}
                     </div>
                 </div>
 
                 <div style={{ marginBottom: '2rem' }}>
-                    <h3 style={{ fontSize: '1rem', color: 'var(--color-text-muted)', marginBottom: '1rem', fontWeight: '500' }}>Lichaam</h3>
+                    <h3 style={{ fontSize: '1rem', color: 'var(--color-text-muted)', marginBottom: '1rem', fontWeight: '500' }}>{t('checkin.body')}</h3>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                         {bodySymptoms.map(renderChip)}
                     </div>
@@ -120,7 +122,7 @@ export default function CheckInModal({ isOpen, onClose, dateStr }) {
                     className="btn btn-primary"
                     style={{ width: '100%', marginTop: '1rem' }}
                 >
-                    Opslaan
+                    {t('checkin.save')}
                 </button>
             </div>
         </div>

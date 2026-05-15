@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { supabase } from '../utils/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { useUser } from '../context/UserContext'
+import { useLanguage } from '../context/LanguageContext'
 
 /**
  * MealEditor Component
@@ -11,6 +12,7 @@ import { useUser } from '../context/UserContext'
 export default function MealEditor({ meal, onSave, onClose }) {
     const { getAccessToken } = useAuth()
     const { user } = useUser()
+    const { language, t } = useLanguage()
 
     // Form state
     const [name, setName] = useState(meal?.name || '')
@@ -42,9 +44,10 @@ export default function MealEditor({ meal, onSave, onClose }) {
     // Filter products for search
     const filteredProducts = user.foods.filter(food => {
         const term = searchTerm.toLowerCase()
-        const matchesName = food.name_nl.toLowerCase().includes(term)
+        const matchesNameNl = food.name_nl.toLowerCase().includes(term)
+        const matchesNameEn = (food.name_en || '').toLowerCase().includes(term)
         const matchesAlias = food.aliases?.some(a => a.toLowerCase().includes(term))
-        return matchesName || matchesAlias
+        return matchesNameNl || matchesNameEn || matchesAlias
     }).slice(0, 20)
 
     const handleAddIngredient = () => {
@@ -55,7 +58,7 @@ export default function MealEditor({ meal, onSave, onClose }) {
 
         const newItem = {
             product_id: selectedProduct.id,
-            product_name: selectedProduct.name_nl,
+            product_name: selectedProduct.name_nl, // Keep original name_nl as fallback
             quantity: parsedQuantity,
             unit: unit,
             unit_weight: selectedProduct.unit_name === unit ? selectedProduct.unit_weight : null,
@@ -79,11 +82,11 @@ export default function MealEditor({ meal, onSave, onClose }) {
 
     const handleSave = async () => {
         if (!name.trim()) {
-            setError('Vul een naam in')
+            setError(t('meal_editor.error_name'))
             return
         }
         if (items.length === 0) {
-            setError('Voeg minimaal 1 ingredient toe')
+            setError(t('meal_editor.error_min_ingredients'))
             return
         }
 
@@ -93,7 +96,7 @@ export default function MealEditor({ meal, onSave, onClose }) {
         try {
             // Get user ID
             const { data: { user: authUser } } = await supabase.auth.getUser()
-            if (!authUser) throw new Error("Je moet ingelogd zijn")
+            if (!authUser) throw new Error(t('meal_editor.error_auth'))
 
             // Clean items and ensure numbers
             const cleanItems = items.map(item => ({
@@ -101,6 +104,7 @@ export default function MealEditor({ meal, onSave, onClose }) {
                 product_name: item.product_name,
                 quantity: parseFloat(String(item.quantity).replace(',', '.')) || 0,
                 unit: item.unit || 'g',
+                unit_weight: item.unit_weight,
                 kcal_100: parseFloat(String(item.kcal_100).replace(',', '.')) || 0,
                 protein_100: parseFloat(String(item.protein_100).replace(',', '.')) || 0,
                 carbs_100: parseFloat(String(item.carbs_100).replace(',', '.')) || 0,
@@ -176,6 +180,7 @@ export default function MealEditor({ meal, onSave, onClose }) {
                         product_name: item.product_name,
                         quantity: item.quantity,
                         unit: item.unit,
+                        unit_weight: item.unit_weight,
                         kcal_100: item.kcal_100,
                         protein_100: item.protein_100,
                         carbs_100: item.carbs_100,
@@ -218,26 +223,34 @@ export default function MealEditor({ meal, onSave, onClose }) {
             })
         } catch (e) {
             console.error("Save error:", e)
-            setError(e.message || 'Fout bij opslaan')
+            setError(e.message || t('meal_editor.error_save'))
         } finally {
             setSaving(false)
         }
     }
 
     const categories = [
-        { value: '', label: 'Geen categorie' },
-        { value: 'ontbijt', label: 'Ontbijt' },
-        { value: 'lunch', label: 'Lunch' },
-        { value: 'diner', label: 'Diner' },
-        { value: 'snack', label: 'Snack' }
+        { value: '', label: t('meal_editor.no_category') },
+        { value: 'ontbijt', label: t('meal_editor.breakfast') },
+        { value: 'lunch', label: t('meal_editor.lunch') },
+        { value: 'diner', label: t('meal_editor.dinner') },
+        { value: 'snack', label: t('meal_editor.snack') }
     ]
+
+    const getLocalizedProductName = (item) => {
+        const product = user.foods.find(f => f.id === item.product_id)
+        if (product) {
+            return language === 'en' && product.name_en ? product.name_en : product.name_nl
+        }
+        return item.product_name // Fallback
+    }
 
     return (
         <div style={styles.container}>
             {/* Header */}
             <div style={styles.header}>
                 <button onClick={onClose} style={styles.backBtn}>←</button>
-                <h3 style={styles.title}>{meal?.id ? 'Bewerk gerecht' : 'Nieuw gerecht'}</h3>
+                <h3 style={styles.title}>{meal?.id ? t('meal_editor.edit_meal') : t('meal_editor.new_meal')}</h3>
                 <button
                     onClick={handleSave}
                     disabled={saving}
@@ -246,7 +259,7 @@ export default function MealEditor({ meal, onSave, onClose }) {
                         opacity: saving ? 0.5 : 1
                     }}
                 >
-                    {saving ? 'Opslaan...' : 'Opslaan'}
+                    {saving ? t('meal_editor.saving') : t('meal_editor.save')}
                 </button>
             </div>
 
@@ -254,19 +267,19 @@ export default function MealEditor({ meal, onSave, onClose }) {
 
             {/* Name input */}
             <div style={styles.inputGroup}>
-                <label style={styles.label}>Naam</label>
+                <label style={styles.label}>{t('meal_editor.name_label')}</label>
                 <input
                     type="text"
                     value={name}
                     onChange={e => setName(e.target.value)}
-                    placeholder="Bijv. Kipfilet met rijst"
+                    placeholder={t('meal_editor.name_placeholder')}
                     style={styles.input}
                 />
             </div>
 
             {/* Category */}
             <div style={styles.inputGroup}>
-                <label style={styles.label}>Categorie (optioneel)</label>
+                <label style={styles.label}>{t('meal_editor.category_label')}</label>
                 <select
                     value={category}
                     onChange={e => setCategory(e.target.value)}
@@ -281,18 +294,18 @@ export default function MealEditor({ meal, onSave, onClose }) {
             {/* Ingredients section */}
             <div style={styles.section}>
                 <div style={styles.sectionHeader}>
-                    <span style={styles.sectionTitle}>Ingrediënten</span>
+                    <span style={styles.sectionTitle}>{t('meal_editor.ingredients')}</span>
                     <button
                         onClick={() => setShowPicker(true)}
                         style={styles.addBtn}
                     >
-                        + Toevoegen
+                        {t('meal_editor.add_ingredient')}
                     </button>
                 </div>
 
                 {items.length === 0 ? (
                     <div style={styles.emptyState}>
-                        Nog geen ingrediënten toegevoegd
+                        {t('meal_editor.no_ingredients')}
                     </div>
                 ) : (
                     <div style={styles.itemsList}>
@@ -305,7 +318,7 @@ export default function MealEditor({ meal, onSave, onClose }) {
                             return (
                                 <div key={index} style={styles.itemRow}>
                                     <div style={styles.itemInfo}>
-                                        <span style={styles.itemName}>{item.product_name}</span>
+                                        <span style={styles.itemName}>{getLocalizedProductName(item)}</span>
                                         <span style={styles.itemMeta}>
                                             {item.quantity}{item.unit} • {itemKcal} kcal
                                         </span>
@@ -326,12 +339,12 @@ export default function MealEditor({ meal, onSave, onClose }) {
             {/* Live totals */}
             {items.length > 0 && (
                 <div style={styles.totalsCard}>
-                    <div style={styles.totalsTitle}>Totalen</div>
+                    <div style={styles.totalsTitle}>{t('meal_editor.totals')}</div>
                     <div style={styles.totalsGrid}>
                         <TotalStat label="Kcal" value={Math.round(totals.kcal)} />
-                        <TotalStat label="Eiwit" value={`${Math.round(totals.protein * 10) / 10}g`} />
-                        <TotalStat label="Koolh" value={`${Math.round(totals.carbs * 10) / 10}g`} />
-                        <TotalStat label="Vet" value={`${Math.round(totals.fat * 10) / 10}g`} />
+                        <TotalStat label={t('food_modal.protein_label')} value={`${Math.round(totals.protein * 10) / 10}g`} />
+                        <TotalStat label={t('food_modal.carbs_label')} value={`${Math.round(totals.carbs * 10) / 10}g`} />
+                        <TotalStat label={t('food_modal.fat_label')} value={`${Math.round(totals.fat * 10) / 10}g`} />
                     </div>
                 </div>
             )}
@@ -341,7 +354,7 @@ export default function MealEditor({ meal, onSave, onClose }) {
                 <div style={{ ...styles.pickerOverlay, zIndex: 2000 }} onClick={() => setShowPicker(false)}>
                     <div style={styles.pickerModal} onClick={e => e.stopPropagation()}>
                         <div style={styles.pickerHeader}>
-                            <h4 style={{ margin: 0 }}>Kies ingredient</h4>
+                            <h4 style={{ margin: 0 }}>{t('meal_editor.choose_ingredient')}</h4>
                             <button onClick={() => setShowPicker(false)} style={styles.closeBtn}>✕</button>
                         </div>
 
@@ -351,7 +364,7 @@ export default function MealEditor({ meal, onSave, onClose }) {
                                     type="text"
                                     value={searchTerm}
                                     onChange={e => setSearchTerm(e.target.value)}
-                                    placeholder="Zoek product..."
+                                    placeholder={t('meal_editor.search_placeholder')}
                                     style={styles.searchInput}
                                     autoFocus
                                 />
@@ -362,7 +375,7 @@ export default function MealEditor({ meal, onSave, onClose }) {
                                             onClick={() => setSelectedProduct(product)}
                                             style={styles.productBtn}
                                         >
-                                            <span>{product.name_nl}</span>
+                                            <span>{language === 'en' && product.name_en ? product.name_en : product.name_nl}</span>
                                             <span style={styles.productKcal}>{product.kcal_100} kcal/100g</span>
                                         </button>
                                     ))}
@@ -371,11 +384,11 @@ export default function MealEditor({ meal, onSave, onClose }) {
                         ) : (
                             <>
                                 <div style={styles.selectedProduct}>
-                                    <strong>{selectedProduct.name_nl}</strong>
+                                    <strong>{language === 'en' && selectedProduct.name_en ? selectedProduct.name_en : selectedProduct.name_nl}</strong>
                                 </div>
                                 <div style={styles.quantityRow}>
                                     <div style={styles.quantityGroup}>
-                                        <label style={styles.label}>Hoeveelheid</label>
+                                        <label style={styles.label}>{t('meal_editor.amount')}</label>
                                         <input
                                             type="text"
                                             inputMode="decimal"
@@ -385,18 +398,18 @@ export default function MealEditor({ meal, onSave, onClose }) {
                                         />
                                     </div>
                                     <div style={styles.unitGroup}>
-                                        <label style={styles.label}>Eenheid</label>
+                                        <label style={styles.label}>{t('meal_editor.unit')}</label>
                                         <select
                                             value={unit}
                                             onChange={e => setUnit(e.target.value)}
                                             style={styles.unitSelect}
                                         >
-                                            <option value="g">gram</option>
-                                            <option value="ml">ml</option>
+                                            <option value="g">{t('common.gram')}</option>
+                                            <option value="ml">{t('common.ml')}</option>
                                             {selectedProduct.unit_name && (
                                                 <option value={selectedProduct.unit_name}>{selectedProduct.unit_name}</option>
                                             )}
-                                            <option value="portie">porties</option>
+                                            <option value="portie">{t('common.portions')}</option>
                                         </select>
                                     </div>
                                 </div>
@@ -405,13 +418,13 @@ export default function MealEditor({ meal, onSave, onClose }) {
                                         onClick={() => setSelectedProduct(null)}
                                         style={styles.cancelBtn}
                                     >
-                                        Terug
+                                        {t('meal_editor.back')}
                                     </button>
                                     <button
                                         onClick={handleAddIngredient}
                                         style={styles.confirmBtn}
                                     >
-                                        Toevoegen
+                                        {t('meal_editor.add')}
                                     </button>
                                 </div>
                             </>

@@ -1,104 +1,12 @@
 import React, { useState, useMemo } from 'react'
 import { useUser } from '../context/UserContext'
-import { getFitnessAdvice, BODY_PARTS, getBodyPartExercises, getBodyPartAdvice } from '../data/fitness'
-import { PHASE_CONTENT } from '../data/phases'
+import { useLanguage } from '../context/LanguageContext'
+import { getFitnessAdvice, getFitnessContent, getBodyPartAdvice } from '../data/fitnessContent'
+import { getPhaseContent } from '../data/phases'
 import { IconActivity } from '../components/Icons'
 import { getLocalDateStr } from '../utils/date'
 import HabitsCard from '../components/HabitsCard'
 import WeightTracker from '../components/WeightTracker'
-import { calculateProgress } from '../utils/numbers'
-
-// Focus bullets based on goal + phase (all start with verb, max 6-7 words)
-const FOCUS_BULLETS = {
-    loss: {
-        menstrual: [
-            'Beweeg zacht om spanning los te laten',
-            'Gun jezelf rust zonder schuldgevoel',
-            'Luister naar je lichaam vandaag'
-        ],
-        follicular: [
-            'Bouw langzaam op in intensiteit',
-            'Geniet van sneller herstel',
-            'Kies beweging die energie geeft'
-        ],
-        ovulatory: [
-            'Benut je hogere energieniveau',
-            'Verkort rustpauzes als het past',
-            'Train iets intensiever als je wilt'
-        ],
-        luteal: [
-            'Houd vast aan je routine',
-            'Beweeg tegen opgezet gevoel',
-            'Accepteer schommelingen in kracht'
-        ]
-    },
-    recomp: {
-        menstrual: [
-            'Neem rust voor herstel en groei',
-            'Houd je soepel met lichte beweging',
-            'Sla zware sets vandaag over'
-        ],
-        follicular: [
-            'Verhoog geleidelijk de intensiteit',
-            'Benut je betere herstelvermogen',
-            'Focus op opbouw en techniek'
-        ],
-        ovulatory: [
-            'Train op je sterkste moment',
-            'Pak compounds en zwaardere sets',
-            'Daag jezelf uit met goede vorm'
-        ],
-        luteal: [
-            'Onderhoud wat je hebt opgebouwd',
-            'Verfijn je techniek deze fase',
-            'Eet voldoende voor herstel'
-        ]
-    },
-    gain: {
-        menstrual: [
-            'Neem rust voor spiergroei',
-            'Beweeg licht of neem rustdag',
-            'Eet voldoende voor herstel'
-        ],
-        follicular: [
-            'Verhoog gewicht en intensiteit',
-            'Benut optimaal spierherstel',
-            'Focus op compound-oefeningen'
-        ],
-        ovulatory: [
-            'Pak je zwaarste sets nu',
-            'Benut je piek in kracht',
-            'Train met perfecte techniek'
-        ],
-        luteal: [
-            'Verlaag volume, verhoog kwaliteit',
-            'Werk aan techniek en vorm',
-            'Luister naar vermoeidheidssignalen'
-        ]
-    },
-    maintain: {
-        menstrual: [
-            'Beweeg zacht of neem rust',
-            'Laat verplichtingen los vandaag',
-            'Volg wat je lichaam vraagt'
-        ],
-        follicular: [
-            'Geniet van terugkerende energie',
-            'Probeer variatie in trainingsvormen',
-            'Kies beweging die je leuk vindt'
-        ],
-        ovulatory: [
-            'Gebruik energie op jouw manier',
-            'Probeer sociale of actieve workouts',
-            'Laat plezier voorop staan'
-        ],
-        luteal: [
-            'Houd routine zonder druk',
-            'Kies steady-state beweging',
-            'Accepteer wisselende energieniveaus'
-        ]
-    }
-}
 
 // Helper to get this week's logged workouts
 function getThisWeekWorkouts(movementLogs) {
@@ -119,7 +27,7 @@ function getThisWeekWorkouts(movementLogs) {
 }
 
 // Helper to get this week's days (Mon-Sun) with movement status
-function getWeekDays(movementLogs) {
+function getWeekDays(movementLogs, language) {
     const now = new Date()
     const dayOfWeek = now.getDay()
     const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1
@@ -128,7 +36,10 @@ function getWeekDays(movementLogs) {
     monday.setHours(0, 0, 0, 0)
 
     const days = []
-    const dayLabels = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo']
+    const dayLabelsNl = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo']
+    const dayLabelsEn = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    const dayLabels = language === 'en' ? dayLabelsEn : dayLabelsNl
+
     for (let i = 0; i < 7; i++) {
         const d = new Date(monday)
         d.setDate(monday.getDate() + i)
@@ -146,17 +57,11 @@ function getWeekDays(movementLogs) {
 
 export default function Fitness() {
     const { user, currentPhase, logMovement } = useUser()
+    const { language, t } = useLanguage()
     const [selectedBodyPart, setSelectedBodyPart] = useState(null)
 
-    // Goal Labels
-    const goalLabels = {
-        loss: 'Afvallen',
-        recomp: 'Afvallen + Spier',
-        maintain: 'Gewicht Behouden',
-        gain: 'Spiermassa Opbouwen'
-    }
-
-    const phaseContent = PHASE_CONTENT[currentPhase]
+    const fitnessContent = getFitnessContent(language)
+    const phaseContent = getPhaseContent(language, currentPhase)
     const phaseName = phaseContent.name
     const phaseKey = currentPhase // menstrual, follicular, ovulatory, luteal
 
@@ -165,20 +70,20 @@ export default function Fitness() {
     const weekTarget = user.trainingFrequency || 3
 
     // Focus bullets for current goal + phase
-    const focusBullets = FOCUS_BULLETS[user.goal]?.[phaseKey] || FOCUS_BULLETS.maintain[phaseKey]
+    const focusBullets = fitnessContent.focusBullets[user.goal]?.[phaseKey] || fitnessContent.focusBullets.maintain[phaseKey]
 
     // Movement log for today
     const todayStr = getLocalDateStr(new Date())
     const todayLog = user.movementLogs?.find(l => l.date === todayStr)
     const todayStatus = todayLog?.status || null
-    const weekDays = useMemo(() => getWeekDays(user.movementLogs || []), [user.movementLogs])
+    const weekDays = useMemo(() => getWeekDays(user.movementLogs || [], language), [user.movementLogs, language])
 
     // --- VIEW 1: OVERVIEW ---
     if (!selectedBodyPart) {
         return (
             <div className="container" style={{ paddingBottom: '90px' }}>
                 <header style={{ marginBottom: '1.5rem' }}>
-                    <h1 style={{ fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>Fitness</h1>
+                    <h1 style={{ fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>{t('fitness.title')}</h1>
                 </header>
 
                 <HabitsCard date={todayStr} />
@@ -196,7 +101,7 @@ export default function Fitness() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <IconActivity size={18} />
                             <span style={{ fontWeight: '600', fontSize: '1rem' }}>
-                                Deze week: {weekWorkouts} van {weekTarget}
+                                {t('fitness.this_week')}: {weekWorkouts} {t('fitness.of')} {weekTarget}
                             </span>
                         </div>
                         <span style={{
@@ -235,7 +140,7 @@ export default function Fitness() {
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px',
                         margin: '0 0 0.75rem 0'
-                    }}>Beweging Vandaag</h2>
+                    }}>{t('fitness.movement_today')}</h2>
 
                     {todayStatus ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -258,7 +163,7 @@ export default function Fitness() {
                                 color: 'var(--color-text)',
                                 fontWeight: '500'
                             }}>
-                                {todayStatus === 'moved' ? 'Je hebt vandaag bewogen 💪' : 'Rustdag — ook goed!'}
+                                {todayStatus === 'moved' ? t('fitness.moved_success') : t('fitness.rest_day')}
                             </span>
                             <button
                                 onClick={() => logMovement(todayStr, todayStatus === 'moved' ? 'rest' : 'moved')}
@@ -271,7 +176,7 @@ export default function Fitness() {
                                     padding: '0.25rem 0.5rem'
                                 }}
                             >
-                                Wijzig
+                                {t('fitness.change')}
                             </button>
                         </div>
                     ) : (
@@ -281,7 +186,7 @@ export default function Fitness() {
                                 fontSize: '0.9rem',
                                 color: 'var(--color-text-muted)',
                                 lineHeight: 1.4
-                            }}>Heb je vandaag bewogen?</p>
+                            }}>{t('fitness.did_you_move')}</p>
                             <div style={{ display: 'flex', gap: '0.75rem' }}>
                                 <button
                                     onClick={() => logMovement(todayStr, 'moved')}
@@ -298,7 +203,7 @@ export default function Fitness() {
                                         transition: 'all 0.15s'
                                     }}
                                 >
-                                    Ja ✓
+                                    {t('fitness.yes')}
                                 </button>
                                 <button
                                     onClick={() => logMovement(todayStr, 'rest')}
@@ -315,7 +220,7 @@ export default function Fitness() {
                                         transition: 'all 0.15s'
                                     }}
                                 >
-                                    Nee
+                                    {t('fitness.no')}
                                 </button>
                             </div>
                         </div>
@@ -362,7 +267,7 @@ export default function Fitness() {
 
                 {/* Body Part Selection */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
-                    {BODY_PARTS.map(part => (
+                    {fitnessContent.bodyParts.map(part => (
                         <button
                             key={part.id}
                             onClick={() => setSelectedBodyPart(part)}
@@ -392,7 +297,7 @@ export default function Fitness() {
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px'
                     }}>
-                        Jouw focus deze fase
+                        {t('fitness.your_focus')}
                     </h2>
                     <div style={{
                         background: 'var(--color-surface)',
@@ -425,8 +330,8 @@ export default function Fitness() {
     }
 
     // --- VIEW 2: BODY PART DETAIL ---
-    const exercises = getBodyPartExercises(selectedBodyPart.id)
-    const partAdvice = getBodyPartAdvice(user.goal, currentPhase)
+    const exercises = fitnessContent.exercises[selectedBodyPart.id] || []
+    const partAdvice = getBodyPartAdvice(user.goal, currentPhase, language)
 
     return (
         <div className="container" style={{ paddingBottom: '90px' }}>
@@ -444,7 +349,7 @@ export default function Fitness() {
                         marginBottom: '1rem'
                     }}
                 >
-                    ← Terug naar overzicht
+                    ← {t('fitness.back_to_overview')}
                 </button>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                     <h1 style={{ fontSize: '1.75rem', fontWeight: '700', margin: 0 }}>
@@ -472,26 +377,26 @@ export default function Fitness() {
                             color: 'var(--color-text)',
                             textTransform: 'uppercase',
                             letterSpacing: '0.5px'
-                        }}>Aanpak Vandaag</h2>
+                        }}>{t('fitness.approach_today')}</h2>
                         <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>{partAdvice.label}</span>
                     </div>
 
                     <div className="card" style={{ borderLeft: '4px solid var(--color-primary)' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Intensiteit</label>
+                                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>{t('fitness.intensity')}</label>
                                 <p style={{ fontWeight: 600, margin: 0 }}>{partAdvice.intensity}</p>
                             </div>
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Gewicht</label>
+                                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>{t('fitness.weight')}</label>
                                 <p style={{ fontWeight: 600, margin: 0 }}>{partAdvice.weight}</p>
                             </div>
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Reps</label>
+                                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>{t('fitness.reps')}</label>
                                 <p style={{ fontWeight: 600, margin: 0 }}>{partAdvice.reps}</p>
                             </div>
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Sets</label>
+                                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>{t('fitness.sets')}</label>
                                 <p style={{ fontWeight: 600, margin: 0 }}>{partAdvice.sets}</p>
                             </div>
                         </div>
@@ -507,7 +412,7 @@ export default function Fitness() {
                         color: 'var(--color-text)',
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px'
-                    }}>Beste Basisoefeningen</h2>
+                    }}>{t('fitness.best_exercises')}</h2>
                     <div className="card">
                         <ul style={{ paddingLeft: '1.2rem', margin: 0 }}>
                             {exercises.map((ex, idx) => (
@@ -528,7 +433,7 @@ export default function Fitness() {
                         color: 'var(--color-text)',
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px'
-                    }}>Jouw focus ({goalLabels[user.goal] || user.goal})</h2>
+                    }}>{t('fitness.your_focus')} ({fitnessContent.goals[user.goal] || user.goal})</h2>
                     <div style={{
                         background: 'var(--color-surface)',
                         padding: '1rem',

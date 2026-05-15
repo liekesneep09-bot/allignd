@@ -3,7 +3,7 @@
   /* ROLE-BASED COLOR SYSTEM (Green Actions/Calories) */
 
   /* Layer 1: Base (Global) */
-  --color-bg: #FDF5F7;
+  --color-bg: #FFFFFF;
   /* Fresh Light Pink-White */
   --color-surface: #FFFFFF;
   /* Pure White */
@@ -77,12 +77,12 @@ body {
   max-width: 480px;
   margin: 0 auto;
   min-height: 100vh;
-  background-color: var(--color-bg);
+  background-color: var(--color-surface);
   /* Match body bg */
   position: relative;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+  box-shadow: none;
 }
 
 h1,

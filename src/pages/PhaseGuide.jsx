@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
-import { useUser } from '../context/UserContext'
 import { PHASE_CONTENT } from '../data/phases'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function PhaseGuide() {
     const { user, currentPhase, currentDay } = useUser()
+    const { t, language } = useLanguage()
     const [viewDate, setViewDate] = useState(new Date())
 
     // --- CALENDAR LOGIC ---
@@ -57,7 +57,7 @@ export default function PhaseGuide() {
     return (
         <div className="container" style={{ paddingBottom: '90px' }}>
             <header style={{ marginBottom: '1.5rem', marginTop: '0' }}>
-                <h1 style={{ fontSize: '1.5rem', color: 'var(--color-primary)', margin: 0 }}>Jouw Cyclus</h1>
+                <h1 style={{ fontSize: '1.5rem', color: 'var(--color-primary)', margin: 0 }}>{t('cycle.title')}</h1>
             </header>
 
             {/* 1. CALENDAR BLOCK */}
@@ -66,14 +66,14 @@ export default function PhaseGuide() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                     <button onClick={handlePrev} style={{ background: 'none', border: 'none', fontSize: '1.5rem', color: 'var(--color-text)', opacity: 0.6, cursor: 'pointer', padding: '0.25rem' }}>‹</button>
                     <h2 style={{ fontSize: '1.1rem', fontWeight: '600', margin: 0, textTransform: 'capitalize', color: 'var(--color-text)' }}>
-                        {viewDate.toLocaleDateString('nl-NL', { month: 'long', year: 'numeric' })}
+                        {viewDate.toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { month: 'long', year: 'numeric' })}
                     </h2>
                     <button onClick={handleNext} style={{ background: 'none', border: 'none', fontSize: '1.5rem', color: 'var(--color-text)', opacity: 0.6, cursor: 'pointer', padding: '0.25rem' }}>›</button>
                 </div>
 
                 {/* Days Header */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', marginBottom: '0.75rem' }}>
-                    {['ma', 'di', 'wo', 'do', 'vr', 'za', 'zo'].map(d => (
+                    {t('cycle.days', { returnObjects: true }).map(d => (
                         <div key={d} style={{ textAlign: 'center', fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', fontWeight: '600' }}>{d}</div>
                     ))}
                 </div>
@@ -134,11 +134,11 @@ export default function PhaseGuide() {
                 <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center', gap: '1.5rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-primary)' }}></div>
-                        <span>Menstruatie</span>
+                        <span>{t('cycle.menstruation')}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--color-movement)' }}></div>
-                        <span>Gesport</span>
+                        <span>{t('cycle.moved')}</span>
                     </div>
                 </div>
             </div>
@@ -152,7 +152,7 @@ export default function PhaseGuide() {
                     color: 'var(--color-text-muted)',
                     marginBottom: '0.5rem'
                 }}>
-                    {phase.name} · dag {currentDay}
+                    {phase.name} · {t('common.day')} {currentDay}
                 </div>
                 <p style={{ fontSize: '1.1rem', lineHeight: '1.6', color: 'var(--color-text)', margin: 0 }}>
                     {phase.overview}
