@@ -699,9 +699,9 @@ export function UserProvider({ children }) {
           .maybeSingle()
 
         if (existingLog) {
-          await supabase.from('weight_logs').update({ weight: newWeight, updated_at: new Date().toISOString() }).eq('id', existingLog.id)
+          await supabase.from('weight_logs').update({ weight: newWeight }).eq('id', existingLog.id)
         } else {
-          await supabase.from('weight_logs').insert({ id: crypto.randomUUID(), user_id: userId, weight: newWeight, date: todayStr, updated_at: new Date().toISOString() })
+          await supabase.from('weight_logs').insert({ id: crypto.randomUUID(), user_id: userId, weight: newWeight, date: todayStr })
         }
                 // Update local weight logs
         setUser(prev => {
@@ -1181,12 +1181,12 @@ export function UserProvider({ children }) {
       let dbError = null
       if (existing) {
         const { error } = await supabase.from('weight_logs')
-          .update({ weight: newWeight, updated_at: new Date().toISOString() })
+          .update({ weight: newWeight })
           .eq('id', existing.id)
         dbError = error
       } else {
         const { error } = await supabase.from('weight_logs')
-          .insert({ id: crypto.randomUUID(), user_id: authUser.id, date: dateStr, weight: newWeight, updated_at: new Date().toISOString() })
+          .insert({ id: crypto.randomUUID(), user_id: authUser.id, date: dateStr, weight: newWeight })
         dbError = error
       }
       
