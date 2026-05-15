@@ -701,7 +701,7 @@ export function UserProvider({ children }) {
         if (existingLog) {
           await supabase.from('weight_logs').update({ weight: newWeight, updated_at: new Date().toISOString() }).eq('id', existingLog.id)
         } else {
-          await supabase.from('weight_logs').insert({ user_id: userId, weight: newWeight, date: todayStr, updated_at: new Date().toISOString() })
+          await supabase.from('weight_logs').insert({ id: crypto.randomUUID(), user_id: userId, weight: newWeight, date: todayStr, updated_at: new Date().toISOString() })
         }
                 // Update local weight logs
         setUser(prev => {
@@ -1186,7 +1186,7 @@ export function UserProvider({ children }) {
         dbError = error
       } else {
         const { error } = await supabase.from('weight_logs')
-          .insert({ user_id: authUser.id, date: dateStr, weight: newWeight, updated_at: new Date().toISOString() })
+          .insert({ id: crypto.randomUUID(), user_id: authUser.id, date: dateStr, weight: newWeight, updated_at: new Date().toISOString() })
         dbError = error
       }
       
@@ -1198,6 +1198,7 @@ export function UserProvider({ children }) {
       }
     } catch (e) {
       console.error("Failed to log weight", e) 
+      alert("Kon gewicht niet opslaan in database: " + (e.message || JSON.stringify(e)))
     }
   }
 
