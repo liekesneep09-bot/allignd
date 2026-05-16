@@ -70,9 +70,9 @@
   "auth": {
     "signup_btn": "Sign up",
     "login_btn_ghost": "Log in",
-    "tagline_main": "aligned,",
-    "tagline_highlight": "not perfect.",
-    "subtext": "No one-size-fits-all. But a plan that fits you, every single day.",
+    "tagline_main": "Move with your",
+    "tagline_highlight": "cycle",
+    "subtext": "track your cycle, understand your body, fuel yourself better.",
     "invalid_email": "Please enter a valid email address",
     "password_length": "Password must be at least 6 characters",
     "check_inbox": "Check your inbox",
