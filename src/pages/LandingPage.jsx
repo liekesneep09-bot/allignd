@@ -4,7 +4,7 @@ import { useLanguage } from '../context/LanguageContext';
 import './LandingPage.css';
 import logo from '../assets/logo-primary.png';
 import vandaagScherm from '../assets/vandaag-scherm-app.png';
-import phoneMockup from '../assets/telefoon-app-goed.png';
+import phoneMockup from '../assets/telefoon-app-goed-small.png';
 
 // Icon placeholders
 const DropIcon = () => (

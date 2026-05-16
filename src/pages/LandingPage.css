@@ -173,7 +173,7 @@
 .lp-hero-bg {
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
-  background-image: linear-gradient(180deg, rgba(30,27,27,0.6) 0%, rgba(30,27,27,0.2) 100%), url(../assets/hero-banner-picture.png);
+  background-image: linear-gradient(180deg, rgba(30,27,27,0.6) 0%, rgba(30,27,27,0.2) 100%), url(../assets/hero-banner-picture.jpg);
   background-size: cover;
   background-position: 80% center; /* Focus shifted to the person on the right */
   opacity: 1;
@@ -294,14 +294,13 @@
 
 /* Preview Section */
 section#preview, .lp-preview {
-  padding: 20px 15px; /* More compact for mobile */
+  padding: 40px 15px; /* Reduced padding to make banner less high */
   background: #ffffff !important;
   background-color: #ffffff !important;
   border: none !important;
   box-shadow: none !important;
   display: flex;
   flex-direction: column;
-  gap: 20px; /* Reduced from 30px */
   text-align: left;
   overflow: hidden;
   width: 100%;
@@ -344,28 +343,36 @@ section#preview, .lp-preview {
 
 .lp-preview-list-item {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.75rem; /* Much smaller for mobile side-by-side */
-  color: #2D3436;
-  font-weight: 500;
+  align-items: flex-start; /* Align to top of text */
+  gap: 12px;
+  font-size: 0.75rem; /* Small and subtle as requested */
+  color: #444444;
+  font-weight: 400;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+/* Hide the redundant checkmark icon on mobile to clean up space */
+.lp-preview-list-item > svg:not(.lp-preview-icon-circle svg) {
+  display: none;
 }
 
 .lp-preview-icon-circle {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0; /* Prevent squashing into ellipses */
   border-radius: 50%;
-  background-color: transparent; /* Transparency for overlapping design */
-  border: 1px solid #E8D5D5;
+  border: 1px solid #F0E2E2;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #a86473;
+  margin-top: -2px; /* Visual alignment with first line of text */
 }
 
 .lp-preview-icon-circle svg {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
 }
 
 .lp-preview-visual {
@@ -382,7 +389,7 @@ section#preview, .lp-preview {
 }
 
 .lp-phone-mockup-img {
-  width: 180px; /* Balanced size for mobile side-by-side */
+  width: 190px; /* Scaled back to better match smaller text */
   height: auto;
   filter: none !important;
   transform: perspective(1000px) rotateY(-5deg);
@@ -513,6 +520,17 @@ section#preview, .lp-preview {
   .lp-preview-title { font-size: 2.8rem; max-width: 450px; }
   .lp-phone-mockup-img { 
     width: 380px; /* Desktop width */
+  }
+
+  /* Show icons again on desktop where there is plenty of space */
+  .lp-preview-list-item svg,
+  .lp-preview-icon-circle {
+    display: flex;
+  }
+  
+  .lp-preview-list-item {
+    font-size: 1rem;
+    gap: 12px;
   }
 
   .lp-waitlist {
