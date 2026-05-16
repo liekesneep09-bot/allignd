@@ -271,7 +271,7 @@ export default function Login() {
                             textShadow: '0 1px 2px rgba(255,255,255,0.8)' // Better contrast over image
                         }}>
                             {t('auth.tagline_main')}<br />
-                            not <span style={{ 
+                            <span style={{ 
                                 color: 'var(--color-primary)', 
                                 fontStyle: 'italic',
                                 fontWeight: '500'
