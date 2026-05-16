@@ -211,6 +211,7 @@ function DayStrip({ selectedDate, onSelect, accentColor }) {
 
 export default function Today({ onNavigate }) {
   const { user, targets, logFood, getStatsForDate, deleteFoodLog, logPeriodStart, logMovement, resetOnboarding, isLoading, endPeriodToday, getPhaseForDate, isDateInPeriod, togglePeriodDate, startPeriod, stopPeriod, isMenstruatingNow } = useUser()
+  const logMenstruation = startPeriod // Alias for legacy call
   const { t, language } = useLanguage()
 
   const [viewDate, setViewDate] = useState(new Date())
@@ -225,7 +226,7 @@ export default function Today({ onNavigate }) {
 
   const content = getPhaseContent(language, viewPhase)
   const stats = getStatsForDate(viewDateStr)
-  const todaysLogs = (user.foodLogs && Array.isArray(user.foodLogs)) ? user.foodLogs.filter(l => l.date === viewDateStr) : []
+  const todaysLogs = (user?.foodLogs && Array.isArray(user.foodLogs)) ? user.foodLogs.filter(l => l.date === viewDateStr) : []
 
   const showMovementLog = !(user.movementLogs && user.movementLogs.find(l => l.date === viewDateStr))
 
@@ -349,11 +350,12 @@ export default function Today({ onNavigate }) {
           />
 
           {(() => {
-            const variants = t('phase_variants.' + viewPhase, { returnObjects: true }) || t('phase_variants.follicular', { returnObjects: true })
+            const rawVariants = t('phase_variants.' + viewPhase, { returnObjects: true })
+            const variants = Array.isArray(rawVariants) ? rawVariants : (t('phase_variants.follicular', { returnObjects: true }) || [])
 
             // Kies variant op basis van cyclusnummer (roteert elke maand)
-            const cycleIndex = (user?.periodStartDates?.length || 0) % 3
-            const currentText = variants[cycleIndex] || variants[0]
+            const cycleIndex = (user?.periodStartDates ? user.periodStartDates.length : 0) % 3
+            const currentText = (variants && variants[cycleIndex]) ? variants[cycleIndex] : (variants ? variants[0] : {})
 
             return (
               <div style={{
