@@ -228,8 +228,7 @@ export default function Login() {
                         width: '100%',
                         display: 'flex',
                         justifyContent: 'space-between',
-                        alignItems: 'center',
-                        marginBottom: '4rem' // Increased margin to give text room below logo
+                        alignItems: 'center'
                     }}>
                         <img
                             src={logo}
@@ -256,7 +255,12 @@ export default function Login() {
                     </div>
 
                     {/* Hero Text Section */}
-                    <div style={{ textAlign: 'left', width: '100%', marginBottom: '2rem' }}>
+                    <div style={{ 
+                        textAlign: 'left', 
+                        width: '100%', 
+                        marginTop: 'auto', 
+                        marginBottom: 'auto' 
+                    }}>
                         <h1 style={{ 
                             fontSize: '2.8rem', 
                             lineHeight: 1.1, 
