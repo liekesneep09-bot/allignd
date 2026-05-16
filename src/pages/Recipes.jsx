@@ -26,16 +26,20 @@ export default function Recipes() {
 
     const handleLogRecipe = async (recipe) => {
         try {
-            await logFood({
-                name_nl: recipe.title,
-                name_en: recipe.title, // In recipes we use the translated title for both for simplicity since it's already localized
-                kcal: recipe.macros.kcal,
-                protein: recipe.macros.p,
-                carbs: recipe.macros.c,
-                fat: recipe.macros.f,
-                fiber: recipe.macros.fiber,
-                amount: 1,
-                unit: 'portions'
+            // logFood signature: logFood(foodId, grams, configData)
+            // When grams is null and 3rd arg is an object, it uses the configurable-food path
+            await logFood(`recipe-${recipe.title}`, null, {
+                foodName: recipe.title,
+                configId: `recipe-${recipe.title}`,
+                quantity: 1,
+                selectedVariants: null,
+                calculatedMacros: {
+                    kcal: recipe.macros.kcal,
+                    protein: recipe.macros.p,
+                    carbs: recipe.macros.c,
+                    fat: recipe.macros.f,
+                    fiber: recipe.macros.fiber || 0
+                }
             })
             setAddedSuccess(true)
             setTimeout(() => {

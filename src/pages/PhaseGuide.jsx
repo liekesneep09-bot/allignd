@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { useUser } from '../context/UserContext'
 import { PHASE_CONTENT } from '../data/phases'
 import { useLanguage } from '../context/LanguageContext'
 

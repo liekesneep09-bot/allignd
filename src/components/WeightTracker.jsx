@@ -93,35 +93,63 @@ export default function WeightTracker({ date }) {
         const weights = sorted.map(l => l.weight)
         const rawMin = Math.min(...weights)
         const rawMax = Math.max(...weights)
-        let yLabelLow = Math.floor(rawMin)
-        let yLabelHigh = Math.ceil(rawMax)
-        
-        // Prevent identical labels if the user's weight hasn't changed or changed < 1kg
-        if (yLabelLow === yLabelHigh) {
-            yLabelLow -= 1
-            yLabelHigh += 1
-        } else if (yLabelHigh - yLabelLow === 1) {
-            // Give a bit more padding if it's only a 1kg difference
-            yLabelLow -= 1
-            yLabelHigh += 1
+        const dataRange = rawMax - rawMin
+
+        // ── DYNAMIC Y-AXIS SCALING ──
+        // The key insight: we want the graph to SHOW real changes.
+        // If someone goes from 65.0 to 65.3, that should be visible as a curve, not a flat line.
+        //
+        // Strategy: use a minimum visible window of 2kg, but center it on the actual data.
+        // When the data range is larger than 2kg, use the actual range with small padding.
+        const MIN_VISIBLE_RANGE = 2 // minimum kg range shown on Y-axis
+        const dataMid = (rawMin + rawMax) / 2
+
+        let yLabelLow, yLabelHigh
+
+        if (dataRange < MIN_VISIBLE_RANGE) {
+            // Small range: center the window on the data midpoint
+            // Use 0.5 steps for finer labels (e.g., 64.5 — 66.5)
+            yLabelLow = Math.floor((dataMid - MIN_VISIBLE_RANGE / 2) * 2) / 2
+            yLabelHigh = Math.ceil((dataMid + MIN_VISIBLE_RANGE / 2) * 2) / 2
+        } else {
+            // Wider range: tight fit with proportional padding (5% of range on each side)
+            const padding = Math.max(0.3, dataRange * 0.08)
+            yLabelLow = Math.floor((rawMin - padding) * 2) / 2
+            yLabelHigh = Math.ceil((rawMax + padding) * 2) / 2
         }
 
-        // Set viewBox padding proportionally
-        const min = yLabelLow - 0.5
-        const max = yLabelHigh + 0.5
+        // Ensure labels are never identical
+        if (yLabelHigh - yLabelLow < 1) {
+            yLabelLow -= 0.5
+            yLabelHigh += 0.5
+        }
+
+        // The actual plotting range — tight to the labels
+        const min = yLabelLow
+        const max = yLabelHigh
 
         const W = 100  // viewBox width
         const H = 60   // viewBox height
+
+        // Add horizontal padding so dots at edges aren't clipped
+        const xPad = sorted.length > 1 ? 4 : 0
+        const plotW = W - xPad * 2
 
         // Time-proportional X axis
         const startTs = parseLocalDate(sorted[0].date).getTime()
         const endTs = parseLocalDate(sorted[sorted.length - 1].date).getTime()
         const timeSpan = endTs - startTs || 1 // prevent divide-by-zero for single point
 
+        // Vertical plot area: leave 10% top, 10% bottom for breathing room
+        const plotTop = H * 0.08
+        const plotHeight = H * 0.82
+
         const pointsArray = sorted.map((l) => {
             const ts = parseLocalDate(l.date).getTime()
-            const x = ((ts - startTs) / timeSpan) * W
-            const y = H * 0.9 - ((l.weight - min) / (max - min || 1)) * (H * 0.8)
+            const xNorm = sorted.length === 1 ? 0.5 : (ts - startTs) / timeSpan
+            const x = xPad + xNorm * plotW
+            const yNorm = (l.weight - min) / (max - min || 1)
+            const y = plotTop + plotHeight - yNorm * plotHeight
             return { x, y, weight: l.weight, date: l.date }
         })
 
@@ -139,8 +167,8 @@ export default function WeightTracker({ date }) {
                 const p2 = pointsArray[i + 1]
                 const p3 = pointsArray[Math.min(pointsArray.length - 1, i + 2)]
 
-                // Control points distance
-                const tension = 0.2
+                // Control points distance — slightly higher tension for smoother curves
+                const tension = 0.25
                 
                 const cp1x = p1.x + (p2.x - p0.x) * tension
                 const cp1y = p1.y + (p2.y - p0.y) * tension
@@ -166,8 +194,22 @@ export default function WeightTracker({ date }) {
         const startLabel = parseLocalDate(sorted[0].date).toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { day: 'numeric', month: 'short' })
         const endLabel = parseLocalDate(sorted[sorted.length - 1].date).toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { day: 'numeric', month: 'short' })
 
-        // Y-axis labels are computed at the top
-        return { pointsArray, linePathStr, areaPathStr, H, W, min, max, startLabel, endLabel, yLabelLow, yLabelHigh }
+        // Generate Y-axis grid lines for visual reference
+        const yRange = yLabelHigh - yLabelLow
+        const gridLines = []
+        // Determine step: 0.5kg steps for small ranges, 1kg for larger
+        const gridStep = yRange <= 3 ? 0.5 : 1
+        for (let v = yLabelLow; v <= yLabelHigh; v += gridStep) {
+            const rounded = Math.round(v * 10) / 10
+            const yNorm = (rounded - min) / (max - min || 1)
+            const y = plotTop + plotHeight - yNorm * plotHeight
+            gridLines.push({ y, label: rounded, isMain: Number.isInteger(rounded) })
+        }
+
+        // Mid label for Y-axis (rounded to 1 decimal)
+        const yLabelMid = Math.round(((yLabelLow + yLabelHigh) / 2) * 2) / 2
+
+        return { pointsArray, linePathStr, areaPathStr, H, W, min, max, startLabel, endLabel, yLabelLow, yLabelHigh, yLabelMid, gridLines, plotTop, plotHeight }
     }, [user.weightLogs, user.menstruationLogs, user.cycleStart, user.cycleLength])
 
     // ── Interaction ──────────────────────────────────────────────────────────
@@ -286,9 +328,10 @@ export default function WeightTracker({ date }) {
                         </div>
                     )}
 
-                    {/* Y-axis labels */}
+                    {/* Y-axis labels (3-level) */}
                     <div style={{ position: 'absolute', left: '8px', top: '4px', bottom: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', pointerEvents: 'none', zIndex: 5 }}>
                         <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', lineHeight: 1 }}>{chartData.yLabelHigh} kg</span>
+                        <span style={{ fontSize: '0.55rem', color: 'var(--color-text-muted)', lineHeight: 1, opacity: 0.6 }}>{chartData.yLabelMid}</span>
                         <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', lineHeight: 1 }}>{chartData.yLabelLow} kg</span>
                     </div>
 
@@ -302,36 +345,40 @@ export default function WeightTracker({ date }) {
                     >
                         <defs>
                             <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor={phaseColor} stopOpacity="0.3" />
+                                <stop offset="0%" stopColor={phaseColor} stopOpacity="0.25" />
+                                <stop offset="80%" stopColor={phaseColor} stopOpacity="0.05" />
                                 <stop offset="100%" stopColor={phaseColor} stopOpacity="0.0" />
                             </linearGradient>
                         </defs>
 
-                        {/* Grid line */}
-                        <line x1="0" y1={chartData.H * 0.5} x2={chartData.W} y2={chartData.H * 0.5}
-                            stroke="var(--color-border)" strokeWidth="0.3" strokeDasharray="2 3" />
+                        {/* Grid lines for visual reference */}
+                        {chartData.gridLines.map((gl, i) => (
+                            <line key={i} x1="0" y1={gl.y} x2={chartData.W} y2={gl.y}
+                                stroke="var(--color-border)" strokeWidth={gl.isMain ? '0.4' : '0.2'}
+                                strokeDasharray={gl.isMain ? '3 4' : '1.5 3'} opacity={gl.isMain ? 0.6 : 0.35} />
+                        ))}
 
                         {/* Area fill — phase colored */}
                         {chartData.areaPathStr && <path d={chartData.areaPathStr} fill="url(#weightGradient)" />}
 
                         {/* Line — phase colored */}
                         {chartData.linePathStr && (
-                            <path fill="none" stroke={phaseColor} strokeWidth="3"
+                            <path fill="none" stroke={phaseColor} strokeWidth="2.5"
                                 strokeLinecap="round" strokeLinejoin="round" d={chartData.linePathStr} />
                         )}
 
-                        {/* Single dot when only 1 log */}
-                        {chartData.pointsArray.length === 1 && (
-                            <circle cx={chartData.pointsArray[0].x} cy={chartData.pointsArray[0].y} r="5" fill={phaseColor} />
-                        )}
+                        {/* Data point dots — subtle dark grey */}
+                        {chartData.pointsArray.map((pt, i) => (
+                            <circle key={i} cx={pt.x} cy={pt.y} r="1.5" fill="#333333" opacity="0.5" />
+                        ))}
 
                         {/* Scrubber */}
                         {scrubPoint && (
                             <>
                                 <line x1={scrubPoint.x} y1="0" x2={scrubPoint.x} y2={chartData.H}
                                     stroke="var(--color-text)" strokeWidth="0.5" strokeDasharray="3 3" opacity="0.35" />
-                                <circle cx={scrubPoint.x} cy={scrubPoint.y} r="4" fill={phaseColor} opacity="0.25" />
-                                <circle cx={scrubPoint.x} cy={scrubPoint.y} r="2.5" fill="#fff" stroke={phaseColor} strokeWidth="1.5" />
+                                <circle cx={scrubPoint.x} cy={scrubPoint.y} r="5" fill={phaseColor} opacity="0.2" />
+                                <circle cx={scrubPoint.x} cy={scrubPoint.y} r="3" fill="#fff" stroke={phaseColor} strokeWidth="1.5" />
                             </>
                         )}
                     </svg>

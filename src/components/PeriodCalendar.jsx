@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
 import { SYMPTOMS_LIST } from './CheckInModal'

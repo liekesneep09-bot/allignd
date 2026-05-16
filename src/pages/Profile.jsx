@@ -33,22 +33,22 @@ export default function Profile() {
 
     // Local State for Form (initialized from user)
     const [formData, setFormData] = useState({
-        name: user.name || '',
-        age: user.age || '',
-        height: user.height || '',
-        weight: user.weight || '',
-        targetWeight: user.targetWeight || '',
-        goal: user.goal || 'maintain',
-        resultTempo: user.resultTempo || 'average',
-        lifestyle_level: user.lifestyle_level || 'sedentary',
-        steps_range: user.steps_range || 'lt4k',
-        trainingFrequency: user.training_days_per_week || 0,
+        name: user?.name || '',
+        age: user?.age || '',
+        height: user?.height || '',
+        weight: user?.weight || '',
+        targetWeight: user?.targetWeight || '',
+        goal: user?.goal || 'maintain',
+        resultTempo: user?.resultTempo || 'average',
+        lifestyle_level: user?.lifestyle_level || 'sedentary',
+        steps_range: user?.steps_range || 'lt4k',
+        trainingFrequency: user?.training_days_per_week || 0,
         // Cycle
-        cycleLength: user.cycleLength || 28,
-        periodLength: user.periodLength || 5,
+        cycleLength: user?.cycleLength || 28,
+        periodLength: user?.periodLength || 5,
         cycleStart: (() => {
             try {
-                if (!user.cycleStart) return ''
+                if (!user?.cycleStart) return ''
                 const d = new Date(user.cycleStart)
                 if (isNaN(d.getTime())) return ''
                 return d.toISOString().split('T')[0]
