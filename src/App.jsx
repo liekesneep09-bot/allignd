@@ -116,7 +116,7 @@ function MainLayout() {
         return <Onboarding />
     }
 
-    // SUBSCRIPTION BYPASSED FOR TESTING
+    // SUBSCRIPTION ACCESS (HIDDEN UNTIL LIVE)
     // if (window.location.pathname === '/subscription') {
     //     return <Subscription />
     // }
