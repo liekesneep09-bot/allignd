@@ -85,7 +85,7 @@ function PostCard({ post, onOpen, onLike, isLiked, t, language }) {
                     fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em',
                     color: 'var(--color-text-muted)', fontWeight: '500'
                 }}>
-                    {t(`community.categories.${post.category.toLowerCase()}`)}
+                    {t(`community.categories.${(post.category || 'algemeen').toLowerCase()}`)}
                 </span>
             </div>
 
@@ -639,7 +639,7 @@ export default function Community() {
                     </div>
 
                     <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-muted)', fontWeight: '500' }}>
-                    {t(`community.categories.${selectedPost.category.toLowerCase()}`)}
+                    {t(`community.categories.${(selectedPost.category || 'algemeen').toLowerCase()}`)}
                     </span>
 
                     <h2 style={{ fontSize: '1.15rem', fontWeight: '600', margin: '0.5rem 0', color: 'var(--color-text)' }}>
