@@ -229,7 +229,7 @@ export default function Login() {
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        marginBottom: 'auto'
+                        marginBottom: '4rem' // Increased margin to give text room below logo
                     }}>
                         <img
                             src={logo}
@@ -263,7 +263,8 @@ export default function Login() {
                             fontWeight: '700', 
                             color: '#333333', 
                             margin: 0,
-                            letterSpacing: '-0.02em'
+                            letterSpacing: '-0.02em',
+                            textShadow: '0 1px 2px rgba(255,255,255,0.8)' // Better contrast over image
                         }}>
                             {t('auth.tagline_main')}<br />
                             not <span style={{ 
@@ -291,7 +292,8 @@ export default function Login() {
                         display: 'flex',
                         flexDirection: 'column',
                         gap: '0.5rem',
-                        alignItems: 'center'
+                        alignItems: 'center',
+                        marginTop: 'auto' // Pushes buttons to the bottom
                     }}>
                         <button
                             onClick={() => setView('signup')}
