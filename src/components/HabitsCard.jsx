@@ -100,8 +100,12 @@ export default function HabitsCard({ date }) {
     const handleAddWater = (ml) => logWater(date, ml)
     const handleSaveWater = () => {
         const v = parseInt(String(tempWater).replace(',', '.'))
-        if (!isNaN(v) && v >= 0) logWater(date, v - amountMl) // absolute → delta
-        setSheet(null)
+        if (!isNaN(v) && v > 0) logWater(date, v) // Additive
+        
+        if (document.activeElement && document.activeElement.blur) {
+            document.activeElement.blur()
+        }
+        setTimeout(() => setSheet(null), 50)
         setTempWater('')
     }
 
@@ -118,18 +122,22 @@ export default function HabitsCard({ date }) {
     const handleAddSteps = (n) => logSteps(date, steps + n)
     const handleSaveSteps = () => {
         const v = parseInt(tempSteps)
-        if (!isNaN(v) && v >= 0) logSteps(date, v)
-        setSheet(null)
+        if (!isNaN(v) && v > 0) logSteps(date, steps + v) // Additive
+        
+        if (document.activeElement && document.activeElement.blur) {
+            document.activeElement.blur()
+        }
+        setTimeout(() => setSheet(null), 50)
         setTempSteps('')
     }
 
     // ── Open sheet helpers ───────────────────────────────────────────────────
     const openWater = () => {
-        setTempWater(String(amountMl))
+        setTempWater('')
         setSheet('water')
     }
     const openSteps = () => {
-        setTempSteps(String(steps))
+        setTempSteps('')
         setSheet('steps')
     }
 
@@ -285,7 +293,7 @@ export default function HabitsCard({ date }) {
                             inputMode="numeric"
                             value={tempWater}
                             onChange={e => setTempWater(e.target.value)}
-                            placeholder={String(amountMl)}
+                            placeholder="+0"
                             style={{
                                 flex: 1,
                                 padding: '14px 16px',
@@ -321,10 +329,13 @@ export default function HabitsCard({ date }) {
                     {amountMl > 0 && (
                         <div style={{ textAlign: 'center', marginTop: '0.75rem' }}>
                             <button
-                                onClick={() => { handleAddWater(-250); setSheet(null) }}
+                                onClick={() => { 
+                                    logWater(date, -amountMl) // adds negative total = resets to 0
+                                    setSheet(null) 
+                                }}
                                 style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.82rem', textDecoration: 'underline', cursor: 'pointer' }}
                             >
-                                {t('habits.undo')} (−250 ml)
+                                Reset naar 0 ml
                             </button>
                         </div>
                     )}
@@ -384,8 +395,7 @@ export default function HabitsCard({ date }) {
                             inputMode="numeric"
                             value={tempSteps}
                             onChange={e => setTempSteps(e.target.value)}
-                            placeholder={String(steps)}
-                            autoFocus
+                            placeholder="+0"
                             style={{
                                 flex: 1,
                                 padding: '14px 16px',
@@ -416,6 +426,21 @@ export default function HabitsCard({ date }) {
                             {t('common.save')}
                         </button>
                     </div>
+
+                    {/* Reset */}
+                    {steps > 0 && (
+                        <div style={{ textAlign: 'center', marginTop: '0.75rem' }}>
+                            <button
+                                onClick={() => { 
+                                    logSteps(date, 0)
+                                    setSheet(null) 
+                                }}
+                                style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.82rem', textDecoration: 'underline', cursor: 'pointer' }}
+                            >
+                                Reset naar 0 stappen
+                            </button>
+                        </div>
+                    )}
                 </Sheet>
             )}
         </>
