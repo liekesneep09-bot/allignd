@@ -3,7 +3,7 @@ import { supabase } from '../utils/supabaseClient'
 import { useLanguage } from '../context/LanguageContext'
 
 export default function AuthCallback() {
-    const [status, setStatus] = useState('loading') // loading, success, error
+    const [status, setStatus] = useState('loading')
     const { t } = useLanguage()
     const hasRedirected = useRef(false)
 
@@ -17,41 +17,76 @@ export default function AuthCallback() {
     }
 
     useEffect(() => {
-        let mounted = true;
+        let mounted = true
 
-        // Listen for auth state changes (primary handler)
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            if (!mounted) return
-            if (session) {
-                doRedirect()
-            }
-        })
-
-        // Fallback: check for existing session after brief delay
         const processAuth = async () => {
             try {
-                await new Promise(resolve => setTimeout(resolve, 800));
-                if (!mounted || hasRedirected.current) return;
+                const url = new URL(window.location.href)
+                const params = url.searchParams
+
+                // --- Flow 1: PKCE (code param) ---
+                // Newer Supabase default: ?code=xxx
+                const code = params.get('code')
+                if (code) {
+                    console.log('[AuthCallback] PKCE flow detected, exchanging code...')
+                    const { error } = await supabase.auth.exchangeCodeForSession(code)
+                    if (error) throw error
+                    if (mounted) doRedirect()
+                    return
+                }
+
+                // --- Flow 2: OTP / token_hash ---
+                // Email confirmation with token_hash: ?token_hash=xxx&type=signup
+                const token_hash = params.get('token_hash')
+                const type = params.get('type')
+                if (token_hash && type) {
+                    console.log('[AuthCallback] token_hash flow detected, verifying OTP...')
+                    const { error } = await supabase.auth.verifyOtp({ token_hash, type })
+                    if (error) throw error
+                    if (mounted) doRedirect()
+                    return
+                }
+
+                // --- Flow 3: Implicit (hash fragment) ---
+                // Older Supabase: #access_token=xxx in URL hash
+                // The Supabase client handles this automatically via onAuthStateChange
+                // So we just wait a bit and check for session
+                console.log('[AuthCallback] No explicit token found, waiting for implicit flow...')
+                await new Promise(resolve => setTimeout(resolve, 1200))
+                if (!mounted || hasRedirected.current) return
 
                 const { data: { session }, error } = await supabase.auth.getSession()
-                if (!mounted) return;
+                if (!mounted) return
                 if (error) throw error
 
                 if (session) {
                     doRedirect()
                 } else {
-                    setStatus('error')
+                    // Last resort: check if there's an error param in URL
+                    const errorDesc = params.get('error_description') || params.get('error')
+                    console.error('[AuthCallback] No session found.', errorDesc || 'No error param either.')
+                    if (mounted) setStatus('error')
                 }
+
             } catch (err) {
-                console.error('Auth Callback Error:', err)
+                console.error('[AuthCallback] Error:', err)
                 if (mounted) setStatus('error')
             }
         }
 
+        // Also listen for auth state changes (handles implicit flow hash)
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (!mounted) return
+            console.log('[AuthCallback] Auth state change:', event)
+            if (session && !hasRedirected.current) {
+                doRedirect()
+            }
+        })
+
         processAuth()
 
         return () => {
-            mounted = false;
+            mounted = false
             subscription.unsubscribe()
         }
     }, [])
