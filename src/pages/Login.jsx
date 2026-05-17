@@ -79,11 +79,16 @@ export default function Login() {
                 }
             }
         } catch (err) {
-            if (err.message.includes('Bevestig eerst je e-mailadres') || err.message.includes('Email not confirmed')) {
+            const msg = err.message || ''
+            const isEmailNotConfirmed = 
+                msg.includes('Bevestig eerst je e-mailadres') ||
+                msg.includes('Email not confirmed') ||
+                msg.includes('email_not_confirmed')
+            if (isEmailNotConfirmed) {
                 setShowConfirmation(true)
-                setError('') // Clear error, show confirmation screen instead
+                setError('')
             } else {
-                setError(err.message)
+                setError(msg)
             }
         } finally {
             setIsLoading(false)
@@ -92,12 +97,12 @@ export default function Login() {
 
     const goBack = () => {
         setView('start')
-        setEmail('')
         setPassword('')
         setError('')
         setSuccessMessage('')
         setShowConfirmation(false)
         setResetSent(false)
+        // Note: email is intentionally NOT reset so users don't have to retype it
     }
 
     // Confirmation Screen

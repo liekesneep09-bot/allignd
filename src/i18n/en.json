@@ -108,6 +108,16 @@
     "error_already_registered": "This account already exists",
     "error_password_length": "Password must be at least 6 characters"
   },
+  "callback": {
+    "verifying": "Verifying account...",
+    "please_wait": "One moment, we're checking your link.",
+    "confirmed": "Email confirmed!",
+    "redirecting": "You'll be redirected to the app shortly.",
+    "continue": "Continue",
+    "error_title": "Something went wrong",
+    "error_desc": "We couldn't log you in automatically. Please try logging in again.",
+    "go_to_login": "Go to login"
+  },
   "onboarding": {
     "welcome_title": "Train and eat aligned with your cycle",
     "welcome_subtitle": "Based on your body, goals, and energy",
@@ -173,7 +183,14 @@
     "age_placeholder": "e.g. 30",
     "height_placeholder": "e.g. 170",
     "weight_placeholder": "e.g. 65",
-    "target_weight_placeholder": "e.g. 60"
+    "target_weight_placeholder": "e.g. 60",
+    "placeholder_cycle_length": "e.g. 28",
+    "placeholder_age": "e.g. 30",
+    "placeholder_height": "e.g. 170",
+    "placeholder_weight": "e.g. 65",
+    "placeholder_target_weight": "e.g. 60",
+    "error_account_creation": "Failed to create your account. Please try again.",
+    "error_generic": "Something went wrong"
   },
   "today": {
     "start_alignment": "Start your alignment",

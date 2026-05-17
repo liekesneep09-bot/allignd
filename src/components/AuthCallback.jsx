@@ -1,28 +1,44 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { supabase } from '../utils/supabaseClient'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function AuthCallback() {
     const [status, setStatus] = useState('loading') // loading, success, error
+    const { t } = useLanguage()
+    const hasRedirected = useRef(false)
+
+    const doRedirect = () => {
+        if (hasRedirected.current) return
+        hasRedirected.current = true
+        setStatus('success')
+        setTimeout(() => {
+            window.location.href = '/'
+        }, 1500)
+    }
 
     useEffect(() => {
         let mounted = true;
 
+        // Listen for auth state changes (primary handler)
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (!mounted) return
+            if (session) {
+                doRedirect()
+            }
+        })
+
+        // Fallback: check for existing session after brief delay
         const processAuth = async () => {
             try {
-                // Wait briefly for Supabase to process the URL hash automatically
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
+                await new Promise(resolve => setTimeout(resolve, 800));
+                if (!mounted || hasRedirected.current) return;
+
                 const { data: { session }, error } = await supabase.auth.getSession()
-
                 if (!mounted) return;
-
                 if (error) throw error
 
                 if (session) {
-                    setStatus('success')
-                    setTimeout(() => {
-                        window.location.href = '/'
-                    }, 1500)
+                    doRedirect()
                 } else {
                     setStatus('error')
                 }
@@ -33,16 +49,6 @@ export default function AuthCallback() {
         }
 
         processAuth()
-
-        // Also listen for auth changes directly
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            if (session && mounted) {
-                setStatus('success')
-                setTimeout(() => {
-                    window.location.href = '/'
-                }, 1500)
-            }
-        })
 
         return () => {
             mounted = false;
@@ -65,29 +71,30 @@ export default function AuthCallback() {
             {status === 'loading' && (
                 <>
                     <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>⚙️</div>
-                    <h2>Account verifiëren...</h2>
-                    <p style={{ color: 'var(--color-text-muted)' }}>Een moment geduld.</p>
+                    <h2>{t('callback.verifying')}</h2>
+                    <p style={{ color: 'var(--color-text-muted)' }}>{t('callback.please_wait')}</p>
                 </>
             )}
 
             {status === 'success' && (
                 <>
                     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
-                    <h2>E-mail bevestigd!</h2>
-                    <p style={{ color: 'var(--color-text-muted)' }}>Je wordt doorgestuurd naar de app.</p>
+                    <h2>{t('callback.confirmed')}</h2>
+                    <p style={{ color: 'var(--color-text-muted)' }}>{t('callback.redirecting')}</p>
                     <button
                         onClick={() => window.location.href = '/'}
                         style={{
                             marginTop: '1rem',
                             padding: '0.8rem 1.5rem',
                             background: 'var(--color-primary)',
-                            color: 'white',
+                            color: '#333',
                             border: 'none',
                             borderRadius: '8px',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            fontWeight: '600'
                         }}
                     >
-                        Ga direct door
+                        {t('callback.continue')}
                     </button>
                 </>
             )}
@@ -95,21 +102,22 @@ export default function AuthCallback() {
             {status === 'error' && (
                 <>
                     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>❌</div>
-                    <h2>Er ging iets mis</h2>
-                    <p style={{ color: 'var(--color-text-muted)' }}>We konden je niet automatisch inloggen.</p>
+                    <h2>{t('callback.error_title')}</h2>
+                    <p style={{ color: 'var(--color-text-muted)' }}>{t('callback.error_desc')}</p>
                     <button
                         onClick={() => window.location.href = '/'}
                         style={{
                             marginTop: '1rem',
                             padding: '0.8rem 1.5rem',
                             background: 'var(--color-primary)',
-                            color: 'white',
+                            color: '#333',
                             border: 'none',
                             borderRadius: '8px',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            fontWeight: '600'
                         }}
                     >
-                        Ga naar inloggen
+                        {t('callback.go_to_login')}
                     </button>
                 </>
             )}

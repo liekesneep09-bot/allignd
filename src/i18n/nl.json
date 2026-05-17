@@ -108,6 +108,16 @@
     "error_already_registered": "Dit account bestaat al",
     "error_password_length": "Wachtwoord moet minimaal 6 tekens zijn"
   },
+  "callback": {
+    "verifying": "Account verifiëren...",
+    "please_wait": "Even geduld, we controleren je link.",
+    "confirmed": "E-mail bevestigd!",
+    "redirecting": "Je wordt zo doorgestuurd naar de app.",
+    "continue": "Ga direct door",
+    "error_title": "Er ging iets mis",
+    "error_desc": "We konden je niet automatisch inloggen. Probeer opnieuw in te loggen.",
+    "go_to_login": "Ga naar inloggen"
+  },
   "onboarding": {
     "welcome_title": "Train en eet afgestemd op jouw cyclus",
     "welcome_subtitle": "Op basis van jouw lichaam, doelen en energie",
@@ -173,7 +183,14 @@
     "age_placeholder": "Bijv. 30",
     "height_placeholder": "Bijv. 170",
     "weight_placeholder": "Bijv. 65",
-    "target_weight_placeholder": "Bijv. 60"
+    "target_weight_placeholder": "Bijv. 60",
+    "placeholder_cycle_length": "Bijv. 28",
+    "placeholder_age": "Bijv. 30",
+    "placeholder_height": "Bijv. 170",
+    "placeholder_weight": "Bijv. 65",
+    "placeholder_target_weight": "Bijv. 60",
+    "error_account_creation": "Het aanmaken van je account is mislukt. Probeer het opnieuw.",
+    "error_generic": "Er is iets misgegaan"
   },
   "today": {
     "start_alignment": "Start je afstemming",
