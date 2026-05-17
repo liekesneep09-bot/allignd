@@ -529,38 +529,39 @@ export function UserProvider({ children }) {
   }
 
   // Helper: Defensive Upsert for Profiles (handles missing columns gracefully)
-  const defensiveProfileUpsert = async (payload) => {
-    try {
-      const { error } = await supabase.from('profiles').upsert(payload)
-      if (error) {
+  const defensiveProfileUpsert = async (payload, maxRetries = 5) => {
+    let currentPayload = { ...payload };
+    let attempts = 0;
+
+    while (attempts < maxRetries) {
+      try {
+        const { error } = await supabase.from('profiles').upsert(currentPayload);
+        
+        if (!error) {
+          return; // Success!
+        }
+
         if (error.code === '42703') {
           // Haal de kolomnaam uit de error message (bijv: column "is_menstruating_now" of relation "profiles" does not exist)
           const match = error.message.match(/column "([^"]+)"/);
           if (match && match[1]) {
             const badCol = match[1];
-            console.warn(`Column ${badCol} missing in profiles table, retrying without it.`);
-            const newPayload = { ...payload };
-            delete newPayload[badCol];
-            // Retry met de gestripte payload
-            const { error: retryError } = await supabase.from('profiles').upsert(newPayload);
-            if (retryError) {
-              if (retryError.code === '42703') {
-                 // Als er nog een mist, laat de backend falen zodat we het zien, of wees recursief (voor nu gooien we het om loop te voorkomen)
-                 throw retryError;
-              } else {
-                 throw retryError;
-              }
-            }
-          } else {
-            throw error;
+            console.warn(`Column ${badCol} missing in profiles table, stripping it...`);
+            delete currentPayload[badCol];
+            attempts++;
+            continue; // Probeer opnieuw in de while-loop met de geüpdate payload
           }
-        } else {
-          throw error;
         }
+        
+        // Als het geen 42703 is, of regex matcht niet, gooi de error
+        throw error;
+
+      } catch (err) {
+        console.error("Defensive profile upsert failed:", err);
+        return; // Stop the loop on unknown errors
       }
-    } catch (err) {
-      console.error("Defensive profile upsert failed:", err)
     }
+    console.error("Defensive profile upsert failed: Too many missing columns.");
   }
 
   // Helper: Sync profile updates to Supabase
