@@ -533,14 +533,29 @@ export function UserProvider({ children }) {
     try {
       const { error } = await supabase.from('profiles').upsert(payload)
       if (error) {
-        // Code 42703 is 'undefined_column'
-        if (error.code === '42703' && payload.is_menstruating_now !== undefined) {
-          console.warn("Column is_menstruating_now missing, retrying without it.")
-          const { is_menstruating_now, ...safePayload } = payload
-          const { error: retryError } = await supabase.from('profiles').upsert(safePayload)
-          if (retryError) throw retryError
+        if (error.code === '42703') {
+          // Haal de kolomnaam uit de error message (bijv: column "is_menstruating_now" of relation "profiles" does not exist)
+          const match = error.message.match(/column "([^"]+)"/);
+          if (match && match[1]) {
+            const badCol = match[1];
+            console.warn(`Column ${badCol} missing in profiles table, retrying without it.`);
+            const newPayload = { ...payload };
+            delete newPayload[badCol];
+            // Retry met de gestripte payload
+            const { error: retryError } = await supabase.from('profiles').upsert(newPayload);
+            if (retryError) {
+              if (retryError.code === '42703') {
+                 // Als er nog een mist, laat de backend falen zodat we het zien, of wees recursief (voor nu gooien we het om loop te voorkomen)
+                 throw retryError;
+              } else {
+                 throw retryError;
+              }
+            }
+          } else {
+            throw error;
+          }
         } else {
-          throw error
+          throw error;
         }
       }
     } catch (err) {
@@ -664,7 +679,18 @@ export function UserProvider({ children }) {
       console.log("Calculated Targets:", targets);
 
       // 3. Save to Supabase
-      // A. Update Profile
+      // B1. Upsert Profile
+      // Zorg dat we cycleStart direct ook in menstruationLogs zetten zodat de kalender het ziet!
+      const cycleStartDate = profileData.cycleStart || user.cycleStart;
+      let updatedMenstruationLogs = user.menstruationLogs || [];
+      
+      if (cycleStartDate) {
+        const cycleStartStr = String(cycleStartDate).split('T')[0];
+        if (!updatedMenstruationLogs.some(l => l.date === cycleStartStr && l.status === 'yes')) {
+          updatedMenstruationLogs = [...updatedMenstruationLogs.filter(l => l.date !== cycleStartStr), { date: cycleStartStr, status: 'yes' }];
+        }
+      }
+
       await defensiveProfileUpsert({
         id: userId,
         name: profileData.name || user.name || '',
@@ -672,7 +698,7 @@ export function UserProvider({ children }) {
         height: profileData.height || user.height || 0,
         weight: profileData.weight || user.weight || 0,
         target_weight: profileData.targetWeight || user.targetWeight || 0,
-        cycle_start: profileData.cycleStart || user.cycleStart,
+        cycle_start: cycleStartDate,
         cycle_length: profileData.cycleLength || user.cycleLength || 28,
         period_length: profileData.periodLength || user.periodLength || 5,
         bleeding_length_days: profileData.periodLength || user.periodLength || 5,
@@ -686,11 +712,11 @@ export function UserProvider({ children }) {
         training_type: profileData.trainingType || user.trainingType || 'combination',
         is_onboarded: true,
         is_menstruating_now: profileData.isMenstruatingNow !== undefined ? profileData.isMenstruatingNow : (user.isMenstruatingNow || false),
+        menstruation_logs: updatedMenstruationLogs,
         updated_at: new Date().toISOString()
       });
 
-      // AUTO-LOG cycleStart into period_start_dates (so it shows on the calendar)
-      const cycleStartDate = profileData.cycleStart || user.cycleStart;
+      // AUTO-LOG cycleStart into period_start_dates (so it shows on the calendar legacy views)
       if (cycleStartDate) {
         const cycleStartStr = String(cycleStartDate).split('T')[0]; // ensure YYYY-MM-DD
         const existingDates = user.periodStartDates || [];
@@ -701,7 +727,17 @@ export function UserProvider({ children }) {
             updated_at: new Date().toISOString()
           }).eq('id', userId);
           // Update local state too
-          setUser(prev => ({ ...prev, periodStartDates: updatedDates }));
+          setUser(prev => ({ 
+             ...prev, 
+             periodStartDates: updatedDates,
+             menstruationLogs: updatedMenstruationLogs 
+          }));
+        } else {
+          // If existingDates already included it, we still want to make sure menstruationLogs is updated in local state
+          setUser(prev => ({ 
+             ...prev, 
+             menstruationLogs: updatedMenstruationLogs 
+          }));
         }
       }
 
