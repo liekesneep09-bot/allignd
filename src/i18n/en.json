@@ -69,6 +69,7 @@
   },
   "auth": {
     "signup_btn": "Sign up",
+    "login_btn": "Log in",
     "login_btn_ghost": "Log in",
     "tagline_main": "Move with your",
     "tagline_highlight": "cycle",
@@ -294,7 +295,11 @@
       "menstrual": "Menstruation",
       "follicular": "Follicular phase",
       "ovulatory": "Ovulation",
-      "luteal": "Luteal phase"
+      "luteal": "Luteal phase",
+      "transition_to_follicular": "Late Menstrual (Transitioning to Follicular)",
+      "transition_to_ovulatory": "Late Follicular (Transitioning to Ovulation)",
+      "transition_to_luteal": "Late Ovulatory (Transitioning to Luteal)",
+      "transition_to_menstrual": "Late Luteal (PMS / Transitioning to Menstruation)"
     }
   },
   "phase_variants": {

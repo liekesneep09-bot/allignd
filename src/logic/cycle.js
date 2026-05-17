@@ -27,33 +27,47 @@ export function getCycleDisplayData(startDate, cycleLength = 28, periodLength = 
     // 4. Determine Phase (Strict Rules)
     let phase = PHASES.FOLLICULAR // Default fallthrough
 
+    let transitionTo = null;
+    const lutealLength = 14;
+    const ovulationDay = cycleLength - lutealLength;
+    const fertileStart = ovulationDay - 5;
+    const fertileEnd = ovulationDay + 1;
+
     // A. Explicit Override or Linear Period
     if (isMenstruatingNow || linearDay <= periodLength) {
         phase = PHASES.MENSTRUAL
+        if (linearDay >= periodLength - 1 && !isMenstruatingNow) {
+            transitionTo = PHASES.FOLLICULAR;
+        }
     }
     // B. Overdue -> Always Luteal (Late)
     else if (overdueDays > 0) {
         phase = PHASES.LUTEAL
+        transitionTo = PHASES.MENSTRUAL;
     }
     // C. Normal Cycle Logic (Day 1 to cycleLength)
     else {
-        // Calculate Ovulation Day
-        const lutealLength = 14
-        const ovulationDay = cycleLength - lutealLength
-        const fertileStart = ovulationDay - 5
-        const fertileEnd = ovulationDay + 1
-
         if (linearDay >= fertileStart && linearDay <= fertileEnd) {
             phase = PHASES.OVULATORY
+            if (linearDay >= fertileEnd - 1) {
+                transitionTo = PHASES.LUTEAL;
+            }
         } else if (linearDay > fertileEnd) {
             phase = PHASES.LUTEAL
+            if (linearDay >= cycleLength - 2) {
+                transitionTo = PHASES.MENSTRUAL;
+            }
         } else {
             phase = PHASES.FOLLICULAR
+            if (linearDay >= fertileStart - 2) {
+                transitionTo = PHASES.OVULATORY;
+            }
         }
     }
 
     return {
         phase,
+        transitionTo,
         linearDay,
         displayDay,
         overdueDays

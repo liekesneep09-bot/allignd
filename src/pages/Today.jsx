@@ -390,6 +390,19 @@ export default function Today({ onNavigate }) {
                   {currentText.title}
                 </h2>
 
+                {phaseTransition && phaseTransition.isTransition && viewPhase !== 'menstrual' && (
+                  <div style={{
+                    fontSize: '0.85rem',
+                    color: phaseStyle.text,
+                    fontWeight: '600',
+                    marginTop: '0.2rem',
+                    opacity: 0.85,
+                    fontStyle: 'italic'
+                  }}>
+                    {t('phases.transition_to_' + phaseTransition.nextPhase)}
+                  </div>
+                )}
+
                 {/* Streepje onder de titel */}
                 <div style={{
                   width: '48px',
