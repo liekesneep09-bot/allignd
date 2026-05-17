@@ -557,11 +557,14 @@ export function UserProvider({ children }) {
         throw error;
 
       } catch (err) {
-        console.error("Defensive profile upsert failed:", err);
+        console.error("Defensive profile upsert failed with unhandled error:", err);
+        // Tijdelijke alert zodat Lieke (en wij) zien of er bijv. een datatype fout is
+        alert(`Database Error tijdens opslaan profiel: ${err.message || err.code || JSON.stringify(err)}`);
         return; // Stop the loop on unknown errors
       }
     }
     console.error("Defensive profile upsert failed: Too many missing columns.");
+    alert("Database Error: Te veel onbekende velden om op te slaan.");
   }
 
   // Helper: Sync profile updates to Supabase
@@ -729,7 +732,8 @@ export function UserProvider({ children }) {
           }).eq('id', userId);
           // Update local state too
           setUser(prev => ({ 
-             ...prev, 
+             ...prev,
+             ...cleanProfile, // Zorg dat de UI LOKAAL de naam, leeftijd, etc overneemt!
              periodStartDates: updatedDates,
              menstruationLogs: updatedMenstruationLogs 
           }));
@@ -737,9 +741,16 @@ export function UserProvider({ children }) {
           // If existingDates already included it, we still want to make sure menstruationLogs is updated in local state
           setUser(prev => ({ 
              ...prev, 
+             ...cleanProfile, // Zorg dat de UI LOKAAL update
              menstruationLogs: updatedMenstruationLogs 
           }));
         }
+      } else {
+          // Als er geen cycleStart was (bijv een man of iemand die niks invult), update dan in ieder geval de rest!
+          setUser(prev => ({ 
+             ...prev, 
+             ...cleanProfile 
+          }));
       }
 
       // B2. Auto-log weight if changed
