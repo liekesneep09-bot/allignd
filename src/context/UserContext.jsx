@@ -167,17 +167,11 @@ export function UserProvider({ children }) {
     }
 
     // Case B: The period has NOT been stopped yet
-    // Rule B1: Up to today, EVERY day since startDate is a period day
-    if (checkDate <= today) {
-      return checkDate >= startDate
-    }
-    
-    // Rule B2: For future dates (> today), it projects linearly up to expectedEndDate
-    if (checkDate > today) {
-      return checkDate <= expectedEndDate
-    }
+    // Rule B1: Every day from startDate up to expectedEndDate is considered a period day by default.
+    // We NO LONGER project indefinitely up to "today", because if a user forgets to hit "stop", 
+    // it shouldn't color 16 days red.
+    return checkDate >= startDate && checkDate <= expectedEndDate
 
-    return false
   }
 
   const getPhaseForDate = useCallback((dateStr) => {
