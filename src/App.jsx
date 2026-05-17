@@ -354,7 +354,8 @@ export default function App() {
                 <AuthProvider>
                     <OfflineBanner isOnline={isOnline} />
                     <AuthenticatedApp />
-                    <InstallPrompt />
+                    {/* Temporarily commented out until launch/later phase */}
+                    {/* <InstallPrompt /> */}
                     {import.meta.env.DEV && <DebugPanel />}
                 </AuthProvider>
             </LanguageProvider>
