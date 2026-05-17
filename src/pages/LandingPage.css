@@ -50,7 +50,7 @@
 }
 
 .lp-logo {
-  height: 40px; /* Reduced from 60px */
+  height: 52px; /* Increased from 40px for a more premium & visible presence */
   filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(255,255,255,0.2));
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -441,7 +441,7 @@ section#preview, .lp-preview {
 }
 
 .lp-footer-logo {
-  height: 40px;
+  height: 52px; /* Increased from 40px */
   filter: brightness(0) invert(1);
   margin-bottom: 1.5rem;
 }
@@ -464,7 +464,7 @@ section#preview, .lp-preview {
     display: none;
   }
   .lp-h1 { font-size: 3.2rem; } /* Reduced from 5rem */
-  .lp-logo { height: 50px; } /* Reduced from 80px */
+  .lp-logo { height: 72px; } /* Increased from 50px for premium feel */
   .lp-h2 { font-size: 2.8rem; }
   
   .lp-hero { padding: 0 10%; }
