@@ -188,6 +188,8 @@ export function UserProvider({ children }) {
       }
     }
 
+    const todayStr = getLocalDateStr()
+    const isViewingToday = dateStr === todayStr
     const isMenstruating = isViewingToday && user.isMenstruatingNow
 
     return {
