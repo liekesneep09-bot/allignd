@@ -123,12 +123,7 @@ export function getPhaseForDay(day, cycleLength = 28, periodLength = 5, isMenstr
     // 2. Standard Logic based on Day
     if (!day || day < 1) return PHASES.FOLLICULAR // Fallback
 
-    // 3. Menstruation Logic (Strict Manual + Auto-fallback)
-    // We prioritize the manual flag, but if it's missing (sync issue) 
-    // we fallback to Day 1-5 to avoid showing Luteal incorrectly.
-    if (day >= 1 && day <= periodLength) return PHASES.MENSTRUAL
-
-    // 4. Late Cycle Logic / Overdue
+    // 3. Late Cycle Logic / Overdue
     // If day > cycleLength, we are in "Late Luteal".
     // We do NOT wrap around to Menstruation until user logs it.
     if (day > cycleLength) {

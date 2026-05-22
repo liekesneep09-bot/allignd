@@ -39,8 +39,6 @@ export function UserProvider({ children }) {
     isMenstruatingNow: false, // Explicit override
     currentPeriodLength: null, // Override for current cycle
     lastCheckInDate: null, // 'YYYY-MM-DD'
-    manualPhaseOverride: false, // TRUE when user manually selects phase
-    manualPhase: null, // The phase user selected (menstrual, follicular, ovulatory, luteal)
 
     // Cycle Learning System
     periodStartDates: [], // Array of YYYY-MM-DD (day 1 of each period)
@@ -190,18 +188,6 @@ export function UserProvider({ children }) {
       }
     }
 
-    // 2. Check for manual override or live toggle (TODAY ONLY)
-    const todayStr = getLocalDateStr()
-    const isViewingToday = dateStr === todayStr
-
-    if (isViewingToday && user.manualPhaseOverride && user.manualPhase) {
-      return {
-        phase: user.manualPhase,
-        day: dayCount,
-        confidence: 'high'
-      }
-    }
-
     const isMenstruating = isViewingToday && user.isMenstruatingNow
 
     return {
@@ -299,8 +285,6 @@ export function UserProvider({ children }) {
             periodStartDates: profile.period_start_dates || [],
             cycleHistory: profile.cycle_history || [],
             cycleStats: profile.cycle_stats || {},
-            manualPhaseOverride: profile.manual_phase_override || false,
-            manualPhase: profile.manual_phase || null,
             macroTargets: null,
             isAdmin: profile.is_admin || false,
             // CRITICAL: Restore menstruationLogs from Supabase so phase persists across reloads
@@ -592,7 +576,6 @@ export function UserProvider({ children }) {
       if (data.menstruationLogs !== undefined) updates.menstruation_logs = data.menstruationLogs
 
       // Manual Phase Override
-      if (data.manualPhaseOverride !== undefined) updates.manual_phase_override = data.manualPhaseOverride
       if (data.manualPhase !== undefined) updates.manual_phase = data.manualPhase
 
       if (data.user_language !== undefined) updates.user_language = data.user_language
@@ -1327,8 +1310,6 @@ export function UserProvider({ children }) {
         confidence: stats.confidence
       },
       currentPeriodLength: null,
-      manualPhaseOverride: false,
-      manualPhase: null
     }
 
     if (newStartDates.length > 0) {
@@ -1402,8 +1383,6 @@ export function UserProvider({ children }) {
         confidence: stats.confidence
       },
       // Force phase update to follicular when stopped early, overriding auto-fallback
-      manualPhaseOverride: true,
-      manualPhase: 'follicular',
       // Learn the actual period length using the robust history average
       ...(actualPeriodLength > 1
         ? { bleedingLengthDays: actualPeriodLength, periodLength: actualPeriodLength }
@@ -1445,8 +1424,6 @@ export function UserProvider({ children }) {
       cycleLengthHistory: stats.cycleLengthHistory,
       ...(stats.learnedCycleLength ? { cycleLength: stats.learnedCycleLength } : {}),
       cycleStats: { learnedCycleLength: stats.learnedCycleLength, variability: stats.variability, confidence: stats.confidence },
-      manualPhaseOverride: false,
-      manualPhase: null
     }
     if (newStartDates.length > 0) updates.cycleStart = new Date(newStartDates[newStartDates.length - 1]).toISOString()
     updateUser(updates)
@@ -1550,8 +1527,6 @@ export function UserProvider({ children }) {
       currentPeriodLength: null,
       lastCheckInDate: null,
       cycleHistory: newHistory,
-      manualPhaseOverride: false, // Ensure learning takes precedence
-      manualPhase: null,
       // Add to logs — this drives isMenstruatingNow via isDateInPeriod useMemo
       menstruationLogs: [...(user.menstruationLogs || []).filter(l => l.date !== dateStr), { date: dateStr, status: 'yes' }]
     })
@@ -1618,8 +1593,6 @@ export function UserProvider({ children }) {
     updateUser({
       currentPeriodLength: newLen,
       lastCheckInDate: todayStr,
-      manualPhaseOverride: false, // Clear any overrides so phase logic calculates naturally
-      manualPhase: null,
       menstruationLogs: [...(user.menstruationLogs || []).filter(l => l.date !== todayStr), { date: todayStr, status: 'no' }]
     })
   }
@@ -1634,8 +1607,6 @@ export function UserProvider({ children }) {
     // NOTE: isMenstruatingNow is derived from menstruationLogs, not manually set
     updateUser({
       cycleStart: dateStr,
-      manualPhaseOverride: true,
-      manualPhase: targetPhase
     })
   }
 
@@ -1661,8 +1632,6 @@ export function UserProvider({ children }) {
       // Also set cycle start to this date (for backwards compatibility)
       cycleStart: new Date(todayStr).toISOString(),
       // Clear manual override when new period is logged
-      manualPhaseOverride: false,
-      manualPhase: null,
       // Adding 'yes' log for this date drives isMenstruatingNow=true via useMemo
       menstruationLogs: [...(user.menstruationLogs || []).filter(l => l.date !== todayStr), { date: todayStr, status: 'yes' }]
     })
