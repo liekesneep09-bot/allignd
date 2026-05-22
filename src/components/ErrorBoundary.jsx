@@ -81,7 +81,7 @@ class ErrorBoundary extends React.Component {
                             </p>
                         </div>
 
-                        {isDev && this.state.error && (
+                        {this.state.error && (
                             <div style={{
                                 background: 'rgba(0,0,0,0.05)',
                                 padding: '12px',
@@ -94,6 +94,8 @@ class ErrorBoundary extends React.Component {
                                 maxHeight: '150px'
                             }}>
                                 <strong>{this.state.error.toString()}</strong>
+                                <br />
+                                <span>{this.state.errorInfo && this.state.errorInfo.componentStack}</span>
                             </div>
                         )}
 
