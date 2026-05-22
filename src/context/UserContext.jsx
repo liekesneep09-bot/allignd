@@ -196,7 +196,7 @@ export function UserProvider({ children }) {
       confidence: user.cycleStats?.confidence || 'low'
     }
   // Only regenerate when cycle-related data changes, NOT on food/water/step log changes
-  }, [user.cycleStart, user.cycleLength, user.cycleStats, user.bleedingLengthDays, user.periodLength, user.menstruationLogs, user.isMenstruatingNow, user.manualPhaseOverride, user.manualPhase])
+  }, [user.cycleStart, user.cycleLength, user.cycleStats, user.bleedingLengthDays, user.periodLength, user.menstruationLogs, user.isMenstruatingNow])
 
   // Determine current phase - MUST match getPhaseForDate logic for today
   const currentPhase = useMemo(() => {
@@ -574,9 +574,6 @@ export function UserProvider({ children }) {
 
       // Menstruation Logs (Calendar Interactions)
       if (data.menstruationLogs !== undefined) updates.menstruation_logs = data.menstruationLogs
-
-      // Manual Phase Override
-      if (data.manualPhase !== undefined) updates.manual_phase = data.manualPhase
 
       if (data.user_language !== undefined) updates.user_language = data.user_language
 
