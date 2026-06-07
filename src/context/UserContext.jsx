@@ -165,10 +165,19 @@ export function UserProvider({ children }) {
     }
 
     // Case B: The period has NOT been stopped yet
-    // Rule B1: Every day from startDate up to expectedEndDate is considered a period day by default.
-    // We NO LONGER project indefinitely up to "today", because if a user forgets to hit "stop", 
-    // it shouldn't color 16 days red.
-    return checkDate >= startDate && checkDate <= expectedEndDate
+    // The user MUST explicitly stop the period for the app to learn their period length.
+    // We assume they are menstruating up until today if they haven't stopped it.
+    const maxPeriodDays = 14; // Safety cap to avoid coloring months red if abandoned
+    const maxEndDate = new Date(startDate);
+    maxEndDate.setDate(startDate.getDate() + maxPeriodDays - 1);
+
+    if (checkDate > today) {
+      // Future prediction in calendar: show expected days.
+      return checkDate >= startDate && checkDate <= expectedEndDate && checkDate <= maxEndDate;
+    } else {
+      // Past or Present day: since they didn't hit stop, they are still menstruating today.
+      return checkDate >= startDate && checkDate <= maxEndDate;
+    }
 
   }
 

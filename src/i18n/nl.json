@@ -296,10 +296,10 @@
       "follicular": "Folliculaire fase",
       "ovulatory": "Ovulatie",
       "luteal": "Luteale fase",
-      "transition_to_follicular": "Laat-Menstrueel (Transitie naar Folliculair)",
-      "transition_to_ovulatory": "Laat-Folliculair (Transitie naar Ovulatie)",
-      "transition_to_luteal": "Laat-Ovulatoir (Transitie naar Luteaal)",
-      "transition_to_menstrual": "Laat-Luteaal (PMS / Transitie naar Menstruatie)"
+      "transition_to_follicular": "Op weg naar je Folliculaire Fase",
+      "transition_to_ovulatory": "Op weg naar je Ovulatie",
+      "transition_to_luteal": "Op weg naar je Luteale Fase (PMS)",
+      "transition_to_menstrual": "Op weg naar je Menstruatie"
     }
   },
   "phase_variants": {
