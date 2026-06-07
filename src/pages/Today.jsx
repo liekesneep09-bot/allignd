@@ -11,6 +11,7 @@ import { getLocalDateStr } from '../utils/date'
 import HabitsCard from '../components/HabitsCard'
 import WeightTracker from '../components/WeightTracker'
 import CheckInModal, { SYMPTOMS_LIST } from '../components/CheckInModal'
+import CycleStatusCard from '../components/CycleStatusCard'
 
 // --- HELPER COMPONENTS ---
 
@@ -399,7 +400,7 @@ export default function Today({ onNavigate }) {
                     opacity: 0.85,
                     fontStyle: 'italic'
                   }}>
-                    {t('phases.transition_to_' + phaseTransition.nextPhase)}
+                    {t('profile.phases.transition_to_' + phaseTransition.nextPhase)}
                   </div>
                 )}
 
@@ -537,6 +538,15 @@ export default function Today({ onNavigate }) {
       <div className="container" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', marginTop: '-1.5rem' }}>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+
+          {/* CYCLE STATUS CARD */}
+          {user?.cycleStart && (
+            <CycleStatusCard
+              date={viewDateStr}
+              phase={viewPhase}
+              day={viewDay}
+            />
+          )}
 
 
           {(user.tracking !== 'none') && (
