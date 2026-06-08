@@ -105,7 +105,7 @@ function CycleRing({ size, strokeWidth, cycleLength, periodLength, currentDay, c
   )
 }
 
-export default function CycleStatusCard({ date, phase, day }) {
+export default function CycleStatusCard({ date, phase, day, linearDay, overdueDays }) {
   const { user } = useUser()
   const { t, language } = useLanguage()
 
@@ -113,19 +113,18 @@ export default function CycleStatusCard({ date, phase, day }) {
   const effectivePeriodLen = user?.bleedingLengthDays || user?.periodLength || 5
 
   // Calculate countdown and context text
-  const { countdownNumber, countdownLabel, phaseLabel, dayLabel, predictedDate } = useMemo(() => {
+  const { countdownNumber, countdownLabel, phaseLabel, dayLabel, predictedDate, ringDay } = useMemo(() => {
     const cycleLen = effectiveCycleLen
     const periodLen = effectivePeriodLen
     const lutealLength = 14
     const ovulationDay = cycleLen - lutealLength
     const fertileStart = ovulationDay - 5
     const currentDay = day || 1
+    const currentLinearDay = linearDay || currentDay
+    const isOverdue = (overdueDays && overdueDays > 0)
 
-    // Days until next period
-    const daysUntilPeriod = Math.max(0, cycleLen - currentDay)
-
-    // Days until ovulation
-    const daysUntilOvulation = Math.max(0, ovulationDay - currentDay)
+    // Freeze ring at the end of the cycle if overdue
+    const ringDay = isOverdue ? cycleLen : currentDay
 
     // Phase labels from translations
     const phaseNames = {
@@ -138,12 +137,18 @@ export default function CycleStatusCard({ date, phase, day }) {
     let countdownNumber, countdownLabel
     const isNL = language === 'nl'
 
-    if (phase === 'menstrual') {
+    if (isOverdue) {
+      countdownNumber = overdueDays
+      countdownLabel = isNL
+        ? (overdueDays === 1 ? 'dag\novertijd' : 'dagen\novertijd')
+        : (overdueDays === 1 ? 'day\nlate' : 'days\nlate')
+    } else if (phase === 'menstrual') {
       // During period: show what day of period you're on
       countdownNumber = Math.min(currentDay, periodLen)
       countdownLabel = isNL ? `dag van je\nmenstruatie` : `day of your\nperiod`
     } else {
       // All other phases: always count down to next period
+      const daysUntilPeriod = Math.max(0, cycleLen - currentDay)
       countdownNumber = daysUntilPeriod
       countdownLabel = isNL
         ? (daysUntilPeriod === 1 ? 'dag tot je\nmenstruatie' : 'dagen tot je\nmenstruatie')
@@ -152,7 +157,7 @@ export default function CycleStatusCard({ date, phase, day }) {
 
     // Phase and day label
     const phaseLabel = phaseNames[phase] || phaseNames.follicular
-    const dayLabel = isNL ? `Dag ${currentDay} van ${cycleLen}` : `Day ${currentDay} of ${cycleLen}`
+    const dayLabel = isNL ? `Dag ${currentLinearDay} van ${cycleLen}` : `Day ${currentLinearDay} of ${cycleLen}`
 
     // Predicted next period date
     let predictedDate = null
@@ -163,8 +168,8 @@ export default function CycleStatusCard({ date, phase, day }) {
       }
     }
 
-    return { countdownNumber, countdownLabel, phaseLabel, dayLabel, predictedDate }
-  }, [phase, day, effectiveCycleLen, effectivePeriodLen, user?.cycleStart, language])
+    return { countdownNumber, countdownLabel, phaseLabel, dayLabel, predictedDate, ringDay }
+  }, [phase, day, linearDay, overdueDays, effectiveCycleLen, effectivePeriodLen, user?.cycleStart, language])
 
   // Don't render if no cycle data
   if (!user?.cycleStart) return null
@@ -201,7 +206,7 @@ export default function CycleStatusCard({ date, phase, day }) {
           strokeWidth={strokeW}
           cycleLength={effectiveCycleLen}
           periodLength={effectivePeriodLen}
-          currentDay={day || 1}
+          currentDay={ringDay}
           currentPhase={phase}
         />
 

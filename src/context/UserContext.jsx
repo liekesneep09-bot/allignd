@@ -699,7 +699,6 @@ export function UserProvider({ children }) {
         result_tempo: profileData.resultTempo || user.resultTempo || 'average',
         experience_level: profileData.experienceLevel || user.experienceLevel || 'beginner',
         training_type: profileData.trainingType || user.trainingType || 'combination',
-        is_onboarded: true,
         is_menstruating_now: profileData.isMenstruatingNow !== undefined ? profileData.isMenstruatingNow : (user.isMenstruatingNow || false),
         menstruation_logs: updatedMenstruationLogs,
         updated_at: new Date().toISOString()
@@ -1451,9 +1450,15 @@ export function UserProvider({ children }) {
     const currentlyActive = isDateInPeriod(dateStr, user)
 
     if (currentlyActive) {
-      // User tapped "Verwijderen" / undo — completely delete any log for this date 
-      // instead of force-stopping it with 'no'. This allows the cycle to fully return to normal.
-      deletePeriodLog(dateStr)
+      const explicitLog = user.menstruationLogs?.find(l => l.date === dateStr)
+      if (explicitLog && explicitLog.status === 'yes') {
+        // User tapped "Verwijderen" on an explicit start date
+        deletePeriodLog(dateStr)
+      } else {
+        // User tapped "Verwijderen" on an auto-filled day. 
+        // Force the period to stop on this day.
+        stopPeriod(dateStr)
+      }
     } else {
       // User tapped "Loggen +"
       startPeriod(dateStr)

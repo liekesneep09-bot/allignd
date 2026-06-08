@@ -414,7 +414,7 @@ export default function Profile() {
                                             }
                                         }}
                                         className="btn btn-primary"
-                                        style={{ width: '100%', border: 'none', color: '#fff' }}
+                                        style={{ width: '100%', border: 'none' }}
                                     >
                                         {t('profile.start_new_cycle')}
                                     </button>

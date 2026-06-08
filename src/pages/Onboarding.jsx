@@ -8,7 +8,7 @@ import logo from '../assets/logo-primary.png'
 export default function Onboarding() {
     const { user, updateUser, completeOnboarding, saveProfileAndCalculate, logout } = useUser()
     const { signUp, user: authUser } = useAuth()
-    const { t } = useLanguage()
+    const { t, language } = useLanguage()
     const [step, setStep] = useState(0) // Start at Step 0 (Welcome)
 
     // NEW: Auto-skip Welcome Screen if already logged in
@@ -78,45 +78,31 @@ export default function Onboarding() {
     const handleProfileSubmit = async (data) => {
         setIsLoading(true);
         try {
-            console.log("=== Starting Onboarding Submission ===");
-            console.log("Onboarding Data:", data);
-
-            // 1. If not logged in, create account first (moved here from handleNext)
+            // 1. If not logged in, create account first
             let userId = authUser?.id;
             if (!userId) {
-                console.log("Creating new account...");
                 const signUpResult = await signUp(data.email, data.password);
                 userId = signUpResult?.user?.id;
-                console.log("✅ Account created successfully, user ID:", userId);
-            } else {
-                console.log("User already authenticated:", authUser.email);
             }
 
             if (!userId) throw new Error(t('onboarding.error_account_creation'));
 
             // 2. Save & Calculate Exact Targets (Server-Side Logic)
-            console.log("Saving profile and calculating targets...");
             await saveProfileAndCalculate({
                 ...data,
-                id: userId, // PASS THE ID OVERRIDE
-                // Ensure mapping matches what saveProfileAndCalculate expects
+                id: userId,
                 trainingFrequency: data.trainingFrequency,
                 trainingType: data.trainingType,
                 resultTempo: data.resultTempo,
                 goal: data.goal
             });
-            console.log("✅ Profile saved and targets calculated");
 
-            // 3. Complete Onboarding
-            console.log("Completing onboarding...");
-            await completeOnboarding();
-            console.log("✅ Onboarding completed!");
+            // 3. Move to Step 7 (Success Screen)
+            setStep(7);
 
-            // 4. Navigation is handled by App.jsx based on isOnboarded state
+            // 4. Navigation is handled by Step 7 finish button
         } catch (error) {
-            console.error("❌ Onboarding Error:", error);
-            console.error("Error message:", error.message);
-            console.error("Error stack:", error.stack);
+            console.error("Onboarding Error:", error);
             alert(t('onboarding.error_generic') + ": " + error.message); // Show error to user
         } finally {
             setIsLoading(false);
@@ -217,6 +203,7 @@ export default function Onboarding() {
                 <button
                     onClick={handleBack}
                     style={{
+                        visibility: step === 7 ? 'hidden' : 'visible',
                         border: 'none',
                         background: 'none',
                         fontSize: '0.85rem',
@@ -272,7 +259,12 @@ export default function Onboarding() {
                 {/* STEP 1: CYCLUS */}
                 {step === 1 && (
                     <div className="fade-in">
-                        <h2 className="text-center" style={{ marginBottom: '1.5rem' }}>{t('onboarding.step1_title')}</h2>
+                        <div className="text-center">
+                            <h2 style={{ marginBottom: '0.5rem' }}>{t('onboarding.step1_title')}</h2>
+                            <p className="text-muted" style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+                                {t('onboarding.step1_subtitle')}
+                            </p>
+                        </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                             <div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.2rem' }}>
@@ -378,7 +370,12 @@ export default function Onboarding() {
                 {/* STEP 2: LICHAAM */}
                 {step === 2 && (
                     <div className="fade-in">
-                        <h2 className="text-center" style={{ marginBottom: '1.5rem' }}>{t('onboarding.step2_title')}</h2>
+                        <div className="text-center">
+                            <h2 style={{ marginBottom: '0.5rem' }}>{t('onboarding.step2_title')}</h2>
+                            <p className="text-muted" style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+                                {t('onboarding.step2_subtitle')}
+                            </p>
+                        </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             <div>
                                 <label style={labelStyle}>{t('onboarding.age')}</label>
@@ -536,7 +533,12 @@ export default function Onboarding() {
                 {/* STEP 5: ERVARING (Shifted) */}
                 {step === 5 && (
                     <div className="fade-in">
-                        <h2 className="text-center" style={{ marginBottom: '1.5rem' }}>{t('onboarding.step5_title')}</h2>
+                        <div className="text-center">
+                            <h2 style={{ marginBottom: '0.5rem' }}>{t('onboarding.step5_title')}</h2>
+                            <p className="text-muted" style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+                                {t('onboarding.step5_subtitle')}
+                            </p>
+                        </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                             <SelectOption
                                 label={t('onboarding.exp_beginner')}
@@ -609,13 +611,70 @@ export default function Onboarding() {
                     </div>
                 )}
 
+                {/* STEP 7: RESULTS REVEAL */}
+                {step === 7 && (
+                    <div className="fade-in" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '2rem' }}>
+                        <div>
+                            <h2 style={{ fontSize: '1.8rem', color: 'var(--color-primary)', marginBottom: '0.5rem' }}>{t('onboarding.step7_title')}</h2>
+                            <p className="text-muted">{t('onboarding.step7_subtitle')}</p>
+                        </div>
+                        
+                        <div className="card" style={{ padding: '1.5rem', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', borderRadius: '16px' }}>
+                            <div style={{ fontSize: '0.9rem', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: '600', marginBottom: '1rem' }}>
+                                {t('today.daily_goal')}
+                            </div>
+                            <div style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--color-text)', marginBottom: '1rem' }}>
+                                {user?.macroTargets?.calories || 2000} <span style={{ fontSize: '1rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>kcal</span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <div style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--color-carbs)' }}>{user?.macroTargets?.carbsMin || 0}g</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{t('today.carbs')}</div>
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--color-protein)' }}>{user?.macroTargets?.proteinMin || 0}g</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{t('today.proteins')}</div>
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--color-fat)' }}>{user?.macroTargets?.fatMin || 0}g</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{t('today.fats')}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--color-primary)', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', borderRadius: '16px', textAlign: 'left' }}>
+                            <div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>
+                                {language === 'en' ? 'Current Phase:' : 'Huidige fase:'}
+                            </div>
+                            <div style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--color-text)', textTransform: 'capitalize' }}>
+                                {t(`profile.phases.${user?.currentPhase || 'follicular'}`)}
+                            </div>
+                        </div>
+
+                        <button 
+                            onClick={async () => {
+                                setIsLoading(true);
+                                await completeOnboarding();
+                                setIsLoading(false);
+                            }} 
+                            className="btn btn-primary" 
+                            style={{ marginTop: '1rem', padding: '1rem', fontSize: '1.1rem' }}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? t('common.loading') : t('onboarding.go_to_dashboard')}
+                        </button>
+                    </div>
+                )}
+
             </div>
 
-            <div style={{ marginTop: '2rem', paddingBottom: '2rem', position: 'relative', zIndex: 1 }}>
+            {step !== 7 && (
+                <div style={{ marginTop: '2rem', paddingBottom: '2rem', position: 'relative', zIndex: 1 }}>
                     <button className="btn btn-primary" onClick={handleNext} disabled={isLoading || !isValid(step, formData, !!authUser)}>
                         {isLoading ? t('onboarding.saving') : (step === 6 ? (authUser ? t('onboarding.save_start_authed') : t('onboarding.save_start_new')) : t('onboarding.next'))}
                     </button>
-            </div>
+                </div>
+            )}
 
 
         </div>

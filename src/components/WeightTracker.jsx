@@ -210,7 +210,7 @@ export default function WeightTracker({ date }) {
         const yLabelMid = Math.round(((yLabelLow + yLabelHigh) / 2) * 2) / 2
 
         return { pointsArray, linePathStr, areaPathStr, H, W, min, max, startLabel, endLabel, yLabelLow, yLabelHigh, yLabelMid, gridLines, plotTop, plotHeight }
-    }, [user.weightLogs, user.menstruationLogs, user.cycleStart, user.cycleLength])
+    }, [user.weightLogs, user.menstruationLogs, user.cycleStart, user.cycleLength, getPhaseForDate])
 
     // ── Interaction ──────────────────────────────────────────────────────────
     const handleMove = useCallback((e) => {
@@ -272,8 +272,8 @@ export default function WeightTracker({ date }) {
                 <button
                     onClick={() => { setTempWeight(currentWeight ? String(currentWeight) : ''); setShowSheet(true) }}
                     style={{
-                        background: phaseColor,
-                        color: '#fff',
+                        background: 'var(--color-primary)',
+                        color: '#333333',
                         border: 'none',
                         borderRadius: '20px',
                         padding: '6px 16px',

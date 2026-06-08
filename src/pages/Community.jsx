@@ -4,13 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../utils/supabaseClient'
 import { useLanguage } from '../context/LanguageContext'
 
-const CATEGORIES = [
-    { key: 'alles', label: 'Alles' },
-    { key: 'voeding', label: 'Voeding' },
-    { key: 'training', label: 'Training' },
-    { key: 'cyclus', label: 'Cyclus' },
-    { key: 'algemeen', label: 'Algemeen' }
-]
+const CATEGORIES = ['alles', 'voeding', 'training', 'cyclus', 'algemeen']
 
 const PHASE_COLORS = {
     menstrual: '#a86473',
@@ -461,22 +455,22 @@ export default function Community() {
                 <div style={{ marginBottom: '1rem' }}>
                     <label style={{ fontSize: '0.85rem', fontWeight: '500', color: 'var(--color-text-muted)', marginBottom: '0.5rem', display: 'block' }}>{t('community.category')}</label>
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                        {CATEGORIES.filter(c => c.key !== 'alles').map(cat => (
+                        {CATEGORIES.filter(c => c !== 'alles').map(cat => (
                             <button
-                                key={cat.key}
-                                onClick={() => setNewCategory(cat.key)}
+                                key={cat}
+                                onClick={() => setNewCategory(cat)}
                                 style={{
                                     padding: '0.5rem 1rem',
                                     borderRadius: '20px',
-                                    border: newCategory === cat.key ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
-                                    background: newCategory === cat.key ? 'rgba(255,174,185,0.1)' : 'var(--color-surface)',
-                                    color: newCategory === cat.key ? 'var(--color-primary)' : 'var(--color-text)',
+                                    border: newCategory === cat ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                    background: newCategory === cat ? 'rgba(255,174,185,0.1)' : 'var(--color-surface)',
+                                    color: newCategory === cat ? 'var(--color-primary)' : 'var(--color-text)',
                                     fontSize: '0.85rem',
-                                    fontWeight: newCategory === cat.key ? '600' : '400',
+                                    fontWeight: newCategory === cat ? '600' : '400',
                                     cursor: 'pointer'
                                 }}
                             >
-                                {t(`community.categories.${cat.key}`)}
+                                {t(`community.categories.${cat}`)}
                             </button>
                         ))}
                     </div>
@@ -596,7 +590,6 @@ export default function Community() {
     // ───────────────────────────────────────────────────────
     if (view === 'detail' && selectedPost) {
         const isOwner = authUser?.id === selectedPost.user_id
-        console.log('[Circle] isOwner check:', { authUserId: authUser?.id, postUserId: selectedPost.user_id, isOwner })
         return (
             <div className="container" style={{ paddingBottom: '120px' }}>
                 {/* Back */}
@@ -852,19 +845,19 @@ export default function Community() {
             }}>
                 {CATEGORIES.map(cat => (
                     <button
-                        key={cat.key}
-                        onClick={() => setActiveCategory(cat.key)}
+                        key={cat}
+                        onClick={() => setActiveCategory(cat)}
                         style={{
                             padding: '0.6rem 1.25rem', borderRadius: '24px', whiteSpace: 'nowrap',
-                            border: activeCategory === cat.key ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
-                            background: activeCategory === cat.key ? 'rgba(255,174,185,0.1)' : 'var(--color-surface)',
-                            color: activeCategory === cat.key ? 'var(--color-primary)' : 'var(--color-text)',
-                            fontSize: '0.85rem', fontWeight: activeCategory === cat.key ? '600' : '400',
+                            border: activeCategory === cat ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                            background: activeCategory === cat ? 'rgba(255,174,185,0.1)' : 'var(--color-surface)',
+                            color: activeCategory === cat ? 'var(--color-primary)' : 'var(--color-text)',
+                            fontSize: '0.85rem', fontWeight: activeCategory === cat ? '600' : '400',
                             cursor: 'pointer', flexShrink: 0,
                             transition: 'all 0.2s ease'
                         }}
                     >
-                        {cat.label}
+                        {t(`community.categories.${cat}`)}
                     </button>
                 ))}
             </div>
@@ -979,7 +972,7 @@ export default function Community() {
                 style={{
                     position: 'fixed', bottom: '90px', right: '20px',
                     width: '60px', height: '60px', borderRadius: '50%',
-                    background: 'var(--color-primary)', color: 'white',
+                    background: 'var(--color-primary)', color: '#333333',
                     border: 'none', fontSize: '2rem', cursor: 'pointer',
                     boxShadow: '0 8px 24px rgba(255,174,185,0.4)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',

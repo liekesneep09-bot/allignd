@@ -471,7 +471,7 @@ const styles = {
     },
     saveBtn: {
         background: 'var(--color-primary)',
-        color: '#fff',
+        color: '#333333',
         border: 'none',
         padding: '0.5rem 1rem',
         borderRadius: '8px',
@@ -526,7 +526,7 @@ const styles = {
     },
     addBtn: {
         background: 'var(--color-primary)',
-        color: '#fff',
+        color: '#333333',
         border: 'none',
         padding: '0.4rem 0.75rem',
         borderRadius: '6px',
@@ -706,7 +706,7 @@ const styles = {
         border: 'none',
         borderRadius: '10px',
         background: 'var(--color-primary)',
-        color: '#fff',
+        color: '#333333',
         fontSize: '1rem',
         fontWeight: '600',
         cursor: 'pointer'

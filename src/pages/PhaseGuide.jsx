@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useUser } from '../context/UserContext'
-import { PHASE_CONTENT } from '../data/phases'
+import { getPhaseContent } from '../data/phases'
 import { useLanguage } from '../context/LanguageContext'
 
 export default function PhaseGuide() {
@@ -54,7 +54,7 @@ export default function PhaseGuide() {
     const handleNext = () => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))
 
     // --- RENDER ---
-    const phase = PHASE_CONTENT[currentPhase]
+    const phase = getPhaseContent(language, currentPhase)
 
     return (
         <div className="container" style={{ paddingBottom: '90px' }}>

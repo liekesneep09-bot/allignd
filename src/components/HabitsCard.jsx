@@ -209,30 +209,32 @@ export default function HabitsCard({ date }) {
                 <div style={{ display: 'flex', gap: '0.75rem' }}>
                     <button
                         onClick={openWater}
-                        className="btn btn-primary"
                         style={{
                             flex: 1,
                             padding: '0.85rem',
                             borderRadius: '16px',
                             fontSize: '0.9rem',
                             fontWeight: '600',
-                            background: '#fee7e9',
-                            color: '#000'
+                            background: 'var(--color-bg)',
+                            color: 'var(--color-text)',
+                            border: '1px solid var(--color-border)',
+                            cursor: 'pointer'
                         }}
                     >
                         + {t('habits.water')}
                     </button>
                     <button
                         onClick={openSteps}
-                        className="btn btn-primary"
                         style={{
                             flex: 1,
                             padding: '0.85rem',
                             borderRadius: '16px',
                             fontSize: '0.9rem',
                             fontWeight: '600',
-                            background: '#fee7e9',
-                            color: '#000'
+                            background: 'var(--color-bg)',
+                            color: 'var(--color-text)',
+                            border: '1px solid var(--color-border)',
+                            cursor: 'pointer'
                         }}
                     >
                         + {t('habits.steps')}
@@ -335,7 +337,7 @@ export default function HabitsCard({ date }) {
                                 }}
                                 style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.82rem', textDecoration: 'underline', cursor: 'pointer' }}
                             >
-                                Reset naar 0 ml
+                                {t('habits.reset_water')}
                             </button>
                         </div>
                     )}
@@ -421,7 +423,7 @@ export default function HabitsCard({ date }) {
                         <button
                             onClick={handleSaveSteps}
                             className="btn btn-primary"
-                            style={{ flex: 2, padding: '1rem', borderRadius: '16px', fontWeight: '600', fontSize: '1rem' }}
+                            style={{ flex: 2, padding: '1rem', borderRadius: '16px', fontWeight: '600', fontSize: '1rem', background: '#F5D98B', color: '#333' }}
                         >
                             {t('common.save')}
                         </button>
@@ -437,7 +439,7 @@ export default function HabitsCard({ date }) {
                                 }}
                                 style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.82rem', textDecoration: 'underline', cursor: 'pointer' }}
                             >
-                                Reset naar 0 stappen
+                                {t('habits.reset_steps')}
                             </button>
                         </div>
                     )}

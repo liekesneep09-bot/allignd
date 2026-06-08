@@ -220,7 +220,7 @@ export default function Today({ onNavigate }) {
   const todayDateStr = getLocalDateStr(new Date())
   const isToday = viewDateStr === todayDateStr
 
-  const { phase: viewPhase, day: viewDay } = getPhaseForDate(viewDateStr)
+  const { phase: viewPhase, day: viewDay, linearDay: viewLinearDay, overdueDays } = getPhaseForDate(viewDateStr)
   const effectiveCycleLen = user?.cycleStats?.learnedCycleLength || user?.cycleLength || 28
   const effectivePeriodLen = user?.bleedingLengthDays || user?.periodLength || 5
   const phaseTransition = getPhaseTransition(viewDay, effectiveCycleLen, effectivePeriodLen, viewPhase)
@@ -233,7 +233,7 @@ export default function Today({ onNavigate }) {
 
   const [showModal, setShowModal] = useState(false)
   const [showCheckInModal, setShowCheckInModal] = useState(false)
-  const [showLog, setShowLog] = useState(false)
+  const [showLog, setShowLog] = useState(true)
   const [showCalendar, setShowCalendar] = useState(false)
   const [showDatePicker, setShowDatePicker] = useState(false)
 
@@ -295,7 +295,6 @@ export default function Today({ onNavigate }) {
         <button
           className="btn btn-primary"
           onClick={async () => {
-            console.log("Resetting onboarding...");
             await resetOnboarding();
             window.location.reload();
           }}
@@ -400,7 +399,7 @@ export default function Today({ onNavigate }) {
                     opacity: 0.85,
                     fontStyle: 'italic'
                   }}>
-                    {t('profile.phases.transition_to_' + phaseTransition.nextPhase)}
+                    {t('profile.phases.transition_to_' + phaseTransition.nextPhase, { defaultValue: '' })}
                   </div>
                 )}
 
@@ -545,6 +544,8 @@ export default function Today({ onNavigate }) {
               date={viewDateStr}
               phase={viewPhase}
               day={viewDay}
+              linearDay={viewLinearDay}
+              overdueDays={overdueDays}
             />
           )}
 
@@ -591,6 +592,21 @@ export default function Today({ onNavigate }) {
                   </div>
                 </div>
 
+                <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+                  <button
+                    onClick={() => setShowModal(true)}
+                    className="btn btn-primary"
+                    style={{
+                      width: 'auto',
+                      paddingLeft: '2.5rem',
+                      paddingRight: '2.5rem',
+                      boxShadow: 'var(--shadow-soft)'
+                    }}
+                  >
+                    {t('today.add_food')}
+                  </button>
+                </div>
+
                 <div className="card-minimal" style={{ padding: '1rem 1.25rem', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
                   <div style={{ marginBottom: '1rem' }}>
                     <h2 style={{ fontSize: '0.95rem', margin: 0, fontWeight: '600', color: 'var(--color-text)' }}>{t('today.macros')}</h2>
@@ -606,22 +622,10 @@ export default function Today({ onNavigate }) {
                 {/* Subtiele Vezels weergave */}
                 <div style={{ textAlign: 'center', marginTop: '-0.25rem', marginBottom: '0.5rem' }}>
                   <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', opacity: 0.8 }}>
-                    🌿 {t('today.fiber')}: {Math.round(toNum(stats.fiber))}g <span style={{ opacity: 0.6 }}>/ 25g</span>
+                    🌿 {t('today.fiber')}: {Math.round(toNum(stats.fiber))}g <span style={{ opacity: 0.6 }}>/ 25g ({t('today.fiber_recommended')})</span>
                   </span>
                 </div>
 
-              </div>
-              <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
-                <button
-                  onClick={() => setShowModal(true)}
-                  className="btn btn-primary"
-                  style={{
-                    width: '90%',
-                    boxShadow: 'var(--shadow-soft)'
-                  }}
-                >
-                  {t('today.add_food')}
-                </button>
               </div>
 
               {/* NEW: WATER TRACKER WIDGET */}
@@ -660,7 +664,7 @@ export default function Today({ onNavigate }) {
                       if (!sympDef) return null
                       return (
                         <span key={sympId} className="chip" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem', backgroundColor: 'var(--color-bg)', color: 'var(--color-text)', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
-                          {sympDef.label}
+                          {t(`checkin.symptoms.${sympId}`)}
                         </span>
                       )
                     })}

@@ -709,7 +709,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                                             flex: 1,
                                                             padding: '0.5rem',
                                                             background: 'var(--color-primary)',
-                                                            color: '#fff',
+                                                            color: '#333333',
                                                             border: 'none',
                                                             borderRadius: '8px',
                                                             fontWeight: '600',

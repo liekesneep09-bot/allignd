@@ -3,24 +3,25 @@ import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
 
 const SYMPTOMS_LIST = [
-    { id: 'cramps', label: 'Krampen', category: 'Lichaam' },
-    { id: 'bloated', label: 'Opgeblazen', category: 'Lichaam' },
-    { id: 'headache', label: 'Hoofdpijn', category: 'Lichaam' },
-    { id: 'tender_breasts', label: 'Gevoelige Borsten', category: 'Lichaam' },
-    { id: 'cravings', label: 'Cravings', category: 'Lichaam' },
-    { id: 'fatigue', label: 'Vermoeid', category: 'Lichaam' },
+    { id: 'cramps', label: 'Krampen', category: 'body' },
+    { id: 'bloated', label: 'Opgeblazen', category: 'body' },
+    { id: 'headache', label: 'Hoofdpijn', category: 'body' },
+    { id: 'tender_breasts', label: 'Gevoelige Borsten', category: 'body' },
+    { id: 'cravings', label: 'Cravings', category: 'body' },
+    { id: 'fatigue', label: 'Vermoeid', category: 'body' },
 
-    { id: 'energetic', label: 'Energiek', category: 'Mood' },
-    { id: 'relaxed', label: 'Ontspannen', category: 'Mood' },
-    { id: 'anxious', label: 'Onrustig', category: 'Mood' },
-    { id: 'irritable', label: 'Prikkelbaar', category: 'Mood' },
-    { id: 'sad', label: 'Somber', category: 'Mood' }
+    { id: 'energetic', label: 'Energiek', category: 'mood' },
+    { id: 'relaxed', label: 'Ontspannen', category: 'mood' },
+    { id: 'anxious', label: 'Onrustig', category: 'mood' },
+    { id: 'irritable', label: 'Prikkelbaar', category: 'mood' },
+    { id: 'sad', label: 'Somber', category: 'mood' }
 ]
 
 export default function CheckInModal({ isOpen, onClose, dateStr }) {
     const { user, saveSymptoms } = useUser()
     const { t } = useLanguage()
     const [selected, setSelected] = useState([])
+    const [isSaving, setIsSaving] = useState(false)
 
     // Load existing symptoms when modal opens
     useEffect(() => {
@@ -41,12 +42,16 @@ export default function CheckInModal({ isOpen, onClose, dateStr }) {
     }
 
     const handleSave = () => {
+        setIsSaving(true)
         saveSymptoms(dateStr, selected)
-        onClose()
+        setTimeout(() => {
+            setIsSaving(false)
+            onClose()
+        }, 600)
     }
 
-    const bodySymptoms = SYMPTOMS_LIST.filter(s => s.category === 'Lichaam')
-    const moodSymptoms = SYMPTOMS_LIST.filter(s => s.category === 'Mood')
+    const bodySymptoms = SYMPTOMS_LIST.filter(s => s.category === 'body')
+    const moodSymptoms = SYMPTOMS_LIST.filter(s => s.category === 'mood')
 
     const renderChip = (item) => {
         const isSelected = selected.includes(item.id)
@@ -120,9 +125,10 @@ export default function CheckInModal({ isOpen, onClose, dateStr }) {
                 <button
                     onClick={handleSave}
                     className="btn btn-primary"
-                    style={{ width: '100%', marginTop: '1rem' }}
+                    style={{ width: '100%', marginTop: '1rem', transition: 'all 0.2s' }}
+                    disabled={isSaving}
                 >
-                    {t('checkin.save')}
+                    {isSaving ? `✓ ${t('common.saved', { defaultValue: 'Opgeslagen' })}` : t('checkin.save')}
                 </button>
             </div>
         </div>

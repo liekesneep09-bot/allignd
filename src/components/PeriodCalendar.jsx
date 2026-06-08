@@ -220,7 +220,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                     onClick={onClose}
                     style={{
                         background: 'var(--color-primary)',
-                        color: '#fff',
+                        color: '#333333',
                         border: 'none',
                         padding: '0.8rem 3rem',
                         borderRadius: '30px',
