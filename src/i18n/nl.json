@@ -29,7 +29,7 @@
     "hero_subtitle": "Volg je cyclus, stem je voeding af en werk mét je lichaam.",
     "coming_soon": "binnenkort beschikbaar",
     "impact_title": "jouw cyclus heeft meer impact\ndan je denkt.",
-    "impact_desc": "energie, motivatie, cravings, kracht, herstel—je lichaam verandert gedurende de maand. allignd helpt je samen te werken met je lichaam, niet ertegen.",
+    "impact_desc": "energie, motivatie, cravings, kracht, herstel: je lichaam verandert gedurende de maand. allignd helpt je samen te werken met je lichaam, niet ertegen.",
     "impact_drop": "sommige dagen\nvoel je je\nonstuitbaar.",
     "impact_circle": "andere dagen\nvoelt alles\nzwaarder.",
     "impact_apple": "dat is geen\nfalen.",
@@ -320,13 +320,13 @@
       {
         "title": "Menstruatie fase",
         "prefix": "",
-        "normal": "Je lichaam werkt hard achter de schermen. Zachte beweging, warmte en rust zijn nu je beste vrienden — geen verplichtingen, gewoon goed voor jezelf zorgen.",
+        "normal": "Je lichaam werkt hard achter de schermen. Zachte beweging, warmte en rust zijn nu je beste vrienden: geen verplichtingen, gewoon goed voor jezelf zorgen.",
         "nutrition": "Soepen, warme maaltijden en ijzerrijke producten zoals spinazie of peulvruchten helpen je lichaam herstellen."
       },
       {
         "title": "Menstruatie fase",
         "prefix": "",
-        "normal": "Lagere energie is geen falen — het is je lichaam dat reset. Luister naar wat je nodig hebt en geef jezelf daar toestemming voor.",
+        "normal": "Lagere energie is geen falen, het is je lichaam dat reset. Luister naar wat je nodig hebt en geef jezelf daar toestemming voor.",
         "nutrition": "Magnesium en omega-3 kunnen helpen bij krampen. Vermijd te veel cafeïne als je er gevoelig voor bent."
       }
     ],
@@ -341,12 +341,12 @@
         "title": "Folliculaire fase",
         "prefix": "Je zit waarschijnlijk in je",
         "normal": "Dit is een mooie fase om nieuwe dingen op te pakken of gewoontes weer aan te scherpen. Je hoofd is helder en je herstel gaat sneller.",
-        "nutrition": "B-vitamines en zink ondersteunen je energieproductie en herstel — denk aan eieren, noten en volle granen."
+        "nutrition": "B-vitamines en zink ondersteunen je energieproductie en herstel: denk aan eieren, noten en volle granen."
       },
       {
         "title": "Folliculaire fase",
         "prefix": "Je zit waarschijnlijk in je",
-        "normal": "Je oestrogeen stijgt en dat merk je: meer motivatie, betere focus en een lichtere stemming. Benut dit — maar houd ook ruimte voor wat rust.",
+        "normal": "Je oestrogeen stijgt en dat merk je: meer motivatie, betere focus en een lichtere stemming. Benut dit, maar houd ook ruimte voor wat rust.",
         "nutrition": "Voldoende eiwitten en koolhydraten geven je lichaam de brandstof om op te bouwen."
       }
     ],
@@ -354,19 +354,19 @@
       {
         "title": "Ovulatie fase",
         "prefix": "Je zit waarschijnlijk in je",
-        "normal": "Je zit vaak op je sterkst — energiek, helder en krachtig. Vertrouw op je lichaam en benut deze fase op een manier die bij je past.",
+        "normal": "Je zit vaak op je sterkst: energiek, helder en krachtig. Vertrouw op je lichaam en benut deze fase op een manier die bij je past.",
         "nutrition": "Lichte, voedzame maaltijden en antioxidanten ondersteunen je energie en vitaliteit."
       },
       {
         "title": "Ovulatie fase",
         "prefix": "Je zit waarschijnlijk in je",
         "normal": "Dit is je energiepiek. Je voelt je socialer, sterker en meer in flow. Een goede tijd om dingen aan te pakken waar je anders tegenop ziet.",
-        "nutrition": "Omega-3 vetzuren en antioxidanten — zoals in vette vis, bessen en noten — ondersteunen je bij hogere activiteit."
+        "nutrition": "Omega-3 vetzuren en antioxidanten, zoals in vette vis, bessen en noten, ondersteunen je bij hogere activiteit."
       },
       {
         "title": "Ovulatie fase",
         "prefix": "Je zit waarschijnlijk in je",
-        "normal": "Hormonen pieken nu en dat geeft je een natuurlijk voordeel. Geniet ervan, maar overdrijf het niet — herstel blijft ook in deze fase belangrijk.",
+        "normal": "Hormonen pieken nu en dat geeft je een natuurlijk voordeel. Geniet ervan, maar overdrijf het niet: herstel blijft ook in deze fase belangrijk.",
         "nutrition": "Vezels helpen je hormoonhuishouding in balans te houden. Denk aan groenten, fruit en peulvruchten."
       }
     ],
@@ -465,7 +465,7 @@
     "yes": "Ja ✓",
     "no": "Nee",
     "moved_success": "Je hebt vandaag bewogen 💪",
-    "rest_day": "Rustdag — ook goed!",
+    "rest_day": "Rustdag, ook goed!",
     "change": "Wijzig",
     "your_focus": "Jouw focus deze fase",
     "back_to_overview": "Terug naar overzicht",
@@ -634,7 +634,7 @@
   "weight": {
     "title": "Gewicht",
     "log_cta": "Log je eerste gewicht om te beginnen!",
-    "first_log_hint": "Je eerste meting — log vaker voor een trend",
+    "first_log_hint": "Je eerste meting: log vaker voor een trend",
     "stable_since": "Stabiel sinds",
     "more_than": "meer dan op",
     "less_than": "minder dan op",

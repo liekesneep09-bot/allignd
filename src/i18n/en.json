@@ -29,7 +29,7 @@
     "hero_subtitle": "track your cycle, understand your body, fuel yourself better.",
     "coming_soon": "coming soon",
     "impact_title": "your cycle impacts\nmore than you think.",
-    "impact_desc": "energy, motivation, cravings, strength, recovery—your body shifts throughout the month. allignd helps you work with your body, not against it.",
+    "impact_desc": "energy, motivation, cravings, strength, recovery: your body shifts throughout the month. allignd helps you work with your body, not against it.",
     "impact_drop": "some days\nyou feel\nunstoppable.",
     "impact_circle": "other days\neverything\nfeels harder.",
     "impact_apple": "that's not\nfailure.",
@@ -320,13 +320,13 @@
       {
         "title": "Menstrual phase",
         "prefix": "",
-        "normal": "Your body is working hard behind the scenes. Gentle movement, warmth, and rest are your best friends right now — no obligations, just taking good care of yourself.",
+        "normal": "Your body is working hard behind the scenes. Gentle movement, warmth, and rest are your best friends right now: no obligations, just taking good care of yourself.",
         "nutrition": "Soups, warm meals, and iron-rich products like spinach or legumes help your body recover."
       },
       {
         "title": "Menstrual phase",
         "prefix": "",
-        "normal": "Lower energy is not a failure — it is your body resetting. Listen to what you need and give yourself permission for it.",
+        "normal": "Lower energy is not a failure, it is your body resetting. Listen to what you need and give yourself permission for it.",
         "nutrition": "Magnesium and omega-3 can help with cramps. Avoid too much caffeine if you are sensitive to it."
       }
     ],
@@ -341,12 +341,12 @@
         "title": "Follicular phase",
         "prefix": "You are likely in your",
         "normal": "This is a great phase to pick up new things or sharpen habits again. Your head is clear and your recovery is faster.",
-        "nutrition": "B-vitamines and zinc support your energy production and recovery — think of eggs, nuts, and whole grains."
+        "nutrition": "B-vitamines and zinc support your energy production and recovery: think of eggs, nuts, and whole grains."
       },
       {
         "title": "Follicular phase",
         "prefix": "You are likely in your",
-        "normal": "Your estrogen is rising and you notice it: more motivation, better focus, and a lighter mood. Use this — but also keep space for some rest.",
+        "normal": "Your estrogen is rising and you notice it: more motivation, better focus, and a lighter mood. Use this, but also keep space for some rest.",
         "nutrition": "Sufficient proteins and carbohydrates give your body the fuel to build."
       }
     ],
@@ -354,19 +354,19 @@
       {
         "title": "Ovulatory phase",
         "prefix": "You are likely in your",
-        "normal": "You are often at your strongest — energetic, clear, and powerful. Trust your body and use this phase in a way that suits you.",
+        "normal": "You are often at your strongest: energetic, clear, and powerful. Trust your body and use this phase in a way that suits you.",
         "nutrition": "Light, nutritious meals and antioxidants support your energy and vitality."
       },
       {
         "title": "Ovulatory phase",
         "prefix": "You are likely in your",
         "normal": "This is your energy peak. You feel more social, stronger, and more in flow. A good time to tackle things you otherwise dread.",
-        "nutrition": "Omega-3 fatty acids and antioxidants — such as in fatty fish, berries, and nuts — support you during higher activity."
+        "nutrition": "Omega-3 fatty acids and antioxidants, such as in fatty fish, berries, and nuts, support you during higher activity."
       },
       {
         "title": "Ovulatory phase",
         "prefix": "You are likely in your",
-        "normal": "Hormones are peaking now and that gives you a natural advantage. Enjoy it, but don't overdo it — recovery remains important in this phase too.",
+        "normal": "Hormones are peaking now and that gives you a natural advantage. Enjoy it, but don't overdo it: recovery remains important in this phase too.",
         "nutrition": "Fiber helps keep your hormones in balance. Think of vegetables, fruits, and legumes."
       }
     ],
@@ -465,7 +465,7 @@
     "yes": "Yes ✓",
     "no": "No",
     "moved_success": "You moved today 💪",
-    "rest_day": "Rest day — also good!",
+    "rest_day": "Rest day, also good!",
     "change": "Change",
     "your_focus": "Your focus this phase",
     "back_to_overview": "Back to overview",
@@ -650,7 +650,7 @@
   "weight": {
     "title": "Weight",
     "log_cta": "Log your first weight to get started!",
-    "first_log_hint": "Your first measurement — log more often for a trend",
+    "first_log_hint": "Your first measurement: log more often for a trend",
     "stable_since": "Stable since",
     "more_than": "more than on",
     "less_than": "less than on",
