@@ -136,7 +136,7 @@ export default function LandingPage({ onEnterApp }) {
         <nav className="lp-nav">
           <a href="#about" style={{ color: '#FFF', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500, letterSpacing: '1px' }}>{t('landing.about')}</a>
           <a href="#features" style={{ color: '#FFF', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500, letterSpacing: '1px' }}>{t('landing.features')}</a>
-          <button onClick={onEnterApp} style={{ color: '#FFF', background: 'none', fontSize: '0.85rem', fontWeight: 500, letterSpacing: '1px' }}>{t('landing.login')}</button>
+          {/* <button onClick={onEnterApp} style={{ color: '#FFF', background: 'none', fontSize: '0.85rem', fontWeight: 500, letterSpacing: '1px' }}>{t('landing.login')}</button> */}
           
           {/* Language Switcher */}
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginLeft: '10px' }}>
@@ -171,9 +171,11 @@ export default function LandingPage({ onEnterApp }) {
         {isMenuOpen && (
           <div className="lp-mobile-menu">
             <a href="#features" onClick={() => { setIsMenuOpen(false); }}>{t('landing.features')}</a>
+            {/* 
             <button className="lp-mobile-login-btn" onClick={() => { setIsMenuOpen(false); onEnterApp(); }}>
               {t('landing.login')}
             </button>
+            */}
             <div className="lp-mobile-lang-switcher">
               <button 
                 onClick={() => { setLanguage('nl'); setIsMenuOpen(false); }} 
