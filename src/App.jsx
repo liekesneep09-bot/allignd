@@ -283,11 +283,11 @@ function AuthenticatedApp() {
     }
 
     if (!user) {
-        // If we are on root and not logged in, show the Landing Page
-        if (window.location.pathname === '/') {
-            return <LandingPage onEnterApp={() => window.history.pushState({}, '', '/app') || window.dispatchEvent(new PopStateEvent('popstate'))} />
+        // If we are not logged in, show the Landing Page by default for the tease phase
+        if (window.location.pathname === '/login') {
+            return <Login />
         }
-        return <Login />
+        return <LandingPage onEnterApp={() => window.history.pushState({}, '', '/login') || window.dispatchEvent(new PopStateEvent('popstate'))} />
     }
 
     // Force route back to / if they go to /app after logging in, just to keep URL clean (optional)
