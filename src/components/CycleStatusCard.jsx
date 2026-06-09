@@ -21,9 +21,9 @@ function getPhaseSegments(cycleLength, periodLength) {
 
   return [
     { phase: 'menstrual', start: 0, end: periodLength },
-    { phase: 'follicular', start: periodLength, end: fertileStart },
-    { phase: 'ovulatory', start: fertileStart, end: fertileEnd + 1 },
-    { phase: 'luteal', start: fertileEnd + 1, end: cycleLength }
+    { phase: 'follicular', start: periodLength, end: fertileStart - 1 },
+    { phase: 'ovulatory', start: fertileStart - 1, end: fertileEnd },
+    { phase: 'luteal', start: fertileEnd, end: cycleLength }
   ]
 }
 
@@ -34,8 +34,8 @@ function CycleRing({ size, strokeWidth, cycleLength, periodLength, currentDay, c
   const circumference = normalizedRadius * 2 * Math.PI
   const segments = getPhaseSegments(cycleLength, periodLength)
 
-  // Current position angle (0 = top/12 o'clock)
-  const currentAngle = ((currentDay - 1) / cycleLength) * 360
+  // Current position angle (0 = top/12 o'clock, shift by 0.5 to center the dot in the day)
+  const currentAngle = ((currentDay - 0.5) / cycleLength) * 360
   const dotAngleRad = ((currentAngle - 90) * Math.PI) / 180
   const dotX = radius + normalizedRadius * Math.cos(dotAngleRad)
   const dotY = radius + normalizedRadius * Math.sin(dotAngleRad)

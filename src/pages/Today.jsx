@@ -425,31 +425,26 @@ export default function Today({ onNavigate }) {
                   {currentText.normal}
                 </p>
 
-                {/* Voedingskaartje met appeltje */}
+                {/* Voedingskaartje met appeltje (Compact Layout) */}
                 <div style={{
-                  marginTop: '1.25rem',
+                  marginTop: '1rem',
                   width: '100%',
                   background: phaseStyle.accent,
-                  borderRadius: '24px',
-                  padding: '1.25rem 1.5rem',
+                  borderRadius: '16px',
+                  padding: '0.85rem 1rem',
                   textAlign: 'left',
                   display: 'flex',
-                  gap: '0.8rem',
+                  gap: '0.6rem',
                   alignItems: 'flex-start',
                   boxSizing: 'border-box'
                 }}>
                   {/* Appel icoon */}
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-text)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '1px' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-text)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}>
                     <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22 0-2.25-1.94-4.22-4.14-4.22-2.19 0-3.69 1.62-5.86 1.62-2.16 0-3.65-1.62-5.84-1.62C3.97 5.56 2 7.72 2 10.41c0 4.19 3 11.59 6 11.59 1.25 0 2.5-1.06 4-1.06Z" />
                     <path d="M10 2c1 0 3.5 1.5 3.5 3.5" />
                   </svg>
-                  <div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: '700', color: 'var(--color-text)', marginBottom: '0.3rem' }}>
-                      {t('today.nutrition_title')}
-                    </div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--color-text)', lineHeight: '1.5', opacity: 0.85 }}>
-                      {currentText.nutrition}
-                    </div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--color-text)', lineHeight: '1.4', opacity: 0.9 }}>
+                    {currentText.nutrition}
                   </div>
                 </div>
 
@@ -554,45 +549,71 @@ export default function Today({ onNavigate }) {
             <section>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
-                <div style={{
+                <div className="card-minimal" style={{
                   background: '#fff',
                   borderRadius: '24px',
                   padding: '1.5rem',
-                  color: 'var(--color-text)',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
                   border: '1px solid var(--color-border)',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+                  display: 'flex',
+                  flexDirection: 'column'
                 }}>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                      <span style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>{t('today.daily_goal')}</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-                      <div style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--color-text)', lineHeight: 1 }}>
-                        {Math.round(toNum(stats.kcal))} <span style={{ fontSize: '1rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>/ {toNum(targets.calories)} kcal</span>
+                  {/* TOP SECTION: DAILY GOAL */}
+                  <div style={{
+                    color: 'var(--color-text)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '0.75rem'
+                  }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                        <span style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>{t('today.daily_goal')}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                        <div style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--color-text)', lineHeight: 1 }}>
+                          {Math.round(toNum(stats.kcal))} <span style={{ fontSize: '1rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>/ {toNum(targets.calories)} kcal</span>
+                        </div>
+                      </div>
+                      <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-calories)', marginTop: '0.25rem' }}>
+                        {Math.round(calculateProgress(stats.kcal, targets.calories) * 100)}% {t('today.of_daily_goal')}
                       </div>
                     </div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-calories)', marginTop: '0.25rem' }}>
-                      {Math.round(calculateProgress(stats.kcal, targets.calories) * 100)}% {t('today.of_daily_goal')}
+
+                    <div style={{ padding: '4px' }}>
+                      <CircularProgress
+                        current={toNum(stats.kcal)}
+                        target={toNum(targets.calories)}
+                        size={120}
+                        strokeWidth={10}
+                        color="var(--color-calories)"
+                        trackColor="rgba(0,0,0,0.05)"
+                        showText={true}
+                      />
                     </div>
                   </div>
 
-                  <div style={{ padding: '4px' }}>
-                    <CircularProgress
-                      current={toNum(stats.kcal)}
-                      target={toNum(targets.calories)}
-                      size={90}
-                      strokeWidth={8}
-                      color="var(--color-calories)"
-                      trackColor="rgba(0,0,0,0.05)"
-                      showText={true}
-                    />
+                  {/* DIVIDER */}
+                  <div style={{ width: '100%', height: '1px', background: 'var(--color-border)', opacity: 0.6, marginBottom: '1.25rem' }} />
+
+                  {/* BOTTOM SECTION: MACROS & FIBER */}
+                  <div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      <MacroListItem label={t('today.carbs')} current={toNum(stats.c)} target={toNum(targets.carbsMin)} color="var(--color-carbs)" />
+                      <MacroListItem label={t('today.fats')} current={toNum(stats.f)} target={toNum(targets.fatMin)} color="var(--color-fat)" />
+                      <MacroListItem label={t('today.proteins')} current={toNum(stats.p)} target={toNum(targets.proteinMin)} color="var(--color-protein)" />
+                    </div>
+
+                    {/* Subtiele Vezels weergave */}
+                    <div style={{ textAlign: 'center', marginTop: '1.25rem' }}>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', opacity: 0.8 }}>
+                        🌿 {t('today.fiber')}: {Math.round(toNum(stats.fiber))}g <span style={{ opacity: 0.6 }}>/ 25g ({t('today.fiber_recommended')})</span>
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+                <div style={{ marginTop: '0.5rem', marginBottom: '0.5rem', display: 'flex', justifyContent: 'center' }}>
                   <button
                     onClick={() => setShowModal(true)}
                     className="btn btn-primary"
@@ -607,29 +628,10 @@ export default function Today({ onNavigate }) {
                   </button>
                 </div>
 
-                <div className="card-minimal" style={{ padding: '1rem 1.25rem', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-                  <div style={{ marginBottom: '1rem' }}>
-                    <h2 style={{ fontSize: '0.95rem', margin: 0, fontWeight: '600', color: 'var(--color-text)' }}>{t('today.macros')}</h2>
-                  </div>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <MacroListItem label={t('today.carbs')} current={toNum(stats.c)} target={toNum(targets.carbsMin)} color="var(--color-carbs)" />
-                    <MacroListItem label={t('today.fats')} current={toNum(stats.f)} target={toNum(targets.fatMin)} color="var(--color-fat)" />
-                    <MacroListItem label={t('today.proteins')} current={toNum(stats.p)} target={toNum(targets.proteinMin)} color="var(--color-protein)" />
-                  </div>
-                </div>
-
-                {/* Subtiele Vezels weergave */}
-                <div style={{ textAlign: 'center', marginTop: '-0.25rem', marginBottom: '0.5rem' }}>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', opacity: 0.8 }}>
-                    🌿 {t('today.fiber')}: {Math.round(toNum(stats.fiber))}g <span style={{ opacity: 0.6 }}>/ 25g ({t('today.fiber_recommended')})</span>
-                  </span>
-                </div>
-
               </div>
 
               {/* NEW: WATER TRACKER WIDGET */}
-              <div style={{ marginTop: '2rem' }}>
+              <div style={{ marginTop: '0.75rem' }}>
                 <HabitsCard date={viewDateStr} />
                 <WeightTracker date={viewDateStr} />
               </div>

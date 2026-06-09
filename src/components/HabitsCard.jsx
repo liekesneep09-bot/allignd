@@ -213,12 +213,13 @@ export default function HabitsCard({ date }) {
                             flex: 1,
                             padding: '0.85rem',
                             borderRadius: '16px',
-                            fontSize: '0.9rem',
+                            fontSize: '0.95rem',
                             fontWeight: '600',
-                            background: 'var(--color-bg)',
-                            color: 'var(--color-text)',
-                            border: '1px solid var(--color-border)',
-                            cursor: 'pointer'
+                            background: 'var(--color-primary)',
+                            color: '#333333',
+                            border: 'none',
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 12px rgba(255, 174, 185, 0.2)'
                         }}
                     >
                         + {t('habits.water')}
@@ -229,12 +230,13 @@ export default function HabitsCard({ date }) {
                             flex: 1,
                             padding: '0.85rem',
                             borderRadius: '16px',
-                            fontSize: '0.9rem',
+                            fontSize: '0.95rem',
                             fontWeight: '600',
-                            background: 'var(--color-bg)',
-                            color: 'var(--color-text)',
-                            border: '1px solid var(--color-border)',
-                            cursor: 'pointer'
+                            background: 'var(--color-primary)',
+                            color: '#333333',
+                            border: 'none',
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 12px rgba(255, 174, 185, 0.2)'
                         }}
                     >
                         + {t('habits.steps')}
