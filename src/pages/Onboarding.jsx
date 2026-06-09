@@ -80,12 +80,21 @@ export default function Onboarding() {
         try {
             // 1. If not logged in, create account first
             let userId = authUser?.id;
+            let needsVerification = false;
             if (!userId) {
                 const signUpResult = await signUp(data.email, data.password);
                 userId = signUpResult?.user?.id;
+                needsVerification = !signUpResult?.session;
             }
 
             if (!userId) throw new Error(t('onboarding.error_account_creation'));
+
+            // If email verification is required, store pending data and show step 8
+            if (needsVerification) {
+                localStorage.setItem('pending_onboarding_data', JSON.stringify(data));
+                setStep(8);
+                return;
+            }
 
             // 2. Save & Calculate Exact Targets (Server-Side Logic)
             await saveProfileAndCalculate({
@@ -666,9 +675,19 @@ export default function Onboarding() {
                     </div>
                 )}
 
+                {/* STEP 8: EMAIL VERIFICATION */}
+                {step === 8 && (
+                    <div className="fade-in" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '2rem' }}>
+                        <div>
+                            <h2 style={{ fontSize: '1.8rem', color: 'var(--color-primary)', marginBottom: '0.5rem' }}>{t('onboarding.verify_email_title', { defaultValue: 'Verifieer je e-mail' })}</h2>
+                            <p className="text-muted">{t('onboarding.verify_email_subtitle', { defaultValue: 'We hebben een bevestigingslink naar je e-mailadres gestuurd. Klik op de link om je account te activeren. Je kunt dit venster daarna sluiten.' })}</p>
+                        </div>
+                    </div>
+                )}
+
             </div>
 
-            {step !== 7 && (
+            {step !== 7 && step !== 8 && (
                 <div style={{ marginTop: '2rem', paddingBottom: '2rem', position: 'relative', zIndex: 1 }}>
                     <button className="btn btn-primary" onClick={handleNext} disabled={isLoading || !isValid(step, formData, !!authUser)}>
                         {isLoading ? t('onboarding.saving') : (step === 6 ? (authUser ? t('onboarding.save_start_authed') : t('onboarding.save_start_new')) : t('onboarding.next'))}

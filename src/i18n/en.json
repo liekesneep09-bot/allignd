@@ -226,17 +226,6 @@
     "when_last_period": "When did your last period start?",
     "choose_first_day": "Choose the first day of your last period."
   },
-  "common": {
-    "save": "Save",
-    "saving": "Saving...",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "deleting": "Deleting...",
-    "confirm": "Confirm",
-    "back": "Back",
-    "today": "Today",
-    "done": "Done"
-  },
   "profile": {
     "title": "Profile",
     "personal": "Personal",
@@ -667,25 +656,6 @@
       "ovulatory": "Around ovulation you might see minor water fluctuations. Completely normal.",
       "luteal": "You hold more water (sometimes 1-2 kg). Don't panic, this is temporary.",
       "default": "Listen to your body and don't stare blindly at the scale."
-    }
-  },
-  "checkin": {
-    "title": "Daily Check-in",
-    "mood": "Mood",
-    "body": "Body",
-    "save": "Save",
-    "symptoms": {
-      "cramps": "Cramps",
-      "bloated": "Bloated",
-      "headache": "Headache",
-      "tender_breasts": "Tender Breasts",
-      "cravings": "Cravings",
-      "fatigue": "Fatigued",
-      "energetic": "Energetic",
-      "relaxed": "Relaxed",
-      "anxious": "Anxious",
-      "irritable": "Irritable",
-      "sad": "Sad"
     }
   }
 }

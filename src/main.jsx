@@ -19,15 +19,7 @@ window.onunhandledrejection = function (event) {
     console.error('[Allignd Promise Error]', event.reason);
 };
 
-// FORCE UNREGISTER SERVICE WORKER (Fix for Stale Cache)
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function (registrations) {
-        for (let registration of registrations) {
-            registration.unregister()
-            console.log('Service Worker Unregistered')
-        }
-    })
-}
+// PWA Service Worker is managed by vite-plugin-pwa
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>

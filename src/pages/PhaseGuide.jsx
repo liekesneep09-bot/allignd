@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useUser } from '../context/UserContext'
 import { getPhaseContent } from '../data/phases'
 import { useLanguage } from '../context/LanguageContext'
+import { getLocalDateStr } from '../utils/date'
 
 export default function PhaseGuide() {
     const { user, currentPhase, currentDay } = useUser()
@@ -26,7 +27,8 @@ export default function PhaseGuide() {
         const checkTime = new Date(viewDate.getFullYear(), viewDate.getMonth(), day).setHours(0, 0, 0, 0)
 
         // 0. Explicit Logs
-        const dateStr = new Date(Date.UTC(viewDate.getFullYear(), viewDate.getMonth(), day)).toISOString().split('T')[0]
+        const checkDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), day)
+        const dateStr = getLocalDateStr(checkDate)
         const explicitLog = user.menstruationLogs?.find(l => l.date === dateStr)
         if (explicitLog) return explicitLog.status === 'yes'
 
@@ -91,7 +93,7 @@ export default function PhaseGuide() {
                         const isPeriod = isMenstruating(day)
 
                         // Movement Check
-                        const dateStr = new Date(Date.UTC(date.getFullYear(), date.getMonth(), day)).toISOString().split('T')[0]
+                        const dateStr = getLocalDateStr(date)
                         const hasMovement = user.movementLogs?.some(l => l.date === dateStr && l.status === 'moved')
 
                         return (

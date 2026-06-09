@@ -57,6 +57,11 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Missing required fields' })
         }
 
+        const authUser = await getUserFromToken(req.headers.authorization)
+        if (userId && (!authUser || authUser.id !== userId)) {
+            return res.status(401).json({ error: 'Niet ingelogd of ongeldige token' })
+        }
+
         try {
             const logEntry = { date, type, data }
             if (userId) logEntry.user_id = userId
@@ -77,6 +82,13 @@ export default async function handler(req, res) {
 
         if (!deviceId || !logs || !Array.isArray(logs)) {
             return res.status(400).json({ error: 'Invalid batch request' })
+        }
+
+        const authUser = await getUserFromToken(req.headers.authorization)
+        // Check if any log in the batch has a user_id, and if so, verify auth
+        const hasUserId = logs.some(log => log.user_id)
+        if (hasUserId && !authUser) {
+            return res.status(401).json({ error: 'Niet ingelogd' })
         }
 
         try {

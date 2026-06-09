@@ -1786,6 +1786,29 @@ export function UserProvider({ children }) {
     isMenstruatingNow
   ])
 
+  // NEW: Handle pending onboarding data after email verification
+  useEffect(() => {
+    if (authUser && !isLoading) {
+      const pendingDataStr = localStorage.getItem('pending_onboarding_data');
+      if (pendingDataStr) {
+        try {
+          const pendingData = JSON.parse(pendingDataStr);
+          // Wait for saveProfileAndCalculate to finish before setting onboarded
+          saveProfileAndCalculate(pendingData).then(() => {
+            localStorage.removeItem('pending_onboarding_data');
+            setIsOnboarded(true);
+            localStorage.setItem('cyclus_onboarded', 'true');
+          }).catch(err => {
+            console.error('Failed to save pending onboarding data:', err);
+          });
+        } catch (e) {
+          console.error('Failed to parse pending onboarding data:', e);
+          localStorage.removeItem('pending_onboarding_data');
+        }
+      }
+    }
+  }, [authUser, isLoading]);
+
   return (
     <UserContext.Provider value={value} >
       {children}

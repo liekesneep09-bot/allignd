@@ -323,7 +323,6 @@ export default function Login() {
                             {t('auth.signup_btn')}
                         </button>
 
-                        {import.meta.env.DEV && (
                         <button
                             onClick={() => setView('login')}
                             style={{
@@ -340,7 +339,6 @@ export default function Login() {
                         >
                             {t('auth.login_btn_ghost')}
                         </button>
-                        )}
                     </div>
 
                     {/* Config Warning */}

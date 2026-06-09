@@ -226,17 +226,6 @@
     "when_last_period": "Wanneer begon je laatste menstruatie?",
     "choose_first_day": "Kies de eerste dag van je laatste menstruatie."
   },
-  "common": {
-    "save": "Opslaan",
-    "saving": "Opslaan...",
-    "cancel": "Annuleren",
-    "delete": "Verwijderen",
-    "deleting": "Verwijderen...",
-    "confirm": "Bevestigen",
-    "back": "Terug",
-    "today": "Vandaag",
-    "done": "Klaar"
-  },
   "profile": {
     "title": "Profiel",
     "personal": "Persoonlijk",
@@ -651,25 +640,6 @@
       "ovulatory": "Rond de eisprong kun je soms een kleine schommeling in vocht zien. Volkomen normaal.",
       "luteal": "Je houdt meer vocht vast (soms 1-2 kg). Raak niet in paniek, dit is tijdelijk.",
       "default": "Luister naar je lichaam en staar je niet blind op de weegschaal."
-    }
-  },
-  "checkin": {
-    "title": "Dagelijkse Check-in",
-    "mood": "Mood",
-    "body": "Lichaam",
-    "save": "Opslaan",
-    "symptoms": {
-      "cramps": "Krampen",
-      "bloated": "Opgeblazen",
-      "headache": "Hoofdpijn",
-      "tender_breasts": "Gevoelige Borsten",
-      "cravings": "Cravings",
-      "fatigue": "Vermoeid",
-      "energetic": "Energiek",
-      "relaxed": "Ontspannen",
-      "anxious": "Onrustig",
-      "irritable": "Prikkelbaar",
-      "sad": "Somber"
     }
   }
 }

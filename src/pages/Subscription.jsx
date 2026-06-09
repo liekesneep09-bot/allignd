@@ -18,8 +18,8 @@ export default function Subscription() {
         setIsLoading(true);
         
         // Direct links provided by the user
-        const YEARLY_LINK = 'https://buy.stripe.com/test_eVqcN55vC6DI2Ho3Nkb7y01';
-        const MONTHLY_LINK = 'https://buy.stripe.com/test_cNieVdgage6adm2cjQb7y02';
+        const YEARLY_LINK = import.meta.env.VITE_STRIPE_YEARLY_LINK || 'https://buy.stripe.com/test_eVqcN55vC6DI2Ho3Nkb7y01';
+        const MONTHLY_LINK = import.meta.env.VITE_STRIPE_MONTHLY_LINK || 'https://buy.stripe.com/test_cNieVdgage6adm2cjQb7y02';
 
         const checkoutUrl = selectedPlan === 'monthly' ? MONTHLY_LINK : YEARLY_LINK;
         

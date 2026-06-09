@@ -20,7 +20,7 @@ const app = express();
 const port = 3000;
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: process.env.CLIENT_URL || '*' }));
 app.use(express.json());
 
 // Initialize OpenAI
@@ -55,6 +55,9 @@ De gebruiker stuurt haar huidige cyclusfase mee. Gebruik dit om je advies te kle
 
 app.post('/api/assistant', async (req, res) => {
   try {
+    const user = await getUserFromToken(req.headers.authorization);
+    if (!user) return res.status(401).json({ error: "Niet ingelogd" });
+
     const { message } = req.body;
 
     if (!message) {
@@ -102,7 +105,7 @@ import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // POST /api/create-checkout-session
-app.post('/api/create-checkout-session', async (req, res) => {
+app.post('/api/create-checkout-session', requireAuth, async (req, res) => {
   try {
     const { priceId, mode } = req.body;
 
@@ -227,6 +230,11 @@ app.post('/api/log', async (req, res) => {
     return res.status(400).json({ error: 'Missing required fields' })
   }
 
+  const authUser = await getUserFromToken(req.headers.authorization)
+  if (userId && (!authUser || authUser.id !== userId)) {
+    return res.status(401).json({ error: 'Niet ingelogd of ongeldige token' })
+  }
+
   try {
     const logEntry = {
       date,
@@ -257,6 +265,12 @@ app.post('/api/logs/batch', async (req, res) => {
 
   if (!deviceId || !logs || !Array.isArray(logs)) {
     return res.status(400).json({ error: 'Invalid batch request' })
+  }
+
+  const authUser = await getUserFromToken(req.headers.authorization)
+  const hasUserId = logs.some(log => log.user_id)
+  if (hasUserId && !authUser) {
+    return res.status(401).json({ error: 'Niet ingelogd' })
   }
 
   try {

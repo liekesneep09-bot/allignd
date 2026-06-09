@@ -9,6 +9,7 @@ export default function DebugView() {
 
     // Only show in development or via hidden toggle
     // For now, simple toggle button in bottom right
+    if (!import.meta.env.DEV) return null;
 
     if (!isOpen) {
         return (
