@@ -270,7 +270,6 @@ function MainLayout() {
                     {t('nav.profile')}
                 </button>
             </nav>
-            {import.meta.env.DEV && <DebugView />}
         </>
     )
 }
@@ -282,10 +281,12 @@ function AuthenticatedApp() {
         return <SplashScreen />
     }
 
+    const hasAdminOverride = localStorage.getItem('admin_override') === 'true'
+
     // VOOR-LANCERING BEVEILIGING:
     // Blokkeer toegang tot de app (en de login) op de live server. 
-    // Alleen op localhost (DEV) kunnen we de app in om te testen.
-    if (!import.meta.env.DEV) {
+    // Alleen op localhost (DEV) óf via de geheime toegangscode kunnen we de app in.
+    if (!import.meta.env.DEV && !hasAdminOverride) {
         if (window.location.pathname !== '/') {
             window.history.replaceState({}, '', '/')
         }
@@ -314,6 +315,16 @@ function AuthenticatedApp() {
 
 export default function App() {
     const [isOnline, setIsOnline] = useState(navigator.onLine)
+
+    // GEHEIME ACHTERDEUR LOGICA
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search)
+        if (params.get('toegang') === 'liekenelis') {
+            localStorage.setItem('admin_override', 'true')
+            // Maak de URL weer netjes schoon
+            window.history.replaceState({}, document.title, window.location.pathname)
+        }
+    }, [])
 
     useEffect(() => {
         const handleOnline = () => setIsOnline(true)
@@ -366,7 +377,6 @@ export default function App() {
                     <AuthenticatedApp />
                     {/* Temporarily commented out until launch/later phase */}
                     {/* <InstallPrompt /> */}
-                    {import.meta.env.DEV && <DebugPanel />}
                 </AuthProvider>
             </LanguageProvider>
         </ErrorBoundary>

@@ -125,6 +125,9 @@ export default function LandingPage({ onEnterApp }) {
     }
   };
 
+  const hasAdminOverride = localStorage.getItem('admin_override') === 'true';
+  const showLoginButton = import.meta.env.DEV || hasAdminOverride;
+
   return (
     <div className="lp-container">
       
@@ -160,7 +163,7 @@ export default function LandingPage({ onEnterApp }) {
             marginLeft: '20px'
           }}>{t('landing.cta_first')}</a>
 
-          {import.meta.env.DEV && (
+          {showLoginButton && (
               <button 
                 onClick={onEnterApp} 
                 style={{
@@ -175,7 +178,7 @@ export default function LandingPage({ onEnterApp }) {
                   fontSize: '0.85rem'
                 }}
               >
-                LOGIN (DEV)
+                LOGIN
               </button>
           )}
         </nav>
@@ -200,7 +203,7 @@ export default function LandingPage({ onEnterApp }) {
               >EN</button>
             </div>
             
-            {import.meta.env.DEV && (
+            {showLoginButton && (
               <button 
                 onClick={onEnterApp} 
                 style={{
@@ -215,7 +218,7 @@ export default function LandingPage({ onEnterApp }) {
                   width: '100%'
                 }}
               >
-                LOGIN (DEV)
+                LOGIN
               </button>
             )}
           </div>
