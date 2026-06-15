@@ -463,7 +463,12 @@
     "weight": "Weight",
     "reps": "Reps",
     "sets": "Sets",
-    "best_exercises": "Best Base Exercises"
+    "best_exercises": "Best Base Exercises",
+    "phase_highlight_label": "Your phase",
+    "phase_highlight_intensity": "Intensity",
+    "phase_highlight_types": "Recommended movement",
+    "phase_highlight_why_toggle": "Why?",
+    "phase_highlight_why_close": "Close"
   },
   "recipes": {
     "title": "Recipes",
@@ -474,7 +479,7 @@
     "instructions": "Instructions",
     "perfect_for_goal": "Perfect for your goal",
     "add_to_daily_goal": "Add to daily goal",
-    "added_success": "✓ Added!",
+    "added_success": "Added!",
     "confirm_title": "Add recipe",
     "confirm_desc": "Do you want to add \"{title}\" to your daily goal for today?",
     "cancel": "Cancel",
@@ -482,7 +487,9 @@
     "protein": "Protein",
     "carbs": "Carbs",
     "fat": "Fat",
-    "fiber": "Fiber"
+    "fiber": "Fiber",
+    "nutrients_title": "What does your body need right now?",
+    "nutrients_sources_label": "Found in"
   },
   "nav": {
     "today": "Today",

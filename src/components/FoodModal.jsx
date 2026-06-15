@@ -6,7 +6,7 @@ import { useLanguage } from '../context/LanguageContext'
 import MealEditor from './MealEditor'
 
 export default function FoodModal({ onClose, onAdd }) {
-    const { user, updateUser, addCustomFood } = useUser()
+    const { user, updateUser, addCustomFood, logFood } = useUser()
     const { getAccessToken } = useAuth()
     const { language, t } = useLanguage()
 
@@ -119,19 +119,22 @@ export default function FoodModal({ onClose, onAdd }) {
         }
     }
 
-    const handleLogMeal = (meal) => {
+    const handleLogMeal = async (meal) => {
         try {
-            // Call onAdd with meal log data so Today refreshes
-            onAdd('meal-' + meal.id, null, {
+            await logFood('meal-' + meal.id, null, {
                 foodName: meal.name,
+                configId: 'meal-' + meal.id,
+                quantity: 1,
+                selectedVariants: null,
                 calculatedMacros: {
                     kcal: meal.totals?.kcal || 0,
                     protein: meal.totals?.protein || 0,
                     carbs: meal.totals?.carbs || 0,
-                    fat: meal.totals?.fat || 0
+                    fat: meal.totals?.fat || 0,
+                    fiber: 0
                 }
             })
-            onClose() // Close modal after logging
+            onClose()
         } catch (e) {
             console.error('Log meal error:', e)
             alert(t('food_modal.log_error'))

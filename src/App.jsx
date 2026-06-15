@@ -282,6 +282,16 @@ function AuthenticatedApp() {
         return <SplashScreen />
     }
 
+    // VOOR-LANCERING BEVEILIGING:
+    // Blokkeer toegang tot de app (en de login) op de live server. 
+    // Alleen op localhost (DEV) kunnen we de app in om te testen.
+    if (!import.meta.env.DEV) {
+        if (window.location.pathname !== '/') {
+            window.history.replaceState({}, '', '/')
+        }
+        return <LandingPage />
+    }
+
     if (!user) {
         // If we are not logged in, show the Landing Page by default for the tease phase
         if (window.location.pathname === '/login') {

@@ -34,10 +34,50 @@ export const PHASE_CONTENT_NL = {
     },
 
     nutrients: [
-      { name: 'IJzer', description: 'Kan helpen bij het aanvullen van wat je lichaam verliest tijdens menstruatie.' },
-      { name: 'Vitamine C', description: 'Ondersteunt de opname van ijzer in het lichaam.' },
-      { name: 'Magnesium', description: 'Wordt vaak gelinkt aan ontspanning van spieren en het zenuwstelsel.' },
-      { name: 'Omega-3 vetzuren', description: 'Kunnen ondersteunend zijn bij ontstekingsprocessen in het lichaam.' }
+      {
+        name: 'IJzer',
+        icon: 'Fe',
+        description: 'Kan helpen bij het aanvullen van wat je lichaam verliest tijdens de menstruatie.',
+        sources: [
+          { food: 'Spinazie' },
+          { food: 'Linzen' },
+          { food: 'Rood vlees' },
+          { food: 'Pompoenpitten' }
+        ]
+      },
+      {
+        name: 'Vitamine C',
+        icon: 'C',
+        description: 'Ondersteunt de opname van ijzer in het lichaam.',
+        sources: [
+          { food: 'Paprika' },
+          { food: 'Sinaasappel' },
+          { food: 'Broccoli' },
+          { food: 'Aardbeien' }
+        ]
+      },
+      {
+        name: 'Magnesium',
+        icon: 'Mg',
+        description: 'Wordt vaak gelinkt aan ontspanning van spieren en het zenuwstelsel.',
+        sources: [
+          { food: 'Pure chocolade' },
+          { food: 'Amandelen' },
+          { food: 'Avocado' },
+          { food: 'Banaan' }
+        ]
+      },
+      {
+        name: 'Omega-3 vetzuren',
+        icon: 'O3',
+        description: 'Kunnen ondersteunend zijn bij ontstekingsprocessen in het lichaam.',
+        sources: [
+          { food: 'Zalm' },
+          { food: 'Walnoten' },
+          { food: 'Lijnzaad' },
+          { food: 'Makreel' }
+        ]
+      }
     ],
 
     nutrition: {
@@ -85,9 +125,39 @@ export const PHASE_CONTENT_NL = {
     },
 
     nutrients: [
-      { name: 'B-vitamines', description: 'Spelen een rol in energieproductie en herstelprocessen.' },
-      { name: 'Zink', description: 'Ondersteunt celvernieuwing en herstel na inspanning.' },
-      { name: 'Eiwitten', description: 'Belangrijk voor opbouw en herstel van spierweefsel.' }
+      {
+        name: 'B-vitamines',
+        icon: 'B',
+        description: 'Spelen een rol in energieproductie en herstelprocessen in het lichaam.',
+        sources: [
+          { food: 'Eieren' },
+          { food: 'Havermout' },
+          { food: 'Kikkererwten' },
+          { food: 'Zonnebloempitten' }
+        ]
+      },
+      {
+        name: 'Zink',
+        icon: 'Zn',
+        description: 'Ondersteunt celvernieuwing en herstel na inspanning.',
+        sources: [
+          { food: 'Pompoenpitten' },
+          { food: 'Rundvlees' },
+          { food: 'Cashewnoten' },
+          { food: 'Tempeh' }
+        ]
+      },
+      {
+        name: 'Eiwitten',
+        icon: 'P',
+        description: 'Belangrijk voor de opbouw en het herstel van spierweefsel.',
+        sources: [
+          { food: 'Kipfilet' },
+          { food: 'Griekse yoghurt' },
+          { food: 'Eieren' },
+          { food: 'Kwark' }
+        ]
+      }
     ],
 
     nutrition: {
@@ -136,9 +206,39 @@ export const PHASE_CONTENT_NL = {
     },
 
     nutrients: [
-      { name: 'Antioxidanten (vitamine C en E)', description: 'Ondersteunen het lichaam bij hogere activiteit en herstel.' },
-      { name: 'Omega-3 vetzuren', description: 'Kunnen bijdragen aan herstel bij intensievere beweging.' },
-      { name: 'Vezelrijke voeding', description: 'Draagt bij aan een stabiele spijsvertering en balans.' }
+      {
+        name: 'Antioxidanten',
+        icon: 'AO',
+        description: 'Ondersteunen het lichaam bij hogere activiteit en dragen bij aan herstel.',
+        sources: [
+          { food: 'Bosbessen' },
+          { food: 'Paprika' },
+          { food: 'Groene thee' },
+          { food: 'Tomaten' }
+        ]
+      },
+      {
+        name: 'Omega-3 vetzuren',
+        icon: 'O3',
+        description: 'Kunnen bijdragen aan herstel bij intensievere beweging en inspanning.',
+        sources: [
+          { food: 'Zalm' },
+          { food: 'Makreel' },
+          { food: 'Walnoten' },
+          { food: 'Chiazaad' }
+        ]
+      },
+      {
+        name: 'Vezels',
+        icon: 'VZ',
+        description: 'Dragen bij aan een stabiele spijsvertering en een goede balans in je lichaam.',
+        sources: [
+          { food: 'Quinoa' },
+          { food: 'Kikkererwten' },
+          { food: 'Broccoli' },
+          { food: 'Appel' }
+        ]
+      }
     ],
 
     nutrition: {
@@ -185,9 +285,39 @@ export const PHASE_CONTENT_NL = {
     },
 
     nutrients: [
-      { name: 'Magnesium', description: 'Wordt vaak genoemd in relatie tot ontspanning en prikkelgevoeligheid.' },
-      { name: 'Vitamine B6', description: 'Speelt een rol in hormonale processen in het lichaam.' },
-      { name: 'Complexe koolhydraten', description: 'Kunnen helpen bij stabiele energie en verzadiging.' }
+      {
+        name: 'Magnesium',
+        icon: 'Mg',
+        description: 'Wordt vaak genoemd in relatie tot ontspanning en prikkelgevoeligheid.',
+        sources: [
+          { food: 'Pure chocolade' },
+          { food: 'Amandelen' },
+          { food: 'Spinazie' },
+          { food: 'Avocado' }
+        ]
+      },
+      {
+        name: 'Vitamine B6',
+        icon: 'B6',
+        description: 'Speelt een rol in hormonale processen en de aanmaak van serotonine in het lichaam.',
+        sources: [
+          { food: 'Banaan' },
+          { food: 'Kip' },
+          { food: 'Aardappel' },
+          { food: 'Zonnebloempitten' }
+        ]
+      },
+      {
+        name: 'Complexe koolhydraten',
+        icon: 'KH',
+        description: 'Kunnen helpen bij stabiele energie en een langer verzadigd gevoel.',
+        sources: [
+          { food: 'Zoete aardappel' },
+          { food: 'Havermout' },
+          { food: 'Zilvervliesrijst' },
+          { food: 'Linzen' }
+        ]
+      }
     ],
 
     nutrition: {
@@ -235,10 +365,50 @@ export const PHASE_CONTENT_EN = {
     },
 
     nutrients: [
-      { name: 'Iron', description: 'Can help replenish what your body loses during menstruation.' },
-      { name: 'Vitamin C', description: 'Supports the absorption of iron in the body.' },
-      { name: 'Magnesium', description: 'Is often linked to relaxation of muscles and the nervous system.' },
-      { name: 'Omega-3 fatty acids', description: 'Can be supportive in inflammatory processes in the body.' }
+      {
+        name: 'Iron',
+        icon: 'Fe',
+        description: 'Can help replenish what your body loses during menstruation.',
+        sources: [
+          { food: 'Spinach' },
+          { food: 'Lentils' },
+          { food: 'Red meat' },
+          { food: 'Pumpkin seeds' }
+        ]
+      },
+      {
+        name: 'Vitamin C',
+        icon: 'C',
+        description: 'Supports the absorption of iron in the body.',
+        sources: [
+          { food: 'Bell pepper' },
+          { food: 'Orange' },
+          { food: 'Broccoli' },
+          { food: 'Strawberries' }
+        ]
+      },
+      {
+        name: 'Magnesium',
+        icon: 'Mg',
+        description: 'Is often linked to relaxation of muscles and the nervous system.',
+        sources: [
+          { food: 'Dark chocolate' },
+          { food: 'Almonds' },
+          { food: 'Avocado' },
+          { food: 'Banana' }
+        ]
+      },
+      {
+        name: 'Omega-3 fatty acids',
+        icon: 'O3',
+        description: 'Can be supportive in inflammatory processes in the body.',
+        sources: [
+          { food: 'Salmon' },
+          { food: 'Walnuts' },
+          { food: 'Flaxseed' },
+          { food: 'Mackerel' }
+        ]
+      }
     ],
 
     nutrition: {
@@ -286,9 +456,39 @@ export const PHASE_CONTENT_EN = {
     },
 
     nutrients: [
-      { name: 'B-vitamins', description: 'Play a role in energy production and recovery processes.' },
-      { name: 'Zinc', description: 'Supports cell renewal and recovery after exertion.' },
-      { name: 'Proteins', description: 'Important for building and recovery of muscle tissue.' }
+      {
+        name: 'B-vitamins',
+        icon: 'B',
+        description: 'Play a role in energy production and recovery processes in the body.',
+        sources: [
+          { food: 'Eggs' },
+          { food: 'Oatmeal' },
+          { food: 'Chickpeas' },
+          { food: 'Sunflower seeds' }
+        ]
+      },
+      {
+        name: 'Zinc',
+        icon: 'Zn',
+        description: 'Supports cell renewal and recovery after exertion.',
+        sources: [
+          { food: 'Pumpkin seeds' },
+          { food: 'Beef' },
+          { food: 'Cashews' },
+          { food: 'Tempeh' }
+        ]
+      },
+      {
+        name: 'Proteins',
+        icon: 'P',
+        description: 'Important for the building and recovery of muscle tissue.',
+        sources: [
+          { food: 'Chicken breast' },
+          { food: 'Greek yogurt' },
+          { food: 'Eggs' },
+          { food: 'Cottage cheese' }
+        ]
+      }
     ],
 
     nutrition: {
@@ -337,9 +537,39 @@ export const PHASE_CONTENT_EN = {
     },
 
     nutrients: [
-      { name: 'Antioxidants (vitamin C and E)', description: 'Support the body during higher activity and recovery.' },
-      { name: 'Omega-3 fatty acids', description: 'Can contribute to recovery with more intensive movement.' },
-      { name: 'Fiber-rich food', description: 'Contributes to a stable digestion and balance.' }
+      {
+        name: 'Antioxidants',
+        icon: 'AO',
+        description: 'Support the body during higher activity and contribute to recovery.',
+        sources: [
+          { food: 'Blueberries' },
+          { food: 'Bell pepper' },
+          { food: 'Green tea' },
+          { food: 'Tomatoes' }
+        ]
+      },
+      {
+        name: 'Omega-3 fatty acids',
+        icon: 'O3',
+        description: 'Can contribute to recovery with more intensive movement and exertion.',
+        sources: [
+          { food: 'Salmon' },
+          { food: 'Mackerel' },
+          { food: 'Walnuts' },
+          { food: 'Chia seeds' }
+        ]
+      },
+      {
+        name: 'Fiber',
+        icon: 'VZ',
+        description: 'Contributes to a stable digestion and a good balance in your body.',
+        sources: [
+          { food: 'Quinoa' },
+          { food: 'Chickpeas' },
+          { food: 'Broccoli' },
+          { food: 'Apple' }
+        ]
+      }
     ],
 
     nutrition: {
@@ -386,9 +616,39 @@ export const PHASE_CONTENT_EN = {
     },
 
     nutrients: [
-      { name: 'Magnesium', description: 'Is often mentioned in relation to relaxation and stimulus sensitivity.' },
-      { name: 'Vitamin B6', description: 'Plays a role in hormonal processes in the body.' },
-      { name: 'Complex carbohydrates', description: 'Can help with stable energy and satiety.' }
+      {
+        name: 'Magnesium',
+        icon: 'Mg',
+        description: 'Is often mentioned in relation to relaxation and stimulus sensitivity.',
+        sources: [
+          { food: 'Dark chocolate' },
+          { food: 'Almonds' },
+          { food: 'Spinach' },
+          { food: 'Avocado' }
+        ]
+      },
+      {
+        name: 'Vitamin B6',
+        icon: 'B6',
+        description: 'Plays a role in hormonal processes and the production of serotonin in the body.',
+        sources: [
+          { food: 'Banana' },
+          { food: 'Chicken' },
+          { food: 'Potato' },
+          { food: 'Sunflower seeds' }
+        ]
+      },
+      {
+        name: 'Complex carbohydrates',
+        icon: 'KH',
+        description: 'Can help with stable energy and a longer feeling of satiety.',
+        sources: [
+          { food: 'Sweet potato' },
+          { food: 'Oatmeal' },
+          { food: 'Brown rice' },
+          { food: 'Lentils' }
+        ]
+      }
     ],
 
     nutrition: {

@@ -1,4 +1,5 @@
 import { PHASES } from '../logic/cycle'
+import { HYPED_RECIPES_NL, HYPED_RECIPES_EN } from './hypedRecipes'
 
 export const RECIPES_NL = {
     [PHASES.MENSTRUAL]: {
@@ -41,11 +42,11 @@ export const RECIPES_NL = {
                     suitability: ['lose_fat', 'maintain', 'recomp']
                 },
                 {
-                    title: 'Quinoa salade met geroosterde biet',
-                    emoji: '🥗',
-                    explanation: 'Aardse smaken die je voeden zonder zwaar op de maag te liggen.',
-                    ingredients: ['75g quinoa (gekookt)', '2 gekookte bieten', 'Handje walnoten', 'Beetje feta', 'Dressing van olijfolie/citroen'],
-                    instructions: ['Snijd de bieten in blokjes.', 'Meng met de quinoa and walnoten.', 'Brokkel de feta eroverheen.', 'Besprenkel met dressing.'],
+                    title: 'Warme quinoa met geroosterde biet en walnoten',
+                    emoji: '🍲',
+                    explanation: 'Aardse, verwarmende smaken die je voeden zonder zwaar op de maag te liggen. Biet levert folaat en walnoten leveren omega-3.',
+                    ingredients: ['75g quinoa (ongekookt)', '2 bieten', 'Handje walnoten', 'Beetje feta', '1 el olijfolie', 'Snufje komijn'],
+                    instructions: ['Rooster de bieten in blokjes 25 min in de oven op 200C.', 'Kook ondertussen de quinoa.', 'Meng warm met walnoten en komijn.', 'Brokkel de feta eroverheen en serveer direct.'],
                     macros: { p: 15, c: 45, f: 20, kcal: 420, fiber: 6.2 },
                     suitability: ['maintain', 'gain_muscle']
                 }
@@ -408,11 +409,11 @@ export const RECIPES_EN = {
                     suitability: ['lose_fat', 'maintain', 'recomp']
                 },
                 {
-                    title: 'Quinoa salad with roasted beet',
-                    emoji: '🥗',
-                    explanation: 'Earthy flavors that nourish you without being heavy on the stomach.',
-                    ingredients: ['75g quinoa (cooked)', '2 cooked beets', 'Handful walnuts', 'Bit of feta', 'Dressing of olive oil/lemon'],
-                    instructions: ['Cut the beets into cubes.', 'Mix with the quinoa and walnuts.', 'Crumble the feta over it.', 'Drizzle with dressing.'],
+                    title: 'Warm quinoa with roasted beet and walnuts',
+                    emoji: '🍲',
+                    explanation: 'Earthy, warming flavors that nourish you without being heavy on the stomach. Beet provides folate and walnuts provide omega-3.',
+                    ingredients: ['75g quinoa (uncooked)', '2 beets', 'Handful walnuts', 'Bit of feta', '1 tbsp olive oil', 'Pinch of cumin'],
+                    instructions: ['Roast the beets in cubes for 25 min in the oven at 200C.', 'Cook the quinoa in the meantime.', 'Mix warm with walnuts and cumin.', 'Crumble the feta over it and serve immediately.'],
                     macros: { p: 15, c: 45, f: 20, kcal: 420, fiber: 6.2 },
                     suitability: ['maintain', 'gain_muscle']
                 }
@@ -731,6 +732,22 @@ export const RECIPES_EN = {
                 }
             ]
         }
+    }
+}
+
+// Voeg de hyped recipes dynamisch toe als 3e optie per maaltijd
+for (const phase of Object.values(PHASES)) {
+    if (RECIPES_NL[phase] && HYPED_RECIPES_NL[phase]) {
+        RECIPES_NL[phase].meals.ontbijt.push(HYPED_RECIPES_NL[phase].ontbijt)
+        RECIPES_NL[phase].meals.lunch.push(HYPED_RECIPES_NL[phase].lunch)
+        RECIPES_NL[phase].meals.diner.push(HYPED_RECIPES_NL[phase].diner)
+        RECIPES_NL[phase].meals.snack.push(HYPED_RECIPES_NL[phase].snack)
+    }
+    if (RECIPES_EN[phase] && HYPED_RECIPES_EN[phase]) {
+        RECIPES_EN[phase].meals.ontbijt.push(HYPED_RECIPES_EN[phase].ontbijt)
+        RECIPES_EN[phase].meals.lunch.push(HYPED_RECIPES_EN[phase].lunch)
+        RECIPES_EN[phase].meals.diner.push(HYPED_RECIPES_EN[phase].diner)
+        RECIPES_EN[phase].meals.snack.push(HYPED_RECIPES_EN[phase].snack)
     }
 }
 

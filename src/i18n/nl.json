@@ -463,7 +463,12 @@
     "weight": "Gewicht",
     "reps": "Reps",
     "sets": "Sets",
-    "best_exercises": "Beste Basisoefeningen"
+    "best_exercises": "Beste Basisoefeningen",
+    "phase_highlight_label": "Jouw fase",
+    "phase_highlight_intensity": "Intensiteit",
+    "phase_highlight_types": "Aanbevolen beweging",
+    "phase_highlight_why_toggle": "Waarom?",
+    "phase_highlight_why_close": "Sluit"
   },
   "recipes": {
     "title": "Recepten",
@@ -474,7 +479,7 @@
     "instructions": "Bereiding",
     "perfect_for_goal": "Perfect voor jouw doel",
     "add_to_daily_goal": "Voeg toe aan dagdoel",
-    "added_success": "✓ Toegevoegd!",
+    "added_success": "Toegevoegd!",
     "confirm_title": "Recept toevoegen",
     "confirm_desc": "Wil je \"{title}\" toevoegen aan je dagdoel van vandaag?",
     "cancel": "Annuleer",
@@ -482,7 +487,9 @@
     "protein": "Eiwit",
     "carbs": "Koolh",
     "fat": "Vet",
-    "fiber": "Vezel"
+    "fiber": "Vezel",
+    "nutrients_title": "Wat heeft je lichaam nu nodig?",
+    "nutrients_sources_label": "Te vinden in"
   },
   "nav": {
     "today": "Vandaag",

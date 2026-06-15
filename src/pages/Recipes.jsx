@@ -26,8 +26,6 @@ export default function Recipes() {
 
     const handleLogRecipe = async (recipe) => {
         try {
-            // logFood signature: logFood(foodId, grams, configData)
-            // When grams is null and 3rd arg is an object, it uses the configurable-food path
             await logFood(`recipe-${recipe.title}`, null, {
                 foodName: recipe.title,
                 configId: `recipe-${recipe.title}`,
@@ -70,7 +68,7 @@ export default function Recipes() {
                             marginBottom: '1rem'
                         }}
                     >
-                        ← {t('fitness.back_to_overview')}
+                        {'\u2190'} {t('fitness.back_to_overview')}
                     </button>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
                         <span style={{ fontSize: '2rem' }}>{selectedRecipe.emoji}</span>
@@ -91,7 +89,7 @@ export default function Recipes() {
                         alignItems: 'center',
                         gap: '0.5rem'
                     }}>
-                        ⭐ {t('recipes.perfect_for_goal')}
+                        {t('recipes.perfect_for_goal')}
                     </div>
                 )}
 
@@ -159,7 +157,6 @@ export default function Recipes() {
                     {t('recipes.add_to_daily_goal')} ({selectedRecipe.macros.kcal} kcal)
                 </button>
 
-                {/* MODAL CONFIRM */}
                 {isConfirming && (
                     <div style={{
                         position: 'fixed',
@@ -174,7 +171,7 @@ export default function Recipes() {
                         <div className="card" style={{ width: '100%', maxWidth: '400px', margin: 0, textAlign: 'center' }}>
                             {addedSuccess ? (
                                 <div style={{ padding: '2rem 0' }}>
-                                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
+                                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>&#10003;</div>
                                     <h2 style={{ margin: 0 }}>{t('recipes.added_success')}</h2>
                                 </div>
                             ) : (
@@ -213,13 +210,21 @@ export default function Recipes() {
         )
     }
 
+    const phaseColorMap = {
+        menstrual:  { bg: 'rgba(168,100,115,0.08)', border: 'rgba(168,100,115,0.22)', accent: '#7a3a47', dot: '#a86473' },
+        follicular: { bg: 'rgba(91,196,212,0.08)',  border: 'rgba(91,196,212,0.22)',  accent: '#1a7a8a', dot: '#5bc4d4' },
+        ovulatory:  { bg: 'rgba(245,168,156,0.10)', border: 'rgba(245,168,156,0.25)', accent: '#9a4a3a', dot: '#f5a89c' },
+        luteal:     { bg: 'rgba(163,184,153,0.10)', border: 'rgba(163,184,153,0.25)', accent: '#4a6a42', dot: '#a3b899' },
+    }
+    const phaseColors = phaseColorMap[currentPhase] || phaseColorMap.luteal
+    const nutrients = phaseInfo?.nutrients || []
+
     return (
         <div className="container" style={{ paddingBottom: '90px' }}>
             <header style={{ marginBottom: '1.5rem' }}>
                 <h1 style={{ fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>{t('recipes.title')}</h1>
             </header>
 
-            {/* PHASE HIGHLIGHT CARD */}
             <div style={{
                 background: 'var(--color-surface)',
                 borderRadius: 'var(--radius-md)',
@@ -248,13 +253,113 @@ export default function Recipes() {
                             fontSize: '0.75rem',
                             color: 'var(--color-text-muted)'
                         }}>
-                            • {point}
+                            {point}
                         </span>
                     ))}
                 </div>
             </div>
 
-            {/* RECIPE LIST BY CATEGORY */}
+            {nutrients.length > 0 && (
+                <div style={{ marginBottom: '1.75rem' }}>
+                    <h2 style={{
+                        fontSize: '0.75rem',
+                        fontWeight: '700',
+                        color: 'var(--color-text-muted)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.6px',
+                        margin: '0 0 0.75rem 0'
+                    }}>
+                        {t('recipes.nutrients_title')}
+                    </h2>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                        {nutrients.map((nutrient, i) => (
+                            <div
+                                key={i}
+                                style={{
+                                    background: phaseColors.bg,
+                                    border: `1px solid ${phaseColors.border}`,
+                                    borderRadius: 'var(--radius-md)',
+                                    padding: '1rem 1.1rem',
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: '0.9rem'
+                                }}
+                            >
+                                <div style={{
+                                    minWidth: '36px',
+                                    height: '36px',
+                                    borderRadius: '8px',
+                                    background: phaseColors.icon,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '0.58rem',
+                                    fontWeight: '800',
+                                    color: phaseColors.accent,
+                                    letterSpacing: '0.3px',
+                                    textTransform: 'uppercase',
+                                    flexShrink: 0,
+                                    fontFamily: 'monospace'
+                                }}>
+                                    {nutrient.icon}
+                                </div>
+
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{
+                                        fontWeight: '700',
+                                        fontSize: '0.9rem',
+                                        color: 'var(--color-text)',
+                                        marginBottom: '0.2rem'
+                                    }}>
+                                        {nutrient.name}
+                                    </div>
+                                    <div style={{
+                                        fontSize: '0.8rem',
+                                        color: 'var(--color-text-muted)',
+                                        lineHeight: 1.45,
+                                        marginBottom: nutrient.sources?.length ? '0.6rem' : 0
+                                    }}>
+                                        {nutrient.description}
+                                    </div>
+
+                                    {nutrient.sources?.length > 0 && (
+                                        <div>
+                                            <span style={{
+                                                fontSize: '0.68rem',
+                                                fontWeight: '700',
+                                                color: phaseColors.accent,
+                                                textTransform: 'uppercase',
+                                                letterSpacing: '0.5px',
+                                                display: 'block',
+                                                marginBottom: '0.35rem'
+                                            }}>
+                                                {t('recipes.nutrients_sources_label')}
+                                            </span>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                                                {nutrient.sources.map((src, j) => (
+                                                    <span key={j} style={{
+                                                        background: 'var(--color-surface)',
+                                                        border: `1px solid ${phaseColors.border}`,
+                                                        borderRadius: '100px',
+                                                        padding: '0.2rem 0.55rem',
+                                                        fontSize: '0.75rem',
+                                                        color: 'var(--color-text)',
+                                                        fontWeight: '500'
+                                                    }}>
+                                                        {src.food}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {categories.map(cat => {
                     const isExpanded = expandedCategory === cat.id
@@ -304,7 +409,7 @@ export default function Recipes() {
                                                 <div style={{ fontWeight: '500', fontSize: '0.95rem', color: 'var(--color-text)' }}>{meal.title}</div>
                                                 <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{meal.macros.kcal} kcal</div>
                                             </div>
-                                            <div style={{ color: 'var(--color-primary)', fontSize: '1.2rem' }}>›</div>
+                                            <div style={{ color: 'var(--color-primary)', fontSize: '1.2rem' }}>&#8250;</div>
                                         </div>
                                     ))}
                                 </div>

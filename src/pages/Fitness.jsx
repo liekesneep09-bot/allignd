@@ -80,11 +80,138 @@ export default function Fitness() {
 
     // --- VIEW 1: OVERVIEW ---
     if (!selectedBodyPart) {
+
+        // Intensiteit naar visuele dots (1-5)
+        const intensityMap = {
+            'Laag': 1, 'Low': 1,
+            'Laag - Gemiddeld': 2, 'Low - Medium': 2,
+            'Gemiddeld': 3, 'Medium': 3,
+            'Gemiddeld - Hoog': 4, 'Medium - High': 4,
+            'Hoog': 5, 'High': 5,
+            'Maximaal (PR Poging)': 5, 'Maximum (PR Attempt)': 5,
+            'Op gevoel': 3, 'By feel': 3
+        }
+        const intensityDots = intensityMap[phaseContent.training.intensity] || 3
+
+        // Fase kleur mapping
+        const phaseColorMap = {
+            menstrual:  { bg: 'rgba(168,100,115,0.08)', border: 'rgba(168,100,115,0.22)', accent: '#7a3a47', dot: '#a86473' },
+            follicular: { bg: 'rgba(91,196,212,0.08)',  border: 'rgba(91,196,212,0.22)',  accent: '#1a7a8a', dot: '#5bc4d4' },
+            ovulatory:  { bg: 'rgba(245,168,156,0.10)', border: 'rgba(245,168,156,0.25)', accent: '#9a4a3a', dot: '#f5a89c' },
+            luteal:     { bg: 'rgba(163,184,153,0.10)', border: 'rgba(163,184,153,0.25)', accent: '#4a6a42', dot: '#a3b899' },
+        }
+        const phaseColors = phaseColorMap[phaseKey] || phaseColorMap.luteal
+
         return (
             <div className="container" style={{ paddingBottom: '90px' }}>
                 <header style={{ marginBottom: '1.5rem' }}>
                     <h1 style={{ fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>{t('fitness.title')}</h1>
                 </header>
+
+                {/* FASE HIGHLIGHT HERO CARD */}
+                <div style={{
+                    background: phaseColors.bg,
+                    border: `1px solid ${phaseColors.border}`,
+                    borderRadius: 'var(--radius-md)',
+                    padding: '1.25rem',
+                    marginBottom: '1.5rem'
+                }}>
+                    {/* Header rij */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                        <span style={{
+                            fontSize: '0.7rem',
+                            fontWeight: '700',
+                            color: phaseColors.accent,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.6px'
+                        }}>
+                            {t('fitness.phase_highlight_label')}
+                        </span>
+                        <span style={{
+                            fontSize: '0.75rem',
+                            fontWeight: '600',
+                            color: phaseColors.accent,
+                            background: `${phaseColors.border}`,
+                            padding: '0.2rem 0.6rem',
+                            borderRadius: '100px'
+                        }}>
+                            {phaseName}
+                        </span>
+                    </div>
+
+                    {/* Beschrijving */}
+                    <p style={{
+                        margin: '0 0 1rem 0',
+                        fontSize: '0.95rem',
+                        color: 'var(--color-text)',
+                        lineHeight: 1.5,
+                        fontWeight: '500'
+                    }}>
+                        {phaseContent.training.description}
+                    </p>
+
+                    {/* Aanbevolen beweging chips */}
+                    <div style={{ marginBottom: '1rem' }}>
+                        <span style={{
+                            fontSize: '0.7rem',
+                            fontWeight: '700',
+                            color: 'var(--color-text-muted)',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            display: 'block',
+                            marginBottom: '0.4rem'
+                        }}>
+                            {t('fitness.phase_highlight_types')}
+                        </span>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                            {phaseContent.training.types.map((type, i) => (
+                                <span key={i} style={{
+                                    background: 'var(--color-surface)',
+                                    border: `1px solid ${phaseColors.border}`,
+                                    borderRadius: '100px',
+                                    padding: '0.3rem 0.7rem',
+                                    fontSize: '0.78rem',
+                                    color: 'var(--color-text)',
+                                    fontWeight: '600'
+                                }}>
+                                    {type}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Intensiteitsindicator */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{
+                            fontSize: '0.7rem',
+                            fontWeight: '700',
+                            color: 'var(--color-text-muted)',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            flexShrink: 0
+                        }}>
+                            {t('fitness.phase_highlight_intensity')}
+                        </span>
+                        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                            {[1,2,3,4,5].map(n => (
+                                <div key={n} style={{
+                                    width: '10px',
+                                    height: '10px',
+                                    borderRadius: '50%',
+                                    background: n <= intensityDots ? phaseColors.dot : 'var(--color-border)',
+                                    transition: 'background 0.2s'
+                                }} />
+                            ))}
+                        </div>
+                        <span style={{
+                            fontSize: '0.78rem',
+                            fontWeight: '600',
+                            color: phaseColors.accent
+                        }}>
+                            {phaseContent.training.intensity}
+                        </span>
+                    </div>
+                </div>
 
                 <HabitsCard date={todayStr} />
                 <WeightTracker date={todayStr} />
