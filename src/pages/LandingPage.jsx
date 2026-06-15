@@ -159,6 +159,25 @@ export default function LandingPage({ onEnterApp }) {
             borderRadius: '30px',
             marginLeft: '20px'
           }}>{t('landing.cta_first')}</a>
+
+          {import.meta.env.DEV && (
+              <button 
+                onClick={onEnterApp} 
+                style={{
+                  background: 'var(--color-primary)',
+                  color: '#FFF',
+                  border: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '30px',
+                  marginLeft: '10px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  fontSize: '0.85rem'
+                }}
+              >
+                LOGIN (DEV)
+              </button>
+          )}
         </nav>
 
         <button className="lp-mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
@@ -180,6 +199,25 @@ export default function LandingPage({ onEnterApp }) {
                 style={{ opacity: language === 'en' ? 1 : 0.4, fontWeight: language === 'en' ? 700 : 300 }}
               >EN</button>
             </div>
+            
+            {import.meta.env.DEV && (
+              <button 
+                onClick={onEnterApp} 
+                style={{
+                  background: 'var(--color-primary)',
+                  color: '#FFF',
+                  border: 'none',
+                  padding: '12px',
+                  borderRadius: '12px',
+                  marginTop: '1rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  width: '100%'
+                }}
+              >
+                LOGIN (DEV)
+              </button>
+            )}
           </div>
         )}
       </header>
