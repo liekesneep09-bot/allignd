@@ -20,6 +20,7 @@ import { supabaseConfigError } from './utils/supabaseClient'
 import AuthCallback from './components/AuthCallback'
 import LandingPage from './pages/LandingPage'
 import { LanguageProvider, useLanguage } from './context/LanguageContext'
+import BetaUnlockScreen from './components/BetaUnlockScreen'
 
 import { IconHome, IconActivity, IconRecipe, IconAccount, IconCommunity } from './components/Icons'
 import logo from './assets/logo-primary.png'
@@ -284,9 +285,12 @@ function AuthenticatedApp() {
     const hasAdminOverride = localStorage.getItem('admin_override') === 'true'
 
     // VOOR-LANCERING BEVEILIGING:
-    // Blokkeer toegang tot de app (en de login) op de live server. 
-    // Alleen op localhost (DEV) óf via de geheime toegangscode kunnen we de app in.
-    if (!import.meta.env.DEV && !hasAdminOverride) {
+    // Blokkeer toegang tot de app (en de login). Alleen via het wachtwoord kunnen we de app in.
+    if (!hasAdminOverride) {
+        if (window.location.pathname === '/unlock') {
+            return <BetaUnlockScreen />
+        }
+        
         if (window.location.pathname !== '/') {
             window.history.replaceState({}, '', '/')
         }
