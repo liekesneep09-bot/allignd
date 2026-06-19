@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'prompt',
-      includeAssets: ['favicon-v3.png', 'apple-touch-icon-v5.png'],
+      includeAssets: ['favicon-v4.png', 'apple-touch-icon-v6.png'],
       manifest: {
         id: '/',
         start_url: '/',
@@ -20,13 +20,13 @@ export default defineConfig({
         orientation: 'portrait',
         icons: [
           {
-            src: 'logo-192-v3.png',
+            src: 'logo-192-v4.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: 'logo-512-v3.png',
+            src: 'logo-512-v4.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any'
