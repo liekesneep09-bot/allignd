@@ -3,6 +3,7 @@ import { useUser } from '../context/UserContext'
 import { getPhaseContent } from '../data/phases'
 import { useLanguage } from '../context/LanguageContext'
 import { getLocalDateStr } from '../utils/date'
+import { IconActivity, IconNutrition } from '../components/Icons'
 
 export default function PhaseGuide() {
     const { user, currentPhase, currentDay } = useUser()
@@ -147,21 +148,140 @@ export default function PhaseGuide() {
                 </div>
             </div>
 
-            {/* 2. PHASE OVERVIEW */}
-            <div className="card" style={{ borderLeft: `4px solid var(${phase.colorVar})` }}>
+            {/* 2. PHASE OVERVIEW HEADER */}
+            <div style={{ marginBottom: '1.25rem', padding: '0 0.25rem' }}>
                 <div style={{
                     fontSize: '0.85rem',
                     textTransform: 'uppercase',
                     letterSpacing: '1px',
-                    color: 'var(--color-text-muted)',
-                    marginBottom: '0.5rem'
+                    color: `var(${phase.colorVar})`,
+                    fontWeight: '700',
+                    marginBottom: '0.25rem'
                 }}>
-                    {phase.name} · {t('common.day')} {currentDay}
+                    {t('common.day')} {currentDay}
                 </div>
-                <p style={{ fontSize: '1.1rem', lineHeight: '1.6', color: 'var(--color-text)', margin: 0 }}>
-                    {phase.overview}
-                </p>
+                <h2 style={{ fontSize: '1.5rem', margin: 0, fontWeight: '700', color: 'var(--color-text)' }}>
+                    {phase.name}
+                </h2>
             </div>
+
+            {/* SECTION 1: THE SCIENCE */}
+            {(phase.explanation || phase.bodySignal) && (
+                <div className="card" style={{
+                    marginBottom: '1rem',
+                    background: `linear-gradient(135deg, var(--color-surface) 0%, rgba(255,255,255,0) 100%)`,
+                    borderLeft: `4px solid var(${phase.colorVar})`
+                }}>
+                    <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-muted)', margin: '0 0 0.5rem 0' }}>
+                        {t('guide.science_title')}
+                    </h3>
+                    {phase.explanation && (
+                        <p style={{ fontSize: '0.95rem', lineHeight: '1.5', margin: '0 0 0.5rem 0', color: 'var(--color-text)' }}>
+                            {phase.explanation}
+                        </p>
+                    )}
+                    {phase.bodySignal && (
+                        <p style={{ fontSize: '0.85rem', lineHeight: '1.5', margin: 0, color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
+                            {phase.bodySignal}
+                        </p>
+                    )}
+                </div>
+            )}
+
+            {/* SECTION 2: WHAT YOU MIGHT NOTICE */}
+            {phase.bullets && phase.bullets.length > 0 && (
+                <div className="card" style={{ marginBottom: '1rem' }}>
+                    <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-muted)', margin: '0 0 0.75rem 0' }}>
+                        {t('guide.symptoms_title')}
+                    </h3>
+                    {phase.validation && (
+                        <p style={{ fontSize: '0.9rem', color: 'var(--color-text)', marginBottom: '1rem', fontWeight: '500' }}>
+                            {phase.validation}
+                        </p>
+                    )}
+                    <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        {phase.bullets.map((bullet, idx) => (
+                            <li key={idx} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                                <div style={{ color: `var(${phase.colorVar})`, fontWeight: '700', marginTop: '-2px' }}>✓</div>
+                                <div style={{ fontSize: '0.85rem', color: 'var(--color-text)', lineHeight: '1.4' }}>{bullet}</div>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
+            {/* SECTION 3: SUPPORT */}
+            {(phase.nutrition || phase.training) && (
+                <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
+                    {phase.nutrition && (
+                        <div className="card" style={{ flex: 1, margin: 0, padding: '1rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: 'var(--color-primary)' }}>
+                                <IconNutrition size={16} />
+                                <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '600' }}>{t('guide.food_focus')}</span>
+                            </div>
+                            <div style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--color-text)', marginBottom: '0.25rem' }}>
+                                {phase.nutrition.focus}
+                            </div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                                {phase.nutrition.purpose}
+                            </div>
+                        </div>
+                    )}
+                    {phase.training && (
+                        <div className="card" style={{ flex: 1, margin: 0, padding: '1rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: 'var(--color-primary)' }}>
+                                <IconActivity size={16} />
+                                <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '600' }}>{t('guide.movement_focus')}</span>
+                            </div>
+                            <div style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--color-text)', marginBottom: '0.25rem' }}>
+                                {phase.training.goal}
+                            </div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                                {phase.training.focus}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* SECTION 4: KEY NUTRIENTS */}
+            {phase.nutrients && phase.nutrients.length > 0 && (
+                <div className="card" style={{ marginBottom: '1.5rem' }}>
+                    <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-muted)', margin: '0 0 1rem 0' }}>
+                        {t('guide.nutrients_title')}
+                    </h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {phase.nutrients.map((nutrient, idx) => (
+                            <div key={idx} style={{ display: 'flex', gap: '1rem' }}>
+                                <div style={{
+                                    width: '40px', height: '40px',
+                                    borderRadius: '12px',
+                                    background: `rgba(0,0,0,0.04)`,
+                                    border: `1px solid rgba(0,0,0,0.08)`,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    fontSize: '0.85rem', fontWeight: '700', color: `var(${phase.colorVar})`,
+                                    flexShrink: 0
+                                }}>
+                                    {nutrient.icon}
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-text)', marginBottom: '0.15rem' }}>
+                                        {nutrient.name}
+                                    </div>
+                                    <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', lineHeight: '1.4', marginBottom: '0.4rem' }}>
+                                        {nutrient.description}
+                                    </div>
+                                    {nutrient.sources && nutrient.sources.length > 0 && (
+                                        <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
+                                            <span style={{ fontWeight: '600' }}>{t('guide.nutrient_sources')}</span> {nutrient.sources.map(s => s.food).join(', ')}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

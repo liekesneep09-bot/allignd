@@ -217,14 +217,24 @@
     "fiber_recommended": "recommended",
     "how_do_you_feel": "How do you feel today?",
     "logged_today": "Logged today",
-    "show_items": "Show items",
-    "hide_items": "Hide items",
+    "show_items": "Show",
+    "hide_items": "Hide",
+    "other": "Other",
     "nutrition_title": "Nutrition Tip",
     "period_logged": "✓ Period logged",
     "log_period": "Log Period",
     "period_stopped": "✓ Period stopped",
     "when_last_period": "When did your last period start?",
     "choose_first_day": "Choose the first day of your last period."
+  },
+  "guide": {
+    "science_title": "What's happening in your body?",
+    "symptoms_title": "What you might notice",
+    "support_title": "How to support your body",
+    "food_focus": "Nutrition",
+    "movement_focus": "Movement",
+    "nutrients_title": "Key Nutrients",
+    "nutrient_sources": "Found in e.g."
   },
   "profile": {
     "title": "Profile",
@@ -405,6 +415,7 @@
     "gram": "Gram",
     "amount_label": "Amount",
     "add_to_today": "Add to today",
+    "meal_moment": "Meal moment",
     "my_meals_title": "My meals",
     "loading": "Loading...",
     "no_meals_yet": "No meals yet",
@@ -496,7 +507,8 @@
     "community": "Community",
     "fitness": "Fitness",
     "recipes": "Recipes",
-    "profile": "Profile"
+    "profile": "Profile",
+    "guide": "Guide"
   },
   "community": {
     "title": "Community",
@@ -642,6 +654,26 @@
     "success_removed": "Removed",
     "remove_period": "Remove period",
     "add_period": "+ Log period"
+  },
+  "progress": {
+    "title": "My Progress",
+    "weekly_avg": "Weekly average",
+    "based_on_days": "Based on {n} days with logs",
+    "of_goal": "of your goal",
+    "weight_trend": "Weight trend",
+    "target": "Target:",
+    "symptom_title": "Symptoms by phase",
+    "this_cycle": "This cycle",
+    "prev_cycle": "Previous cycle — same phase",
+    "resolved": "Resolved",
+    "recurring": "Recurring",
+    "new_this_cycle": "New this cycle",
+    "no_food_logs": "Log your nutrition to see your weekly average.",
+    "no_symptoms": "Log your symptoms daily to see comparisons.",
+    "no_prev_symptoms_in_phase": "No symptoms logged in this phase last cycle.",
+    "more_cycles_needed": "Log more cycles to see a comparison.",
+    "current_phase": "Current phase",
+    "view_progress": "View your progress"
   },
   "weight": {
     "title": "Weight",

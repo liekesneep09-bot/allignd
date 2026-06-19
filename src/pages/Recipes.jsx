@@ -26,11 +26,18 @@ export default function Recipes() {
 
     const handleLogRecipe = async (recipe) => {
         try {
+            const categoryMap = {
+                ontbijt: 'breakfast',
+                lunch: 'lunch',
+                diner: 'dinner',
+                snack: 'snack'
+            }
             await logFood(`recipe-${recipe.title}`, null, {
                 foodName: recipe.title,
                 configId: `recipe-${recipe.title}`,
                 quantity: 1,
                 selectedVariants: null,
+                meal_category: categoryMap[expandedCategory] || null,
                 calculatedMacros: {
                     kcal: recipe.macros.kcal,
                     protein: recipe.macros.p,

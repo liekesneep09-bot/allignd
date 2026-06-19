@@ -9,6 +9,7 @@ import Recipes from './pages/Recipes'
 import Fitness from './pages/Fitness'
 import Profile from './pages/Profile'
 import Community from './pages/Community'
+import Progress from './pages/Progress'
 import Login from './pages/Login'
 import InstallPrompt from './components/InstallPrompt'
 import OfflineBanner from './components/OfflineBanner'
@@ -22,7 +23,7 @@ import LandingPage from './pages/LandingPage'
 import { LanguageProvider, useLanguage } from './context/LanguageContext'
 import BetaUnlockScreen from './components/BetaUnlockScreen'
 
-import { IconHome, IconActivity, IconRecipe, IconAccount, IconCommunity } from './components/Icons'
+import { IconHome, IconActivity, IconRecipe, IconAccount, IconCommunity, IconGuide } from './components/Icons'
 import logo from './assets/logo-primary.png'
 
 function SplashScreen() {
@@ -148,8 +149,24 @@ function MainLayout() {
                     }}
                 />
 
-                {/* Right Spacer for centering */}
-                <div style={{ width: '32px' }}></div>
+                {/* Profile Button top right */}
+                <button
+                    onClick={() => setCurrentView('profile')}
+                    style={{
+                        width: '32px',
+                        height: '32px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: currentView === 'profile' ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                        padding: 0
+                    }}
+                >
+                    <IconAccount size={24} />
+                </button>
 
             </header>
 
@@ -164,6 +181,7 @@ function MainLayout() {
                 {currentView === 'recipes' && <Recipes />}
                 {currentView === 'guide' && <PhaseGuide />}
                 {currentView === 'profile' && <Profile />}
+                {currentView === 'progress' && <Progress onClose={() => setCurrentView('today')} />}
             </main>
 
             <nav style={{
@@ -254,21 +272,21 @@ function MainLayout() {
                 </button>
 
                 <button
-                    onClick={() => setCurrentView('profile')}
+                    onClick={() => setCurrentView('guide')}
                     style={{
-                        color: currentView === 'profile' ? phaseStyle.text : 'var(--color-text-muted)',
+                        color: currentView === 'guide' ? phaseStyle.text : 'var(--color-text-muted)',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
                         fontSize: '0.7rem',
-                        fontWeight: currentView === 'profile' ? '600' : '400',
+                        fontWeight: currentView === 'guide' ? '600' : '400',
                         background: 'none',
                         gap: '4px',
                         width: '64px'
                     }}
                 >
-                    <IconAccount size={24} />
-                    {t('nav.profile')}
+                    <IconGuide size={24} />
+                    {t('nav.guide')}
                 </button>
             </nav>
         </>

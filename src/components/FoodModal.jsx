@@ -19,6 +19,7 @@ export default function FoodModal({ onClose, onAdd }) {
     const [selectedFood, setSelectedFood] = useState(null)
     const [grams, setGrams] = useState('')
     const [unitType, setUnitType] = useState('g') // 'g' | 'unit'
+    const [mealCategory, setMealCategory] = useState(null) // null | 'breakfast' | 'lunch' | 'dinner' | 'snack'
 
     // Form state for new product
     const [newFood, setNewFood] = useState({
@@ -126,6 +127,7 @@ export default function FoodModal({ onClose, onAdd }) {
                 configId: 'meal-' + meal.id,
                 quantity: 1,
                 selectedVariants: null,
+                meal_category: meal.category || null,
                 calculatedMacros: {
                     kcal: meal.totals?.kcal || 0,
                     protein: meal.totals?.protein || 0,
@@ -241,7 +243,7 @@ export default function FoodModal({ onClose, onAdd }) {
         if (!selectedFood || !grams) return
         const parsedValue = parseFloat(String(grams).replace(',', '.')) || 0
         if (parsedValue <= 0) return
-        onAdd(selectedFood.id, parsedValue, null, { unitType })
+        onAdd(selectedFood.id, parsedValue, null, { unitType, meal_category: mealCategory })
         onClose()
     }
 
@@ -608,7 +610,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                     background: 'var(--color-bg)',
                                     padding: '1rem',
                                     borderRadius: '12px',
-                                    marginBottom: '1.5rem',
+                                    marginBottom: '1.25rem',
                                     display: 'flex',
                                     justifyContent: 'space-between'
                                 }}>
@@ -617,6 +619,53 @@ export default function FoodModal({ onClose, onAdd }) {
                                     <PreviewStat label={t('food_modal.carbs_label')} value={preview.c + 'g'} />
                                     <PreviewStat label={t('food_modal.fat_label')} value={preview.f + 'g'} />
                                     <PreviewStat label={t('food_modal.fiber_label')} value={preview.fiber + 'g'} />
+                                </div>
+
+                                {/* Meal Category Selector */}
+                                <div style={{ marginBottom: '1.25rem' }}>
+                                    <div style={{
+                                        fontSize: '0.7rem',
+                                        fontWeight: '700',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.06em',
+                                        color: 'var(--color-text-muted)',
+                                        marginBottom: '0.6rem'
+                                    }}>
+                                        {t('food_modal.meal_moment')}
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                        {[
+                                            { key: 'breakfast', label: t('meal_editor.breakfast') },
+                                            { key: 'lunch',     label: t('meal_editor.lunch') },
+                                            { key: 'dinner',    label: t('meal_editor.dinner') },
+                                            { key: 'snack',     label: t('meal_editor.snack') }
+                                        ].map(cat => (
+                                            <button
+                                                key={cat.key}
+                                                onClick={() => setMealCategory(mealCategory === cat.key ? null : cat.key)}
+                                                style={{
+                                                    padding: '0.45rem 1rem',
+                                                    borderRadius: '20px',
+                                                    border: mealCategory === cat.key
+                                                        ? '2px solid var(--color-primary)'
+                                                        : '1px solid var(--color-border)',
+                                                    background: mealCategory === cat.key
+                                                        ? 'rgba(255,174,185,0.08)'
+                                                        : 'var(--color-surface)',
+                                                    color: mealCategory === cat.key
+                                                        ? 'var(--color-primary)'
+                                                        : 'var(--color-text-muted)',
+                                                    fontSize: '0.82rem',
+                                                    fontWeight: mealCategory === cat.key ? '700' : '500',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.15s ease',
+                                                    fontFamily: 'inherit'
+                                                }}
+                                            >
+                                                {cat.label}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
 
                                 <button

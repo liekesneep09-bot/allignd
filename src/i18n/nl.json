@@ -217,14 +217,28 @@
     "fiber_recommended": "aanbevolen",
     "how_do_you_feel": "Hoe voel je je vandaag?",
     "logged_today": "Vandaag gelogd",
-    "show_items": "Toon items",
-    "hide_items": "Verberg items",
+    "show_items": "Tonen",
+    "hide_items": "Verbergen",
+    "other": "Overig",
     "nutrition_title": "Voeding Tip",
     "period_logged": "✓ Menstruatie gelogd",
     "log_period": "Log Menstruatie",
     "period_stopped": "✓ Menstruatie gestopt",
     "when_last_period": "Wanneer begon je laatste menstruatie?",
-    "choose_first_day": "Kies de eerste dag van je laatste menstruatie."
+    "choose_first_day": "Kies de eerste dag van je laatste menstruatie.",
+    "no_workouts_desc": "Probeer later opnieuw.",
+    "complete_workout": "Rond Workout Af",
+    "workout_completed_title": "Goed bezig!",
+    "workout_completed_desc": "Workout succesvol afgerond."
+  },
+  "guide": {
+    "science_title": "Wat gebeurt er in je lichaam?",
+    "symptoms_title": "Wat je kunt merken",
+    "support_title": "Hoe je je lichaam ondersteunt",
+    "food_focus": "Voeding",
+    "movement_focus": "Beweging",
+    "nutrients_title": "Belangrijkste Voedingsstoffen",
+    "nutrient_sources": "Zit in o.a."
   },
   "profile": {
     "title": "Profiel",
@@ -404,7 +418,8 @@
     "save_select": "Opslaan en selecteren",
     "gram": "Gram",
     "amount_label": "Hoeveelheid",
-    "add_to_today": "Voeg toe aan vandaag",
+    "add_to_today": "Toevoegen aan vandaag",
+    "meal_moment": "Maaltijdmoment",
     "my_meals_title": "Mijn gerechten",
     "loading": "Laden...",
     "no_meals_yet": "Nog geen gerechten",
@@ -496,7 +511,8 @@
     "community": "Community",
     "fitness": "Fitness",
     "recipes": "Recepten",
-    "profile": "Profiel"
+    "profile": "Profiel",
+    "guide": "Cyclus"
   },
   "community": {
     "title": "Community",
@@ -626,6 +642,26 @@
     "success_removed": "Verwijderd",
     "remove_period": "Menstruatie verwijderen",
     "add_period": "+ Menstruatie loggen"
+  },
+  "progress": {
+    "title": "Mijn Progressie",
+    "weekly_avg": "Gemiddelde deze week",
+    "based_on_days": "Gebaseerd op {n} dagen met logs",
+    "of_goal": "van je doel",
+    "weight_trend": "Gewichtstrend",
+    "target": "Doel:",
+    "symptom_title": "Symptomen per fase",
+    "this_cycle": "Deze cyclus",
+    "prev_cycle": "Vorige cyclus — zelfde fase",
+    "resolved": "Verdwenen",
+    "recurring": "Terugkerend",
+    "new_this_cycle": "Nieuw deze cyclus",
+    "no_food_logs": "Log je voeding om je weekgemiddelde te zien.",
+    "no_symptoms": "Log je symptomen dagelijks om vergelijkingen te zien.",
+    "no_prev_symptoms_in_phase": "Geen symptomen gelogd in deze fase vorige cyclus.",
+    "more_cycles_needed": "Log meer cycli voor een vergelijking.",
+    "current_phase": "Huidige fase",
+    "view_progress": "Bekijk je progressie"
   },
   "weight": {
     "title": "Gewicht",

@@ -634,6 +634,33 @@ export default function Today({ onNavigate }) {
               <div style={{ marginTop: '0.75rem' }}>
                 <HabitsCard date={viewDateStr} />
                 <WeightTracker date={viewDateStr} />
+                {/* Progressie shortcut */}
+                <button
+                  onClick={() => onNavigate && onNavigate('progress')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    padding: '0.9rem 1.25rem',
+                    marginTop: '0.5rem',
+                    background: '#fff',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: '16px',
+                    cursor: 'pointer',
+                    color: 'var(--color-text)',
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.03)',
+                    fontFamily: 'inherit'
+                  }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '1rem' }}>📈</span>
+                    {t('progress.view_progress')}
+                  </span>
+                  <span style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>→</span>
+                </button>
               </div>
 
               {/* NEW: DAILY CHECK-IN WIDGET */}
@@ -675,44 +702,140 @@ export default function Today({ onNavigate }) {
               </div>
 
 
-              {todaysLogs.length > 0 && (
-                <div style={{ marginTop: '2rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                    <h3 style={{ fontSize: '1rem', color: 'var(--color-text-muted)', margin: 0 }}>{t('today.logged_today')}</h3>
-                    <button
-                      onClick={() => setShowLog(!showLog)}
-                      style={{ background: 'none', color: 'var(--color-primary)', fontSize: '0.9rem', fontWeight: '500' }}
-                    >
-                      {showLog ? t('today.hide_items') : t('today.show_items')}
-                    </button>
-                  </div>
+              {todaysLogs.length > 0 && (() => {
+                const MEAL_ORDER = ['breakfast', 'lunch', 'dinner', 'snack', null]
+                const MEAL_LABELS = {
+                  breakfast: t('meal_editor.breakfast'),
+                  lunch:     t('meal_editor.lunch'),
+                  dinner:    t('meal_editor.dinner'),
+                  snack:     t('meal_editor.snack'),
+                  null:      t('today.other')
+                }
 
-                  {showLog && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      {todaysLogs.map(log => (
-                        <div key={log.id} style={{
-                          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                          background: '#FFF', padding: '0.75rem 1rem', borderRadius: '12px',
-                          border: '1px solid var(--color-border)'
-                        }}>
-                          <div>
-                            <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>{log.name}</div>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                              {log.unitName && log.quantity ? `${log.quantity} ${log.unitName}` : `${log.grams}g`} • {log.kcal} kcal
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => deleteFoodLog(log.id)}
-                            style={{ color: 'var(--color-text-muted)', background: 'none', border: 'none', padding: '0.5rem' }}
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))}
+                // Group logs by meal_category
+                const grouped = {}
+                for (const cat of MEAL_ORDER) grouped[String(cat)] = []
+                for (const log of todaysLogs) {
+                  const key = String(log.meal_category ?? null)
+                  if (!grouped[key]) grouped[key] = []
+                  grouped[key].push(log)
+                }
+
+                // Only render categories that have items
+                const activeCats = MEAL_ORDER.filter(cat => grouped[String(cat)].length > 0)
+
+                return (
+                  <div style={{ marginTop: '2rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                      <h3 style={{ fontSize: '0.8rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-muted)', margin: 0 }}>
+                        {t('today.logged_today')}
+                      </h3>
+                      <button
+                        onClick={() => setShowLog(!showLog)}
+                        style={{ background: 'none', color: 'var(--color-primary)', fontSize: '0.82rem', fontWeight: '600', fontFamily: 'inherit' }}
+                      >
+                        {showLog ? t('today.hide_items') : t('today.show_items')}
+                      </button>
                     </div>
-                  )}
-                </div>
-              )}
+
+                    {showLog && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                        {activeCats.map(cat => {
+                          const catLogs = grouped[String(cat)]
+                          const catKcal = catLogs.reduce((sum, l) => sum + (l.kcal || 0), 0)
+
+                          return (
+                            <div key={String(cat)}>
+                              {/* Category header */}
+                              <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'baseline',
+                                marginBottom: '0.5rem',
+                                paddingBottom: '0.4rem',
+                                borderBottom: '1px solid var(--color-border)'
+                              }}>
+                                <span style={{
+                                  fontSize: '0.72rem',
+                                  fontWeight: '700',
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '0.07em',
+                                  color: phaseStyle.text
+                                }}>
+                                  {MEAL_LABELS[String(cat)]}
+                                </span>
+                                <span style={{
+                                  fontSize: '0.75rem',
+                                  fontWeight: '600',
+                                  color: 'var(--color-text-muted)'
+                                }}>
+                                  {Math.round(catKcal)} kcal
+                                </span>
+                              </div>
+
+                              {/* Items */}
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                                {catLogs.map((log, idx) => (
+                                  <div key={log.id} style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    padding: '0.65rem 0',
+                                    borderBottom: idx < catLogs.length - 1 ? '1px solid rgba(0,0,0,0.04)' : 'none'
+                                  }}>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                      <div style={{
+                                        fontWeight: '500',
+                                        fontSize: '0.9rem',
+                                        color: 'var(--color-text)',
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis'
+                                      }}>
+                                        {log.name}
+                                      </div>
+                                      <div style={{
+                                        fontSize: '0.75rem',
+                                        color: 'var(--color-text-muted)',
+                                        marginTop: '1px'
+                                      }}>
+                                        {log.unitName && log.quantity
+                                          ? `${log.quantity} ${log.unitName}`
+                                          : log.grams ? `${log.grams}g` : null
+                                        }
+                                        {(log.unitName || log.grams) && ' · '}
+                                        <span style={{ fontWeight: '500', color: 'var(--color-text)' }}>{log.kcal} kcal</span>
+                                        {log.p != null && ` · ${log.p}g eiwit`}
+                                      </div>
+                                    </div>
+                                    <button
+                                      onClick={() => deleteFoodLog(log.id)}
+                                      style={{
+                                        color: 'var(--color-text-muted)',
+                                        background: 'none',
+                                        border: 'none',
+                                        padding: '0.4rem 0.5rem',
+                                        fontSize: '0.8rem',
+                                        cursor: 'pointer',
+                                        flexShrink: 0,
+                                        opacity: 0.5,
+                                        fontFamily: 'inherit'
+                                      }}
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )
+              })()}
+
             </section>
           )}
 
