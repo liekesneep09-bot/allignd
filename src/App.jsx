@@ -379,8 +379,7 @@ export default function App() {
                 <AuthProvider>
                     <OfflineBanner isOnline={isOnline} />
                     <AuthenticatedApp />
-                    {/* Temporarily commented out until launch/later phase */}
-                    {/* <InstallPrompt /> */}
+                    <InstallPrompt />
                 </AuthProvider>
             </LanguageProvider>
         </ErrorBoundary>
