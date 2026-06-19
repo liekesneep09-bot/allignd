@@ -14,26 +14,28 @@ export default defineConfig({
         name: 'Allignd',
         short_name: 'Allignd',
         description: 'Jouw cyclus, voeding en fitness in sync',
-        theme_color: '#ffffff',
-        background_color: '#ffffff',
+        theme_color: '#D4A5A5',
+        background_color: '#FDF5F7',
         display: 'standalone',
         orientation: 'portrait',
         icons: [
           {
             src: 'logo-192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any'
           },
           {
             src: 'logo-512.png',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any'
           }
         ]
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        maximumFileSizeToCacheInBytes: 10485760 // Increase limit to 10MB
+        maximumFileSizeToCacheInBytes: 10485760
       }
     })
   ],
