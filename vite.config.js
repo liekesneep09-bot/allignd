@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'prompt',
-      includeAssets: ['favicon.png', 'apple-touch-icon-v2.png'],
+      includeAssets: ['favicon.png', 'apple-touch-icon-v3.png'],
       manifest: {
         id: '/',
         start_url: '/',
