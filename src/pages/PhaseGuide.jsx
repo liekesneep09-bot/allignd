@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useUser } from '../context/UserContext'
 import { getPhaseContent } from '../data/phases'
 import { useLanguage } from '../context/LanguageContext'
 import { getLocalDateStr } from '../utils/date'
 import { IconActivity, IconNutrition } from '../components/Icons'
+import { getFuturePeriodWindows } from '../logic/cycle-learning'
 
 export default function PhaseGuide() {
     const { user, currentPhase, currentDay } = useUser()
@@ -53,6 +54,17 @@ export default function PhaseGuide() {
         return false
     }
 
+    const predictedWindows = useMemo(() => {
+        if (!user?.periodStartDates || user.periodStartDates.length === 0) return {}
+        return getFuturePeriodWindows(
+            user.periodStartDates,
+            user.cycleStats?.learnedCycleLength || user.cycleLength || 28,
+            user.periodLength || 5,
+            user.cycleStats?.variability || 0,
+            4
+        )
+    }, [user?.periodStartDates, user?.cycleStats, user?.cycleLength, user?.periodLength])
+
     const handlePrev = () => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))
     const handleNext = () => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))
 
@@ -92,9 +104,10 @@ export default function PhaseGuide() {
                         date.setHours(0, 0, 0, 0)
                         const isToday = date.getTime() === today.getTime()
                         const isPeriod = isMenstruating(day)
+                        const dateStr = getLocalDateStr(date)
+                        const isPredicted = !isPeriod && predictedWindows[dateStr]
 
                         // Movement Check
-                        const dateStr = getLocalDateStr(date)
                         const hasMovement = user.movementLogs?.some(l => l.date === dateStr && l.status === 'moved')
 
                         return (
@@ -126,6 +139,9 @@ export default function PhaseGuide() {
                                     {isPeriod && (
                                         <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--color-primary)' }} />
                                     )}
+                                    {isPredicted && (
+                                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', border: '1px solid var(--color-primary)', background: 'transparent' }} />
+                                    )}
                                     {hasMovement && (
                                         <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--color-movement)' }} />
                                     )}
@@ -136,10 +152,14 @@ export default function PhaseGuide() {
                 </div>
 
                 {/* Legend */}
-                <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center', gap: '1.5rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                <div style={{ marginTop: '2rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--color-primary)' }}></div>
                         <span>{t('cycle.menstruation')}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', border: '1px solid var(--color-primary)' }}></div>
+                        <span>{t('cycle.predicted_menstruation')}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--color-movement)' }}></div>

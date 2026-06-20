@@ -574,6 +574,7 @@
     "title": "Jouw Cyclus",
     "days": ["ma", "di", "wo", "do", "vr", "za", "zo"],
     "menstruation": "Menstruatie",
+    "predicted_menstruation": "Verwacht",
     "moved": "Gesport"
   },
   "checkin": {

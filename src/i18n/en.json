@@ -578,7 +578,8 @@
       "su"
     ],
     "menstruation": "Menstruation",
-    "moved": "Workout"
+    "predicted_menstruation": "Expected",
+    "moved": "Movement"
   },
   "checkin": {
     "title": "Daily Check-in",
