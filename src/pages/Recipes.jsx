@@ -232,40 +232,6 @@ export default function Recipes() {
                 <h1 style={{ fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>{t('recipes.title')}</h1>
             </header>
 
-            <div style={{
-                background: 'var(--color-surface)',
-                borderRadius: 'var(--radius-md)',
-                padding: '1.25rem',
-                marginBottom: '1.5rem',
-                border: '1px solid var(--color-border)',
-                borderLeft: '4px solid var(--color-primary)'
-            }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                    <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        {t('recipes.highlight')}
-                    </span>
-                    <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>
-                        {phaseInfo.name}
-                    </span>
-                </div>
-                <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--color-text)', lineHeight: 1.5 }}>
-                    {phaseRecipes.description}
-                </p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '1rem' }}>
-                    {phaseRecipes.focusPoints.map((point, i) => (
-                        <span key={i} style={{
-                            background: 'rgba(0,0,0,0.05)',
-                            padding: '0.25rem 0.6rem',
-                            borderRadius: '100px',
-                            fontSize: '0.75rem',
-                            color: 'var(--color-text-muted)'
-                        }}>
-                            {point}
-                        </span>
-                    ))}
-                </div>
-            </div>
-
             {nutrients.length > 0 && (
                 <div style={{ marginBottom: '1.75rem' }}>
                     <h2 style={{
