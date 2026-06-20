@@ -5,8 +5,6 @@ import { getFitnessAdvice, getFitnessContent, getBodyPartAdvice } from '../data/
 import { getPhaseContent } from '../data/phases'
 import { IconActivity } from '../components/Icons'
 import { getLocalDateStr } from '../utils/date'
-import HabitsCard from '../components/HabitsCard'
-import WeightTracker from '../components/WeightTracker'
 
 // Helper to get this week's logged workouts
 function getThisWeekWorkouts(movementLogs) {
@@ -213,10 +211,7 @@ export default function Fitness() {
                     </div>
                 </div>
 
-                <HabitsCard date={todayStr} />
-                <WeightTracker date={todayStr} />
-
-                {/* WEEK STATUS BLOCK */}
+                {/* WEEK STATUS & BEWEGING VANDAAG CONSOLIDATED */}
                 <div style={{
                     background: 'var(--color-surface)',
                     borderRadius: 'var(--radius-md)',
@@ -224,53 +219,29 @@ export default function Fitness() {
                     marginBottom: '1.5rem',
                     border: '1px solid var(--color-border)'
                 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <IconActivity size={18} />
-                            <span style={{ fontWeight: '600', fontSize: '1rem' }}>
+                            <span style={{ fontWeight: '700', fontSize: '1.05rem', color: 'var(--color-text)' }}>
                                 {t('fitness.this_week')}: {weekWorkouts} {t('fitness.of')} {weekTarget}
                             </span>
                         </div>
                         <span style={{
                             fontSize: '0.75rem',
-                            fontWeight: '600',
+                            fontWeight: '700',
                             color: 'var(--color-primary)',
                             textTransform: 'uppercase',
-                            letterSpacing: '0.5px'
+                            letterSpacing: '0.5px',
+                            background: 'rgba(255,174,185,0.15)',
+                            padding: '0.2rem 0.6rem',
+                            borderRadius: '100px'
                         }}>
                             {phaseName}
                         </span>
                     </div>
-                    <p style={{
-                        margin: 0,
-                        fontSize: '0.9rem',
-                        color: 'var(--color-text-muted)',
-                        lineHeight: 1.4
-                    }}>
-                        {phaseContent.training.why}
-                    </p>
-                </div>
-
-                {/* BEWEGING VANDAAG */}
-                <div style={{
-                    background: 'var(--color-surface)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '1.25rem',
-                    marginBottom: '1.5rem',
-                    border: '1px solid var(--color-border)'
-                }}>
-                    <h2 style={{
-                        fontSize: '1rem',
-                        fontWeight: '600',
-                        marginBottom: '0.75rem',
-                        color: 'var(--color-text)',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px',
-                        margin: '0 0 0.75rem 0'
-                    }}>{t('fitness.movement_today')}</h2>
 
                     {todayStatus ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
                             <div style={{
                                 width: '36px',
                                 height: '36px',
@@ -299,20 +270,21 @@ export default function Fitness() {
                                     background: 'none',
                                     color: 'var(--color-primary)',
                                     fontSize: '0.8rem',
-                                    fontWeight: '500',
-                                    padding: '0.25rem 0.5rem'
+                                    fontWeight: '600',
+                                    padding: '0.25rem 0.5rem',
+                                    cursor: 'pointer'
                                 }}
                             >
                                 {t('fitness.change')}
                             </button>
                         </div>
                     ) : (
-                        <div>
+                        <div style={{ marginBottom: '1.25rem' }}>
                             <p style={{
                                 margin: '0 0 0.75rem 0',
-                                fontSize: '0.9rem',
-                                color: 'var(--color-text-muted)',
-                                lineHeight: 1.4
+                                fontSize: '0.95rem',
+                                color: 'var(--color-text)',
+                                fontWeight: '500'
                             }}>{t('fitness.did_you_move')}</p>
                             <div style={{ display: 'flex', gap: '0.75rem' }}>
                                 <button
@@ -357,8 +329,7 @@ export default function Fitness() {
                     <div style={{
                         display: 'flex',
                         justifyContent: 'space-between',
-                        marginTop: '1rem',
-                        paddingTop: '0.75rem',
+                        paddingTop: '1rem',
                         borderTop: '1px solid var(--color-border)'
                     }}>
                         {weekDays.map(day => (
@@ -366,24 +337,24 @@ export default function Fitness() {
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
-                                gap: '0.3rem'
+                                gap: '0.4rem'
                             }}>
                                 <span style={{
                                     fontSize: '0.65rem',
                                     color: day.isToday ? 'var(--color-primary)' : 'var(--color-text-muted)',
-                                    fontWeight: day.isToday ? '700' : '400',
+                                    fontWeight: day.isToday ? '700' : '500',
                                     textTransform: 'uppercase'
                                 }}>{day.label}</span>
                                 <div style={{
-                                    width: '10px',
-                                    height: '10px',
+                                    width: '12px',
+                                    height: '12px',
                                     borderRadius: '50%',
                                     background: day.status === 'moved'
                                         ? '#4CAF50'
                                         : day.status === 'rest'
                                             ? 'rgba(158, 158, 158, 0.3)'
                                             : 'rgba(0, 0, 0, 0.06)',
-                                    border: day.isToday ? '2px solid var(--color-primary)' : 'none',
+                                    border: day.isToday && !day.status ? '2px solid var(--color-primary)' : 'none',
                                     boxSizing: 'border-box'
                                 }} />
                             </div>
