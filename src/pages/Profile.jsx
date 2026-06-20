@@ -390,45 +390,19 @@ export default function Profile() {
                                     className="input-field"
                                     style={{ width: '100%', padding: '1rem', fontSize: '1rem', borderRadius: '12px' }}
                                 />
-                                {user.isMenstruatingNow ? (
-                                    <button
-                                        onClick={() => {
-                                            if (window.confirm(t('profile.period_ended_confirm'))) {
-                                                endPeriodToday()
-                                                alert(t('profile.period_stopped_success'))
-                                            }
-                                        }}
-                                        className="btn"
-                                        style={{ width: '100%', border: '1px solid #a8647340', background: '#a8647320', color: '#a86473', cursor: 'pointer', fontWeight: '600' }}
-                                    >
-                                        {t('profile.stop_period')}
-                                    </button>
-                                ) : (
-                                    <button
-                                        onClick={() => {
-                                            if (window.confirm(t('profile.period_started_confirm'))) {
-                                                if (formData.cycleStart) {
-                                                    logPeriodStart(formData.cycleStart)
-                                                    alert(t('profile.cycle_started_success'))
-                                                }
-                                            }
-                                        }}
-                                        className="btn btn-primary"
-                                        style={{ width: '100%', border: 'none' }}
-                                    >
-                                        {t('profile.start_new_cycle')}
-                                    </button>
-                                )}
                             </div>
                         </div>
 
                         <button
-                            className="btn"
                             style={{
-                                justifyContent: 'flex-start',
-                                border: '1px solid var(--color-border)',
-                                color: 'var(--color-text)',
-                                fontSize: '0.9rem'
+                                background: 'none',
+                                border: 'none',
+                                color: 'var(--color-text-muted)',
+                                textDecoration: 'underline',
+                                fontSize: '0.85rem',
+                                cursor: 'pointer',
+                                textAlign: 'left',
+                                padding: '0'
                             }}
                             onClick={() => setShowCycleCorrection(!showCycleCorrection)}
                         >
