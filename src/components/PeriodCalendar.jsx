@@ -211,8 +211,8 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
             }}>
                 {/* Legend — "Vandaag" removed */}
                 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-                    <LegendItem color="#a86473" filled label={t('calendar.period')} />
-                    <LegendItem color="#a86473" dashed label={t('calendar.expected')} />
+                    <LegendItem color="var(--color-primary)" filled label={t('calendar.period')} />
+                    <LegendItem color="var(--color-primary)" dashed label={t('calendar.expected')} />
                     <LegendItem color="#4DB6AC" dot label={t('calendar.moved')} />
                     <LegendItem color="#f5a89c" dot label={t('calendar.symptoms')} />
                 </div>
@@ -346,8 +346,8 @@ function DaySummarySheet({ dateStr, summaryData, justLogged, onClose, onToggle }
                             padding: '1rem',
                             borderRadius: '16px',
                             border: 'none',
-                            background: isPeriod ? 'rgba(168,100,115,0.08)' : '#a86473',
-                            color: isPeriod ? '#a86473' : '#fff',
+                            background: isPeriod ? 'rgba(255,174,185,0.15)' : 'var(--color-primary)',
+                            color: isPeriod ? 'var(--color-primary)' : '#333333',
                             fontWeight: '700',
                             fontSize: '1rem',
                             cursor: 'pointer',
@@ -434,12 +434,12 @@ function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef, is
                     justifyContent: 'center',
                     fontSize: '0.88rem',
                     fontWeight: isToday || isPeriod ? '700' : '400',
-                    background: isPeriod ? '#a86473' : 'transparent',
-                    color: isPeriod ? '#fff' : (isPredicted ? '#a86473' : '#2D3436'),
-                    border: isToday && !isPeriod
+                    background: isPeriod ? 'var(--color-primary)' : 'transparent',
+                    color: isPeriod ? '#333333' : (isPredicted ? 'var(--color-primary)' : '#2D3436'),
+                    border: isToday && !isPeriod && !isPredicted
                         ? '2px solid var(--color-primary)'
                         : isPredicted
-                            ? '2px dashed #a86473'
+                            ? '2px dashed var(--color-primary)'
                             : '2px solid transparent',
                     boxSizing: 'border-box'
                 }}>

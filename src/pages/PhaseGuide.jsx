@@ -128,12 +128,12 @@ export default function PhaseGuide() {
                                     justifyContent: 'center',
                                     fontSize: '0.88rem',
                                     fontWeight: isToday || isPeriod ? '700' : '400',
-                                    background: isPeriod ? 'var(--phase-menstrual)' : 'transparent',
-                                    color: isPeriod ? '#fff' : (isPredicted ? 'var(--phase-menstrual)' : 'var(--color-text)'),
+                                    background: isPeriod ? 'var(--color-primary)' : 'transparent',
+                                    color: isPeriod ? '#333333' : (isPredicted ? 'var(--color-primary)' : 'var(--color-text)'),
                                     border: isToday && !isPeriod && !isPredicted
                                         ? '2px solid var(--color-primary)'
                                         : isPredicted
-                                            ? '2px dashed var(--phase-menstrual)'
+                                            ? '2px dashed var(--color-primary)'
                                             : '2px solid transparent',
                                     boxSizing: 'border-box'
                                 }}>
@@ -154,11 +154,11 @@ export default function PhaseGuide() {
                 {/* Legend */}
                 <div style={{ marginTop: '2rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'var(--phase-menstrual)' }}></div>
+                        <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'var(--color-primary)' }}></div>
                         <span>{t('cycle.menstruation')}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px dashed var(--phase-menstrual)' }}></div>
+                        <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px dashed var(--color-primary)' }}></div>
                         <span>{t('cycle.predicted_menstruation')}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
