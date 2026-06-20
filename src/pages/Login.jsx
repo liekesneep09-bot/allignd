@@ -111,6 +111,7 @@ export default function Login() {
         justifyContent: 'center',
         padding: '2rem',
         color: '#333333',
+        fontFamily: "'DM Sans', sans-serif",
         transition: 'all 0.3s ease'
     }
 
@@ -148,7 +149,7 @@ export default function Login() {
         borderRadius: '14px',
         border: 'none',
         background: 'var(--color-primary)', // Keeping brand identity
-        color: '#1A1A1A',
+        color: '#333333',
         fontSize: '1.05rem',
         fontWeight: '600',
         cursor: 'pointer',
@@ -256,7 +257,7 @@ export default function Login() {
             <img src={logo} alt="Allignd" style={{ height: '110px', width: 'auto', marginBottom: '0.5rem' }} />
             
             <div style={{ textAlign: 'center' }}>
-                <h1 style={{ fontSize: '2.4rem', lineHeight: 1.1, fontWeight: '800', color: '#1A1A1A', margin: '0 0 1rem 0', letterSpacing: '-0.03em' }}>
+                <h1 style={{ fontSize: '2.4rem', lineHeight: 1.1, fontWeight: '800', color: '#333333', margin: '0 0 1rem 0', letterSpacing: '-0.03em' }}>
                     {t('auth.tagline_main')}<br />
                     <span style={{ color: 'var(--color-primary)', fontStyle: 'italic', fontWeight: '600' }}>{t('auth.tagline_highlight')}</span>
                 </h1>
@@ -291,7 +292,7 @@ export default function Login() {
             <button onClick={goBack} style={{ ...textBtnStyle, alignSelf: 'flex-start', padding: 0, textDecoration: 'none', fontWeight: '600', color: '#666' }}>← {t('auth.back')}</button>
             
             <div style={{ textAlign: 'center', width: '100%', marginBottom: '0.5rem' }}>
-                <h1 style={{ fontSize: '1.8rem', fontWeight: '800', color: '#1A1A1A', margin: '0 0 0.5rem 0', letterSpacing: '-0.02em' }}>
+                <h1 style={{ fontSize: '1.8rem', fontWeight: '800', color: '#333333', margin: '0 0 0.5rem 0', letterSpacing: '-0.02em' }}>
                     {view === 'login' ? t('auth.welcome_back') : t('auth.create_account')}
                 </h1>
                 <p style={{ color: '#666', fontSize: '0.95rem', margin: 0 }}>
