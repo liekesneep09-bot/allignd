@@ -111,6 +111,8 @@ export function AuthProvider({ children }) {
         if (isSupabaseConfigured()) {
             await supabase.auth.signOut()
         }
+        localStorage.removeItem('cyclus_onboarded')
+        localStorage.removeItem('cyclus_user_profile')
         setSession(null)
         setUser(null)
     }
