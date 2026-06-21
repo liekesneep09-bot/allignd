@@ -52,14 +52,28 @@ export default async function handler(req, res) {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Handle the event
+  // Handle the events
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
     const userId = session.client_reference_id;
     const customerEmail = session.customer_details?.email;
+    const subscriptionId = session.subscription;
 
     if (userId) {
       console.log(`Payment successful for user ${userId}`);
+      
+      // Attach the supabase user ID to the Stripe subscription metadata
+      // so we can find this user again if they cancel their subscription
+      if (subscriptionId) {
+        try {
+            await stripe.subscriptions.update(subscriptionId, {
+                metadata: { supabase_user_id: userId }
+            });
+            console.log(`Attached userId to subscription ${subscriptionId}`);
+        } catch (subErr) {
+            console.error('Failed to update subscription metadata:', subErr);
+        }
+      }
       
       // Update Supabase Profile
       const { error } = await supabase
@@ -90,6 +104,29 @@ export default async function handler(req, res) {
     } else {
       console.warn("Checkout session completed, but no client_reference_id found.");
     }
+  }
+
+  // Handle subscription cancellations
+  if (event.type === 'customer.subscription.deleted') {
+      const subscription = event.data.object;
+      const userId = subscription.metadata?.supabase_user_id;
+
+      if (userId) {
+          console.log(`Subscription deleted for user ${userId}. Revoking access.`);
+          
+          const { error } = await supabase
+              .from('profiles')
+              .update({ subscription_status: 'inactive' })
+              .eq('id', userId);
+
+          if (error) {
+              console.error('Failed to revoke Supabase access:', error);
+          } else {
+              console.log('Successfully set subscription_status to inactive.');
+          }
+      } else {
+          console.warn("Subscription deleted, but no supabase_user_id found in metadata.");
+      }
   }
 
   // Return a 200 response to acknowledge receipt of the event
