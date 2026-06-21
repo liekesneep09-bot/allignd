@@ -391,9 +391,9 @@ export default function LandingPage({ onEnterApp }) {
           </div>
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'flex-end', marginTop: '20px', justifyContent: 'space-between', width: '100%' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', marginTop: '20px', justifyContent: 'space-between', width: '100%', paddingBottom: 'env(safe-area-inset-bottom, 20px)' }}>
           <p style={{ fontSize: '0.8rem', color: '#666' }}>© 2024 allignd<br />all rights reserved.</p>
-          <a href="/unlock" style={{ opacity: 0.2, textDecoration: 'none', fontSize: '1rem', cursor: 'pointer', padding: '10px' }}>🔒</a>
+          <a href="/unlock" style={{ opacity: 0.3, textDecoration: 'none', fontSize: '2rem', cursor: 'pointer', padding: '20px', zIndex: 999, position: 'relative' }}>🔒</a>
         </div>
       </footer>
     </div>
