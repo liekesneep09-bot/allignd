@@ -81,7 +81,7 @@ function MainLayout() {
     useEffect(() => {
         let timer;
         if (!isLoading) {
-            timer = setTimeout(() => setAppReady(true), 150)
+            timer = setTimeout(() => setAppReady(true), 400)
         }
         return () => clearTimeout(timer)
     }, [isLoading])
@@ -122,7 +122,10 @@ function MainLayout() {
     // Fix for PWA background state flash:
     // If the app reloads from background while offline, the profile fetch might fail.
     // If it fails, hasOnboarded defaults to false. We don't want to show Onboarding if they were already in the app.
-    if (!hasOnboarded) {
+    // We double check if they have an age and goal set; if so, they definitely onboarded.
+    const actuallyHasOnboarded = hasOnboarded || (user?.age && user?.goal)
+    
+    if (!actuallyHasOnboarded) {
         // If they are offline, don't force them to Onboarding
         if (!navigator.onLine) {
             return <SplashScreen /> // Stay on splash until network returns
@@ -398,9 +401,11 @@ export default function App() {
         // If we are on callback but we ALREADY have a session (e.g. from localStorage), just go to home
         return (
             <ErrorBoundary>
-                <AuthProvider>
-                    <AuthCallback />
-                </AuthProvider>
+                <LanguageProvider>
+                    <AuthProvider>
+                        <AuthCallback />
+                    </AuthProvider>
+                </LanguageProvider>
             </ErrorBoundary>
         )
     }
