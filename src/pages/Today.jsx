@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
 import { getCycleDisplayData, getPhaseTransition } from '../logic/cycle'
@@ -53,12 +53,8 @@ function CircularProgress({ current, target, size, strokeWidth, color = 'var(--c
           position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
         }}>
-          <div style={{ fontSize: '0.9rem', fontWeight: '700', color: color, lineHeight: 1.1 }}>
-            {current}
-          </div>
-          <div style={{ width: '40%', height: '1px', background: color, opacity: 0.3, margin: '2px 0' }}></div>
-          <div style={{ fontSize: '0.7rem', color: color, opacity: 0.8 }}>
-            {target}
+          <div style={{ fontSize: '1.2rem', fontWeight: '800', color: color, lineHeight: 1 }}>
+            {percentage}%
           </div>
         </div>
       )}
@@ -232,8 +228,9 @@ export default function Today({ onNavigate }) {
   const showMovementLog = !(user.movementLogs && user.movementLogs.find(l => l.date === viewDateStr))
 
   const [showModal, setShowModal] = useState(false)
+  const scrollPosRef = useRef(0)
   const [showCheckInModal, setShowCheckInModal] = useState(false)
-  const [showLog, setShowLog] = useState(true)
+  const [showLog, setShowLog] = useState(false)
   const [showCalendar, setShowCalendar] = useState(false)
   const [showDatePicker, setShowDatePicker] = useState(false)
 
@@ -368,12 +365,9 @@ export default function Today({ onNavigate }) {
               }}>
                 {currentText.prefix && (
                   <div style={{
-                    fontSize: '0.8rem',
-                    color: 'var(--color-text-muted)',
-                    fontWeight: '600',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    opacity: 0.8,
+                    fontSize: '0.95rem',
+                    color: 'var(--color-text)',
+                    fontWeight: '500',
                     marginBottom: '2px'
                   }}>
                     {currentText.prefix}
@@ -529,7 +523,7 @@ export default function Today({ onNavigate }) {
       </div>
 
       {/* MAIN CONTENT SECTION */}
-      <div className="container" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', marginTop: '-1.5rem' }}>
+      <div className="container" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', marginTop: '-3rem' }}>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
@@ -552,7 +546,7 @@ export default function Today({ onNavigate }) {
                 <div className="card-minimal" style={{
                   background: '#fff',
                   borderRadius: '24px',
-                  padding: '1.5rem',
+                  padding: '1rem 1.25rem 1.25rem',
                   border: '1px solid var(--color-border)',
                   boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
                   display: 'flex',
@@ -576,16 +570,16 @@ export default function Today({ onNavigate }) {
                         </div>
                       </div>
                       <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-calories)', marginTop: '0.25rem' }}>
-                        {Math.round(calculateProgress(stats.kcal, targets.calories) * 100)}% {t('today.of_daily_goal')}
+                        {Math.max(0, Math.round(toNum(targets.calories) - toNum(stats.kcal)))} kcal {t('today.remaining')}
                       </div>
                     </div>
 
-                    <div style={{ padding: '4px' }}>
+                    <div style={{ marginRight: '-8px' }}>
                       <CircularProgress
                         current={toNum(stats.kcal)}
                         target={toNum(targets.calories)}
-                        size={120}
-                        strokeWidth={10}
+                        size={110}
+                        strokeWidth={8}
                         color="var(--color-calories)"
                         trackColor="rgba(0,0,0,0.05)"
                         showText={true}
@@ -593,8 +587,6 @@ export default function Today({ onNavigate }) {
                     </div>
                   </div>
 
-                  {/* DIVIDER */}
-                  <div style={{ width: '100%', height: '1px', background: 'var(--color-border)', opacity: 0.6, marginBottom: '1.25rem' }} />
 
                   {/* BOTTOM SECTION: MACROS & FIBER */}
                   <div>
@@ -615,7 +607,10 @@ export default function Today({ onNavigate }) {
 
                 <div style={{ marginTop: '0.5rem', marginBottom: '0.5rem', display: 'flex', justifyContent: 'center' }}>
                   <button
-                    onClick={() => setShowModal(true)}
+                    onClick={() => {
+                      scrollPosRef.current = window.scrollY
+                      setShowModal(true)
+                    }}
                     className="btn btn-primary"
                     style={{
                       width: 'auto',
@@ -630,75 +625,77 @@ export default function Today({ onNavigate }) {
 
               </div>
 
-              {/* NEW: WATER TRACKER WIDGET */}
-              <div style={{ marginTop: '0.75rem' }}>
+              {/* HABITS, WEIGHT & SYMPTOMS WIDGETS */}
+              <div style={{ marginTop: '1.25rem' }}>
                 <HabitsCard date={viewDateStr} />
-                <WeightTracker date={viewDateStr} />
-                {/* Progressie shortcut */}
+                <WeightTracker date={viewDateStr} compact={true} />
+
+                {/* NEW: DAILY CHECK-IN WIDGET (Symptom Tracker Redesign) */}
+                <section className="card-minimal" style={{ marginBottom: '1.25rem', padding: '1rem 1.25rem', background: '#fff', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '0.75rem', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid var(--color-border)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: `${phaseStyle.text}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: phaseStyle.text }}>
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                              <circle cx="12" cy="12" r="10"></circle>
+                              <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                              <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                              <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 style={{ fontSize: '1rem', margin: '0 0 2px 0', color: 'var(--color-text)', fontWeight: '700' }}>{t('checkin.title', { defaultValue: 'Symptomen' })}</h2>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>
+                                {todaysSymptoms.length > 0 ? `${todaysSymptoms.length} gelogd` : t('today.how_do_you_feel')}
+                            </div>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => setShowCheckInModal(true)}
+                        style={{ background: 'var(--color-primary)', color: '#333333', border: 'none', borderRadius: '20px', padding: '6px 16px', fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer', boxShadow: '0 2px 8px rgba(255, 174, 185, 0.3)' }}
+                    >
+                        Log
+                    </button>
+                  </div>
+
+                  {todaysSymptoms.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
+                      {todaysSymptoms.map(sympId => {
+                        const sympDef = SYMPTOMS_LIST.find(s => s.id === sympId)
+                        if (!sympDef) return null
+                        return (
+                          <span key={sympId} style={{ fontSize: '0.75rem', padding: '4px 10px', backgroundColor: 'var(--color-bg)', color: 'var(--color-text)', borderRadius: '12px', fontWeight: '500', border: '1px solid var(--color-border)' }}>
+                            {t(`checkin.symptoms.${sympId}`)}
+                          </span>
+                        )
+                      })}
+                    </div>
+                  )}
+                </section>
+
+                {/* Progressie shortcut (now at the bottom) */}
                 <button
                   onClick={() => onNavigate && onNavigate('progress')}
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
                     width: '100%',
-                    padding: '0.9rem 1.25rem',
-                    marginTop: '0.5rem',
-                    background: '#fff',
-                    border: '1px solid var(--color-border)',
+                    padding: '1rem 1.25rem',
+                    background: `${phaseStyle.text}15`,
+                    border: 'none',
                     borderRadius: '16px',
-                    cursor: 'pointer',
                     color: 'var(--color-text)',
-                    fontSize: '0.9rem',
-                    fontWeight: '600',
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.03)',
-                    fontFamily: 'inherit'
+                    fontWeight: '700',
+                    fontSize: '0.95rem',
+                    cursor: 'pointer',
+                    marginTop: 0,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
                   }}
                 >
                   <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '1rem' }}>📈</span>
-                    {t('progress.view_progress')}
+                    Jouw Inzichten
                   </span>
-                  <span style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>→</span>
+                  <span style={{ color: phaseStyle.text, fontSize: '1.2rem', lineHeight: 1 }}>→</span>
                 </button>
-              </div>
-
-              {/* NEW: DAILY CHECK-IN WIDGET */}
-              <div style={{ marginTop: '1.25rem' }}>
-                <button
-                  onClick={() => setShowCheckInModal(true)}
-                  style={{
-                    width: '100%',
-                    padding: '1rem',
-                    borderRadius: '16px',
-                    background: '#fff',
-                    border: '1px solid var(--color-border)',
-                    color: 'var(--color-primary)',
-                    fontSize: '1rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
-                  }}
-                >
-                  {t('today.how_do_you_feel')}
-                </button>
-                {todaysSymptoms.length > 0 && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem', justifyContent: 'center' }}>
-                    {todaysSymptoms.map(sympId => {
-                      const sympDef = SYMPTOMS_LIST.find(s => s.id === sympId)
-                      if (!sympDef) return null
-                      return (
-                        <span key={sympId} className="chip" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem', backgroundColor: 'var(--color-bg)', color: 'var(--color-text)', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
-                          {t(`checkin.symptoms.${sympId}`)}
-                        </span>
-                      )
-                    })}
-                  </div>
-                )}
               </div>
 
 
@@ -727,7 +724,7 @@ export default function Today({ onNavigate }) {
                 return (
                   <div style={{ marginTop: '2rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                      <h3 style={{ fontSize: '0.8rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-muted)', margin: 0 }}>
+                      <h3 style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--color-text)', margin: 0 }}>
                         {t('today.logged_today')}
                       </h3>
                       <button
@@ -856,10 +853,20 @@ export default function Today({ onNavigate }) {
       {
         showModal && (
           <FoodModal
-            onClose={() => setShowModal(false)}
+            onClose={() => {
+              setShowModal(false)
+              // Restore scroll position after keyboard dismiss + re-render
+              requestAnimationFrame(() => {
+                setTimeout(() => window.scrollTo(0, scrollPosRef.current), 100)
+              })
+            }}
             onAdd={(foodId, grams, _, config) => {
               logFood(foodId, grams, viewDateStr, config)
               setShowModal(false)
+              // Scroll to top (daily goal card)
+              requestAnimationFrame(() => {
+                setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100)
+              })
             }}
           />
         )

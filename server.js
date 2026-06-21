@@ -19,6 +19,83 @@ dotenv.config();
 const app = express();
 const port = 3000;
 
+// Initialize Stripe for Webhook
+import Stripe from 'stripe';
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+// Initialize Resend
+import { Resend } from 'resend';
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Initialize Supabase (we need it for the webhook too)
+import { createClient } from '@supabase/supabase-js';
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Webhook endpoint MUST be before app.use(express.json())
+app.post('/api/webhook/stripe', express.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  if (!endpointSecret) {
+    console.error("No STRIPE_WEBHOOK_SECRET configured.");
+    return res.status(400).send("Webhook secret not configured.");
+  }
+
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+  } catch (err) {
+    console.error(`Webhook Error: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Handle the event
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const userId = session.client_reference_id;
+    const customerEmail = session.customer_details?.email;
+
+    if (userId) {
+      console.log(`Payment successful for user ${userId}`);
+      
+      // Update Supabase Profile
+      const { error } = await supabase
+        .from('profiles')
+        .update({ subscription_status: 'active' })
+        .eq('user_id', userId);
+
+      if (error) {
+        console.error('Failed to update Supabase profile:', error);
+      } else {
+        console.log('Successfully updated Supabase profile to active.');
+      }
+
+      // Send Resend Welcome Email
+      if (customerEmail) {
+        try {
+            await resend.emails.send({
+                from: 'Allignd <info@allignd.fit>', // Must use verified domain
+                to: customerEmail,
+                subject: 'Welkom bij Allignd PRO! 🎉',
+                html: '<h3>Gefeliciteerd met je abonnement!</h3><p>Je hebt nu onbeperkt toegang tot alle cyclus en fitness tools in Allignd.</p><p>We wensen je heel veel succes!</p><br/><p>Groetjes,<br/>Team Allignd</p>'
+            });
+            console.log(`Welcome email sent to ${customerEmail}`);
+        } catch (emailError) {
+            console.error('Failed to send Resend email:', emailError);
+        }
+      }
+    } else {
+      console.warn("Checkout session completed, but no client_reference_id found.");
+    }
+  }
+
+  // Return a 200 response to acknowledge receipt of the event
+  res.send();
+});
+
 // Middleware
 app.use(cors({ origin: process.env.CLIENT_URL || '*' }));
 app.use(express.json());
@@ -100,9 +177,7 @@ app.post('/api/assistant', async (req, res) => {
 console.log("About to start server...");
 
 
-// Initialize Stripe
-import Stripe from 'stripe';
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+// Stripe is initialized at the top of the file
 
 // POST /api/create-checkout-session
 app.post('/api/create-checkout-session', requireAuth, async (req, res) => {
@@ -136,12 +211,7 @@ app.post('/api/create-checkout-session', requireAuth, async (req, res) => {
   }
 });
 
-import { createClient } from '@supabase/supabase-js'
-
-// Initialize Supabase
-const supabaseUrl = process.env.SUPABASE_URL
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-const supabase = createClient(supabaseUrl, supabaseKey)
+// Supabase is initialized at the top of the file
 
 // ------------------------------------------------------------------
 // AUTH MIDDLEWARE

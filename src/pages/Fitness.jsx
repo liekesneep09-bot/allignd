@@ -368,7 +368,7 @@ export default function Fitness() {
                     {fitnessContent.bodyParts.map(part => (
                         <button
                             key={part.id}
-                            onClick={() => setSelectedBodyPart(part)}
+                            onClick={() => { setSelectedBodyPart(part); window.scrollTo(0, 0) }}
                             className="card"
                             style={{
                                 margin: 0,
@@ -436,7 +436,7 @@ export default function Fitness() {
             {/* Header / Back */}
             <header style={{ marginTop: '0', marginBottom: '1.5rem' }}>
                 <button
-                    onClick={() => setSelectedBodyPart(null)}
+                    onClick={() => { setSelectedBodyPart(null); window.scrollTo(0, 0) }}
                     style={{
                         background: 'none',
                         color: 'var(--color-text-muted)',

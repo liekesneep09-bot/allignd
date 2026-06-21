@@ -8,7 +8,7 @@ function parseLocalDate(dateStr) {
     return new Date(y, m - 1, d)
 }
 
-export default function WeightTracker({ date }) {
+export default function WeightTracker({ date, compact = false }) {
     const { user, logWeight, currentPhase, getPhaseForDate } = useUser()
     const { t, language } = useLanguage()
     const [showSheet, setShowSheet] = useState(false)
@@ -263,58 +263,151 @@ export default function WeightTracker({ date }) {
         return `${diff > 0 ? '↑' : '↓'} ${absVal} kg ${diff > 0 ? t('weight.more_than') : t('weight.less_than')} ${dateStr}`
     })()
 
-    return (
-        <section className="card" style={{ marginBottom: '1.25rem', padding: '0', overflow: 'hidden' }}>
+    const bottomSheet = showSheet && (
+        <div
+            style={{
+                position: 'fixed',
+                bottom: 0, left: 0, right: 0, top: 0,
+                background: 'rgba(0,0,0,0.4)',
+                zIndex: 9999,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+                animation: 'fadeIn 0.2s ease-out'
+            }}
+            onClick={() => setShowSheet(false)}
+        >
+            <div
+                style={{
+                    background: '#fff',
+                    padding: '1.5rem',
+                    borderTopLeftRadius: '24px',
+                    borderTopRightRadius: '24px',
+                    boxShadow: '0 -4px 24px rgba(0,0,0,0.1)',
+                    animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                    width: '100%',
+                    maxWidth: '480px',
+                    paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))'
+                }}
+                onClick={e => e.stopPropagation()}
+            >
+                <div style={{ width: '40px', height: '4px', background: 'var(--color-border)', borderRadius: '2px', margin: '0 auto 1.5rem auto' }} />
+                <h3 style={{ margin: '0 0 1.5rem 0', textAlign: 'center', fontSize: '1.2rem' }}>{t('weight.sheet_title')}</h3>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '2rem' }}>
+                    <input
+                        type="text"
+                        inputMode="decimal"
+                        value={tempWeight}
+                        onChange={(e) => setTempWeight(e.target.value)}
+                        placeholder="65.0"
+                        autoFocus
+                        style={{
+                            width: '140px',
+                            padding: '16px',
+                            borderRadius: '16px',
+                            border: `2px solid ${phaseColor}`,
+                            fontSize: '1.5rem',
+                            fontWeight: '800',
+                            textAlign: 'center',
+                            color: 'var(--color-text)',
+                            outline: 'none',
+                            boxShadow: 'var(--shadow-soft)'
+                        }}
+                    />
+                    <span style={{ fontSize: '1.2rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>kg</span>
+                </div>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                    <button
+                        onClick={() => setShowSheet(false)}
+                        style={{ flex: 1, padding: '1rem', borderRadius: '16px', border: 'none', background: 'var(--color-bg)', color: 'var(--color-text)', fontWeight: '600', fontSize: '1rem', cursor: 'pointer' }}
+                    >
+                        {t('common.cancel')}
+                    </button>
+                    <button
+                        onClick={handleSaveManual}
+                        disabled={!tempWeight}
+                        style={{ flex: 1, padding: '1rem', borderRadius: '16px', border: 'none', background: 'var(--color-primary)', color: '#333333', fontWeight: '700', fontSize: '1rem', cursor: tempWeight ? 'pointer' : 'not-allowed', opacity: tempWeight ? 1 : 0.5, boxShadow: tempWeight ? '0 4px 12px rgba(255, 174, 185, 0.3)' : 'none' }}
+                    >
+                        {t('common.save')}
+                    </button>
+                </div>
+            </div>
+        </div>
+    )
 
-            {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 1.25rem 0.75rem' }}>
-                <h2 style={{ fontSize: '1.1rem', margin: 0 }}>{t('weight.title')}</h2>
+    if (compact) {
+        return (
+            <>
+                <section className="card-minimal" style={{ marginBottom: '1.25rem', padding: '1rem 1.25rem', background: '#fff', borderRadius: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid var(--color-border)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: `${phaseColor}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ color: phaseColor }}>
+                                <rect x="3" y="6" width="18" height="12" rx="3" />
+                                <path d="M12 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
+                                <path d="M12 10v4" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 style={{ fontSize: '1rem', margin: '0 0 2px 0', color: 'var(--color-text)', fontWeight: '700' }}>{t('weight.title')}</h2>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>
+                                {currentWeight ? `${currentWeight} kg` : t('common.not_logged', { defaultValue: 'Niet gelogd' })}
+                            </div>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => { setTempWeight(currentWeight ? String(currentWeight) : ''); setShowSheet(true) }}
+                        style={{ background: 'var(--color-primary)', color: '#333333', border: 'none', borderRadius: '20px', padding: '6px 16px', fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer', boxShadow: '0 2px 8px rgba(255, 174, 185, 0.3)' }}
+                    >
+                        Log
+                    </button>
+                </section>
+                {bottomSheet}
+            </>
+        )
+    }
+
+    return (
+        <section className="card" style={{ marginBottom: '1.25rem', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                <div>
+                    <h2 style={{ fontSize: '1.1rem', margin: '0 0 4px 0', color: 'var(--color-text-muted)', fontWeight: '600' }}>{t('weight.title')}</h2>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
+                        <span style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--color-text)', lineHeight: 1, letterSpacing: '-0.02em' }}>
+                            {currentWeight || '—'}
+                        </span>
+                        <span style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>kg</span>
+                    </div>
+                    {trendSentence && (
+                        <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '4px', fontWeight: '500' }}>
+                            {trendSentence}
+                        </div>
+                    )}
+                    {trends && trends.logCount === 1 && (
+                        <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '4px', fontWeight: '500' }}>
+                            {t('weight.first_log_hint')}
+                        </div>
+                    )}
+                </div>
                 <button
                     onClick={() => { setTempWeight(currentWeight ? String(currentWeight) : ''); setShowSheet(true) }}
-                    style={{
-                        background: 'var(--color-primary)',
-                        color: '#333333',
-                        border: 'none',
-                        borderRadius: '20px',
-                        padding: '6px 16px',
-                        fontSize: '0.82rem',
-                        fontWeight: '700',
-                        cursor: 'pointer',
-                        letterSpacing: '0.01em'
-                    }}
+                    style={{ background: 'var(--color-primary)', color: '#333333', border: 'none', borderRadius: '20px', padding: '6px 16px', fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer', boxShadow: '0 2px 8px rgba(255, 174, 185, 0.3)' }}
                 >
-                    + Log
+                    Log
                 </button>
             </div>
 
-            {/* Graph */}
             {chartData ? (
                 <div
-                    style={{ position: 'relative', width: '100%', touchAction: 'none', userSelect: 'none' }}
-                    onMouseMove={handleMove}
-                    onMouseLeave={handleLeave}
-                    onTouchMove={handleMove}
-                    onTouchStart={handleMove}
-                    onTouchEnd={handleLeave}
+                    style={{ position: 'relative', width: '100%', touchAction: 'none', userSelect: 'none', margin: '1rem 0 0.5rem 0' }}
+                    onMouseMove={handleMove} onMouseLeave={handleLeave} onTouchMove={handleMove} onTouchStart={handleMove} onTouchEnd={handleLeave}
                 >
-                    {/* Floating Tooltip */}
                     {scrubPoint && (
                         <div style={{
-                            position: 'absolute',
-                            left: tooltipLeft,
-                            top: '8px',
-                            transform: 'translateX(-50%)',
-                            background: 'var(--color-text)',
-                            color: '#fff',
-                            padding: '6px 12px',
-                            borderRadius: '12px',
-                            fontSize: '0.75rem',
-                            fontWeight: '700',
-                            pointerEvents: 'none',
-                            zIndex: 10,
-                            whiteSpace: 'nowrap',
-                            boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
-                            lineHeight: 1.4
+                            position: 'absolute', left: tooltipLeft, top: '-8px', transform: 'translateX(-50%)',
+                            background: 'var(--color-text)', color: '#fff', padding: '6px 12px', borderRadius: '12px',
+                            fontSize: '0.75rem', fontWeight: '700', pointerEvents: 'none', zIndex: 10,
+                            whiteSpace: 'nowrap', boxShadow: '0 4px 16px rgba(0,0,0,0.18)', lineHeight: 1.4
                         }}>
                             {scrubPoint.weight} kg
                             <div style={{ fontSize: '0.62rem', opacity: 0.7, textAlign: 'center', fontWeight: '400' }}>
@@ -328,65 +421,30 @@ export default function WeightTracker({ date }) {
                         </div>
                     )}
 
-                    {/* Y-axis labels (3-level) */}
-                    <div style={{ position: 'absolute', left: '8px', top: '4px', bottom: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', pointerEvents: 'none', zIndex: 5 }}>
-                        <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', lineHeight: 1 }}>{chartData.yLabelHigh} kg</span>
-                        <span style={{ fontSize: '0.55rem', color: 'var(--color-text-muted)', lineHeight: 1, opacity: 0.6 }}>{chartData.yLabelMid}</span>
-                        <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)', lineHeight: 1 }}>{chartData.yLabelLow} kg</span>
-                    </div>
-
-                    <svg
-                        ref={svgRef}
-                        width="100%"
-                        height="160"
-                        viewBox={`0 0 ${chartData.W} ${chartData.H}`}
-                        preserveAspectRatio="none"
-                        style={{ display: 'block', cursor: 'crosshair' }}
-                    >
+                    <svg width="100%" height="120" viewBox={`0 0 ${chartData.W} ${chartData.H}`} preserveAspectRatio="none" style={{ display: 'block', cursor: 'crosshair', overflow: 'visible' }}>
                         <defs>
                             <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor={phaseColor} stopOpacity="0.25" />
-                                <stop offset="80%" stopColor={phaseColor} stopOpacity="0.05" />
+                                <stop offset="0%" stopColor={phaseColor} stopOpacity="0.15" />
                                 <stop offset="100%" stopColor={phaseColor} stopOpacity="0.0" />
                             </linearGradient>
                         </defs>
-
-                        {/* Grid lines for visual reference */}
-                        {chartData.gridLines.map((gl, i) => (
-                            <line key={i} x1="0" y1={gl.y} x2={chartData.W} y2={gl.y}
-                                stroke="var(--color-border)" strokeWidth={gl.isMain ? '0.4' : '0.2'}
-                                strokeDasharray={gl.isMain ? '3 4' : '1.5 3'} opacity={gl.isMain ? 0.6 : 0.35} />
-                        ))}
-
-                        {/* Area fill — phase colored */}
                         {chartData.areaPathStr && <path d={chartData.areaPathStr} fill="url(#weightGradient)" />}
-
-                        {/* Line — phase colored */}
                         {chartData.linePathStr && (
-                            <path fill="none" stroke={phaseColor} strokeWidth="2.5"
-                                strokeLinecap="round" strokeLinejoin="round" d={chartData.linePathStr} />
+                            <path fill="none" stroke={phaseColor} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" d={chartData.linePathStr} />
                         )}
-
-                        {/* Data point dots — subtle dark grey */}
                         {chartData.pointsArray.map((pt, i) => (
-                            <circle key={i} cx={pt.x} cy={pt.y} r="1.5" fill="#333333" opacity="0.5" />
+                            <circle key={i} cx={pt.x} cy={pt.y} r="1.5" fill={phaseColor} opacity="0.6" />
                         ))}
-
-                        {/* Scrubber */}
                         {scrubPoint && (
                             <>
-                                <line x1={scrubPoint.x} y1="0" x2={scrubPoint.x} y2={chartData.H}
-                                    stroke="var(--color-text)" strokeWidth="0.5" strokeDasharray="3 3" opacity="0.35" />
-                                <circle cx={scrubPoint.x} cy={scrubPoint.y} r="5" fill={phaseColor} opacity="0.2" />
-                                <circle cx={scrubPoint.x} cy={scrubPoint.y} r="3" fill="#fff" stroke={phaseColor} strokeWidth="1.5" />
+                                <line x1={scrubPoint.x} y1="-10" x2={scrubPoint.x} y2={chartData.H} stroke="var(--color-text)" strokeWidth="0.5" strokeDasharray="2 2" opacity="0.3" />
+                                <circle cx={scrubPoint.x} cy={scrubPoint.y} r="4" fill="#fff" stroke={phaseColor} strokeWidth="1.5" />
                             </>
                         )}
                     </svg>
-
-                    {/* X-axis labels */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '2px 10px 4px 10px', pointerEvents: 'none' }}>
-                        <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)' }}>{chartData.startLabel}</span>
-                        <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)' }}>{chartData.endLabel}</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 4px', pointerEvents: 'none' }}>
+                        <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>{chartData.startLabel}</span>
+                        <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>{chartData.endLabel}</span>
                     </div>
                 </div>
             ) : (
@@ -395,120 +453,14 @@ export default function WeightTracker({ date }) {
                 </div>
             )}
 
-            {/* Big weight hero + trend sentence */}
-            <div style={{ padding: '1rem 1.25rem 0.25rem' }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
-                    <span style={{ fontSize: '2.8rem', fontWeight: '800', color: 'var(--color-text)', lineHeight: 1, letterSpacing: '-0.03em' }}>
-                        {currentWeight || '—'}
-                    </span>
-                    <span style={{ fontSize: '1.1rem', fontWeight: '500', color: 'var(--color-text-muted)' }}>kg</span>
-                </div>
-                {trendSentence && (
-                    <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '3px' }}>
-                        {trendSentence}
-                    </div>
-                )}
-                {trends && trends.logCount === 1 && (
-                    <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '3px' }}>
-                        {t('weight.first_log_hint')}
-                    </div>
-                )}
+            <div style={{ padding: '0.85rem 1rem', background: `${phaseColor}15`, borderRadius: '16px', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: phaseColor, marginTop: '6px', flexShrink: 0 }} />
+                <span style={{ fontSize: '0.85rem', color: 'var(--color-text)', lineHeight: '1.45', fontWeight: '500' }}>
+                    {getInsight(currentPhase)}
+                </span>
             </div>
 
-            {/* Cyclus insight — compact inline */}
-            <div style={{ padding: '0.75rem 1.25rem 1.25rem' }}>
-                <div style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '8px',
-                    padding: '0.75rem',
-                    background: 'var(--color-bg)',
-                    borderRadius: '12px',
-                    border: `1px solid ${phaseColor}30`
-                }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: phaseColor, marginTop: '4px', flexShrink: 0 }} />
-                    <span style={{ fontSize: '0.82rem', color: 'var(--color-text)', lineHeight: '1.45' }}>
-                        {getInsight(currentPhase)}
-                    </span>
-                </div>
-            </div>
-
-            {/* BOTTOM SHEET */}
-            {showSheet && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        bottom: 0, left: 0, right: 0, top: 0,
-                        background: 'rgba(0,0,0,0.4)',
-                        zIndex: 9999,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'flex-end',
-                        alignItems: 'center',
-                        animation: 'fadeIn 0.2s ease-out'
-                    }}
-                    onClick={() => setShowSheet(false)}
-                >
-                    <div
-                        style={{
-                            background: '#fff',
-                            padding: '1.5rem',
-                            borderTopLeftRadius: '24px',
-                            borderTopRightRadius: '24px',
-                            boxShadow: '0 -4px 24px rgba(0,0,0,0.1)',
-                            animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                            width: '100%',
-                            maxWidth: '480px',
-                            paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))'
-                        }}
-                        onClick={e => e.stopPropagation()}
-                    >
-                        <div style={{ width: '40px', height: '4px', background: 'var(--color-border)', borderRadius: '2px', margin: '0 auto 1.5rem auto' }} />
-
-                        <h3 style={{ margin: '0 0 1.5rem 0', textAlign: 'center', fontSize: '1.2rem' }}>{t('weight.sheet_title')}</h3>
-
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '2rem' }}>
-                            <input
-                                type="text"
-                                inputMode="decimal"
-                                value={tempWeight}
-                                onChange={(e) => setTempWeight(e.target.value)}
-                                placeholder="65.0"
-                                autoFocus
-                                style={{
-                                    width: '140px',
-                                    padding: '16px',
-                                    borderRadius: '16px',
-                                    border: `2px solid ${phaseColor}`,
-                                    fontSize: '1.5rem',
-                                    fontWeight: '800',
-                                    textAlign: 'center',
-                                    color: 'var(--color-text)',
-                                    outline: 'none',
-                                    boxShadow: 'var(--shadow-soft)'
-                                }}
-                            />
-                            <span style={{ fontSize: '1.2rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>kg</span>
-                        </div>
-
-                        <div style={{ display: 'flex', gap: '1rem' }}>
-                            <button
-                                onClick={() => setShowSheet(false)}
-                                style={{ flex: 1, padding: '1rem', borderRadius: '16px', border: 'none', background: 'var(--color-bg)', color: 'var(--color-text)', fontWeight: '600', fontSize: '1rem', cursor: 'pointer' }}
-                            >
-                                {t('common.cancel')}
-                            </button>
-                            <button
-                                onClick={handleSaveManual}
-                                className="btn btn-primary"
-                                style={{ flex: 2, padding: '1rem', borderRadius: '16px', fontWeight: '600', fontSize: '1rem', background: phaseColor }}
-                            >
-                                {t('common.save')}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {bottomSheet}
         </section>
     )
 }

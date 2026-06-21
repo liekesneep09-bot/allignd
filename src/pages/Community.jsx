@@ -278,6 +278,7 @@ export default function Community() {
     const openPost = async (post) => {
         setSelectedPost(post)
         setView('detail')
+        window.scrollTo(0, 0)
 
         try {
             const { data } = await supabase
@@ -349,6 +350,7 @@ export default function Community() {
             setNewPhaseTag(currentPhase || null)
             setNewAnonymous(false)
             setView('feed')
+            window.scrollTo(0, 0)
             fetchPosts()
         } catch (e) {
             console.error('Failed to create post:', e)
@@ -392,6 +394,7 @@ export default function Community() {
             }
 
             setView('feed')
+            window.scrollTo(0, 0)
             fetchPosts()
         } catch (e) {
             console.error('Failed to delete post:', e)
@@ -442,7 +445,7 @@ export default function Community() {
                 {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                     <button
-                        onClick={() => setView('feed')}
+                        onClick={() => { setView('feed'); window.scrollTo(0, 0) }}
                         style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.95rem', cursor: 'pointer' }}
                     >
                         ← {t('community.back')}
@@ -594,7 +597,7 @@ export default function Community() {
             <div className="container" style={{ paddingBottom: '120px' }}>
                 {/* Back */}
                 <button
-                    onClick={() => { setView('feed'); setComments([]); fetchPosts() }}
+                    onClick={() => { setView('feed'); setComments([]); fetchPosts(); window.scrollTo(0, 0) }}
                     style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.95rem', cursor: 'pointer', marginBottom: '1rem' }}
                 >
                     ← {t('community.back')}
@@ -968,7 +971,7 @@ export default function Community() {
 
             {/* FAB: New Post */}
             <button
-                onClick={() => setView('new')}
+                onClick={() => { setView('new'); window.scrollTo(0, 0) }}
                 style={{
                     position: 'fixed', bottom: '90px', right: '20px',
                     width: '60px', height: '60px', borderRadius: '50%',

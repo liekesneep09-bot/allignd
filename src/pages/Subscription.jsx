@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-
+import { useAuth } from '../context/AuthContext';
 
 // Simple Check Icon Component
 const IconCheck = ({ size = 20, color = 'currentColor' }) => (
@@ -11,17 +11,30 @@ const IconCheck = ({ size = 20, color = 'currentColor' }) => (
 
 export default function Subscription() {
     const { t } = useLanguage();
+    const { user } = useAuth();
     const [selectedPlan, setSelectedPlan] = useState('yearly'); // Default to best value
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubscribe = () => {
+        if (!user) {
+            console.error("Geen gebruiker ingelogd");
+            return;
+        }
+
         setIsLoading(true);
         
         // Direct links provided by the user
         const YEARLY_LINK = import.meta.env.VITE_STRIPE_YEARLY_LINK || 'https://buy.stripe.com/test_eVqcN55vC6DI2Ho3Nkb7y01';
         const MONTHLY_LINK = import.meta.env.VITE_STRIPE_MONTHLY_LINK || 'https://buy.stripe.com/test_cNieVdgage6adm2cjQb7y02';
 
-        const checkoutUrl = selectedPlan === 'monthly' ? MONTHLY_LINK : YEARLY_LINK;
+        let checkoutUrl = selectedPlan === 'monthly' ? MONTHLY_LINK : YEARLY_LINK;
+        
+        // Append the user ID so the Stripe webhook knows who paid
+        if (checkoutUrl.includes('?')) {
+            checkoutUrl += `&client_reference_id=${user.id}&prefilled_email=${encodeURIComponent(user.email)}`;
+        } else {
+            checkoutUrl += `?client_reference_id=${user.id}&prefilled_email=${encodeURIComponent(user.email)}`;
+        }
         
         // Redirect the user to Stripe
         window.location.href = checkoutUrl;

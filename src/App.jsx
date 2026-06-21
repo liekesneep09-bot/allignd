@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { UserProvider, useUser } from './context/UserContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Onboarding from './pages/Onboarding'
@@ -69,11 +69,21 @@ function MainLayout() {
     const { hasOnboarded, isLoading, currentPhase } = useUser()
     const { t } = useLanguage()
     const [currentView, setCurrentView] = useState('today')
+
+    // Wrapper: scroll to top on every view switch
+    const navigateTo = useCallback((view) => {
+        setCurrentView(view)
+        window.scrollTo(0, 0)
+    }, [])
     // Track if we've shown the app at least once — prevents flash back to onboarding
     const [appReady, setAppReady] = useState(false)
 
     useEffect(() => {
-        if (!isLoading) setAppReady(true)
+        let timer;
+        if (!isLoading) {
+            timer = setTimeout(() => setAppReady(true), 150)
+        }
+        return () => clearTimeout(timer)
     }, [isLoading])
 
     // Phase colors for background gradient
@@ -104,8 +114,10 @@ function MainLayout() {
 
     const phaseStyle = getPhaseColor(currentPhase)
 
-    // Show splash while loading
-    if (isLoading) return <SplashScreen />
+    // Show splash while loading, or until appReady is true.
+    // appReady prevents a flash of the Onboarding screen when hasOnboarded
+    // temporarily reads as false during initial load.
+    if (isLoading || !appReady) return <SplashScreen />
 
     // Fix for PWA background state flash:
     // If the app reloads from background while offline, the profile fetch might fail.
@@ -151,7 +163,7 @@ function MainLayout() {
 
                 {/* Profile Button top right */}
                 <button
-                    onClick={() => setCurrentView('profile')}
+                    onClick={() => navigateTo('profile')}
                     style={{
                         width: '32px',
                         height: '32px',
@@ -175,13 +187,13 @@ function MainLayout() {
                 minHeight: currentView !== 'today' ? 'calc(100vh - 82px)' : undefined,
                 transition: 'background 0.5s ease'
             }}>
-                {currentView === 'today' && <Today onNavigate={setCurrentView} />}
+                {currentView === 'today' && <Today onNavigate={navigateTo} />}
                 {currentView === 'community' && <Community />}
                 {currentView === 'fitness' && <Fitness />}
                 {currentView === 'recipes' && <Recipes />}
                 {currentView === 'guide' && <PhaseGuide />}
                 {currentView === 'profile' && <Profile />}
-                {currentView === 'progress' && <Progress onClose={() => setCurrentView('today')} />}
+                {currentView === 'progress' && <Progress onClose={() => navigateTo('today')} />}
             </main>
 
             <nav style={{
@@ -200,7 +212,7 @@ function MainLayout() {
                 zIndex: 100
             }}>
                 <button
-                    onClick={() => setCurrentView('today')}
+                    onClick={() => navigateTo('today')}
                     style={{
                         color: currentView === 'today' ? phaseStyle.text : 'var(--color-text-muted)',
                         display: 'flex',
@@ -218,7 +230,7 @@ function MainLayout() {
                 </button>
 
                 <button
-                    onClick={() => setCurrentView('community')}
+                    onClick={() => navigateTo('community')}
                     style={{
                         color: currentView === 'community' ? phaseStyle.text : 'var(--color-text-muted)',
                         display: 'flex',
@@ -236,7 +248,7 @@ function MainLayout() {
                 </button>
 
                 <button
-                    onClick={() => setCurrentView('fitness')}
+                    onClick={() => navigateTo('fitness')}
                     style={{
                         color: currentView === 'fitness' ? phaseStyle.text : 'var(--color-text-muted)',
                         display: 'flex',
@@ -254,7 +266,7 @@ function MainLayout() {
                 </button>
 
                 <button
-                    onClick={() => setCurrentView('recipes')}
+                    onClick={() => navigateTo('recipes')}
                     style={{
                         color: currentView === 'recipes' ? phaseStyle.text : 'var(--color-text-muted)',
                         display: 'flex',
@@ -272,7 +284,7 @@ function MainLayout() {
                 </button>
 
                 <button
-                    onClick={() => setCurrentView('guide')}
+                    onClick={() => navigateTo('guide')}
                     style={{
                         color: currentView === 'guide' ? phaseStyle.text : 'var(--color-text-muted)',
                         display: 'flex',
@@ -300,7 +312,14 @@ function AuthenticatedApp() {
         return <SplashScreen />
     }
 
-    const hasAdminOverride = localStorage.getItem('admin_override') === 'true'
+    let hasAdminOverride = localStorage.getItem('admin_override') === 'true'
+
+    // Auto-recover: als de user een geldige sessie heeft maar admin_override
+    // is verdwenen (bijv. door iOS cache opruiming), herstel het automatisch.
+    if (!hasAdminOverride && user) {
+        localStorage.setItem('admin_override', 'true')
+        hasAdminOverride = true
+    }
 
     // VOOR-LANCERING BEVEILIGING:
     // Blokkeer toegang tot de app (en de login). Alleen via het wachtwoord kunnen we de app in.

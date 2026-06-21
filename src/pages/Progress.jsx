@@ -3,6 +3,7 @@ import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
 import { getLocalDateStr } from '../utils/date'
 import { toNum } from '../utils/numbers'
+import WeightTracker from '../components/WeightTracker'
 
 // ─── Helpers ─────────────────────────────────────────────
 
@@ -42,9 +43,9 @@ function MacroWeekCard({ t, language }) {
                 daysWithLogs++
                 dayLogs.forEach(l => {
                     totalKcal += toNum(l.kcal)
-                    totalP += toNum(l.protein)
-                    totalC += toNum(l.carbs)
-                    totalF += toNum(l.fat)
+                    totalP += toNum(l.p || l.protein)
+                    totalC += toNum(l.c || l.carbs)
+                    totalF += toNum(l.f || l.fat)
                 })
             }
         }
@@ -68,7 +69,7 @@ function MacroWeekCard({ t, language }) {
     if (!weekStats) {
         return (
             <div style={cardStyle}>
-                <h3 style={cardTitleStyle}>{t('progress.weekly_avg')}</h3>
+                <h3 style={cardTitleStyle}>Voeding Weekgemiddelde</h3>
                 <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', textAlign: 'center', padding: '1.5rem 0' }}>
                     {t('progress.no_food_logs')}
                 </p>
@@ -89,7 +90,7 @@ function MacroWeekCard({ t, language }) {
         <div style={cardStyle}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
                 <div>
-                    <h3 style={cardTitleStyle}>{t('progress.weekly_avg')}</h3>
+                    <h3 style={cardTitleStyle}>Voeding Weekgemiddelde</h3>
                     <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                         {t('progress.based_on_days').replace('{n}', weekStats.daysWithLogs)}
                     </span>
@@ -148,260 +149,6 @@ function MacroWeekCard({ t, language }) {
     )
 }
 
-// ─── Weight Trend Card ────────────────────────────────────
-
-function WeightTrendCard({ t, language }) {
-    const { user, getPhaseForDate, currentPhase } = useUser()
-    const svgRef = useRef(null)
-    const [scrubIndex, setScrubIndex] = useState(null)
-    const hideTimeoutRef = useRef(null)
-
-    const phaseColor = PHASE_COLORS[currentPhase] || 'var(--color-primary)'
-
-    const chartData = useMemo(() => {
-        if (!user.weightLogs || user.weightLogs.length < 1) return null
-
-        // Last 90 days
-        let sorted = [...user.weightLogs]
-            .sort((a, b) => a.date.localeCompare(b.date))
-            .slice(-90)
-
-        // Deduplicate per date
-        const deduped = []
-        for (const log of sorted) {
-            if (deduped.length > 0 && deduped[deduped.length - 1].date === log.date) {
-                deduped[deduped.length - 1] = log
-            } else {
-                deduped.push(log)
-            }
-        }
-        sorted = deduped
-        if (sorted.length < 1) return null
-
-        const weights = sorted.map(l => l.weight)
-        const rawMin = Math.min(...weights)
-        const rawMax = Math.max(...weights)
-        const dataRange = rawMax - rawMin
-        const MIN_VISIBLE_RANGE = 2
-        const dataMid = (rawMin + rawMax) / 2
-
-        let yLow, yHigh
-        if (dataRange < MIN_VISIBLE_RANGE) {
-            yLow = Math.floor((dataMid - MIN_VISIBLE_RANGE / 2) * 2) / 2
-            yHigh = Math.ceil((dataMid + MIN_VISIBLE_RANGE / 2) * 2) / 2
-        } else {
-            const padding = Math.max(0.3, dataRange * 0.08)
-            yLow = Math.floor((rawMin - padding) * 2) / 2
-            yHigh = Math.ceil((rawMax + padding) * 2) / 2
-        }
-        if (yHigh - yLow < 1) { yLow -= 0.5; yHigh += 0.5 }
-
-        const W = 100, H = 70
-        const xPad = sorted.length > 1 ? 4 : 0
-        const plotW = W - xPad * 2
-        const startTs = parseLocalDate(sorted[0].date).getTime()
-        const endTs = parseLocalDate(sorted[sorted.length - 1].date).getTime()
-        const timeSpan = endTs - startTs || 1
-        const plotTop = H * 0.08, plotHeight = H * 0.82
-
-        const pts = sorted.map(l => {
-            const ts = parseLocalDate(l.date).getTime()
-            const xN = sorted.length === 1 ? 0.5 : (ts - startTs) / timeSpan
-            const x = xPad + xN * plotW
-            const yN = (l.weight - yLow) / (yHigh - yLow || 1)
-            const y = plotTop + plotHeight - yN * plotHeight
-            const { phase } = getPhaseForDate(l.date)
-            return { x, y, weight: l.weight, date: l.date, phaseColor: PHASE_COLORS[phase] || phaseColor, phase }
-        })
-
-        // Target weight line
-        let targetY = null
-        if (user.targetWeight) {
-            const tW = parseFloat(user.targetWeight)
-            if (!isNaN(tW) && tW >= yLow && tW <= yHigh) {
-                const yN = (tW - yLow) / (yHigh - yLow || 1)
-                targetY = plotTop + plotHeight - yN * plotHeight
-            }
-        }
-
-        // Smooth bezier line
-        let linePathStr = null, areaPathStr = null
-        if (pts.length >= 2) {
-            linePathStr = `M ${pts[0].x},${pts[0].y}`
-            for (let i = 0; i < pts.length - 1; i++) {
-                const p0 = pts[Math.max(0, i - 1)]
-                const p1 = pts[i]
-                const p2 = pts[i + 1]
-                const p3 = pts[Math.min(pts.length - 1, i + 2)]
-                const t = 0.25
-                const cp1x = p1.x + (p2.x - p0.x) * t
-                const cp1y = p1.y + (p2.y - p0.y) * t
-                const cp2x = p2.x - (p3.x - p1.x) * t
-                const cp2y = p2.y - (p3.y - p1.y) * t
-                linePathStr += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`
-            }
-            areaPathStr = `${linePathStr} L ${pts[pts.length - 1].x},${H} L ${pts[0].x},${H} Z`
-        }
-
-        const startLabel = parseLocalDate(sorted[0].date).toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { day: 'numeric', month: 'short' })
-        const endLabel = parseLocalDate(sorted[sorted.length - 1].date).toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { day: 'numeric', month: 'short' })
-
-        return { pts, linePathStr, areaPathStr, H, W, yLow, yHigh, startLabel, endLabel, targetY, plotTop, plotHeight }
-    }, [user.weightLogs, user.targetWeight, getPhaseForDate])
-
-    // Trend summary
-    const trendText = useMemo(() => {
-        if (!user.weightLogs || user.weightLogs.length < 2) return null
-        const sorted = [...user.weightLogs].sort((a, b) => a.date.localeCompare(b.date))
-        const first = sorted[0].weight
-        const last = sorted[sorted.length - 1].weight
-        const diff = Number((last - first).toFixed(1))
-        if (Math.abs(diff) <= 0.05) return t('weight.stable_since')
-        const arrow = diff > 0 ? '↑' : '↓'
-        const key = diff > 0 ? t('weight.more_than') : t('weight.less_than')
-        const dateStr = parseLocalDate(sorted[0].date).toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { day: 'numeric', month: 'long' })
-        return `${arrow} ${Math.abs(diff).toFixed(1)} kg ${key} ${dateStr}`
-    }, [user.weightLogs, language, t])
-
-    const handleMove = useCallback((e) => {
-        if (!chartData || !svgRef.current) return
-        if (hideTimeoutRef.current) { clearTimeout(hideTimeoutRef.current); hideTimeoutRef.current = null }
-        const rect = svgRef.current.getBoundingClientRect()
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX
-        const xPct = (Math.max(0, Math.min(clientX - rect.left, rect.width)) / rect.width) * 100
-        let closest = 0, minD = Infinity
-        chartData.pts.forEach((p, i) => { const d = Math.abs(p.x - xPct); if (d < minD) { minD = d; closest = i } })
-        setScrubIndex(closest)
-    }, [chartData])
-
-    const handleLeave = useCallback(() => {
-        hideTimeoutRef.current = setTimeout(() => setScrubIndex(null), 600)
-    }, [])
-
-    const scrubPt = scrubIndex !== null && chartData ? chartData.pts[scrubIndex] : null
-    const tooltipLeft = scrubPt ? (scrubPt.x < 8 ? '8%' : scrubPt.x > 92 ? '92%' : `${scrubPt.x}%`) : '50%'
-
-    if (!chartData) {
-        return (
-            <div style={cardStyle}>
-                <h3 style={cardTitleStyle}>{t('progress.weight_trend')}</h3>
-                <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', textAlign: 'center', padding: '1.5rem 0' }}>
-                    {t('weight.log_cta')}
-                </p>
-            </div>
-        )
-    }
-
-    return (
-        <div style={cardStyle}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                <h3 style={cardTitleStyle}>{t('progress.weight_trend')}</h3>
-                {user.targetWeight && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                        <div style={{ width: '20px', height: '2px', background: '#888', borderRadius: '1px', opacity: 0.4, borderTop: '2px dashed #888', marginTop: '-2px' }} />
-                        {t('progress.target')} {user.targetWeight} kg
-                    </div>
-                )}
-            </div>
-
-            {trendText && (
-                <div style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)', marginBottom: '0.75rem' }}>
-                    {trendText}
-                </div>
-            )}
-
-            <div
-                style={{ position: 'relative', width: '100%', touchAction: 'none', userSelect: 'none' }}
-                onMouseMove={handleMove}
-                onMouseLeave={handleLeave}
-                onTouchMove={handleMove}
-                onTouchStart={handleMove}
-                onTouchEnd={handleLeave}
-            >
-                {scrubPt && (
-                    <div style={{
-                        position: 'absolute', left: tooltipLeft, top: '8px',
-                        transform: 'translateX(-50%)',
-                        background: 'var(--color-text)', color: '#fff',
-                        padding: '6px 12px', borderRadius: '12px',
-                        fontSize: '0.75rem', fontWeight: '700',
-                        pointerEvents: 'none', zIndex: 10,
-                        whiteSpace: 'nowrap',
-                        boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
-                        lineHeight: 1.4
-                    }}>
-                        {scrubPt.weight} kg
-                        <div style={{ fontSize: '0.62rem', opacity: 0.7, textAlign: 'center', fontWeight: '400' }}>
-                            {parseLocalDate(scrubPt.date).toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { day: 'numeric', month: 'short' })}
-                        </div>
-                        <div style={{ fontSize: '0.62rem', color: scrubPt.phaseColor, textAlign: 'center', marginTop: '2px', fontWeight: 800, filter: 'brightness(1.4)' }}>
-                            {t(`weight.phases.${scrubPt.phase}`)}
-                        </div>
-                    </div>
-                )}
-
-                <svg ref={svgRef} width="100%" height="180"
-                    viewBox={`0 0 ${chartData.W} ${chartData.H}`}
-                    preserveAspectRatio="none"
-                    style={{ display: 'block', cursor: 'crosshair' }}>
-                    <defs>
-                        <linearGradient id="progressWeightGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor={phaseColor} stopOpacity="0.2" />
-                            <stop offset="100%" stopColor={phaseColor} stopOpacity="0.02" />
-                        </linearGradient>
-                    </defs>
-
-                    {/* Target weight dashed line */}
-                    {chartData.targetY !== null && (
-                        <line x1="0" y1={chartData.targetY} x2={chartData.W} y2={chartData.targetY}
-                            stroke="#888" strokeWidth="0.6" strokeDasharray="3 3" opacity="0.4" />
-                    )}
-
-                    {/* Area fill */}
-                    {chartData.areaPathStr && <path d={chartData.areaPathStr} fill="url(#progressWeightGrad)" />}
-
-                    {/* Line */}
-                    {chartData.linePathStr && (
-                        <path fill="none" stroke={phaseColor} strokeWidth="2.5"
-                            strokeLinecap="round" strokeLinejoin="round" d={chartData.linePathStr} />
-                    )}
-
-                    {/* Phase-colored dots */}
-                    {chartData.pts.map((pt, i) => (
-                        <circle key={i} cx={pt.x} cy={pt.y} r="1.8" fill={pt.phaseColor} opacity="0.7" />
-                    ))}
-
-                    {/* Scrubber */}
-                    {scrubPt && (
-                        <>
-                            <line x1={scrubPt.x} y1="0" x2={scrubPt.x} y2={chartData.H}
-                                stroke="var(--color-text)" strokeWidth="0.5" strokeDasharray="3 3" opacity="0.3" />
-                            <circle cx={scrubPt.x} cy={scrubPt.y} r="5" fill={scrubPt.phaseColor} opacity="0.15" />
-                            <circle cx={scrubPt.x} cy={scrubPt.y} r="3" fill="#fff" stroke={scrubPt.phaseColor} strokeWidth="1.5" />
-                        </>
-                    )}
-                </svg>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '2px 6px 0', pointerEvents: 'none' }}>
-                    <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)' }}>{chartData.startLabel}</span>
-                    <span style={{ fontSize: '0.6rem', color: 'var(--color-text-muted)' }}>{chartData.endLabel}</span>
-                </div>
-            </div>
-
-            {/* Phase legend */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '0.75rem' }}>
-                {Object.entries(PHASE_COLORS).map(([phase, color]) => (
-                    <div key={phase} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: color }} />
-                        <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>
-                            {t(`weight.phases.${phase}`)}
-                        </span>
-                    </div>
-                ))}
-            </div>
-        </div>
-    )
-}
 
 // ─── Symptom Cycle Comparison Card ───────────────────────
 
@@ -627,7 +374,7 @@ export default function Progress({ onClose }) {
 
             <div style={{ padding: '1.25rem 1.25rem 0' }}>
                 <MacroWeekCard t={t} language={language} />
-                <WeightTrendCard t={t} language={language} />
+                <WeightTracker date={getLocalDateStr(new Date())} />
                 <SymptomCompareCard t={t} language={language} />
             </div>
         </div>

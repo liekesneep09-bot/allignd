@@ -51,6 +51,7 @@ export default function Recipes() {
                 setAddedSuccess(false)
                 setIsConfirming(false)
                 setSelectedRecipe(null)
+                window.scrollTo(0, 0)
             }, 2000)
         } catch (error) {
             console.error('Error logging recipe:', error)
@@ -64,7 +65,7 @@ export default function Recipes() {
             <div className="container" style={{ paddingBottom: '90px' }}>
                 <header style={{ marginBottom: '1.5rem' }}>
                     <button
-                        onClick={() => setSelectedRecipe(null)}
+                        onClick={() => { setSelectedRecipe(null); window.scrollTo(0, 0) }}
                         style={{
                             background: 'none',
                             color: 'var(--color-text-muted)',
@@ -367,7 +368,7 @@ export default function Recipes() {
                                     {meals.map((meal, idx) => (
                                         <div
                                             key={idx}
-                                            onClick={() => setSelectedRecipe(meal)}
+                                            onClick={() => { setSelectedRecipe(meal); window.scrollTo(0, 0) }}
                                             style={{
                                                 padding: '1rem 0',
                                                 borderTop: '1px solid var(--color-border)',

@@ -184,14 +184,14 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
       })
     : null
 
-  const ringSize = 120
+  const ringSize = 110
   const strokeW = 8
 
   return (
     <div style={{
       background: '#FFFFFF',
       borderRadius: '24px',
-      padding: '1.25rem 1.5rem',
+      padding: '1rem 1.25rem',
       border: '1px solid var(--color-border)',
       boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
       display: 'flex',
@@ -224,7 +224,7 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
           pointerEvents: 'none'
         }}>
           <div style={{
-            fontSize: '1.8rem',
+            fontSize: '1.6rem',
             fontWeight: '800',
             color: phaseColor,
             lineHeight: 1,
@@ -233,7 +233,7 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
             {countdownNumber}
           </div>
           <div style={{
-            fontSize: '0.6rem',
+            fontSize: '0.55rem',
             color: 'var(--color-text-muted)',
             fontWeight: '500',
             textAlign: 'center',

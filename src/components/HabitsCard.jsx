@@ -3,7 +3,7 @@ import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
 
 // Circular progress ring — self-contained so no dependency on Today.jsx
-function Ring({ value, max, size = 88, stroke = 8, color, label, sublabel }) {
+function Ring({ value, max, size = 100, stroke = 8, color, label, sublabel }) {
     const r = (size - stroke) / 2
     const circ = 2 * Math.PI * r
     const pct = Math.min(1, Math.max(0, value / (max || 1)))
@@ -159,12 +159,12 @@ export default function HabitsCard({ date }) {
                 </div>
 
                 {/* Two rings side by side */}
-                <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', position: 'relative', marginBottom: '1.5rem' }}>
 
                     {/* Water ring */}
                     <button
                         onClick={openWater}
-                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}
+                        style={{ flex: 1, background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}
                     >
                         <Ring
                             value={amountMl}
@@ -182,12 +182,12 @@ export default function HabitsCard({ date }) {
                     </button>
 
                     {/* Divider */}
-                    <div style={{ width: '1px', height: '110px', background: 'var(--color-border)', alignSelf: 'center' }} />
+                    <div style={{ position: 'absolute', left: '50%', top: '8px', transform: 'translateX(-50%)', width: '1px', height: '84px', background: 'var(--color-border)' }} />
 
                     {/* Steps ring */}
                     <button
                         onClick={openSteps}
-                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}
+                        style={{ flex: 1, background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}
                     >
                         <Ring
                             value={steps}

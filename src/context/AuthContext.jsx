@@ -22,20 +22,25 @@ export function AuthProvider({ children }) {
             return
         }
 
-        // Check initial session
-        supabase.auth.getSession().then(({ data: { session } }) => {
+        // Use onAuthStateChange as the single source of truth for session state.
+        // The INITIAL_SESSION event fires after the session is fully restored
+        // (including token refresh), preventing flashes of unauthenticated state.
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             setSession(session)
             setUser(session?.user ?? null)
-            setLoading(false)
+            if (event === 'INITIAL_SESSION') {
+                setLoading(false)
+            }
         })
 
-        // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session)
-            setUser(session?.user ?? null)
-        })
+        // Fallback: if INITIAL_SESSION never fires (e.g. older Supabase version),
+        // stop loading after 3 seconds to avoid infinite splash screen
+        const timeout = setTimeout(() => setLoading(false), 3000)
 
-        return () => subscription.unsubscribe()
+        return () => {
+            subscription.unsubscribe()
+            clearTimeout(timeout)
+        }
     }, [])
 
     const signIn = async (email, password) => {
