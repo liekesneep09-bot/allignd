@@ -451,7 +451,7 @@ export default function Profile() {
                     onClick={() => {
                         // In the future, this can be an API endpoint that generates a secure Portal session
                         // For now, we link to the hardcoded portal if configured in VITE_STRIPE_PORTAL_LINK
-                        const portalLink = import.meta.env.VITE_STRIPE_PORTAL_LINK || 'https://billing.stripe.com/p/login/test_12345'
+                        const portalLink = import.meta.env.VITE_STRIPE_PORTAL_LINK || 'https://billing.stripe.com/p/login/test_4gM28rgag3rw3LsgA6'
                         window.open(portalLink, '_blank')
                     }}
                     style={{ background: 'transparent', border: 'none', color: 'var(--color-primary)', fontWeight: '600', cursor: 'pointer', textAlign: 'left', padding: 0, marginTop: '0.5rem' }}
