@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../utils/supabaseClient';
 
 // Simple Check Icon Component
 const IconCheck = ({ size = 20, color = 'currentColor' }) => (
@@ -14,6 +15,38 @@ export default function Subscription() {
     const { user, signOut } = useAuth();
     const [selectedPlan, setSelectedPlan] = useState('yearly'); // Default to best value
     const [isLoading, setIsLoading] = useState(false);
+    const [isPolling, setIsPolling] = useState(false);
+
+    // Auto-refresh when payment succeeds
+    useEffect(() => {
+        if (!user?.id) return;
+        
+        const checkStatus = async () => {
+            try {
+                const { data } = await supabase
+                    .from('profiles')
+                    .select('subscription_status')
+                    .eq('id', user.id)
+                    .single();
+                
+                if (data?.subscription_status === 'active') {
+                    // Payment succeeded! The webhook updated the database.
+                    // Reload the page to load the app
+                    window.location.reload();
+                }
+            } catch (err) {
+                console.error("Polling error", err);
+            }
+        };
+
+        // Poll every 3 seconds while on this page
+        const interval = setInterval(() => {
+            setIsPolling(true);
+            checkStatus();
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, [user]);
 
     const handleSubscribe = () => {
         if (!user) {
@@ -119,19 +152,21 @@ export default function Subscription() {
 
                     <button
                         onClick={(e) => { e.stopPropagation(); handleSubscribe(); }}
-                        className="btn-primary"
+                        disabled={isLoading}
                         style={{ 
                             width: '100%', 
                             padding: '1rem', 
                             borderRadius: '16px',
                             fontSize: '1.05rem',
                             fontWeight: '700',
+                            border: 'none',
+                            cursor: 'pointer',
                             background: selectedPlan === 'yearly' ? 'var(--color-primary)' : '#F5F5F5',
                             color: selectedPlan === 'yearly' ? '#333333' : '#888888',
                             boxShadow: selectedPlan === 'yearly' ? '0 8px 20px rgba(255, 174, 185, 0.3)' : 'none'
                         }}
                     >
-                        Start 7 dagen gratis
+                        {isLoading ? t('common.loading') : (isPolling ? "Controleren..." : "Start 7 dagen gratis")}
                     </button>
                 </div>
 
@@ -169,19 +204,21 @@ export default function Subscription() {
 
                     <button
                         onClick={(e) => { e.stopPropagation(); handleSubscribe(); }}
-                        className="btn-primary"
+                        disabled={isLoading}
                         style={{ 
                             width: '100%', 
                             padding: '1rem', 
                             borderRadius: '16px',
                             fontSize: '1.05rem',
                             fontWeight: '700',
+                            border: 'none',
+                            cursor: 'pointer',
                             background: selectedPlan === 'monthly' ? 'var(--color-primary)' : '#F5F5F5',
                             color: selectedPlan === 'monthly' ? '#333333' : '#888888',
                             boxShadow: selectedPlan === 'monthly' ? '0 8px 20px rgba(255, 174, 185, 0.3)' : 'none'
                         }}
                     >
-                        Start 7 dagen gratis
+                        {isLoading ? t('common.loading') : (isPolling ? "Controleren..." : "Start 7 dagen gratis")}
                     </button>
                 </div>
 
