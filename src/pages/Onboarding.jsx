@@ -670,7 +670,7 @@ export default function Onboarding() {
                             style={{ marginTop: '1rem', padding: '1rem', fontSize: '1.1rem' }}
                             disabled={isLoading}
                         >
-                            {isLoading ? t('common.loading') : t('onboarding.go_to_dashboard')}
+                            {isLoading ? t('common.loading') : "Start 7 dagen gratis"}
                         </button>
                     </div>
                 )}

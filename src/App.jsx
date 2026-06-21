@@ -66,7 +66,7 @@ function SplashScreen() {
 }
 
 function MainLayout() {
-    const { hasOnboarded, isLoading, currentPhase } = useUser()
+    const { hasOnboarded, isLoading, currentPhase, user } = useUser()
     const { t } = useLanguage()
     const [currentView, setCurrentView] = useState('today')
 
@@ -130,10 +130,10 @@ function MainLayout() {
         return <Onboarding />
     }
 
-    // SUBSCRIPTION ACCESS (HIDDEN UNTIL LIVE)
-    // if (window.location.pathname === '/subscription') {
-    //     return <Subscription />
-    // }
+    // ABONNEMENTEN-MUUR (PAYWALL)
+    if (user?.subscription_status !== 'active') {
+        return <Subscription />
+    }
 
     return (
         <>

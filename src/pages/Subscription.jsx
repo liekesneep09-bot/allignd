@@ -11,7 +11,7 @@ const IconCheck = ({ size = 20, color = 'currentColor' }) => (
 
 export default function Subscription() {
     const { t } = useLanguage();
-    const { user } = useAuth();
+    const { user, signOut } = useAuth();
     const [selectedPlan, setSelectedPlan] = useState('yearly'); // Default to best value
     const [isLoading, setIsLoading] = useState(false);
 
@@ -190,6 +190,21 @@ export default function Subscription() {
             <p style={{ fontSize: '0.85rem', color: '#999999', marginTop: '2.5rem', maxWidth: '300px', lineHeight: '1.4' }}>
                 Geen kosten tijdens de proefperiode. Je kunt op elk moment annuleren via de App Store of Play Store.
             </p>
+
+            <button
+                onClick={() => signOut()}
+                style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#999999',
+                    textDecoration: 'underline',
+                    marginTop: '2rem',
+                    fontSize: '0.9rem',
+                    cursor: 'pointer'
+                }}
+            >
+                Uitloggen
+            </button>
 
         </div>
     );

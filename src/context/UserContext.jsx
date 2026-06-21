@@ -300,7 +300,8 @@ export function UserProvider({ children }) {
             isAdmin: profile.is_admin || false,
             // CRITICAL: Restore menstruationLogs from Supabase so phase persists across reloads
             menstruationLogs: profile.menstruation_logs || [],
-            user_language: profile.user_language || 'nl'
+            user_language: profile.user_language || 'nl',
+            subscription_status: profile.subscription_status || 'inactive'
           }
 
           // Sync UI language with profile preference if they differ
