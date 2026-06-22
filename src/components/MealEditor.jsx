@@ -372,11 +372,14 @@ export default function MealEditor({ meal, onSave, onClose }) {
                                     {filteredProducts.map(product => (
                                         <button
                                             key={product.id}
-                                            onClick={() => setSelectedProduct(product)}
+                                            onClick={() => {
+                                                setSelectedProduct(product);
+                                                setUnit(product.unit_type === 'per_100ml' ? 'ml' : 'g');
+                                            }}
                                             style={styles.productBtn}
                                         >
                                             <span>{language === 'en' && product.name_en ? product.name_en : product.name_nl}</span>
-                                            <span style={styles.productKcal}>{product.kcal_100} kcal/100g</span>
+                                            <span style={styles.productKcal}>{product.kcal_100} kcal/100{product.unit_type === 'per_100ml' ? 'ml' : 'g'}</span>
                                         </button>
                                     ))}
                                 </div>

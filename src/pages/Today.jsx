@@ -796,10 +796,15 @@ export default function Today({ onNavigate }) {
                                         color: 'var(--color-text-muted)',
                                         marginTop: '1px'
                                       }}>
-                                        {log.unitName && log.quantity
-                                          ? `${log.quantity} ${log.unitName}`
-                                          : log.grams ? `${log.grams}g` : null
-                                        }
+                                        {(() => {
+                                          if (log.unitName && log.quantity) return `${log.quantity} ${log.unitName}`;
+                                          if (log.grams) {
+                                            const f = user?.foods?.find(food => food.id === log.foodId);
+                                            const unit = f?.unit_type === 'per_100ml' ? 'ml' : 'g';
+                                            return `${log.grams}${unit}`;
+                                          }
+                                          return null;
+                                        })()}
                                         {(log.unitName || log.grams) && ' · '}
                                         <span style={{ fontWeight: '500', color: 'var(--color-text)' }}>{log.kcal} kcal</span>
                                         {log.p != null && ` · ${log.p}g eiwit`}

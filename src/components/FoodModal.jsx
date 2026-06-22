@@ -572,7 +572,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                             fontWeight: '600'
                                         }}
                                     >
-                                        {t('food_modal.gram')}
+                                        {selectedFood?.unit_type === 'per_100ml' ? 'ml' : t('food_modal.gram')}
                                     </button>
                                     {selectedFood.unit_name && (
                                         <button
@@ -594,7 +594,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                 </div>
 
                                 <div className="input-group">
-                                    <label>{t('food_modal.amount_label')} ({unitType === 'g' ? t('food_modal.gram').toLowerCase() : selectedFood.unit_name})</label>
+                                    <label>{t('food_modal.amount_label')} ({unitType === 'g' ? (selectedFood?.unit_type === 'per_100ml' ? 'ml' : t('food_modal.gram').toLowerCase()) : selectedFood.unit_name})</label>
                                     <input
                                         type="text"
                                         inputMode="decimal"

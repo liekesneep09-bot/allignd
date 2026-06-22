@@ -202,16 +202,16 @@ export const FOOD_DATABASE = [
     { id: 'd21', name_nl: 'Ricotta', name_en: 'Ricotta', aliases: [], unit_type: 'per_100g', kcal_100: 173, protein_100: 11, carbs_100: 3, fat_100: 13 , fiber_100: 0 },
     { id: 'd22', name_nl: 'Mascarpone', name_en: 'Mascarpone', aliases: [], unit_type: 'per_100g', kcal_100: 459, protein_100: 5, carbs_100: 4, fat_100: 47 , fiber_100: 0 },
     { id: 'd23', name_nl: 'Goudse kaas (30+)', name_en: 'Gouda cheese (30+)', aliases: [], unit_type: 'per_100g', kcal_100: 274, protein_100: 28, carbs_100: 0, fat_100: 18 , fiber_100: 0 },
-    { id: 'd24', name_nl: 'Cheddar', name_en: 'Cheddar', aliases: [], unit_type: 'per_100g', kcal_100: 401, protein_100: 25, carbs_100: 1, fat_100: 33 , fiber_100: 0 },
-    { id: 'd25', name_nl: 'Roomkaas', name_en: 'Cream cheese', aliases: ['monchou'], unit_type: 'per_100g', kcal_100: 346, protein_100: 6, carbs_100: 4, fat_100: 34 , fiber_100: 0 },
-    { id: 'd26', name_nl: 'Kokosyoghurt (naturel)', name_en: 'Coconut yogurt (plain)', aliases: [], unit_type: 'per_100g', kcal_100: 114, protein_100: 4, carbs_100: 2, fat_100: 10 , fiber_100: 0 },
-    { id: 'd27', name_nl: 'Slagroom (ongeklopt)', name_en: 'Heavy cream', aliases: [], unit_type: 'per_100g', kcal_100: 335, protein_100: 2, carbs_100: 3, fat_100: 35 , fiber_100: 0 },
-    { id: 'd28', name_nl: 'IJs (vanille)', name_en: 'Ice cream (vanilla)', aliases: [], unit_type: 'per_100g', kcal_100: 211, protein_100: 4, carbs_100: 24, fat_100: 11 , fiber_100: 0 },
-    { id: 'd29', name_nl: 'Koffiemelk', name_en: 'Coffee milk', aliases: [], unit_type: 'per_100g', kcal_100: 148, protein_100: 7, carbs_100: 12, fat_100: 8 , fiber_100: 0 },
-    { id: 'd30', name_nl: 'Melk (chocolade)', name_en: 'Chocolate milk', aliases: ['chocomel'], unit_type: 'per_100g', kcal_100: 85, protein_100: 3.5, carbs_100: 12, fat_100: 2.5 , fiber_100: 0 },
+    { id: 'd24', name_nl: 'Cheddar', name_en: 'Cheddar', aliases: [], unit_type: 'per_100ml', kcal_100: 401, protein_100: 25, carbs_100: 1, fat_100: 33 , fiber_100: 0 },
+    { id: 'd25', name_nl: 'Roomkaas', name_en: 'Cream cheese', aliases: ['monchou'], unit_type: 'per_100ml', kcal_100: 346, protein_100: 6, carbs_100: 4, fat_100: 34 , fiber_100: 0 },
+    { id: 'd26', name_nl: 'Kokosyoghurt (naturel)', name_en: 'Coconut yogurt (plain)', aliases: [], unit_type: 'per_100ml', kcal_100: 114, protein_100: 4, carbs_100: 2, fat_100: 10 , fiber_100: 0 },
+    { id: 'd27', name_nl: 'Slagroom (ongeklopt)', name_en: 'Heavy cream', aliases: [], unit_type: 'per_100ml', kcal_100: 335, protein_100: 2, carbs_100: 3, fat_100: 35 , fiber_100: 0 },
+    { id: 'd28', name_nl: 'IJs (vanille)', name_en: 'Ice cream (vanilla)', aliases: [], unit_type: 'per_100ml', kcal_100: 211, protein_100: 4, carbs_100: 24, fat_100: 11 , fiber_100: 0 },
+    { id: 'd29', name_nl: 'Koffiemelk', name_en: 'Coffee milk', aliases: [], unit_type: 'per_100ml', kcal_100: 148, protein_100: 7, carbs_100: 12, fat_100: 8 , fiber_100: 0 },
+    { id: 'd30', name_nl: 'Melk (chocolade)', name_en: 'Chocolate milk', aliases: ['chocomel'], unit_type: 'per_100ml', kcal_100: 85, protein_100: 3.5, carbs_100: 12, fat_100: 2.5 , fiber_100: 0 },
     { id: 'd31', name_nl: 'Soja yoghurt (ongezoet)', name_en: 'Soy yogurt (unsweetened)', aliases: ['alpro naturel', 'sojayoghurt'], unit_type: 'per_100g', kcal_100: 43, protein_100: 4, carbs_100: 0, fat_100: 2.3 , fiber_100: 1 },
     { id: 'd32', name_nl: 'Plantaardige kwark (soja)', name_en: 'Plant-based quark (soy)', aliases: ['alpro go on', 'soja kwark'], unit_type: 'per_100g', kcal_100: 71, protein_100: 6.2, carbs_100: 2.7, fat_100: 3.6 , fiber_100: 1.5 },
-    { id: 'd33', name_nl: 'Kefir (naturel)', name_en: 'Kefir (plain)', aliases: ['kefir'], unit_type: 'per_100g', kcal_100: 45, protein_100: 3.4, carbs_100: 4.2, fat_100: 1.5 , fiber_100: 0 },
+    { id: 'd33', name_nl: 'Kefir (naturel)', name_en: 'Kefir (plain)', aliases: ['kefir'], unit_type: 'per_100ml', kcal_100: 45, protein_100: 3.4, carbs_100: 4.2, fat_100: 1.5 , fiber_100: 0 },
 
     // --- VETBRONNEN & NOTEN (31 items) ---
     { id: 'f1', name_nl: 'Olijfolie', name_en: 'Olive oil', aliases: [], unit_type: 'per_100g', kcal_100: 900, protein_100: 0, carbs_100: 0, fat_100: 100 , fiber_100: 0 },
@@ -242,8 +242,8 @@ export const FOOD_DATABASE = [
     { id: 'f26', name_nl: 'Amandelpasta', name_en: 'Almond butter', aliases: ['almond butter'], unit_type: 'per_100g', kcal_100: 614, protein_100: 21, carbs_100: 19, fat_100: 56 , fiber_100: 10 },
     { id: 'f27', name_nl: 'Cashewpasta', name_en: 'Cashew butter', aliases: ['cashew butter'], unit_type: 'per_100g', kcal_100: 587, protein_100: 18, carbs_100: 27, fat_100: 49 , fiber_100: 2 },
     { id: 'f28', name_nl: 'Hennepzaad', name_en: 'Hemp seeds', aliases: ['hemp seeds'], unit_type: 'per_100g', kcal_100: 553, protein_100: 32, carbs_100: 9, fat_100: 49 , fiber_100: 4 },
-    { id: 'f29', name_nl: 'Kokosmelk (light)', name_en: 'Coconut milk (light)', aliases: ['kokosmelk light'], unit_type: 'per_100g', kcal_100: 65, protein_100: 0.8, carbs_100: 2, fat_100: 6 , fiber_100: 0 },
-    { id: 'f30', name_nl: 'Kokosmelk (vol)', name_en: 'Coconut milk (full fat)', aliases: ['kokosmelk'], unit_type: 'per_100g', kcal_100: 180, protein_100: 1.5, carbs_100: 3, fat_100: 18 , fiber_100: 0 },
+    { id: 'f29', name_nl: 'Kokosmelk (light)', name_en: 'Coconut milk (light)', aliases: ['kokosmelk light'], unit_type: 'per_100ml', kcal_100: 65, protein_100: 0.8, carbs_100: 2, fat_100: 6 , fiber_100: 0 },
+    { id: 'f30', name_nl: 'Kokosmelk (vol)', name_en: 'Coconut milk (full fat)', aliases: ['kokosmelk'], unit_type: 'per_100ml', kcal_100: 180, protein_100: 1.5, carbs_100: 3, fat_100: 18 , fiber_100: 0 },
     { id: 'f31', name_nl: 'Olijfolie spray', name_en: 'Olive oil spray', aliases: ['bakspray'], unit_type: 'per_100g', kcal_100: 828, protein_100: 0, carbs_100: 0, fat_100: 92 , fiber_100: 0, unit_name: 'spray', unit_weight: 1.5 },
 
     // --- SNACKS & DIVERSEN (51 items) ---
@@ -300,13 +300,13 @@ export const FOOD_DATABASE = [
     { id: 's51', name_nl: 'Teriyaki saus', name_en: 'Teriyaki sauce', aliases: ['teriyaki'], unit_type: 'per_100g', kcal_100: 134, protein_100: 5, carbs_100: 28, fat_100: 0 , fiber_100: 0.5 },
 
     // --- DRANKEN (9 items) ---
-    { id: 'b1', name_nl: 'Koffie (zwart)', name_en: 'Coffee (black)', aliases: ['koffie'], unit_type: 'per_100g', kcal_100: 2, protein_100: 0.2, carbs_100: 0, fat_100: 0 , fiber_100: 0 },
-    { id: 'b2', name_nl: 'Thee', name_en: 'Tea', aliases: ['thee'], unit_type: 'per_100g', kcal_100: 1, protein_100: 0, carbs_100: 0, fat_100: 0 , fiber_100: 0 },
-    { id: 'b3', name_nl: 'Verse jus d\'orange', name_en: 'Fresh orange juice', aliases: ['jus dorange', 'sinaasappelsap'], unit_type: 'per_100g', kcal_100: 43, protein_100: 0.7, carbs_100: 9, fat_100: 0.2 , fiber_100: 0.2 },
-    { id: 'b4', name_nl: 'Appelsap', name_en: 'Apple juice', aliases: ['appelsap'], unit_type: 'per_100g', kcal_100: 42, protein_100: 0.1, carbs_100: 10, fat_100: 0.1 , fiber_100: 0.2 },
-    { id: 'b5', name_nl: 'Cola (regulier)', name_en: 'Cola (regular)', aliases: ['cola'], unit_type: 'per_100g', kcal_100: 42, protein_100: 0, carbs_100: 10.6, fat_100: 0 , fiber_100: 0 },
-    { id: 'b6', name_nl: 'Cola Zero / Light', name_en: 'Cola Zero / Light', aliases: ['cola zero', 'cola light'], unit_type: 'per_100g', kcal_100: 1, protein_100: 0, carbs_100: 0, fat_100: 0 , fiber_100: 0 },
-    { id: 'b7', name_nl: 'Wijn (rood)', name_en: 'Wine (red)', aliases: ['rode wijn'], unit_type: 'per_100g', kcal_100: 82, protein_100: 0.2, carbs_100: 2.6, fat_100: 0 , fiber_100: 0 },
-    { id: 'b8', name_nl: 'Wijn (wit)', name_en: 'Wine (white)', aliases: ['witte wijn'], unit_type: 'per_100g', kcal_100: 82, protein_100: 0.1, carbs_100: 2.6, fat_100: 0 , fiber_100: 0 },
-    { id: 'b9', name_nl: 'Bier (pilsener)', name_en: 'Beer (pilsner)', aliases: ['bier', 'pils'], unit_type: 'per_100g', kcal_100: 43, protein_100: 0.5, carbs_100: 3, fat_100: 0 , fiber_100: 0 }
+    { id: 'b1', name_nl: 'Koffie (zwart)', name_en: 'Coffee (black)', aliases: ['koffie'], unit_type: 'per_100ml', kcal_100: 2, protein_100: 0.2, carbs_100: 0, fat_100: 0 , fiber_100: 0 },
+    { id: 'b2', name_nl: 'Thee', name_en: 'Tea', aliases: ['thee'], unit_type: 'per_100ml', kcal_100: 1, protein_100: 0, carbs_100: 0, fat_100: 0 , fiber_100: 0 },
+    { id: 'b3', name_nl: 'Verse jus d\'orange', name_en: 'Fresh orange juice', aliases: ['jus dorange', 'sinaasappelsap'], unit_type: 'per_100ml', kcal_100: 43, protein_100: 0.7, carbs_100: 9, fat_100: 0.2 , fiber_100: 0.2 },
+    { id: 'b4', name_nl: 'Appelsap', name_en: 'Apple juice', aliases: ['appelsap'], unit_type: 'per_100ml', kcal_100: 42, protein_100: 0.1, carbs_100: 10, fat_100: 0.1 , fiber_100: 0.2 },
+    { id: 'b5', name_nl: 'Cola (regulier)', name_en: 'Cola (regular)', aliases: ['cola'], unit_type: 'per_100ml', kcal_100: 42, protein_100: 0, carbs_100: 10.6, fat_100: 0 , fiber_100: 0 },
+    { id: 'b6', name_nl: 'Cola Zero / Light', name_en: 'Cola Zero / Light', aliases: ['cola zero', 'cola light'], unit_type: 'per_100ml', kcal_100: 1, protein_100: 0, carbs_100: 0, fat_100: 0 , fiber_100: 0 },
+    { id: 'b7', name_nl: 'Wijn (rood)', name_en: 'Wine (red)', aliases: ['rode wijn'], unit_type: 'per_100ml', kcal_100: 82, protein_100: 0.2, carbs_100: 2.6, fat_100: 0 , fiber_100: 0 },
+    { id: 'b8', name_nl: 'Wijn (wit)', name_en: 'Wine (white)', aliases: ['witte wijn'], unit_type: 'per_100ml', kcal_100: 82, protein_100: 0.1, carbs_100: 2.6, fat_100: 0 , fiber_100: 0 },
+    { id: 'b9', name_nl: 'Bier (pilsener)', name_en: 'Beer (pilsner)', aliases: ['bier', 'pils'], unit_type: 'per_100ml', kcal_100: 43, protein_100: 0.5, carbs_100: 3, fat_100: 0 , fiber_100: 0 }
 ];
