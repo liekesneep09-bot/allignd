@@ -35,7 +35,7 @@ export const FOOD_DATABASE = [
     { id: 'v29', name_nl: 'Snijbonen', name_en: 'String beans', aliases: [], unit_type: 'per_100g', kcal_100: 27, protein_100: 1.8, carbs_100: 4.5, fat_100: 0.2 , fiber_100: 3.2 },
     { id: 'v30', name_nl: 'Knoflook', name_en: 'Garlic', aliases: [], unit_type: 'per_100g', kcal_100: 162, protein_100: 6.4, carbs_100: 33, fat_100: 0.5 , fiber_100: 2.1 },
 
-    // --- FRUIT (30 items) ---
+    // --- FRUIT (37 items) ---
     { id: 'fr1', name_nl: 'Banaan', name_en: 'Banana', aliases: ['banana'], unit_type: 'per_100g', kcal_100: 99, protein_100: 1.1, carbs_100: 23, fat_100: 0.3 , fiber_100: 2.6, unit_name: 'stuk', unit_weight: 120 },
     { id: 'fr2', name_nl: 'Appel (Elstar)', name_en: 'Apple (Elstar)', aliases: ['apple'], unit_type: 'per_100g', kcal_100: 59, protein_100: 0.3, carbs_100: 14, fat_100: 0.2 , fiber_100: 2.4, unit_name: 'stuk', unit_weight: 150 },
     { id: 'fr3', name_nl: 'Peer', name_en: 'Pear', aliases: [], unit_type: 'per_100g', kcal_100: 63, protein_100: 0.4, carbs_100: 15, fat_100: 0.1 , fiber_100: 3.1 },
@@ -66,8 +66,15 @@ export const FOOD_DATABASE = [
     { id: 'fr28', name_nl: 'Rozijnen', name_en: 'Raisins', aliases: [], unit_type: 'per_100g', kcal_100: 333, protein_100: 3.1, carbs_100: 79, fat_100: 0.5 , fiber_100: 3.7 },
     { id: 'fr29', name_nl: 'Abrikoos (vers)', name_en: 'Apricot (fresh)', aliases: [], unit_type: 'per_100g', kcal_100: 53, protein_100: 1.4, carbs_100: 11, fat_100: 0.4 , fiber_100: 2 },
     { id: 'fr30', name_nl: 'Papaya', name_en: 'Papaya', aliases: [], unit_type: 'per_100g', kcal_100: 49, protein_100: 0.5, carbs_100: 11, fat_100: 0.3 , fiber_100: 1.7 },
+    { id: 'fr31', name_nl: 'Aardbeien (diepvries)', name_en: 'Strawberries (frozen)', aliases: ['strawberries frozen', 'diepvries aardbei', 'bevroren aardbeien', 'frozen strawberries'], unit_type: 'per_100g', kcal_100: 38, protein_100: 0.7, carbs_100: 8, fat_100: 0.3 , fiber_100: 2 },
+    { id: 'fr32', name_nl: 'Blauwe bessen (diepvries)', name_en: 'Blueberries (frozen)', aliases: ['bosbessen diepvries', 'blueberries frozen', 'diepvries bosbessen', 'bevroren blauwe bessen', 'frozen blueberries'], unit_type: 'per_100g', kcal_100: 62, protein_100: 0.7, carbs_100: 14, fat_100: 0.3 , fiber_100: 2.4 },
+    { id: 'fr33', name_nl: 'Frambozen (diepvries)', name_en: 'Raspberries (frozen)', aliases: ['bevroren frambozen', 'frozen raspberries'], unit_type: 'per_100g', kcal_100: 59, protein_100: 1.2, carbs_100: 12, fat_100: 0.7 , fiber_100: 6.5 },
+    { id: 'fr34', name_nl: 'Mango (diepvries)', name_en: 'Mango (frozen)', aliases: ['bevroren mango', 'frozen mango'], unit_type: 'per_100g', kcal_100: 67, protein_100: 0.8, carbs_100: 15, fat_100: 0.4 , fiber_100: 1.6 },
+    { id: 'fr35', name_nl: 'Kersen (diepvries)', name_en: 'Cherries (frozen)', aliases: ['bevroren kersen', 'frozen cherries'], unit_type: 'per_100g', kcal_100: 55, protein_100: 1, carbs_100: 12, fat_100: 0.3 , fiber_100: 2.1 },
+    { id: 'fr36', name_nl: 'Bessenmix / Zomerfruit (diepvries)', name_en: 'Mixed berries (frozen)', aliases: ['zomerfruit', 'bosvruchten', 'forest fruit'], unit_type: 'per_100g', kcal_100: 50, protein_100: 0.9, carbs_100: 10, fat_100: 0.4 , fiber_100: 3 },
+    { id: 'fr37', name_nl: 'Rode bessen', name_en: 'Red currants', aliases: ['aalbessen', 'red currants'], unit_type: 'per_100g', kcal_100: 43, protein_100: 1.1, carbs_100: 7, fat_100: 0.2 , fiber_100: 3.4 },
 
-    // --- BASICS KOOLHYDRATEN (25 items) ---
+    // --- BASICS KOOLHYDRATEN (28 items) ---
     { id: 'c1a', name_nl: 'Rijst wit – ongekookt', name_en: 'White rice - uncooked', aliases: ['witte rijst droog'], unit_type: 'per_100g', kcal_100: 349, protein_100: 7, carbs_100: 79, fat_100: 0.6 , fiber_100: 1.3 },
     { id: 'c1', name_nl: 'Rijst wit – gekookt', name_en: 'White rice - cooked', aliases: ['witte rijst'], unit_type: 'per_100g', kcal_100: 126, protein_100: 2.7, carbs_100: 28, fat_100: 0.3 , fiber_100: 0.4 },
     { id: 'c2a', name_nl: 'Rijst zilvervlies – ongekookt', name_en: 'Brown rice - uncooked', aliases: ['bruine rijst droog'], unit_type: 'per_100g', kcal_100: 350, protein_100: 7.5, carbs_100: 74, fat_100: 2.7 , fiber_100: 3.5 },
@@ -99,6 +106,9 @@ export const FOOD_DATABASE = [
     { id: 'c25', name_nl: 'Stokbrood (wit)', name_en: 'Baguette (white)', aliases: ['baguette'], unit_type: 'per_100g', kcal_100: 272, protein_100: 9.5, carbs_100: 55, fat_100: 1.5 , fiber_100: 3 },
     { id: 'c26', name_nl: 'Wrap (wortel)', name_en: 'Wrap (carrot)', aliases: ['carrot wrap', 'groentewrap'], unit_type: 'per_100g', kcal_100: 271, protein_100: 5.5, carbs_100: 33, fat_100: 13 , fiber_100: 4 },
     { id: 'c27', name_nl: 'Wrap (volkoren)', name_en: 'Wrap (whole wheat)', aliases: ['whole wheat wrap'], unit_type: 'per_100g', kcal_100: 285, protein_100: 9.3, carbs_100: 47, fat_100: 6.6 , fiber_100: 8.5 },
+    { id: 'c28', name_nl: 'Matcha poeder', name_en: 'Matcha powder', aliases: ['matcha'], unit_type: 'per_100g', kcal_100: 324, protein_100: 30, carbs_100: 38, fat_100: 5 , fiber_100: 29 },
+    { id: 'c29', name_nl: 'Brinta (volkoren tarwevlokken)', name_en: 'Brinta (wheat flakes)', aliases: ['brinta'], unit_type: 'per_100g', kcal_100: 347, protein_100: 14, carbs_100: 64, fat_100: 2 , fiber_100: 10.5 },
+    { id: 'c30', name_nl: 'Maiswafel', name_en: 'Corn cake', aliases: ['corn cakes', 'maiswafels'], unit_type: 'per_100g', kcal_100: 386, protein_100: 8, carbs_100: 80, fat_100: 1.5 , fiber_100: 4, unit_name: 'wafel', unit_weight: 7 },
 
     // --- EIWITBRONNEN (40 items) ---
     { id: 'p1', name_nl: 'Kipfilet – rauw', name_en: 'Chicken breast - raw', aliases: ['chicken'], unit_type: 'per_100g', kcal_100: 110, protein_100: 23, carbs_100: 0, fat_100: 2 , fiber_100: 0 },
@@ -126,7 +136,7 @@ export const FOOD_DATABASE = [
     { id: 'p17', name_nl: 'Ham (achterham)', name_en: 'Ham', aliases: [], unit_type: 'per_100g', kcal_100: 121, protein_100: 18, carbs_100: 1, fat_100: 5 , fiber_100: 0 },
     { id: 'p18', name_nl: 'Whey Proteine poeder', name_en: 'Whey Protein powder', aliases: ['eiwitshake'], unit_type: 'per_100g', kcal_100: 355, protein_100: 78, carbs_100: 4, fat_100: 3 , fiber_100: 0 },
     { id: 'p19', name_nl: 'Vegan Proteine poeder', name_en: 'Vegan Protein powder', aliases: [], unit_type: 'per_100g', kcal_100: 356, protein_100: 75, carbs_100: 5, fat_100: 4 , fiber_100: 2 },
-    { id: 'p20', name_nl: 'Hüttenkäse', name_en: 'Cottage cheese', aliases: ['cottage cheese'], unit_type: 'per_100g', kcal_100: 96, protein_100: 11, carbs_100: 3.4, fat_100: 4.3 , fiber_100: 0 },
+    { id: 'p20', name_nl: 'Cottage cheese (Hüttenkäse)', name_en: 'Cottage cheese', aliases: ['cottage cheese', 'huttenkase', 'hüttenkäse'], unit_type: 'per_100g', kcal_100: 96, protein_100: 11, carbs_100: 3.4, fat_100: 4.3 , fiber_100: 0 },
     { id: 'p21', name_nl: 'Garnalen (gekookt)', name_en: 'Shrimp (cooked)', aliases: ['shrimp'], unit_type: 'per_100g', kcal_100: 96, protein_100: 23, carbs_100: 0.2, fat_100: 0.3 , fiber_100: 0 },
     { id: 'p22', name_nl: 'Makreel (gerookt)', name_en: 'Mackerel (smoked)', aliases: [], unit_type: 'per_100g', kcal_100: 287, protein_100: 20, carbs_100: 0, fat_100: 23 , fiber_100: 0 },
     { id: 'p23', name_nl: 'Sardines (blik)', name_en: 'Sardines (canned)', aliases: [], unit_type: 'per_100g', kcal_100: 199, protein_100: 25, carbs_100: 0, fat_100: 11 , fiber_100: 0 },
@@ -163,7 +173,7 @@ export const FOOD_DATABASE = [
     { id: 'p47b', name_nl: 'Speklap – bereid', name_en: 'Pork belly - cooked', aliases: [], unit_type: 'per_100g', kcal_100: 375, protein_100: 15, carbs_100: 0, fat_100: 35 , fiber_100: 0 },
     { id: 'p49', name_nl: 'Tonijn vers – rauw', name_en: 'Fresh tuna - raw', aliases: ['fresh tuna'], unit_type: 'per_100g', kcal_100: 109, protein_100: 24.5, carbs_100: 0, fat_100: 1.2 , fiber_100: 0 },
     { id: 'p49b', name_nl: 'Tonijn vers – bereid', name_en: 'Fresh tuna - cooked', aliases: [], unit_type: 'per_100g', kcal_100: 147, protein_100: 30, carbs_100: 0, fat_100: 3 , fiber_100: 0 },
-    // --- ZUIVEL (30 items) ---
+    // --- ZUIVEL (33 items) ---
     { id: 'd1', name_nl: 'Magere kwark', name_en: 'Fat-free quark', aliases: ['kwark'], unit_type: 'per_100g', kcal_100: 51, protein_100: 8.5, carbs_100: 4, fat_100: 0.1 , fiber_100: 0 },
     { id: 'd2', name_nl: 'Griekse yoghurt 0% vet', name_en: 'Greek yogurt 0% fat', aliases: [], unit_type: 'per_100g', kcal_100: 58, protein_100: 10, carbs_100: 3.6, fat_100: 0.4 , fiber_100: 0 },
     { id: 'd3', name_nl: 'Griekse yoghurt 10% vet', name_en: 'Greek yogurt 10% fat', aliases: [], unit_type: 'per_100g', kcal_100: 122, protein_100: 4, carbs_100: 4, fat_100: 10 , fiber_100: 0 },
@@ -194,8 +204,11 @@ export const FOOD_DATABASE = [
     { id: 'd28', name_nl: 'IJs (vanille)', name_en: 'Ice cream (vanilla)', aliases: [], unit_type: 'per_100g', kcal_100: 211, protein_100: 4, carbs_100: 24, fat_100: 11 , fiber_100: 0 },
     { id: 'd29', name_nl: 'Koffiemelk', name_en: 'Coffee milk', aliases: [], unit_type: 'per_100g', kcal_100: 148, protein_100: 7, carbs_100: 12, fat_100: 8 , fiber_100: 0 },
     { id: 'd30', name_nl: 'Melk (chocolade)', name_en: 'Chocolate milk', aliases: ['chocomel'], unit_type: 'per_100g', kcal_100: 85, protein_100: 3.5, carbs_100: 12, fat_100: 2.5 , fiber_100: 0 },
+    { id: 'd31', name_nl: 'Soja yoghurt (ongezoet)', name_en: 'Soy yogurt (unsweetened)', aliases: ['alpro naturel', 'sojayoghurt'], unit_type: 'per_100g', kcal_100: 43, protein_100: 4, carbs_100: 0, fat_100: 2.3 , fiber_100: 1 },
+    { id: 'd32', name_nl: 'Plantaardige kwark (soja)', name_en: 'Plant-based quark (soy)', aliases: ['alpro go on', 'soja kwark'], unit_type: 'per_100g', kcal_100: 71, protein_100: 6.2, carbs_100: 2.7, fat_100: 3.6 , fiber_100: 1.5 },
+    { id: 'd33', name_nl: 'Kefir (naturel)', name_en: 'Kefir (plain)', aliases: ['kefir'], unit_type: 'per_100g', kcal_100: 45, protein_100: 3.4, carbs_100: 4.2, fat_100: 1.5 , fiber_100: 0 },
 
-    // --- VETBRONNEN & NOTEN (25 items) ---
+    // --- VETBRONNEN & NOTEN (30 items) ---
     { id: 'f1', name_nl: 'Olijfolie', name_en: 'Olive oil', aliases: [], unit_type: 'per_100g', kcal_100: 900, protein_100: 0, carbs_100: 0, fat_100: 100 , fiber_100: 0 },
     { id: 'f2', name_nl: 'Roomboter (ongezouten)', name_en: 'Butter (unsalted)', aliases: ['boter'], unit_type: 'per_100g', kcal_100: 735, protein_100: 0.8, carbs_100: 0.6, fat_100: 81 , fiber_100: 0 },
     { id: 'f3', name_nl: 'Kokosolie', name_en: 'Coconut oil', aliases: [], unit_type: 'per_100g', kcal_100: 900, protein_100: 0, carbs_100: 0, fat_100: 100 , fiber_100: 0 },
@@ -221,8 +234,13 @@ export const FOOD_DATABASE = [
     { id: 'f23', name_nl: 'Aioli', name_en: 'Aioli', aliases: [], unit_type: 'per_100g', kcal_100: 609, protein_100: 2, carbs_100: 4, fat_100: 65 , fiber_100: 0 },
     { id: 'f24', name_nl: 'Guacamole', name_en: 'Guacamole', aliases: [], unit_type: 'per_100g', kcal_100: 175, protein_100: 2, carbs_100: 8, fat_100: 15 , fiber_100: 5 },
     { id: 'f25', name_nl: 'Tahin (sesampasta)', name_en: 'Tahini', aliases: [], unit_type: 'per_100g', kcal_100: 629, protein_100: 17, carbs_100: 21, fat_100: 53 , fiber_100: 9.3 },
+    { id: 'f26', name_nl: 'Amandelpasta', name_en: 'Almond butter', aliases: ['almond butter'], unit_type: 'per_100g', kcal_100: 614, protein_100: 21, carbs_100: 19, fat_100: 56 , fiber_100: 10 },
+    { id: 'f27', name_nl: 'Cashewpasta', name_en: 'Cashew butter', aliases: ['cashew butter'], unit_type: 'per_100g', kcal_100: 587, protein_100: 18, carbs_100: 27, fat_100: 49 , fiber_100: 2 },
+    { id: 'f28', name_nl: 'Hennepzaad', name_en: 'Hemp seeds', aliases: ['hemp seeds'], unit_type: 'per_100g', kcal_100: 553, protein_100: 32, carbs_100: 9, fat_100: 49 , fiber_100: 4 },
+    { id: 'f29', name_nl: 'Kokosmelk (light)', name_en: 'Coconut milk (light)', aliases: ['kokosmelk light'], unit_type: 'per_100g', kcal_100: 65, protein_100: 0.8, carbs_100: 2, fat_100: 6 , fiber_100: 0 },
+    { id: 'f30', name_nl: 'Kokosmelk (vol)', name_en: 'Coconut milk (full fat)', aliases: ['kokosmelk'], unit_type: 'per_100g', kcal_100: 180, protein_100: 1.5, carbs_100: 3, fat_100: 18 , fiber_100: 0 },
 
-    // --- SNACKS & DIVERSEN (45 items) ---
+    // --- SNACKS & DIVERSEN (46 items) ---
     { id: 's1', name_nl: 'Pure Chocolade (85%)', name_en: 'Dark Chocolate (85%)', aliases: ['chocola'], unit_type: 'per_100g', kcal_100: 517, protein_100: 9, carbs_100: 19, fat_100: 45 , fiber_100: 11 },
     { id: 's2', name_nl: 'Melkchocolade', name_en: 'Milk chocolate', aliases: [], unit_type: 'per_100g', kcal_100: 534, protein_100: 7, carbs_100: 59, fat_100: 30 , fiber_100: 3.4 },
     { id: 's3', name_nl: 'Popcorn (zout)', name_en: 'Popcorn (salted)', aliases: [], unit_type: 'per_100g', kcal_100: 329, protein_100: 13, carbs_100: 58, fat_100: 5 , fiber_100: 14.5 },
@@ -254,7 +272,7 @@ export const FOOD_DATABASE = [
     { id: 's29', name_nl: 'Satésaus (bereid)', name_en: 'Peanut sauce (prepared)', aliases: [], unit_type: 'per_100g', kcal_100: 254, protein_100: 8, carbs_100: 15, fat_100: 18 , fiber_100: 0 },
     { id: 's30', name_nl: 'Mosterd', name_en: 'Mustard', aliases: [], unit_type: 'per_100g', kcal_100: 111, protein_100: 6, carbs_100: 6, fat_100: 7 , fiber_100: 0 },
     { id: 's31', name_nl: 'Ketjap Manis', name_en: 'Sweet soy sauce', aliases: [], unit_type: 'per_100g', kcal_100: 188, protein_100: 6, carbs_100: 41, fat_100: 0 , fiber_100: 0 },
-    { id: 's32', name_nl: 'Sojavaus (zout)', name_en: 'Soy sauce (salty)', aliases: [], unit_type: 'per_100g', kcal_100: 60, protein_100: 10, carbs_100: 5, fat_100: 0 , fiber_100: 0 },
+    { id: 's32', name_nl: 'Sojasaus (zout)', name_en: 'Soy sauce (salty)', aliases: ['sojasaus'], unit_type: 'per_100g', kcal_100: 60, protein_100: 10, carbs_100: 5, fat_100: 0 , fiber_100: 0 },
     { id: 's33', name_nl: 'Appelstroop', name_en: 'Apple butter', aliases: [], unit_type: 'per_100g', kcal_100: 272, protein_100: 3, carbs_100: 65, fat_100: 0 , fiber_100: 0 },
     { id: 's34', name_nl: 'Hagelslag (melk)', name_en: 'Chocolate sprinkles (milk)', aliases: [], unit_type: 'per_100g', kcal_100: 436, protein_100: 5, carbs_100: 68, fat_100: 16 , fiber_100: 0 },
     { id: 's35', name_nl: 'Vla (vanille)', name_en: 'Custard (vanilla)', aliases: [], unit_type: 'per_100g', kcal_100: 99, protein_100: 3, carbs_100: 15, fat_100: 3 , fiber_100: 0 },
