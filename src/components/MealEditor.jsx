@@ -37,9 +37,10 @@ export default function MealEditor({ meal, onSave, onClose }) {
             kcal: acc.kcal + (item.kcal_100 * factor),
             protein: acc.protein + (item.protein_100 * factor),
             carbs: acc.carbs + (item.carbs_100 * factor),
-            fat: acc.fat + (item.fat_100 * factor)
+            fat: acc.fat + (item.fat_100 * factor),
+            fiber: acc.fiber + ((item.fiber_100 || 0) * factor)
         }
-    }, { kcal: 0, protein: 0, carbs: 0, fat: 0 })
+    }, { kcal: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 })
 
     // Filter products for search
     const filteredProducts = user.foods.filter(food => {
@@ -65,7 +66,8 @@ export default function MealEditor({ meal, onSave, onClose }) {
             kcal_100: selectedProduct.kcal_100,
             protein_100: selectedProduct.protein_100,
             carbs_100: selectedProduct.carbs_100,
-            fat_100: selectedProduct.fat_100
+            fat_100: selectedProduct.fat_100,
+            fiber_100: selectedProduct.fiber_100 || 0
         }
 
         setItems([...items, newItem])
@@ -108,7 +110,8 @@ export default function MealEditor({ meal, onSave, onClose }) {
                 kcal_100: parseFloat(String(item.kcal_100).replace(',', '.')) || 0,
                 protein_100: parseFloat(String(item.protein_100).replace(',', '.')) || 0,
                 carbs_100: parseFloat(String(item.carbs_100).replace(',', '.')) || 0,
-                fat_100: parseFloat(String(item.fat_100).replace(',', '.')) || 0
+                fat_100: parseFloat(String(item.fat_100).replace(',', '.')) || 0,
+                fiber_100: parseFloat(String(item.fiber_100).replace(',', '.')) || 0
             }))
 
             let savedMeal
@@ -140,7 +143,8 @@ export default function MealEditor({ meal, onSave, onClose }) {
                         kcal_100: item.kcal_100,
                         protein_100: item.protein_100,
                         carbs_100: item.carbs_100,
-                        fat_100: item.fat_100
+                        fat_100: item.fat_100,
+                        fiber_100: item.fiber_100
                     }))
 
                     const { error: itemsError } = await supabase
@@ -184,7 +188,8 @@ export default function MealEditor({ meal, onSave, onClose }) {
                         kcal_100: item.kcal_100,
                         protein_100: item.protein_100,
                         carbs_100: item.carbs_100,
-                        fat_100: item.fat_100
+                        fat_100: item.fat_100,
+                        fiber_100: item.fiber_100
                     }))
 
                     const { error: itemsError } = await supabase
@@ -206,9 +211,10 @@ export default function MealEditor({ meal, onSave, onClose }) {
                     kcal: acc.kcal + (item.kcal_100 * factor),
                     protein: acc.protein + (item.protein_100 * factor),
                     carbs: acc.carbs + (item.carbs_100 * factor),
-                    fat: acc.fat + (item.fat_100 * factor)
+                    fat: acc.fat + (item.fat_100 * factor),
+                    fiber: acc.fiber + ((item.fiber_100 || 0) * factor)
                 }
-            }, { kcal: 0, protein: 0, carbs: 0, fat: 0 })
+            }, { kcal: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 })
 
             // Return full meal object with items and totals
             onSave({
@@ -218,7 +224,8 @@ export default function MealEditor({ meal, onSave, onClose }) {
                     kcal: Math.round(mealTotals.kcal),
                     protein: Math.round(mealTotals.protein * 10) / 10,
                     carbs: Math.round(mealTotals.carbs * 10) / 10,
-                    fat: Math.round(mealTotals.fat * 10) / 10
+                    fat: Math.round(mealTotals.fat * 10) / 10,
+                    fiber: Math.round(mealTotals.fiber * 10) / 10
                 }
             })
         } catch (e) {

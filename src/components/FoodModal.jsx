@@ -95,9 +95,10 @@ export default function FoodModal({ onClose, onAdd }) {
                         kcal: acc.kcal + (item.kcal_100 * factor),
                         protein: acc.protein + (item.protein_100 * factor),
                         carbs: acc.carbs + (item.carbs_100 * factor),
-                        fat: acc.fat + (item.fat_100 * factor)
+                        fat: acc.fat + (item.fat_100 * factor),
+                        fiber: acc.fiber + ((item.fiber_100 || 0) * factor)
                     }
-                }, { kcal: 0, protein: 0, carbs: 0, fat: 0 })
+                }, { kcal: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 })
 
                 return {
                     ...meal,
@@ -106,7 +107,8 @@ export default function FoodModal({ onClose, onAdd }) {
                         kcal: Math.round(totals.kcal),
                         protein: Math.round(totals.protein * 10) / 10,
                         carbs: Math.round(totals.carbs * 10) / 10,
-                        fat: Math.round(totals.fat * 10) / 10
+                        fat: Math.round(totals.fat * 10) / 10,
+                        fiber: Math.round(totals.fiber * 10) / 10
                     }
                 }
             })
@@ -133,7 +135,7 @@ export default function FoodModal({ onClose, onAdd }) {
                     protein: meal.totals?.protein || 0,
                     carbs: meal.totals?.carbs || 0,
                     fat: meal.totals?.fat || 0,
-                    fiber: 0
+                    fiber: meal.totals?.fiber || 0
                 }
             })
             onClose()
@@ -752,6 +754,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                                     <span>{t('food_modal.protein_label').charAt(0)}: {meal.totals?.protein || 0}g</span>
                                                     <span>{t('food_modal.carbs_label').charAt(0)}: {meal.totals?.carbs || 0}g</span>
                                                     <span>{t('food_modal.fat_label').charAt(0)}: {meal.totals?.fat || 0}g</span>
+                                                    <span>{t('food_modal.fiber_label').charAt(0)}: {meal.totals?.fiber || 0}g</span>
                                                 </div>
 
                                                 <div style={{ display: 'flex', gap: '0.5rem' }}>
