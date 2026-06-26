@@ -27,6 +27,8 @@ export default function Onboarding() {
         cycleStart: user.cycleStart || '',
         cycleLength: user.cycleLength || 28,
         periodLength: user.periodLength || 5,
+        periodEnded: null, // null = not answered, 'yes' = still menstruating, 'no' = period ended
+        periodEndDate: '',
         age: user.age || '',
         height: user.height || '',
         weight: user.weight || '',
@@ -279,7 +281,11 @@ export default function Onboarding() {
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.2rem' }}>
                                     <label style={labelStyle}>{t('onboarding.last_period_start')}</label>
                                     <button
-                                        onClick={() => handleChange('cycleStart', new Date().toISOString().split('T')[0])}
+                                        onClick={() => {
+                                            handleChange('cycleStart', new Date().toISOString().split('T')[0])
+                                            handleChange('periodEnded', 'yes')
+                                            handleChange('periodEndDate', '')
+                                        }}
                                         style={{
                                             background: 'none',
                                             border: 'none',
@@ -298,7 +304,13 @@ export default function Onboarding() {
                                     <input
                                         type="date"
                                         value={formatDateForInput(formData.cycleStart)}
-                                        onChange={e => handleChange('cycleStart', e.target.value)}
+                                        onChange={e => {
+                                            handleChange('cycleStart', e.target.value)
+                                            // Reset the period status when date changes
+                                            const isToday = e.target.value === new Date().toISOString().split('T')[0]
+                                            handleChange('periodEnded', isToday ? 'yes' : null)
+                                            handleChange('periodEndDate', '')
+                                        }}
                                         style={{
                                             ...inputStyle,
                                             WebkitAppearance: 'none', // fixes iOS native styling issues
@@ -322,6 +334,78 @@ export default function Onboarding() {
                                     )}
                                 </div>
                             </div>
+
+                            {/* Show "still menstruating?" only when a past date is selected */}
+                            {formData.cycleStart && formData.cycleStart !== new Date().toISOString().split('T')[0] && (
+                                <div style={{ 
+                                    background: 'var(--color-bg)', 
+                                    borderRadius: '12px', 
+                                    padding: '1rem',
+                                    border: '1px solid var(--color-border)'
+                                }}>
+                                    <label style={{ ...labelStyle, marginBottom: '0.75rem', display: 'block' }}>
+                                        {t('onboarding.still_menstruating')}
+                                    </label>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <button
+                                            onClick={() => {
+                                                handleChange('periodEnded', 'yes')
+                                                handleChange('periodEndDate', '')
+                                            }}
+                                            style={{
+                                                flex: 1,
+                                                padding: '0.75rem',
+                                                borderRadius: '10px',
+                                                border: formData.periodEnded === 'yes' ? 'none' : '1px solid var(--color-border)',
+                                                background: formData.periodEnded === 'yes' ? 'var(--color-primary)' : 'transparent',
+                                                color: formData.periodEnded === 'yes' ? '#333333' : 'var(--color-text)',
+                                                fontSize: '0.85rem',
+                                                fontWeight: '600',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            {t('onboarding.still_menstruating_yes')}
+                                        </button>
+                                        <button
+                                            onClick={() => handleChange('periodEnded', 'no')}
+                                            style={{
+                                                flex: 1,
+                                                padding: '0.75rem',
+                                                borderRadius: '10px',
+                                                border: formData.periodEnded === 'no' ? 'none' : '1px solid var(--color-border)',
+                                                background: formData.periodEnded === 'no' ? 'var(--color-primary)' : 'transparent',
+                                                color: formData.periodEnded === 'no' ? '#333333' : 'var(--color-text)',
+                                                fontSize: '0.85rem',
+                                                fontWeight: '600',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            {t('onboarding.still_menstruating_no')}
+                                        </button>
+                                    </div>
+
+                                    {/* Show end date picker when "no" is selected */}
+                                    {formData.periodEnded === 'no' && (
+                                        <div style={{ marginTop: '0.75rem' }}>
+                                            <label style={{ ...labelStyle, marginBottom: '0.2rem', display: 'block' }}>
+                                                {t('onboarding.period_end_date')}
+                                            </label>
+                                            <input
+                                                type="date"
+                                                value={formatDateForInput(formData.periodEndDate)}
+                                                onChange={e => handleChange('periodEndDate', e.target.value)}
+                                                min={formatDateForInput(formData.cycleStart)}
+                                                max={new Date().toISOString().split('T')[0]}
+                                                style={{
+                                                    ...inputStyle,
+                                                    WebkitAppearance: 'none',
+                                                    minHeight: '3.5rem'
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
                             <div>
                                 <label style={labelStyle}>{t('onboarding.avg_cycle_length')}</label>
@@ -773,6 +857,11 @@ function isValid(step, data, isAuthed) {
         // Very lenient validation: just needs a truthy date and a number > 10 for cycle length
         if (!data.cycleStart) return false;
         if (!data.cycleLength || isNaN(data.cycleLength) || data.cycleLength < 10) return false;
+        // If a past date is selected, user must answer the "still menstruating?" question
+        const isToday = data.cycleStart === new Date().toISOString().split('T')[0];
+        if (!isToday && !data.periodEnded) return false;
+        // If they said "no", they need to provide an end date
+        if (data.periodEnded === 'no' && !data.periodEndDate) return false;
         return true;
     }
     

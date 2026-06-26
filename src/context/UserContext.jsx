@@ -679,6 +679,13 @@ export function UserProvider({ children }) {
         if (!updatedMenstruationLogs.some(l => l.date === cycleStartStr && l.status === 'yes')) {
           updatedMenstruationLogs = [...updatedMenstruationLogs.filter(l => l.date !== cycleStartStr), { date: cycleStartStr, status: 'yes' }];
         }
+
+        // If user indicated their period has ended, add a 'no' stop log
+        if (profileData.periodEndDate) {
+          const endStr = String(profileData.periodEndDate).split('T')[0];
+          // Remove any existing log for that date and add the stop log
+          updatedMenstruationLogs = [...updatedMenstruationLogs.filter(l => l.date !== endStr), { date: endStr, status: 'no' }];
+        }
       }
 
       await defensiveProfileUpsert({
