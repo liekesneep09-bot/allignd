@@ -309,13 +309,13 @@ export default function Today({ onNavigate }) {
       {/* HEADER SECTION - Soft Glow */}
       <div style={{
         background: phaseStyle.bg,
-        paddingBottom: '2.5rem',
+        paddingBottom: '1.25rem',
         paddingTop: '1rem',
         position: 'relative',
         transition: 'background 0.5s ease'
       }}>
 
-        <div className="container" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
+        <div className="container" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', paddingBottom: 0 }}>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
             <button
@@ -417,6 +417,40 @@ export default function Today({ onNavigate }) {
                 }}>
                   {currentText.normal}
                 </p>
+
+                {/* Menstruatie gestopt link (Under description text, above nutrition card) */}
+                {(() => {
+                  const isPeriodToday = isDateInPeriod(viewDateStr);
+                  const isViewingToday = viewDateStr === todayDateStr;
+                  if (isPeriodToday && isViewingToday && viewPhase === 'menstrual') {
+                    return (
+                      <div style={{ marginTop: '0.8rem', marginBottom: '0.2rem' }}>
+                        <span 
+                          onClick={() => stopPeriod(viewDateStr)}
+                          style={{
+                            fontSize: '0.95rem',
+                            fontWeight: '600',
+                            color: phaseStyle.text, // Same color as the menstruation phase
+                            cursor: 'pointer',
+                            textDecoration: 'underline',
+                            display: 'inline-block',
+                            padding: '4px 8px',
+                            transition: 'opacity 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.opacity = '0.8';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.opacity = '1';
+                          }}
+                        >
+                          {t('today.period_stopped_question', { defaultValue: 'Menstruatie gestopt?' })}
+                        </span>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
 
                 {/* Voedingskaartje — elegant licht design */}
                 <div
@@ -538,8 +572,8 @@ export default function Today({ onNavigate }) {
             let actionClick = null;
 
             if (isPeriodToday && isViewingToday && viewPhase === 'menstrual') {
-              actionText = t('today.period_stopped', { defaultValue: 'Menstruatie gestopt' }).replace('✓ ', '').replace('✓', '');
-              actionClick = () => stopPeriod(viewDateStr);
+              // Moved to inline link above nutrition card
+              return null;
             } else if (!isPeriodToday && (viewPhase === 'luteal' || viewPhase === 'menstrual')) {
               actionText = t('today.log_period', { defaultValue: 'Log menstruatie' }).replace('+ ', '').replace('+', '');
               actionClick = () => startPeriod(viewDateStr);
@@ -582,7 +616,6 @@ export default function Today({ onNavigate }) {
           })()}
             </div>
           )}
-
 
           {(user.tracking !== 'none') && (
             <>
@@ -655,12 +688,14 @@ export default function Today({ onNavigate }) {
                 }}
                 className="btn btn-primary"
                 style={{
-                  width: '100%',
-                  padding: '1rem',
-                  borderRadius: '16px',
+                  width: 'fit-content',
+                  alignSelf: 'center',
+                  padding: '0.75rem 2rem',
+                  borderRadius: '24px',
                   boxShadow: 'var(--shadow-soft)',
-                  marginTop: 0,
-                  fontSize: '0.95rem'
+                  marginTop: '0.5rem',
+                  fontSize: '0.92rem',
+                  fontWeight: '700'
                 }}
               >
                 {t('today.add_food')}

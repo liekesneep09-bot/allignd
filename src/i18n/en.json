@@ -230,6 +230,7 @@
     "period_logged": "✓ Period logged",
     "log_period": "Log Period",
     "period_stopped": "✓ Period stopped",
+    "period_stopped_question": "Period stopped?",
     "when_last_period": "When did your last period start?",
     "choose_first_day": "Choose the first day of your last period."
   },

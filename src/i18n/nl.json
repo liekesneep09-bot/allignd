@@ -230,6 +230,7 @@
     "period_logged": "✓ Menstruatie gelogd",
     "log_period": "Log Menstruatie",
     "period_stopped": "✓ Menstruatie gestopt",
+    "period_stopped_question": "Menstruatie gestopt?",
     "when_last_period": "Wanneer begon je laatste menstruatie?",
     "choose_first_day": "Kies de eerste dag van je laatste menstruatie.",
     "no_workouts_desc": "Probeer later opnieuw.",

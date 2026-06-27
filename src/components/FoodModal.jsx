@@ -19,7 +19,15 @@ export default function FoodModal({ onClose, onAdd }) {
     const [selectedFood, setSelectedFood] = useState(null)
     const [grams, setGrams] = useState('')
     const [unitType, setUnitType] = useState('g') // 'g' | 'unit'
-    const [mealCategory, setMealCategory] = useState(null) // null | 'breakfast' | 'lunch' | 'dinner' | 'snack'
+    const getMealCategoryFromTime = () => {
+        const hour = new Date().getHours()
+        if (hour >= 5 && hour < 11.5) return 'breakfast'
+        if (hour >= 11.5 && hour < 15.5) return 'lunch'
+        if (hour >= 15.5 && hour < 18.5) return 'snack'
+        if (hour >= 18.5 && hour < 23) return 'dinner'
+        return 'snack'
+    }
+    const [mealCategory, setMealCategory] = useState(getMealCategoryFromTime())
 
     // Form state for new product
     const [newFood, setNewFood] = useState({
@@ -332,8 +340,29 @@ export default function FoodModal({ onClose, onAdd }) {
                         {view === 'list' && (
                             <>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                                    <h3 style={{ margin: 0, fontSize: '1.25rem' }}>{t('food_modal.add_food_title')}</h3>
-                                    <button onClick={onClose} style={{ fontSize: '1.5rem', background: 'none', color: 'var(--color-text-muted)' }}>&times;</button>
+                                    <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--color-text)' }}>{t('food_modal.add_food_title')}</h3>
+                                    <button 
+                                        onClick={onClose} 
+                                        style={{ 
+                                            width: '32px', 
+                                            height: '32px', 
+                                            borderRadius: '50%', 
+                                            background: 'rgba(0,0,0,0.05)', 
+                                            border: 'none',
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            justifyContent: 'center',
+                                            cursor: 'pointer',
+                                            color: 'var(--color-text-muted)',
+                                            fontSize: '1rem',
+                                            transition: 'background 0.2s',
+                                            flexShrink: 0
+                                        }}
+                                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.1)'}
+                                        onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
+                                    >
+                                        ✕
+                                    </button>
                                 </div>
 
                                 {/* Search Bar */}
@@ -363,25 +392,14 @@ export default function FoodModal({ onClose, onAdd }) {
                                                 <button
                                                     key={food.id}
                                                     onClick={() => handleSelectFood(food)}
-                                                    style={{
-                                                        width: '100%',
-                                                        display: 'flex',
-                                                        justifyContent: 'space-between',
-                                                        alignItems: 'center',
-                                                        padding: '1rem',
-                                                        background: 'var(--color-bg)',
-                                                        border: '1px solid var(--color-border)',
-                                                        borderRadius: '12px',
-                                                        marginBottom: '0.5rem',
-                                                        textAlign: 'left'
-                                                    }}
+                                                    className="food-item-btn"
                                                 >
                                                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                                                         <span style={{ fontWeight: '600', color: 'var(--color-text)' }}>
                                                             {language === 'en' && food.name_en ? food.name_en : food.name_nl}
                                                         </span>
                                                     </div>
-                                                    <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{food.kcal_100} {t('food_modal.kcal_per_100g')}</span>
+                                                    <span style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>{food.kcal_100} {t('food_modal.kcal_per_100g')}</span>
                                                 </button>
                                             ))}
                                         </div>
@@ -418,15 +436,27 @@ export default function FoodModal({ onClose, onAdd }) {
                                     <button
                                         onClick={() => setView('list')}
                                         style={{
-                                            background: 'none',
-                                            fontSize: '1.5rem',
-                                            marginRight: '1rem',
-                                            padding: 0
+                                            width: '32px',
+                                            height: '32px',
+                                            borderRadius: '50%',
+                                            background: 'rgba(0,0,0,0.05)',
+                                            border: 'none',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer',
+                                            color: 'var(--color-text-muted)',
+                                            fontSize: '1.1rem',
+                                            marginRight: '0.75rem',
+                                            transition: 'background 0.2s',
+                                            flexShrink: 0
                                         }}
+                                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.1)'}
+                                        onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
                                     >
                                         ←
                                     </button>
-                                    <h3 style={{ margin: 0, fontSize: '1.25rem' }}>{t('food_modal.new_product_title')}</h3>
+                                    <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--color-text)' }}>{t('food_modal.new_product_title')}</h3>
                                 </div>
 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1, minHeight: 0, overflowY: 'auto' }}>
@@ -548,30 +578,47 @@ export default function FoodModal({ onClose, onAdd }) {
                                     <button
                                         onClick={() => setView('list')}
                                         style={{
-                                            background: 'none',
-                                            fontSize: '1.5rem',
-                                            marginRight: '1rem',
-                                            padding: 0
+                                            width: '32px',
+                                            height: '32px',
+                                            borderRadius: '50%',
+                                            background: 'rgba(0,0,0,0.05)',
+                                            border: 'none',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer',
+                                            color: 'var(--color-text-muted)',
+                                            fontSize: '1.1rem',
+                                            marginRight: '0.75rem',
+                                            transition: 'background 0.2s',
+                                            flexShrink: 0
                                         }}
+                                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.1)'}
+                                        onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
                                     >
                                         ←
                                     </button>
-                                    <h3 style={{ margin: 0, fontSize: '1.25rem' }}>
+                                    <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--color-text)' }}>
                                         {language === 'en' && selectedFood.name_en ? selectedFood.name_en : selectedFood.name_nl}
                                     </h3>
                                 </div>
 
-                                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                                {/* Segmented Unit Type Selector */}
+                                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', background: 'var(--color-bg)', padding: '4px', borderRadius: '14px', border: '1px solid var(--color-border)' }}>
                                     <button
                                         onClick={() => setUnitType('g')}
                                         style={{
                                             flex: 1,
-                                            padding: '0.8rem',
-                                            borderRadius: '12px',
-                                            border: '1px solid var(--color-border)',
-                                            background: unitType === 'g' ? 'var(--color-primary)' : 'var(--color-bg)',
-                                            color: unitType === 'g' ? '#fff' : 'var(--color-text)',
-                                            fontWeight: '600'
+                                            padding: '0.65rem',
+                                            borderRadius: '10px',
+                                            border: 'none',
+                                            background: unitType === 'g' ? '#ffffff' : 'transparent',
+                                            color: unitType === 'g' ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                                            fontWeight: '700',
+                                            boxShadow: unitType === 'g' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s ease',
+                                            fontSize: '0.9rem'
                                         }}
                                     >
                                         {selectedFood?.unit_type === 'per_100ml' ? 'ml' : t('food_modal.gram')}
@@ -581,12 +628,16 @@ export default function FoodModal({ onClose, onAdd }) {
                                             onClick={() => setUnitType('unit')}
                                             style={{
                                                 flex: 1,
-                                                padding: '0.8rem',
-                                                borderRadius: '12px',
-                                                border: '1px solid var(--color-border)',
-                                                background: unitType === 'unit' ? 'var(--color-primary)' : 'var(--color-bg)',
-                                                color: unitType === 'unit' ? '#fff' : 'var(--color-text)',
-                                                fontWeight: '600',
+                                                padding: '0.65rem',
+                                                borderRadius: '10px',
+                                                border: 'none',
+                                                background: unitType === 'unit' ? '#ffffff' : 'transparent',
+                                                color: unitType === 'unit' ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                                                fontWeight: '700',
+                                                boxShadow: unitType === 'unit' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s ease',
+                                                fontSize: '0.9rem',
                                                 textTransform: 'capitalize'
                                             }}
                                         >
@@ -595,36 +646,59 @@ export default function FoodModal({ onClose, onAdd }) {
                                     )}
                                 </div>
 
-                                <div className="input-group">
-                                    <label>{t('food_modal.amount_label')} ({unitType === 'g' ? (selectedFood?.unit_type === 'per_100ml' ? 'ml' : t('food_modal.gram').toLowerCase()) : selectedFood.unit_name})</label>
-                                    <input
-                                        type="text"
-                                        inputMode="decimal"
-                                        placeholder="0"
-                                        value={grams}
-                                        onChange={e => setGrams(e.target.value)}
-                                        autoFocus
-                                    />
+                                {/* Redesigned Premium Mobile-Friendly Amount Input */}
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '1rem 0 1.5rem' }}>
+                                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                                        <input
+                                            type="text"
+                                            inputMode="decimal"
+                                            placeholder="0"
+                                            value={grams}
+                                            onChange={e => setGrams(e.target.value)}
+                                            onFocus={e => e.target.select()}
+                                            autoFocus
+                                            style={{
+                                                width: '120px',
+                                                border: 'none',
+                                                borderBottom: '2px solid var(--color-primary)',
+                                                borderRadius: 0,
+                                                background: 'transparent',
+                                                fontSize: '2.5rem',
+                                                fontWeight: '800',
+                                                textAlign: 'center',
+                                                padding: '4px 0',
+                                                outline: 'none',
+                                                color: 'var(--color-text)'
+                                            }}
+                                        />
+                                        <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--color-text-muted)' }}>
+                                            {unitType === 'g' ? (selectedFood?.unit_type === 'per_100ml' ? 'ml' : 'g') : selectedFood.unit_name}
+                                        </span>
+                                    </div>
+                                    <div style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--color-text-muted)', marginTop: '8px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                                        {t('food_modal.amount_label')}
+                                    </div>
                                 </div>
 
                                 {/* Live Preview Card */}
                                 <div style={{
                                     background: 'var(--color-bg)',
-                                    padding: '1rem',
-                                    borderRadius: '12px',
-                                    marginBottom: '1.25rem',
+                                    padding: '1rem 0.5rem',
+                                    borderRadius: '16px',
+                                    marginBottom: '1.5rem',
                                     display: 'flex',
-                                    justifyContent: 'space-between'
+                                    justifyContent: 'space-between',
+                                    border: '1px solid var(--color-border)'
                                 }}>
-                                    <PreviewStat label="Kcal" value={preview.kcal} />
-                                    <PreviewStat label={t('food_modal.protein_label')} value={preview.p + 'g'} />
-                                    <PreviewStat label={t('food_modal.carbs_label')} value={preview.c + 'g'} />
-                                    <PreviewStat label={t('food_modal.fat_label')} value={preview.f + 'g'} />
-                                    <PreviewStat label={t('food_modal.fiber_label')} value={preview.fiber + 'g'} />
+                                    <PreviewStat label="Kcal" value={preview.kcal} color="var(--color-calories)" />
+                                    <PreviewStat label={t('food_modal.carbs_label')} value={preview.c + 'g'} color="var(--color-carbs)" />
+                                    <PreviewStat label={t('food_modal.fat_label')} value={preview.f + 'g'} color="#e4c464" />
+                                    <PreviewStat label={t('food_modal.protein_label')} value={preview.p + 'g'} color="var(--color-protein)" />
+                                    <PreviewStat label={t('food_modal.fiber_label')} value={preview.fiber + 'g'} color="var(--color-text-muted)" hasBorder={false} />
                                 </div>
 
                                 {/* Meal Category Selector */}
-                                <div style={{ marginBottom: '1.25rem' }}>
+                                <div style={{ marginBottom: '1.5rem' }}>
                                     <div style={{
                                         fontSize: '0.7rem',
                                         fontWeight: '700',
@@ -676,7 +750,17 @@ export default function FoodModal({ onClose, onAdd }) {
                                     disabled={!grams || parseFloat(String(grams).replace(',', '.')) <= 0}
                                     style={{
                                         width: '100%',
-                                        opacity: (!grams || parseFloat(String(grams).replace(',', '.')) <= 0) ? 0.5 : 1
+                                        padding: '1rem',
+                                        borderRadius: '16px',
+                                        background: 'var(--color-primary)',
+                                        color: '#333333',
+                                        fontWeight: '700',
+                                        fontSize: '1rem',
+                                        border: 'none',
+                                        boxShadow: 'var(--shadow-soft)',
+                                        cursor: 'pointer',
+                                        opacity: (!grams || parseFloat(String(grams).replace(',', '.')) <= 0) ? 0.5 : 1,
+                                        transition: 'transform 0.15s, opacity 0.15s'
                                     }}
                                 >
                                     {t('food_modal.add_to_today')}
@@ -689,8 +773,29 @@ export default function FoodModal({ onClose, onAdd }) {
                 {activeTab === 'gerechten' && (
                     <>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                            <h3 style={{ margin: 0, fontSize: '1.25rem' }}>{t('food_modal.my_meals_title')}</h3>
-                            <button onClick={onClose} style={{ fontSize: '1.5rem', background: 'none', color: 'var(--color-text-muted)' }}>&times;</button>
+                            <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--color-text)' }}>{t('food_modal.my_meals_title')}</h3>
+                            <button 
+                                onClick={onClose} 
+                                style={{ 
+                                    width: '32px', 
+                                    height: '32px', 
+                                    borderRadius: '50%', 
+                                    background: 'rgba(0,0,0,0.05)', 
+                                    border: 'none',
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                    color: 'var(--color-text-muted)',
+                                    fontSize: '1rem',
+                                    transition: 'background 0.2s',
+                                    flexShrink: 0
+                                }}
+                                onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.1)'}
+                                onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
+                            >
+                                ✕
+                            </button>
                         </div>
 
                         {mealsError && (
@@ -825,11 +930,15 @@ export default function FoodModal({ onClose, onAdd }) {
     )
 }
 
-function PreviewStat({ label, value }) {
+function PreviewStat({ label, value, color, hasBorder = true }) {
     return (
-        <div style={{ textAlign: 'center' }}>
-            <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{label}</span>
-            <span style={{ fontWeight: '700', color: 'var(--color-primary)' }}>{value}</span>
+        <div style={{ 
+            flex: 1, 
+            textAlign: 'center', 
+            borderRight: hasBorder ? '1.5px solid var(--color-border)' : 'none'
+        }}>
+            <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: '700', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.02em', marginBottom: '2px' }}>{label}</span>
+            <span style={{ fontWeight: '800', fontSize: '1rem', color: color || 'var(--color-text)' }}>{value}</span>
         </div>
     )
 }
@@ -884,10 +993,11 @@ const modalStyles = `
         max-height: 90vh;
         border-radius: 24px 24px 0 0;
         padding: 1.5rem;
+        padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
         display: flex;
         flex-direction: column;
         box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.1);
-        animation: slideUp 0.3s ease-out;
+        animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     @keyframes slideUp {
@@ -944,5 +1054,31 @@ const modalStyles = `
 
     .btn-primary:active {
         transform: scale(0.98);
+    }
+
+    .food-item-btn {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: var(--color-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        margin-bottom: 0.5rem;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.15s ease-out;
+        font-family: inherit;
+    }
+
+    .food-item-btn:hover {
+        border-color: var(--color-primary);
+        background: rgba(255, 174, 185, 0.04);
+    }
+
+    .food-item-btn:active {
+        transform: scale(0.98);
+        background: rgba(255, 174, 185, 0.08);
     }
 `

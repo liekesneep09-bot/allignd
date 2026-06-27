@@ -3,7 +3,7 @@ import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
 
 // Circular progress ring — self-contained so no dependency on Today.jsx
-function Ring({ value, max, size = 100, stroke = 8, color, label, sublabel }) {
+function Ring({ value, max, size = 100, stroke = 8, color, label, sublabel, showPlus = true }) {
     const r = (size - stroke) / 2
     const circ = 2 * Math.PI * r
     const pct = Math.min(1, Math.max(0, value / (max || 1)))
@@ -42,6 +42,33 @@ function Ring({ value, max, size = 100, stroke = 8, color, label, sublabel }) {
                     <span style={{ fontSize: '0.85rem', fontWeight: '800', color: '#333333', lineHeight: 1 }}>{label}</span>
                     <span style={{ fontSize: '0.55rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>{sublabel}</span>
                 </div>
+                {/* Overlapping Plus Badge */}
+                {showPlus && (
+                    <div 
+                        className="ring-plus-badge"
+                        style={{
+                            position: 'absolute',
+                            bottom: '-2px',
+                            right: '-2px',
+                            width: '28px',
+                            height: '28px',
+                            borderRadius: '50%',
+                            backgroundColor: 'var(--color-primary)', // #ffaeb9
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 2px 6px rgba(255, 174, 185, 0.4)',
+                            border: '2px solid #ffffff', // white border to make it pop
+                            color: '#ffffff',
+                            fontSize: '1.15rem',
+                            fontWeight: '700',
+                            lineHeight: 1,
+                            transition: 'transform 0.2s ease-out'
+                        }}
+                    >
+                        +
+                    </div>
+                )}
             </div>
         </div>
     )
@@ -88,6 +115,7 @@ export default function HabitsCard({ date }) {
     const { t, language } = useLanguage()
 
     const [sheet, setSheet] = useState(null) // 'water' | 'steps' | null
+    const [showMenu, setShowMenu] = useState(false)
 
     // ── Water ────────────────────────────────────────────────────────────────
     const waterLog = user?.waterLogs?.find(l => l.date === date)
@@ -148,22 +176,136 @@ export default function HabitsCard({ date }) {
 
     return (
         <>
-            <section className="card" style={{ padding: '1.25rem' }}>
+            <section 
+                className="card" 
+                style={{ 
+                    padding: '1.25rem',
+                    background: 'rgba(51, 51, 51, 0.045)', // very light, semi-transparent #333333
+                    border: '1px solid rgba(51, 51, 51, 0.08)', // matching transparent border
+                    borderRadius: '24px', // smoother rounded corners matching the mockup
+                    boxShadow: 'none',
+                    position: 'relative'
+                }}
+            >
 
                 {/* Header */}
-                <div style={{ marginBottom: '1.25rem' }}>
-                    <h2 style={{ fontSize: '1.1rem', margin: '0 0 2px 0' }}>{t('habits.title')}</h2>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                        {t('habits.subtitle')}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
+                    <div>
+                        <h2 style={{ fontSize: '1.1rem', margin: '0 0 2px 0', color: 'var(--color-text)' }}>{t('habits.title')}</h2>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                            {t('habits.subtitle')}
+                        </div>
+                    </div>
+                    {/* Top right plus button */}
+                    <div style={{ position: 'relative' }}>
+                        <button
+                            onClick={() => setShowMenu(!showMenu)}
+                            style={{
+                                width: '32px',
+                                height: '32px',
+                                borderRadius: '50%',
+                                backgroundColor: 'var(--color-primary)', // #ffaeb9
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                boxShadow: '0 2px 8px rgba(255, 174, 185, 0.3)',
+                                cursor: 'pointer',
+                                color: '#ffffff',
+                                fontSize: '1.2rem',
+                                fontWeight: '700',
+                                transition: 'transform 0.2s ease',
+                                flexShrink: 0
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.08)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        >
+                            +
+                        </button>
+                        {showMenu && (
+                            <>
+                                {/* Overlay to close on tap outside */}
+                                <div 
+                                    onClick={() => setShowMenu(false)} 
+                                    style={{ position: 'fixed', inset: 0, zIndex: 100 }} 
+                                />
+                                <div style={{
+                                    position: 'absolute',
+                                    right: 0,
+                                    top: '38px',
+                                    backgroundColor: '#ffffff',
+                                    borderRadius: '12px',
+                                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+                                    border: '1px solid var(--color-border)',
+                                    padding: '6px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '4px',
+                                    minWidth: '160px',
+                                    zIndex: 101,
+                                    animation: 'fadeIn 0.15s ease-out'
+                                }}>
+                                    <button
+                                        onClick={() => { openWater(); setShowMenu(false) }}
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            padding: '10px 12px',
+                                            borderRadius: '8px',
+                                            background: 'none',
+                                            width: '100%',
+                                            textAlign: 'left',
+                                            fontSize: '0.85rem',
+                                            fontWeight: '600',
+                                            color: 'var(--color-text)',
+                                            cursor: 'pointer'
+                                        }}
+                                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 174, 185, 0.08)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                    >
+                                        <span style={{ fontSize: '1.1rem' }}>💧</span> {t('habits.water')}
+                                    </button>
+                                    <button
+                                        onClick={() => { openSteps(); setShowMenu(false) }}
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            padding: '10px 12px',
+                                            borderRadius: '8px',
+                                            background: 'none',
+                                            width: '100%',
+                                            textAlign: 'left',
+                                            fontSize: '0.85rem',
+                                            fontWeight: '600',
+                                            color: 'var(--color-text)',
+                                            cursor: 'pointer'
+                                        }}
+                                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 174, 185, 0.08)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                    >
+                                        <span style={{ fontSize: '1.1rem' }}>👟</span> {t('habits.steps')}
+                                    </button>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
 
                 {/* Two rings side by side */}
-                <div style={{ display: 'flex', position: 'relative', marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', position: 'relative', margin: '0.5rem 0' }}>
 
                     {/* Water ring */}
                     <button
                         onClick={openWater}
+                        onMouseEnter={(e) => {
+                            const badge = e.currentTarget.querySelector('.ring-plus-badge');
+                            if (badge) badge.style.transform = 'scale(1.12)';
+                        }}
+                        onMouseLeave={(e) => {
+                            const badge = e.currentTarget.querySelector('.ring-plus-badge');
+                            if (badge) badge.style.transform = 'scale(1)';
+                        }}
                         style={{ flex: 1, background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}
                     >
                         <Ring
@@ -172,21 +314,30 @@ export default function HabitsCard({ date }) {
                             color="#89C4F4"
                             label={`${waterLiters}L`}
                             sublabel={`/ ${(WATER_GOAL / 1000).toFixed(1)}L`}
+                            showPlus={true}
                         />
                         <div style={{ textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--color-text)' }}>{t('habits.water')}</div>
-                            <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
+                            <div style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--color-text)' }}>{t('habits.water')}</div>
+                            <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>
                                 {Math.round((amountMl / WATER_GOAL) * 100)}% {t('habits.of_goal')}
                             </div>
                         </div>
                     </button>
 
                     {/* Divider */}
-                    <div style={{ position: 'absolute', left: '50%', top: '8px', transform: 'translateX(-50%)', width: '1px', height: '84px', background: 'var(--color-border)' }} />
+                    <div style={{ position: 'absolute', left: '50%', top: '8px', transform: 'translateX(-50%)', width: '1px', height: '84px', background: 'rgba(51, 51, 51, 0.08)' }} />
 
                     {/* Steps ring */}
                     <button
                         onClick={openSteps}
+                        onMouseEnter={(e) => {
+                            const badge = e.currentTarget.querySelector('.ring-plus-badge');
+                            if (badge) badge.style.transform = 'scale(1.12)';
+                        }}
+                        onMouseLeave={(e) => {
+                            const badge = e.currentTarget.querySelector('.ring-plus-badge');
+                            if (badge) badge.style.transform = 'scale(1)';
+                        }}
                         style={{ flex: 1, background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}
                     >
                         <Ring
@@ -195,51 +346,14 @@ export default function HabitsCard({ date }) {
                             color="#F5D98B"
                             label={stepsLabel}
                             sublabel="/ 10k"
+                            showPlus={true}
                         />
                         <div style={{ textAlign: 'center' }}>
-                            <div style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--color-text)' }}>{t('habits.steps')}</div>
-                            <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
-                                {burnedKcal > 0 ? `≈ ${burnedKcal} ${t('habits.kcal_burned')}` : `0% ${t('habits.of_goal')}`}
+                            <div style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--color-text)' }}>{t('habits.steps')}</div>
+                            <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>
+                                {Math.round((steps / STEP_GOAL) * 100)}% {t('habits.of_goal')}
                             </div>
                         </div>
-                    </button>
-                </div>
-
-                {/* Quick action buttons */}
-                <div style={{ display: 'flex', gap: '0.75rem' }}>
-                    <button
-                        onClick={openWater}
-                        style={{
-                            flex: 1,
-                            padding: '0.85rem',
-                            borderRadius: '16px',
-                            fontSize: '0.95rem',
-                            fontWeight: '600',
-                            background: 'var(--color-primary)',
-                            color: '#333333',
-                            border: 'none',
-                            cursor: 'pointer',
-                            boxShadow: '0 4px 12px rgba(255, 174, 185, 0.2)'
-                        }}
-                    >
-                        + {t('habits.water')}
-                    </button>
-                    <button
-                        onClick={openSteps}
-                        style={{
-                            flex: 1,
-                            padding: '0.85rem',
-                            borderRadius: '16px',
-                            fontSize: '0.95rem',
-                            fontWeight: '600',
-                            background: 'var(--color-primary)',
-                            color: '#333333',
-                            border: 'none',
-                            cursor: 'pointer',
-                            boxShadow: '0 4px 12px rgba(255, 174, 185, 0.2)'
-                        }}
-                    >
-                        + {t('habits.steps')}
                     </button>
                 </div>
             </section>
