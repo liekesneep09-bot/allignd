@@ -206,7 +206,7 @@ function MainLayout() {
                 right: 0,
                 backgroundColor: 'var(--color-surface)',
                 borderTop: '1px solid var(--color-border)',
-                padding: '0.8rem 0', // Adjusted padding
+                padding: 'calc(0.8rem + env(safe-area-inset-bottom, 0px)) 0 0.8rem 0', // Account for iPhone home indicator
                 display: 'flex',
                 justifyContent: 'space-around',
                 boxShadow: '0 -2px 10px rgba(0,0,0,0.05)',
@@ -317,12 +317,8 @@ function AuthenticatedApp() {
 
     let hasAdminOverride = localStorage.getItem('admin_override') === 'true'
 
-    // Auto-recover: als de user een geldige sessie heeft maar admin_override
-    // is verdwenen (bijv. door iOS cache opruiming), herstel het automatisch.
-    if (!hasAdminOverride && user) {
-        localStorage.setItem('admin_override', 'true')
-        hasAdminOverride = true
-    }
+    // admin_override is ONLY set via the secret URL (?toegang=liekenelis) or /unlock screen.
+    // Do NOT auto-grant it based on auth session — we are in waitlist mode.
 
     // VOOR-LANCERING BEVEILIGING:
     // Blokkeer toegang tot de app (en de login). Alleen via het wachtwoord kunnen we de app in.
