@@ -104,7 +104,7 @@
 .lp-mobile-menu a:nth-child(1) { animation-delay: 0.1s; }
 
 .lp-mobile-login-btn {
-  background: linear-gradient(135deg, #a86473 0%, #8e5462 100%);
+  background: linear-gradient(135deg, #c4506a 0%, #a33a55 100%);
   color: #FFF;
   border: none;
   padding: 16px 45px;
@@ -199,7 +199,7 @@
 
 .lp-impact-item {
   text-align: center;
-  color: #a86473;
+  color: #c4506a;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -235,7 +235,7 @@
 }
 
 .lp-features-subtitle {
-  color: #a86473; /* Pinkish color from image */
+  color: #c4506a; /* Pinkish color from image */
   font-size: 1.1rem;
   margin-bottom: 4rem;
 }
@@ -263,7 +263,7 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 1rem; /* Compact for mobile */
-  color: #a86473;
+  color: #c4506a;
 }
 
 .lp-feature-icon-wrapper svg {
@@ -319,7 +319,7 @@ section#preview, .lp-preview {
 .lp-preview-label {
   font-size: 0.8rem;
   letter-spacing: 2px;
-  color: #a86473;
+  color: #c4506a;
   text-transform: uppercase;
   margin-bottom: 0.5rem;
 }
@@ -366,7 +366,7 @@ section#preview, .lp-preview {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #a86473;
+  color: #c4506a;
   margin-top: -2px; /* Visual alignment with first line of text */
 }
 

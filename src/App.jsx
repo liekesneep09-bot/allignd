@@ -76,34 +76,33 @@ function MainLayout() {
         window.scrollTo(0, 0)
     }, [])
     // Track if we've shown the app at least once — prevents flash back to onboarding
-    const [appReady, setAppReady] = useState(false)
+    // Initialize from localStorage: if user already onboarded, skip the guard entirely
+    const [appReady, setAppReady] = useState(() => localStorage.getItem('cyclus_onboarded') === 'true')
 
     useEffect(() => {
-        let timer;
         if (!isLoading) {
-            timer = setTimeout(() => setAppReady(true), 400)
+            setAppReady(true)
         }
-        return () => clearTimeout(timer)
     }, [isLoading])
 
     // Phase colors for background gradient
     const getPhaseColor = (phase) => {
         switch (phase) {
             case 'menstrual': return {
-                bg: 'linear-gradient(to bottom, #a8647320 0%, rgba(168,100,115,0.05) 40%, #FFFFFF 100%)',
-                text: '#a86473'
+                bg: 'linear-gradient(to bottom, #c4506a20 0%, rgba(196,80,106,0.05) 40%, #FFFFFF 100%)',
+                text: '#c4506a'
             }
             case 'follicular': return {
-                bg: 'linear-gradient(to bottom, #5bc4d440 0%, rgba(91,196,212,0.1) 40%, #FFFFFF 100%)',
-                text: '#5bc4d4'
+                bg: 'linear-gradient(to bottom, #2fb5c740 0%, rgba(47,181,199,0.1) 40%, #FFFFFF 100%)',
+                text: '#2fb5c7'
             }
             case 'ovulatory': return {
-                bg: 'linear-gradient(to bottom, #f5a89c20 0%, rgba(245,168,156,0.05) 40%, #FFFFFF 100%)',
-                text: '#f5a89c'
+                bg: 'linear-gradient(to bottom, #e8785f20 0%, rgba(232,120,95,0.05) 40%, #FFFFFF 100%)',
+                text: '#e8785f'
             }
             case 'luteal': return {
-                bg: 'linear-gradient(to bottom, #a3b89920 0%, rgba(163,184,153,0.05) 40%, #FFFFFF 100%)',
-                text: '#a3b899'
+                bg: 'linear-gradient(to bottom, #6a9f6b20 0%, rgba(106,159,107,0.05) 40%, #FFFFFF 100%)',
+                text: '#6a9f6b'
             }
             default: return {
                 bg: 'linear-gradient(to bottom, #F5F5F5 0%, #FFFFFF 100%)',

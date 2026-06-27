@@ -98,7 +98,7 @@ export default function BetaUnlockScreen() {
                         type="submit"
                         style={{
                             width: '100%',
-                            background: 'var(--color-primary, #a86473)',
+                            background: 'var(--color-primary, #c4506a)',
                             color: '#ffffff',
                             border: 'none',
                             padding: '14px',

@@ -296,7 +296,6 @@ export function UserProvider({ children }) {
             periodStartDates: profile.period_start_dates || [],
             cycleHistory: profile.cycle_history || [],
             cycleStats: profile.cycle_stats || {},
-            macroTargets: null,
             isAdmin: profile.is_admin || false,
             // CRITICAL: Restore menstruationLogs from Supabase so phase persists across reloads
             menstruationLogs: profile.menstruation_logs || [],
@@ -490,7 +489,7 @@ export function UserProvider({ children }) {
     }
 
     initAndSync()
-  }, [authUser])
+  }, [authUser?.id])
 
   // 5. Persist User Data (Profile Only)
   useEffect(() => {

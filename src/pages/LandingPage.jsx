@@ -340,7 +340,7 @@ export default function LandingPage({ onEnterApp }) {
         
         <div>
           {status === 'success' ? (
-            <div style={{ padding: '20px', backgroundColor: '#FFF', borderRadius: '8px', color: '#a3b899', fontWeight: 600, textAlign: 'center' }}>
+            <div style={{ padding: '20px', backgroundColor: '#FFF', borderRadius: '8px', color: '#6a9f6b', fontWeight: 600, textAlign: 'center' }}>
               {t('landing.waitlist_success')}
             </div>
           ) : (

@@ -7,10 +7,10 @@ import { useLanguage } from '../context/LanguageContext'
 const CATEGORIES = ['alles', 'voeding', 'training', 'cyclus', 'algemeen']
 
 const PHASE_COLORS = {
-    menstrual: '#a86473',
-    follicular: '#5bc4d4',
-    ovulatory: '#f5a89c',
-    luteal: '#a3b899'
+    menstrual: '#c4506a',
+    follicular: '#2fb5c7',
+    ovulatory: '#e8785f',
+    luteal: '#6a9f6b'
 }
 
 function timeAgo(dateStr, t, language) {

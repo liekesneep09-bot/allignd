@@ -13,10 +13,10 @@ function parseLocalDate(dateStr) {
 }
 
 const PHASE_COLORS = {
-    menstrual: '#a86473',
-    follicular: '#5bc4d4',
-    ovulatory: '#f5a89c',
-    luteal: '#a3b899'
+    menstrual: '#c4506a',
+    follicular: '#2fb5c7',
+    ovulatory: '#e8785f',
+    luteal: '#6a9f6b'
 }
 
 // ─── Macro Weekly Average Card ────────────────────────────
@@ -84,7 +84,7 @@ function MacroWeekCard({ t, language }) {
     ]
 
     const kcalPct = Math.min(100, Math.round((weekStats.avgKcal / goalKcal) * 100))
-    const kcalColor = kcalPct >= 90 && kcalPct <= 115 ? '#a3b899' : kcalPct < 70 ? '#f5a89c' : 'var(--color-calories)'
+    const kcalColor = kcalPct >= 90 && kcalPct <= 115 ? '#6a9f6b' : kcalPct < 70 ? '#e8785f' : 'var(--color-calories)'
 
     return (
         <div style={cardStyle}>
@@ -259,7 +259,7 @@ function SymptomCompareCard({ t, language }) {
 
                             {comparison.resolved.length > 0 && (
                                 <div style={{ marginBottom: '0.4rem' }}>
-                                    <span style={{ fontSize: '0.75rem', color: '#a3b899', fontWeight: '600' }}>✓ {t('progress.resolved')}: </span>
+                                    <span style={{ fontSize: '0.75rem', color: '#6a9f6b', fontWeight: '600' }}>✓ {t('progress.resolved')}: </span>
                                     <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                                         {comparison.resolved.map(s => t(`checkin.symptoms.${s}`)).join(', ')}
                                     </span>
@@ -268,7 +268,7 @@ function SymptomCompareCard({ t, language }) {
 
                             {comparison.shared.length > 0 && (
                                 <div style={{ marginBottom: '0.4rem' }}>
-                                    <span style={{ fontSize: '0.75rem', color: '#f5a89c', fontWeight: '600' }}>↺ {t('progress.recurring')}: </span>
+                                    <span style={{ fontSize: '0.75rem', color: '#e8785f', fontWeight: '600' }}>↺ {t('progress.recurring')}: </span>
                                     <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                                         {comparison.shared.map(s => t(`checkin.symptoms.${s}`)).join(', ')}
                                     </span>
@@ -277,7 +277,7 @@ function SymptomCompareCard({ t, language }) {
 
                             {comparison.newSymptoms.length > 0 && (
                                 <div>
-                                    <span style={{ fontSize: '0.75rem', color: '#a86473', fontWeight: '600' }}>+ {t('progress.new_this_cycle')}: </span>
+                                    <span style={{ fontSize: '0.75rem', color: '#c4506a', fontWeight: '600' }}>+ {t('progress.new_this_cycle')}: </span>
                                     <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                                         {comparison.newSymptoms.map(s => t(`checkin.symptoms.${s}`)).join(', ')}
                                     </span>
@@ -310,8 +310,7 @@ const cardStyle = {
     borderRadius: '20px',
     padding: '1.5rem',
     border: '1px solid var(--color-border)',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
-    marginBottom: '1rem'
+    boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
 }
 
 const cardTitleStyle = {
@@ -372,7 +371,7 @@ export default function Progress({ onClose }) {
                 </span>
             </div>
 
-            <div style={{ padding: '1.25rem 1.25rem 0' }}>
+            <div style={{ padding: '1.25rem 1.25rem 0', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <MacroWeekCard t={t} language={language} />
                 <WeightTracker date={getLocalDateStr(new Date())} />
                 <SymptomCompareCard t={t} language={language} />

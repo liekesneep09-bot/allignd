@@ -162,7 +162,7 @@ export default function Onboarding() {
                     />
                 </div>
 
-                <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#a86473', position: 'relative', zIndex: 1 }}>
+                <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#c4506a', position: 'relative', zIndex: 1 }}>
                     {t('onboarding.welcome_title')}
                 </h1>
                 <p className="text-muted" style={{ maxWidth: '300px', margin: '0 auto 3rem auto' }}>

@@ -6,6 +6,10 @@ dist
 .vercel
 backup/
 
+# Capacitor native projects (generated)
+ios/
+android/
+
 # Dev/debug scripts
 reset-localhost.html
 reset_db.js

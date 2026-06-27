@@ -242,24 +242,24 @@ export default function Today({ onNavigate }) {
   const getPhaseColor = (p) => {
     switch (p) {
       case 'menstrual': return {
-        bg: 'linear-gradient(to bottom, #a8647340 0%, rgba(168,100,115,0.2) 60%, rgba(255,255,255,0) 100%)',
-        text: '#a86473',
-        accent: '#a8647380'
+        bg: 'linear-gradient(to bottom, #c4506a40 0%, rgba(196,80,106,0.2) 60%, rgba(255,255,255,0) 100%)',
+        text: '#c4506a',
+        accent: '#c4506a80'
       }
       case 'follicular': return {
-        bg: 'linear-gradient(to bottom, #5bc4d460 0%, rgba(91,196,212,0.2) 60%, rgba(255,255,255,0) 100%)',
-        text: '#5bc4d4',
-        accent: '#5bc4d480'
+        bg: 'linear-gradient(to bottom, #2fb5c760 0%, rgba(47,181,199,0.2) 60%, rgba(255,255,255,0) 100%)',
+        text: '#2fb5c7',
+        accent: '#2fb5c780'
       }
       case 'ovulatory': return {
-        bg: 'linear-gradient(to bottom, #f5a89c40 0%, rgba(245,168,156,0.2) 60%, rgba(255,255,255,0) 100%)',
-        text: '#f5a89c',
-        accent: '#f5a89c80'
+        bg: 'linear-gradient(to bottom, #e8785f40 0%, rgba(232,120,95,0.2) 60%, rgba(255,255,255,0) 100%)',
+        text: '#e8785f',
+        accent: '#e8785f80'
       }
       case 'luteal': return {
-        bg: 'linear-gradient(to bottom, #a3b89940 0%, rgba(163,184,153,0.2) 60%, rgba(255,255,255,0) 100%)',
-        text: '#a3b899',
-        accent: '#a3b89980'
+        bg: 'linear-gradient(to bottom, #6a9f6b40 0%, rgba(106,159,107,0.2) 60%, rgba(255,255,255,0) 100%)',
+        text: '#6a9f6b',
+        accent: '#6a9f6b80'
       }
       default: return { bg: '#F5F5F5', text: '#9E9E9E', accent: '#EEEEEE' }
     }
@@ -309,9 +309,8 @@ export default function Today({ onNavigate }) {
       {/* HEADER SECTION - Soft Glow */}
       <div style={{
         background: phaseStyle.bg,
-        paddingBottom: '0.5rem', // Reduced from 2.5rem
+        paddingBottom: '2.5rem',
         paddingTop: '1rem',
-        marginBottom: '-1rem',
         position: 'relative',
         transition: 'background 0.5s ease'
       }}>
@@ -419,101 +418,87 @@ export default function Today({ onNavigate }) {
                   {currentText.normal}
                 </p>
 
-                {/* Voedingskaartje met appeltje (Compact Layout) */}
-                <div style={{
-                  marginTop: '1rem',
-                  width: '100%',
-                  background: phaseStyle.accent,
-                  borderRadius: '16px',
-                  padding: '0.85rem 1rem',
-                  textAlign: 'left',
-                  display: 'flex',
-                  gap: '0.6rem',
-                  alignItems: 'flex-start',
-                  boxSizing: 'border-box'
-                }}>
-                  {/* Appel icoon */}
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-text)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}>
-                    <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22 0-2.25-1.94-4.22-4.14-4.22-2.19 0-3.69 1.62-5.86 1.62-2.16 0-3.65-1.62-5.84-1.62C3.97 5.56 2 7.72 2 10.41c0 4.19 3 11.59 6 11.59 1.25 0 2.5-1.06 4-1.06Z" />
-                    <path d="M10 2c1 0 3.5 1.5 3.5 3.5" />
-                  </svg>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--color-text)', lineHeight: '1.4', opacity: 0.9 }}>
-                    {currentText.nutrition}
+                {/* Voedingskaartje — elegant licht design */}
+                <div
+                  onClick={() => onNavigate && onNavigate('recipes')}
+                  style={{
+                    marginTop: '1rem',
+                    width: '100%',
+                    background: '#FFFFFF',
+                    borderRadius: '16px',
+                    padding: '0.85rem 1rem',
+                    textAlign: 'left',
+                    display: 'flex',
+                    gap: '0.75rem',
+                    alignItems: 'center',
+                    boxSizing: 'border-box',
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                    border: '1px solid rgba(0,0,0,0.04)',
+                    cursor: 'pointer',
+                    transition: 'box-shadow 0.2s ease, transform 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'
+                    e.currentTarget.style.transform = 'translateY(-1px)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                  }}
+                >
+                  {/* Appel icoon in zacht fase-gekleurd rondje */}
+                  <div style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '10px',
+                    background: `${phaseStyle.text}12`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={phaseStyle.text} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22 0-2.25-1.94-4.22-4.14-4.22-2.19 0-3.69 1.62-5.86 1.62-2.16 0-3.65-1.62-5.84-1.62C3.97 5.56 2 7.72 2 10.41c0 4.19 3 11.59 6 11.59 1.25 0 2.5-1.06 4-1.06Z" />
+                      <path d="M10 2c1 0 3.5 1.5 3.5 3.5" />
+                    </svg>
+                  </div>
+
+                  {/* Tekst kolom */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontSize: '0.8rem',
+                      fontWeight: '600',
+                      color: 'var(--color-text)',
+                      marginBottom: '2px',
+                      letterSpacing: '0.01em'
+                    }}>
+                      Voeding
+                    </div>
+                    <div style={{
+                      fontSize: '0.78rem',
+                      color: 'var(--color-text)',
+                      lineHeight: '1.4',
+                      opacity: 0.6
+                    }}>
+                      {currentText.nutrition}
+                    </div>
+                  </div>
+
+                  {/* Pijltje rechts */}
+                  <div style={{
+                    flexShrink: 0,
+                    color: phaseStyle.text,
+                    opacity: 0.5,
+                    fontSize: '1.1rem',
+                    lineHeight: 1,
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}>
+                    ›
                   </div>
                 </div>
 
-                {/* Menstruatie knop (luteaal + menstrueel) */}
-                {(() => {
-                  const isNotFuture = viewDateStr <= todayDateStr;
-                  if (!isNotFuture) return null;
 
-                  const isPeriodToday = isDateInPeriod(viewDateStr);
-                  const isViewingToday = viewDateStr === todayDateStr;
-
-                  // Menstruerende fase → STOP knop
-                  if (isPeriodToday && isViewingToday && viewPhase === 'menstrual') {
-                    return (
-                      <button
-                        onClick={() => stopPeriod(viewDateStr)}
-                        style={{
-                          marginTop: '0.8rem',
-                          background: 'none',
-                          border: 'none',
-                          padding: '0.4rem 0.8rem',
-                          fontSize: '0.95rem',
-                          fontWeight: '700',
-                          color: phaseStyle.text,
-                          cursor: 'pointer',
-                          transition: 'opacity 0.2s',
-                          opacity: 0.9,
-                          fontFamily: 'inherit',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-                        onMouseLeave={(e) => e.currentTarget.style.opacity = '0.9'}
-                      >
-                        {t('today.period_stopped')}
-                      </button>
-                    )
-                  }
-
-                  // Alleen in luteale fase LOG knop tonen
-                  if (!isPeriodToday && viewPhase !== 'luteal') return null;
-
-                  return (
-                    <button
-                      onClick={() => {
-                        if (isPeriodToday) {
-                          togglePeriodDate(viewDateStr)
-                        } else {
-                          startPeriod(viewDateStr)
-                        }
-                      }}
-                      style={{
-                        marginTop: '0.8rem',
-                        background: 'none',
-                        border: 'none',
-                        padding: '0.4rem 0.8rem',
-                        fontSize: '0.95rem',
-                        fontWeight: '700',
-                        color: phaseStyle.text,
-                        cursor: 'pointer',
-                        transition: 'opacity 0.2s',
-                        opacity: 0.9,
-                        fontFamily: 'inherit',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-                      onMouseLeave={(e) => e.currentTarget.style.opacity = '0.9'}
-                    >
-                      {isPeriodToday ? t('today.period_logged') : t('today.log_period')}
-                    </button>
-                  )
-                })()}
 
               </div>
             )
@@ -523,115 +508,172 @@ export default function Today({ onNavigate }) {
       </div>
 
       {/* MAIN CONTENT SECTION */}
-      <div className="container" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', marginTop: '-3rem' }}>
+      <div className="container" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', marginTop: '-1.5rem', position: 'relative', zIndex: 10 }}>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
-          {/* CYCLE STATUS CARD */}
+          {/* CYCLE STATUS CARD & PERIOD BUTTON */}
           {user?.cycleStart && (
-            <CycleStatusCard
-              date={viewDateStr}
-              phase={viewPhase}
-              day={viewDay}
-              linearDay={viewLinearDay}
-              overdueDays={overdueDays}
-            />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <CycleStatusCard
+                date={viewDateStr}
+                phase={viewPhase}
+                day={viewDay}
+                linearDay={viewLinearDay}
+                overdueDays={overdueDays}
+                onNavigate={onNavigate}
+              />
+
+              {/* PERIOD ACTION BUTTON */}
+              {(() => {
+            const isNotFuture = viewDateStr <= todayDateStr;
+            if (!isNotFuture) return null;
+
+            const isPeriodToday = isDateInPeriod(viewDateStr);
+            const isViewingToday = viewDateStr === todayDateStr;
+
+            if (!isPeriodToday && viewPhase !== 'luteal' && viewPhase !== 'menstrual') return null;
+
+            let actionText = '';
+            let actionClick = null;
+
+            if (isPeriodToday && isViewingToday && viewPhase === 'menstrual') {
+              actionText = t('today.period_stopped', { defaultValue: 'Menstruatie gestopt' }).replace('✓ ', '').replace('✓', '');
+              actionClick = () => stopPeriod(viewDateStr);
+            } else if (!isPeriodToday && (viewPhase === 'luteal' || viewPhase === 'menstrual')) {
+              actionText = t('today.log_period', { defaultValue: 'Log menstruatie' }).replace('+ ', '').replace('+', '');
+              actionClick = () => startPeriod(viewDateStr);
+            } else if (isPeriodToday) {
+              actionText = t('today.period_logged', { defaultValue: 'Menstruatie gelogd' }).replace('✓ ', '').replace('✓', '');
+              actionClick = () => togglePeriodDate(viewDateStr);
+            }
+
+            if (!actionText) return null;
+
+            return (
+              <button
+                onClick={actionClick}
+                style={{
+                  width: '100%',
+                  background: '#FFFFFF',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: '16px',
+                  padding: '0.85rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '0.9rem',
+                  fontWeight: '700',
+                  color: phaseStyle.text,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = `${phaseStyle.text}08`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#FFFFFF';
+                }}
+              >
+                {actionText}
+              </button>
+            )
+          })()}
+            </div>
           )}
 
 
           {(user.tracking !== 'none') && (
-            <section>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-
-                <div className="card-minimal" style={{
-                  background: '#fff',
-                  borderRadius: '24px',
-                  padding: '1rem 1.25rem 1.25rem',
-                  border: '1px solid var(--color-border)',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+            <>
+              <div className="card-minimal" style={{
+                background: '#fff',
+                borderRadius: '24px',
+                padding: '1rem 1.25rem 1.25rem',
+                border: '1px solid var(--color-border)',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+                display: 'flex',
+                flexDirection: 'column'
+              }}>
+                {/* TOP SECTION: DAILY GOAL */}
+                <div style={{
+                  color: 'var(--color-text)',
                   display: 'flex',
-                  flexDirection: 'column'
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '0.75rem'
                 }}>
-                  {/* TOP SECTION: DAILY GOAL */}
-                  <div style={{
-                    color: 'var(--color-text)',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '0.75rem'
-                  }}>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                        <span style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>{t('today.daily_goal')}</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-                        <div style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--color-text)', lineHeight: 1 }}>
-                          {Math.round(toNum(stats.kcal))} <span style={{ fontSize: '1rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>/ {toNum(targets.calories)} kcal</span>
-                        </div>
-                      </div>
-                      <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-calories)', marginTop: '0.25rem' }}>
-                        {Math.max(0, Math.round(toNum(targets.calories) - toNum(stats.kcal)))} kcal {t('today.remaining')}
-                      </div>
-                    </div>
-
-                    <div style={{ marginRight: '-8px' }}>
-                      <CircularProgress
-                        current={toNum(stats.kcal)}
-                        target={toNum(targets.calories)}
-                        size={110}
-                        strokeWidth={8}
-                        color="var(--color-calories)"
-                        trackColor="rgba(0,0,0,0.05)"
-                        showText={true}
-                      />
-                    </div>
-                  </div>
-
-
-                  {/* BOTTOM SECTION: MACROS & FIBER */}
                   <div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                      <MacroListItem label={t('today.carbs')} current={toNum(stats.c)} target={toNum(targets.carbsMin)} color="var(--color-carbs)" />
-                      <MacroListItem label={t('today.fats')} current={toNum(stats.f)} target={toNum(targets.fatMin)} color="var(--color-fat)" />
-                      <MacroListItem label={t('today.proteins')} current={toNum(stats.p)} target={toNum(targets.proteinMin)} color="var(--color-protein)" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                      <span style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>{t('today.daily_goal')}</span>
                     </div>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                      <div style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--color-text)', lineHeight: 1 }}>
+                        {Math.round(toNum(stats.kcal))} <span style={{ fontSize: '1rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>/ {toNum(targets.calories)} kcal</span>
+                      </div>
+                    </div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-calories)', marginTop: '0.25rem' }}>
+                      {Math.max(0, Math.round(toNum(targets.calories) - toNum(stats.kcal)))} kcal {t('today.remaining')}
+                    </div>
+                  </div>
 
-                    {/* Subtiele Vezels weergave */}
-                    <div style={{ textAlign: 'center', marginTop: '1.25rem' }}>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', opacity: 0.8 }}>
-                        🌿 {t('today.fiber')}: {Math.round(toNum(stats.fiber))}g <span style={{ opacity: 0.6 }}>/ 25g ({t('today.fiber_recommended')})</span>
-                      </span>
-                    </div>
+                  <div style={{ marginRight: '-8px' }}>
+                    <CircularProgress
+                      current={toNum(stats.kcal)}
+                      target={toNum(targets.calories)}
+                      size={110}
+                      strokeWidth={8}
+                      color="var(--color-calories)"
+                      trackColor="rgba(0,0,0,0.05)"
+                      showText={true}
+                    />
                   </div>
                 </div>
 
-                <div style={{ marginTop: '0.5rem', marginBottom: '0.5rem', display: 'flex', justifyContent: 'center' }}>
-                  <button
-                    onClick={() => {
-                      scrollPosRef.current = window.scrollY
-                      setShowModal(true)
-                    }}
-                    className="btn btn-primary"
-                    style={{
-                      width: 'auto',
-                      paddingLeft: '2.5rem',
-                      paddingRight: '2.5rem',
-                      boxShadow: 'var(--shadow-soft)'
-                    }}
-                  >
-                    {t('today.add_food')}
-                  </button>
-                </div>
 
+                {/* BOTTOM SECTION: MACROS & FIBER */}
+                <div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <MacroListItem label={t('today.carbs')} current={toNum(stats.c)} target={toNum(targets.carbsMin)} color="var(--color-carbs)" />
+                    <MacroListItem label={t('today.fats')} current={toNum(stats.f)} target={toNum(targets.fatMin)} color="var(--color-fat)" />
+                    <MacroListItem label={t('today.proteins')} current={toNum(stats.p)} target={toNum(targets.proteinMin)} color="var(--color-protein)" />
+                  </div>
+
+                  {/* Subtiele Vezels weergave */}
+                  <div style={{ textAlign: 'center', marginTop: '1.25rem' }}>
+                    <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', opacity: 0.8 }}>
+                      🌿 {t('today.fiber')}: {Math.round(toNum(stats.fiber))}g <span style={{ opacity: 0.6 }}>/ 25g ({t('today.fiber_recommended')})</span>
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              {/* HABITS, WEIGHT & SYMPTOMS WIDGETS */}
-              <div style={{ marginTop: '1.25rem' }}>
-                <HabitsCard date={viewDateStr} />
-                <WeightTracker date={viewDateStr} compact={true} />
+              <button
+                onClick={() => {
+                  scrollPosRef.current = window.scrollY
+                  setShowModal(true)
+                }}
+                className="btn btn-primary"
+                style={{
+                  width: '100%',
+                  padding: '1rem',
+                  borderRadius: '16px',
+                  boxShadow: 'var(--shadow-soft)',
+                  marginTop: 0,
+                  fontSize: '0.95rem'
+                }}
+              >
+                {t('today.add_food')}
+              </button>
+            </>
+          )}
 
-                {/* NEW: DAILY CHECK-IN WIDGET (Symptom Tracker Redesign) */}
-                <section className="card-minimal" style={{ marginBottom: '1.25rem', padding: '1rem 1.25rem', background: '#fff', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '0.75rem', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid var(--color-border)' }}>
+              {/* HABITS, WEIGHT & SYMPTOMS WIDGETS */}
+              <HabitsCard date={viewDateStr} />
+              <WeightTracker date={viewDateStr} compact={true} />
+
+              {/* NEW: DAILY CHECK-IN WIDGET (Symptom Tracker Redesign) */}
+              <section className="card-minimal" style={{ padding: '1rem 1.25rem', background: '#fff', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '0.75rem', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid var(--color-border)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: `${phaseStyle.text}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: phaseStyle.text }}>
@@ -696,7 +738,6 @@ export default function Today({ onNavigate }) {
                   </span>
                   <span style={{ color: phaseStyle.text, fontSize: '1.2rem', lineHeight: 1 }}>→</span>
                 </button>
-              </div>
 
 
               {todaysLogs.length > 0 && (() => {
@@ -837,9 +878,6 @@ export default function Today({ onNavigate }) {
                   </div>
                 )
               })()}
-
-            </section>
-          )}
 
           <section>
             {/* Movement Section Removed */}

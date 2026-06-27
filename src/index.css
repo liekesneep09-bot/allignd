@@ -15,10 +15,10 @@
   /* Warm light gray/pinkish border */
 
   /* Layer 1b: Cycle Phase Colors */
-  --phase-menstrual: #a86473;
-  --phase-follicular: #5bc4d4;
-  --phase-ovulatory: #f5a89c;
-  --phase-luteal: #a3b899;
+  --phase-menstrual: #c4506a;
+  --phase-follicular: #2fb5c7;
+  --phase-ovulatory: #e8785f;
+  --phase-luteal: #6a9f6b;
 
   /* Actions & Brand */
   --color-primary: #ffaeb9;
@@ -72,6 +72,11 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   letter-spacing: -0.01em;
+  /* Safe areas for native apps (iPhone notch/Dynamic Island & home indicator) */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 #root {

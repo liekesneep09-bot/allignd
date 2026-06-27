@@ -153,7 +153,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                 <div style={{
                     margin: '0.75rem 1rem 0',
                     padding: '10px 14px',
-                    background: 'rgba(168,100,115,0.07)',
+                    background: 'rgba(196,80,106,0.07)',
                     borderRadius: '12px',
                     display: 'flex',
                     alignItems: 'flex-start',
@@ -161,7 +161,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                     fontSize: '0.82rem',
                     color: '#5D4037',
                     lineHeight: '1.45',
-                    border: '1px solid rgba(168,100,115,0.15)'
+                    border: '1px solid rgba(196,80,106,0.15)'
                 }}>
                     <span style={{ flexShrink: 0 }}>💡</span>
                     <div style={{ flex: 1 }}>
@@ -214,7 +214,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                     <LegendItem color="var(--color-primary)" filled label={t('calendar.period')} />
                     <LegendItem color="var(--color-primary)" dashed label={t('calendar.expected')} />
                     <LegendItem color="#4DB6AC" dot label={t('calendar.moved')} />
-                    <LegendItem color="#f5a89c" dot label={t('calendar.symptoms')} />
+                    <LegendItem color="#e8785f" dot label={t('calendar.symptoms')} />
                 </div>
                 <button
                     onClick={onClose}
@@ -302,7 +302,7 @@ function DaySummarySheet({ dateStr, summaryData, justLogged, onClose, onToggle }
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.25rem' }}>
                     {/* Menstruation row */}
                     <SummaryRow
-                        color={isPeriod ? '#a86473' : '#f0f0f0'}
+                        color={isPeriod ? '#c4506a' : '#f0f0f0'}
                         iconColor={isPeriod ? '#fff' : 'transparent'}
                         label={isPeriod ? t('calendar.period_logged') : t('calendar.no_period_logged')}
                         active={isPeriod}
@@ -321,7 +321,7 @@ function DaySummarySheet({ dateStr, summaryData, justLogged, onClose, onToggle }
 
                     {/* Symptoms */}
                     {symptomLabels.length > 0 && (
-                        <SummaryRow color="#f5a89c" iconColor="#fff" label={`${t('calendar.symptoms_prefix')} ${symptomLabels.join(', ')}`} active={true} />
+                        <SummaryRow color="#e8785f" iconColor="#fff" label={`${t('calendar.symptoms_prefix')} ${symptomLabels.join(', ')}`} active={true} />
                     )}
                 </div>
 
@@ -330,9 +330,9 @@ function DaySummarySheet({ dateStr, summaryData, justLogged, onClose, onToggle }
                     <div style={{
                         textAlign: 'center',
                         padding: '1rem',
-                        background: 'rgba(168,100,115,0.08)',
+                        background: 'rgba(196,80,106,0.08)',
                         borderRadius: '16px',
-                        color: '#a86473',
+                        color: '#c4506a',
                         fontWeight: '600',
                         fontSize: '0.95rem'
                     }}>
@@ -464,7 +464,7 @@ function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef, is
                     {hasSymptoms && (
                         <div style={{
                             width: 4, height: 4, borderRadius: '50%',
-                            background: isPeriod ? 'rgba(255,255,255,0.6)' : '#f5a89c'
+                            background: isPeriod ? 'rgba(255,255,255,0.6)' : '#e8785f'
                         }} />
                     )}
                 </div>

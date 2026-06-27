@@ -148,7 +148,7 @@ export default function HabitsCard({ date }) {
 
     return (
         <>
-            <section className="card" style={{ marginBottom: '1.25rem', padding: '1.25rem' }}>
+            <section className="card" style={{ padding: '1.25rem' }}>
 
                 {/* Header */}
                 <div style={{ marginBottom: '1.25rem' }}>

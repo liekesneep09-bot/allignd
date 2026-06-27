@@ -1,5 +1,7 @@
 
-const API_URL = '/api'; // Relative path, proxied by Vite
+import { getApiBaseUrl } from './platform';
+
+const API_URL = `${getApiBaseUrl()}/api`;
 
 export const api = {
     /**

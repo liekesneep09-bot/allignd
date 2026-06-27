@@ -28,11 +28,8 @@ export const IconPower = ({ size = 20, color = 'currentColor' }) => (
 
 export const IconNutrition = ({ size = 20, color = 'currentColor' }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 20a8 8 0 0 1-8-8c0-4.42 3.58-8 8-8 .8 0 1.57.13 2.29.37" />
-        <path d="M12 4c.66 0 1.3.1 1.9.28" />
-        <path d="M20 10c0 4.42-3.58 8-8 8" />
-        <path d="M12 20v-6" />
-        <path d="M12 4a12.1 12.1 0 0 1 8 8" />
+        <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22 0-2.25-1.94-4.22-4.14-4.22-2.19 0-3.69 1.62-5.86 1.62-2.16 0-3.65-1.62-5.84-1.62C3.97 5.56 2 7.72 2 10.41c0 4.19 3 11.59 6 11.59 1.25 0 2.5-1.06 4-1.06Z" />
+        <path d="M10 2c1 0 3.5 1.5 3.5 3.5" />
     </svg>
 )
 // Simpler Leaf
@@ -74,11 +71,8 @@ export const IconSparkles = ({ size = 20, color = 'currentColor' }) => (
 
 export const IconRecipe = ({ size = 20, color = 'currentColor' }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
-        <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
-        <line x1="6" y1="1" x2="6" y2="4" />
-        <line x1="10" y1="1" x2="10" y2="4" />
-        <line x1="14" y1="1" x2="14" y2="4" />
+        <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22 0-2.25-1.94-4.22-4.14-4.22-2.19 0-3.69 1.62-5.86 1.62-2.16 0-3.65-1.62-5.84-1.62C3.97 5.56 2 7.72 2 10.41c0 4.19 3 11.59 6 11.59 1.25 0 2.5-1.06 4-1.06Z" />
+        <path d="M10 2c1 0 3.5 1.5 3.5 3.5" />
     </svg>
 )
 

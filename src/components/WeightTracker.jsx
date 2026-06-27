@@ -25,10 +25,10 @@ export default function WeightTracker({ date, compact = false }) {
 
     // Cycle Phase Colors
     const PHASE_COLORS = {
-        menstrual: '#a86473',
-        follicular: '#5bc4d4',
-        ovulatory: '#f5a89c',
-        luteal: '#a3b899'
+        menstrual: '#c4506a',
+        follicular: '#2fb5c7',
+        ovulatory: '#e8785f',
+        luteal: '#6a9f6b'
     }
 
     const getInsight = (phase) => {
@@ -339,7 +339,7 @@ export default function WeightTracker({ date, compact = false }) {
     if (compact) {
         return (
             <>
-                <section className="card-minimal" style={{ marginBottom: '1.25rem', padding: '1rem 1.25rem', background: '#fff', borderRadius: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid var(--color-border)' }}>
+                <section className="card-minimal" style={{ padding: '1rem 1.25rem', background: '#fff', borderRadius: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid var(--color-border)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: `${phaseColor}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ color: phaseColor }}>
@@ -368,7 +368,7 @@ export default function WeightTracker({ date, compact = false }) {
     }
 
     return (
-        <section className="card" style={{ marginBottom: '1.25rem', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+        <section className="card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                 <div>
                     <h2 style={{ fontSize: '1.1rem', margin: '0 0 4px 0', color: 'var(--color-text-muted)', fontWeight: '600' }}>{t('weight.title')}</h2>

@@ -3,13 +3,14 @@ import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
 import { getCyclePrediction } from '../logic/cycle'
 import { getLocalDateStr } from '../utils/date'
+import { getPhaseContent } from '../data/phases'
 
 // Phase colors matching the rest of the app
 const PHASE_COLORS = {
-  menstrual: '#a86473',
-  follicular: '#5bc4d4',
-  ovulatory: '#f5a89c',
-  luteal: '#a3b899'
+  menstrual: '#c4506a',
+  follicular: '#2fb5c7',
+  ovulatory: '#e8785f',
+  luteal: '#6a9f6b'
 }
 
 // Proportional lengths of each phase in the ring (as fraction of cycle)
@@ -105,9 +106,11 @@ function CycleRing({ size, strokeWidth, cycleLength, periodLength, currentDay, c
   )
 }
 
-export default function CycleStatusCard({ date, phase, day, linearDay, overdueDays }) {
+export default function CycleStatusCard({ date, phase, day, linearDay, overdueDays, onNavigate }) {
   const { user } = useUser()
   const { t, language } = useLanguage()
+
+  const content = getPhaseContent(language, phase)
 
   const effectiveCycleLen = user?.cycleStats?.learnedCycleLength || user?.cycleLength || 28
   const effectivePeriodLen = user?.bleedingLengthDays || user?.periodLength || 5
@@ -144,7 +147,13 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
         : (overdueDays === 1 ? 'day\nlate' : 'days\nlate')
     } else if (phase === 'menstrual') {
       // During period: show what day of period you're on
-      countdownNumber = Math.min(currentDay, periodLen)
+      const dayNum = Math.min(currentDay, periodLen)
+      const getOrdinalEn = (n) => {
+        const s = ["th", "st", "nd", "rd"]
+        const v = n % 100
+        return n + (s[(v - 20) % 10] || s[v] || s[0])
+      }
+      countdownNumber = isNL ? `${dayNum}e` : getOrdinalEn(dayNum)
       countdownLabel = isNL ? `dag van je\nmenstruatie` : `day of your\nperiod`
     } else {
       // All other phases: always count down to next period
@@ -184,19 +193,19 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
       })
     : null
 
-  const ringSize = 110
-  const strokeW = 8
+  const ringSize = 120 // slightly smaller to reduce height
+  const strokeW = 9
 
   return (
     <div style={{
       background: '#FFFFFF',
       borderRadius: '24px',
-      padding: '1rem 1.25rem',
+      padding: '1rem',
       border: '1px solid var(--color-border)',
       boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
       display: 'flex',
       alignItems: 'center',
-      gap: '1.25rem'
+      gap: '1rem'
     }}>
 
       {/* Left: Cycle Ring */}
@@ -224,7 +233,7 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
           pointerEvents: 'none'
         }}>
           <div style={{
-            fontSize: '1.6rem',
+            fontSize: '1.7rem',
             fontWeight: '800',
             color: phaseColor,
             lineHeight: 1,
@@ -235,7 +244,7 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
           <div style={{
             fontSize: '0.55rem',
             color: 'var(--color-text-muted)',
-            fontWeight: '500',
+            fontWeight: '600',
             textAlign: 'center',
             lineHeight: 1.25,
             marginTop: '2px',
@@ -246,21 +255,22 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
         </div>
       </div>
 
-      {/* Right: Phase info */}
-      <div style={{ flex: 1, minWidth: 0 }}>
+      {/* Right: Phase info & Banner */}
+      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
         {/* Phase dot + name */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
           gap: '0.4rem',
-          marginBottom: '0.25rem'
+          marginBottom: '0.1rem'
         }}>
           <div style={{
             width: 8,
             height: 8,
             borderRadius: '50%',
             background: phaseColor,
-            flexShrink: 0
+            flexShrink: 0,
+            boxShadow: `0 0 6px ${phaseColor}60`
           }} />
           <span style={{
             fontSize: '0.95rem',
@@ -274,15 +284,70 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
 
         {/* Day counter */}
         <div style={{
-          fontSize: '0.82rem',
+          fontSize: '0.8rem',
           color: 'var(--color-text-muted)',
           fontWeight: '500',
-          marginBottom: '0.6rem'
+          marginBottom: '0.4rem'
         }}>
           {dayLabel}
         </div>
 
-        {/* Predicted date */}
+        {/* Clickable Banner inside the right column */}
+        <div 
+          onClick={() => onNavigate && onNavigate('guide')}
+          style={{
+            background: `${phaseColor}10`,
+            borderRadius: '8px',
+            padding: '0.35rem 0.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '0.4rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            border: `1px solid ${phaseColor}15`,
+            marginTop: '0.1rem',
+            maxWidth: '100%'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = `${phaseColor}15`
+            e.currentTarget.style.transform = 'translateY(-1px)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = `${phaseColor}10`
+            e.currentTarget.style.transform = 'translateY(0)'
+          }}
+        >
+          {/* Text content - single line with ellipsis */}
+          <div style={{ 
+            flex: 1, 
+            fontSize: '0.7rem', 
+            color: phaseColor, 
+            lineHeight: 1.2, 
+            fontWeight: '600', 
+            opacity: 0.9,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}>
+            {language === 'nl' ? 'Lees meer over deze fase' : 'Read more about this phase'}
+          </div>
+
+          {/* Chevron */}
+          <div style={{
+            color: phaseColor,
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            opacity: 0.8
+          }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </div>
+        </div>
+
+        {/* Predicted date (if applicable) */}
         {formattedPrediction && phase !== 'menstrual' && (
           <div style={{
             display: 'flex',
@@ -291,7 +356,8 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
             padding: '0.4rem 0.65rem',
             background: `${phaseColor}12`,
             borderRadius: '12px',
-            width: 'fit-content'
+            width: 'fit-content',
+            marginTop: '0.5rem'
           }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={phaseColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />

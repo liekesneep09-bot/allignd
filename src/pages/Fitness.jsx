@@ -93,10 +93,10 @@ export default function Fitness() {
 
         // Fase kleur mapping
         const phaseColorMap = {
-            menstrual:  { bg: 'rgba(168,100,115,0.08)', border: 'rgba(168,100,115,0.22)', accent: '#7a3a47', dot: '#a86473' },
-            follicular: { bg: 'rgba(91,196,212,0.08)',  border: 'rgba(91,196,212,0.22)',  accent: '#1a7a8a', dot: '#5bc4d4' },
-            ovulatory:  { bg: 'rgba(245,168,156,0.10)', border: 'rgba(245,168,156,0.25)', accent: '#9a4a3a', dot: '#f5a89c' },
-            luteal:     { bg: 'rgba(163,184,153,0.10)', border: 'rgba(163,184,153,0.25)', accent: '#4a6a42', dot: '#a3b899' },
+            menstrual:  { bg: 'rgba(196,80,106,0.08)', border: 'rgba(196,80,106,0.22)', accent: '#8a2e45', dot: '#c4506a' },
+            follicular: { bg: 'rgba(47,181,199,0.08)',  border: 'rgba(47,181,199,0.22)',  accent: '#1a8a96', dot: '#2fb5c7' },
+            ovulatory:  { bg: 'rgba(232,120,95,0.10)', border: 'rgba(232,120,95,0.25)', accent: '#a0422e', dot: '#e8785f' },
+            luteal:     { bg: 'rgba(106,159,107,0.10)', border: 'rgba(106,159,107,0.25)', accent: '#3d6e3e', dot: '#6a9f6b' },
         }
         const phaseColors = phaseColorMap[phaseKey] || phaseColorMap.luteal
 
