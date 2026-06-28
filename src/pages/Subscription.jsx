@@ -41,7 +41,6 @@ export default function Subscription() {
 
         // Poll every 3 seconds while on this page
         const interval = setInterval(() => {
-            setIsPolling(true);
             checkStatus();
         }, 3000);
 

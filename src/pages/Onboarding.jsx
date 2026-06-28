@@ -11,8 +11,14 @@ export default function Onboarding() {
     const { t, language } = useLanguage()
     const [step, setStep] = useState(0) // Start at Step 0 (Welcome)
 
-    // NEW: Auto-skip Welcome Screen if already logged in
+    // NEW: Auto-skip Welcome Screen if already logged in or jump to Step 8 if returning from verification
     useEffect(() => {
+        if (localStorage.getItem('cyclus_show_step_8') === 'true' || (authUser && localStorage.getItem('pending_onboarding_data'))) {
+            localStorage.removeItem('cyclus_show_step_8');
+            setStep(8);
+            return;
+        }
+
         if (authUser && step === 0) {
             setStep(1)
         }
@@ -93,10 +99,10 @@ export default function Onboarding() {
 
             if (!userId) throw new Error(t('onboarding.error_account_creation'));
 
-            // If email verification is required, store pending data and show step 8
+            // If email verification is required, store pending data and show step 9 (Verify email)
             if (needsVerification) {
                 localStorage.setItem('pending_onboarding_data', JSON.stringify(data));
-                setStep(8);
+                setStep(9);
                 return;
             }
 

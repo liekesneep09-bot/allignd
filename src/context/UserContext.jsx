@@ -1816,8 +1816,9 @@ export function UserProvider({ children }) {
           // Wait for saveProfileAndCalculate to finish before setting onboarded
           saveProfileAndCalculate(pendingData).then(() => {
             localStorage.removeItem('pending_onboarding_data');
-            setIsOnboarded(true);
-            localStorage.setItem('cyclus_onboarded', 'true');
+            // Mark that we should show step 8 upon entering Onboarding
+            localStorage.setItem('cyclus_show_step_8', 'true');
+            // Notice: we DO NOT set setIsOnboarded(true) yet. The user needs to see the results screen!
           }).catch(err => {
             console.error('Failed to save pending onboarding data:', err);
           });
