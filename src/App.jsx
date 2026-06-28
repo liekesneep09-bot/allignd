@@ -157,7 +157,7 @@ function MainLayout() {
                     src={logo}
                     alt="Allignd Logo"
                     style={{
-                        height: '36px',
+                        height: '74px',
                         width: 'auto',
                         objectFit: 'contain',
                         display: 'block'
