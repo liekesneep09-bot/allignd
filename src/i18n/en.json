@@ -125,7 +125,13 @@
     "welcome_subtitle": "Based on your body, goals, and energy",
     "start_now": "START NOW",
     "logout_other": "Log out / Other account",
-    "step_x_of_y": "Step {step} of 6",
+    "step_x_of_y": "Step {step} of 7",
+    "step6_title": "Dietary Preference",
+    "step6_subtitle": "We will adapt your recipes and food advice accordingly.",
+    "dietary_preference": "Dietary Preference",
+    "diet_everything": "Everything (no specific preference)",
+    "diet_vegetarian": "Vegetarian",
+    "diet_vegan": "Vegan",
     "back": "Back",
     "logout": "Log out",
     "step1_title": "Your Cycle",
@@ -281,6 +287,12 @@
     "delete_permanent": "Yes, permanently delete",
     "save_success": "Saved!",
     "save_error": "Something went wrong while saving.",
+    "dietary_preference": "Dietary Preference",
+    "dietary": {
+      "everything": "Everything",
+      "vegetarian": "Vegetarian",
+      "vegan": "Vegan"
+    },
     "goals": {
       "lose_fat": "Lose Fat",
       "recomp": "Lose Fat & Build Muscle",

@@ -69,7 +69,7 @@ export default function PhaseGuide() {
     const handleNext = () => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))
 
     // --- RENDER ---
-    const phase = getPhaseContent(language, currentPhase)
+    const phase = getPhaseContent(language, currentPhase, user?.dietary_preference)
 
     return (
         <div className="container" style={{ paddingBottom: '90px' }}>

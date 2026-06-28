@@ -43,6 +43,7 @@ export default function Profile() {
         lifestyle_level: user?.lifestyle_level || 'sedentary',
         steps_range: user?.steps_range || 'lt4k',
         trainingFrequency: user?.training_days_per_week || 0,
+        dietary_preference: user?.dietary_preference || 'everything',
         // Cycle
         cycleLength: user?.cycleLength || 28,
         periodLength: user?.periodLength || 5,
@@ -74,6 +75,7 @@ export default function Profile() {
                 lifestyle_level: user.lifestyle_level || 'sedentary',
                 steps_range: user.steps_range || 'lt4k',
                 trainingFrequency: user.training_days_per_week || 0,
+                dietary_preference: user.dietary_preference || 'everything'
             }))
         }
     }, [user, isDirty, isSaving])
@@ -297,6 +299,24 @@ export default function Profile() {
                         </div>
                     </div>
                 )}
+
+                <div className="form-group" style={{ marginBottom: '2rem' }}>
+                    <label style={labelStyle}>{t('profile.dietary_preference', { defaultValue: 'Voedingsvoorkeur' })}</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.6rem' }}>
+                        {[
+                            { value: 'everything', label: t('profile.dietary.everything', { defaultValue: 'Alles' }) },
+                            { value: 'vegetarian', label: t('profile.dietary.vegetarian', { defaultValue: 'Vegetarisch' }) },
+                            { value: 'vegan', label: t('profile.dietary.vegan', { defaultValue: 'Vegan' }) }
+                        ].map(d => (
+                            <CompactOption
+                                key={d.value}
+                                label={d.label}
+                                selected={formData.dietary_preference === d.value}
+                                onClick={() => handleChange('dietary_preference', d.value)}
+                            />
+                        ))}
+                    </div>
+                </div>
 
                 <div style={{ marginBottom: '1.5rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
                     <div className="form-group" style={{ marginBottom: '1.5rem' }}>

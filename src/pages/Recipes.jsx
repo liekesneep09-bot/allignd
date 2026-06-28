@@ -13,9 +13,9 @@ export default function Recipes() {
     const [isConfirming, setIsConfirming] = useState(false)
     const [addedSuccess, setAddedSuccess] = useState(false)
 
-    const recipeContent = useMemo(() => getRecipeContent(language), [language])
+    const recipeContent = useMemo(() => getRecipeContent(language, user?.dietary_preference), [language, user?.dietary_preference])
     const phaseRecipes = recipeContent[currentPhase] || recipeContent.luteal
-    const phaseInfo = getPhaseContent(language, currentPhase)
+    const phaseInfo = getPhaseContent(language, currentPhase, user?.dietary_preference)
 
     const categories = [
         { id: 'ontbijt', label: t('meal_editor.breakfast') },

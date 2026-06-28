@@ -204,6 +204,41 @@ function DayStrip({ selectedDate, onSelect, accentColor }) {
   )
 }
 
+const adaptNutritionTip = (tip, dietaryPreference, language) => {
+  if (!tip || !dietaryPreference || dietaryPreference === 'everything') return tip;
+
+  let adapted = tip;
+  
+  if (language === 'nl') {
+    if (dietaryPreference === 'vegetarian' || dietaryPreference === 'vegan') {
+      adapted = adapted.replace('vette vis, bessen en noten', 'lijnzaad, walnoten en bessen');
+      adapted = adapted.replace('zalm, pompoenpitten', 'tempeh, pompoenpitten');
+      adapted = adapted.replace('zalm', 'tempeh');
+    }
+    if (dietaryPreference === 'vegan') {
+      adapted = adapted.replace('denk aan eieren, noten', 'denk aan peulvruchten, noten');
+      adapted = adapted.replace('spinazie en eieren', 'spinazie en pompoenpitten');
+      adapted = adapted.replace('yoghurt, zoete aardappel', 'plantaardige yoghurt, zoete aardappel');
+      adapted = adapted.replace('pompoenpitten en yoghurt', 'pompoenpitten en plantaardige yoghurt');
+    }
+  } else {
+    // English
+    if (dietaryPreference === 'vegetarian' || dietaryPreference === 'vegan') {
+      adapted = adapted.replace('fatty fish, berries, and nuts', 'flaxseed, walnuts, and berries');
+      adapted = adapted.replace('salmon, pumpkin seeds', 'tempeh, pumpkin seeds');
+      adapted = adapted.replace('salmon', 'tempeh');
+    }
+    if (dietaryPreference === 'vegan') {
+      adapted = adapted.replace('think of eggs, nuts', 'think of legumes, nuts');
+      adapted = adapted.replace('spinach, and eggs', 'spinach, and pumpkin seeds');
+      adapted = adapted.replace('yogurt, sweet potato', 'plant-based yogurt, sweet potato');
+      adapted = adapted.replace('pumpkin seeds, and yogurt', 'pumpkin seeds, and plant-based yogurt');
+    }
+  }
+  
+  return adapted;
+};
+
 // --- MAIN COMPONENT ---
 
 export default function Today({ onNavigate }) {
@@ -221,7 +256,7 @@ export default function Today({ onNavigate }) {
   const effectivePeriodLen = user?.bleedingLengthDays || user?.periodLength || 5
   const phaseTransition = getPhaseTransition(viewDay, effectiveCycleLen, effectivePeriodLen, viewPhase)
 
-  const content = getPhaseContent(language, viewPhase)
+  const content = getPhaseContent(language, viewPhase, user?.dietary_preference)
   const stats = getStatsForDate(viewDateStr)
   const todaysLogs = (user?.foodLogs && Array.isArray(user.foodLogs)) ? user.foodLogs.filter(l => l.date === viewDateStr) : []
 
@@ -514,7 +549,7 @@ export default function Today({ onNavigate }) {
                       lineHeight: '1.4',
                       opacity: 0.6
                     }}>
-                      {currentText.nutrition}
+                      {adaptNutritionTip(currentText.nutrition, user?.dietary_preference, language)}
                     </div>
                   </div>
 
@@ -542,7 +577,7 @@ export default function Today({ onNavigate }) {
       </div>
 
       {/* MAIN CONTENT SECTION */}
-      <div className="container" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', marginTop: '-1.5rem', position: 'relative', zIndex: 10 }}>
+      <div className="container" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', marginTop: '-1.5rem', position: 'relative', zIndex: 2 }}>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 

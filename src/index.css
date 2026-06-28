@@ -43,7 +43,7 @@
 
   /* Shadows & Radius */
   --radius-sm: 6px;
-  --radius-md: 16px;
+  --radius-md: 24px;
   --radius-lg: 24px;
   --shadow-soft: 0 4px 20px rgba(255, 174, 185, 0.4);
   /* Subtle pink-tinted shadow */

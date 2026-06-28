@@ -662,9 +662,61 @@ export const PHASE_CONTENT_EN = {
   }
 }
 
-export const getPhaseContent = (language, phase) => {
+export const getPhaseContent = (language, phase, dietaryPreference = 'everything') => {
   const dict = language === 'en' ? PHASE_CONTENT_EN : PHASE_CONTENT_NL;
-  return phase ? dict[phase] : dict;
+  if (!phase) {
+    const adaptedDict = {};
+    for (const p of Object.keys(dict)) {
+      adaptedDict[p] = adaptPhaseContent(dict[p], dietaryPreference);
+    }
+    return adaptedDict;
+  }
+  return adaptPhaseContent(dict[phase], dietaryPreference);
+}
+
+function adaptPhaseContent(content, dietaryPreference) {
+  if (!content || dietaryPreference === 'everything' || !content.nutrients) {
+    return content;
+  }
+  
+  const adapted = { ...content };
+  
+  adapted.nutrients = content.nutrients.map(nutrient => {
+    if (!nutrient.sources) return nutrient;
+    
+    const filteredSources = nutrient.sources.filter(source => {
+      const foodLower = source.food.toLowerCase();
+      
+      const isAnimalMeat = [
+        'vlees', 'meat', 'zalm', 'salmon', 'makreel', 'mackerel', 
+        'kip', 'chicken', 'kalkoen', 'turkey', 'biefstuk', 'steak', 
+        'vis', 'fish', 'tonijn', 'tuna', 'rundergehakt', 'kipgehakt', 
+        'ground beef', 'chicken mince', 'kabeljauw', 'cod', 'witvis', 
+        'white fish', 'oesters', 'oysters', 'bone broth', 'bottenbouillon'
+      ].some(keyword => foodLower.includes(keyword));
+      
+      if (isAnimalMeat) return false;
+      
+      if (dietaryPreference === 'vegan') {
+        const isAnimalByproduct = [
+          'eieren', 'eggs', 'ei', 'egg', 'yoghurt', 'yogurt', 'kwark', 
+          'quark', 'feta', 'mozzarella', 'kaas', 'cheese', 'hüttenkäse', 
+          'cottage cheese', 'kefir', 'honing', 'honey'
+        ].some(keyword => foodLower.includes(keyword));
+        
+        if (isAnimalByproduct) return false;
+      }
+      
+      return true;
+    });
+    
+    return {
+      ...nutrient,
+      sources: filteredSources
+    };
+  });
+  
+  return adapted;
 }
 
 // Keep a default for backward compatibility where needed (will use NL as default if not updated yet)

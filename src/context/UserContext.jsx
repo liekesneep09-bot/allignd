@@ -83,7 +83,8 @@ export function UserProvider({ children }) {
     menstruationLogs: [], // { date, status }
     
     // Language Preference
-    user_language: localStorage.getItem('app_language') || 'nl'
+    user_language: localStorage.getItem('app_language') || 'nl',
+    dietary_preference: 'everything'
   }))
 
   // 4. Derived State (Prioritize calculations)
@@ -300,7 +301,8 @@ export function UserProvider({ children }) {
             // CRITICAL: Restore menstruationLogs from Supabase so phase persists across reloads
             menstruationLogs: profile.menstruation_logs || [],
             user_language: profile.user_language || 'nl',
-            subscription_status: profile.subscription_status || 'inactive'
+            subscription_status: profile.subscription_status || 'inactive',
+            dietary_preference: profile.dietary_preference || 'everything'
           }
 
           // Sync UI language with profile preference if they differ
@@ -587,6 +589,7 @@ export function UserProvider({ children }) {
       if (data.menstruationLogs !== undefined) updates.menstruation_logs = data.menstruationLogs
 
       if (data.user_language !== undefined) updates.user_language = data.user_language
+      if (data.dietary_preference !== undefined) updates.dietary_preference = data.dietary_preference
 
       if (data.experienceLevel !== undefined) updates.experience_level = data.experienceLevel
       if (data.resultTempo !== undefined) updates.result_tempo = data.resultTempo
@@ -658,7 +661,8 @@ export function UserProvider({ children }) {
         training_days_per_week: Number(profileData.trainingFrequency || user.trainingFrequency || 0),
         lifestyle_level: profileData.lifestyle_level || user.lifestyle_level || 'sedentary',
         steps_range: profileData.steps_range || user.steps_range || 'lt4k',
-        resultTempo: profileData.resultTempo || user.resultTempo || 'average' // Explicitly captured
+        resultTempo: profileData.resultTempo || user.resultTempo || 'average', // Explicitly captured
+        dietary_preference: profileData.dietary_preference || user.dietary_preference || 'everything'
       };
 
       // 2. Calculate Targets (Range Based)
@@ -708,6 +712,7 @@ export function UserProvider({ children }) {
         training_type: profileData.trainingType || user.trainingType || 'combination',
         is_menstruating_now: profileData.isMenstruatingNow !== undefined ? profileData.isMenstruatingNow : (user.isMenstruatingNow || false),
         menstruation_logs: updatedMenstruationLogs,
+        dietary_preference: profileData.dietary_preference || user.dietary_preference || 'everything',
         updated_at: new Date().toISOString()
       });
 
@@ -815,6 +820,8 @@ export function UserProvider({ children }) {
   const completeOnboarding = async () => {
     setIsOnboarded(true)
     localStorage.setItem('cyclus_onboarded', 'true')
+    // Clear the explicit reset flag so the PWA fallback check works again
+    localStorage.removeItem('cyclus_onboarding_reset')
 
     // Sync to Supabase
     if (authUser) {
@@ -845,6 +852,8 @@ export function UserProvider({ children }) {
 
       setIsOnboarded(false)
       localStorage.removeItem('cyclus_onboarded')
+      // Signal that user explicitly reset onboarding, so the fallback check won't block it
+      localStorage.setItem('cyclus_onboarding_reset', 'true')
 
       // Force reload to clear all context state and re-route to Onboarding
       window.location.href = '/'

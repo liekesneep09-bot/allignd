@@ -125,7 +125,13 @@
     "welcome_subtitle": "Op basis van jouw lichaam, doelen en energie",
     "start_now": "START NU",
     "logout_other": "Log uit / Ander account",
-    "step_x_of_y": "Stap {step} van 6",
+    "step_x_of_y": "Stap {step} van 7",
+    "step6_title": "Voedingsvoorkeur",
+    "step6_subtitle": "We passen je recepten en voedingsadviezen hierop aan.",
+    "dietary_preference": "Voedingsvoorkeur",
+    "diet_everything": "Alles (geen specifieke voorkeur)",
+    "diet_vegetarian": "Vegetarisch",
+    "diet_vegan": "Veganistisch",
     "back": "Terug",
     "logout": "Log uit",
     "step1_title": "Jouw Cyclus",
@@ -285,6 +291,12 @@
     "delete_permanent": "Ja, verwijder definitief",
     "save_success": "Opgeslagen!",
     "save_error": "Er ging iets mis bij het opslaan.",
+    "dietary_preference": "Voedingsvoorkeur",
+    "dietary": {
+      "everything": "Alles",
+      "vegetarian": "Vegetarisch",
+      "vegan": "Vegan"
+    },
     "goals": {
       "lose_fat": "Vet verliezen",
       "recomp": "Afvallen & Spieropbouw",

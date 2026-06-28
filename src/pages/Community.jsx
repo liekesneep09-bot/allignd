@@ -109,6 +109,48 @@ function PostCard({ post, onOpen, onLike, isLiked, t, language }) {
     )
 }
 
+// ─── Skeleton Post Card for loading states ────────────────────────────────
+function SkeletonPostCard() {
+    return (
+        <div
+            style={{
+                background: 'var(--color-surface)',
+                borderRadius: '16px',
+                padding: '1.25rem',
+                border: '1px solid #f2f2f2',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.75rem',
+                opacity: 0.6,
+                animation: 'pulse-skeleton 1.5s ease-in-out infinite'
+            }}
+        >
+            {/* Header: avatar + name */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#EAEAEA' }} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div style={{ width: '80px', height: '12px', borderRadius: '4px', background: '#EAEAEA' }} />
+                        <div style={{ width: '60px', height: '8px', borderRadius: '3px', background: '#F5F5F5' }} />
+                    </div>
+                </div>
+                <div style={{ width: '40px', height: '10px', borderRadius: '4px', background: '#F5F5F5' }} />
+            </div>
+
+            {/* Title lines */}
+            <div style={{ width: '90%', height: '16px', borderRadius: '4px', background: '#EAEAEA', marginTop: '0.25rem' }} />
+            <div style={{ width: '60%', height: '16px', borderRadius: '4px', background: '#EAEAEA' }} />
+
+            {/* Footer: actions */}
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.25rem' }}>
+                <div style={{ width: '30px', height: '14px', borderRadius: '4px', background: '#F5F5F5' }} />
+                <div style={{ width: '30px', height: '14px', borderRadius: '4px', background: '#F5F5F5' }} />
+            </div>
+        </div>
+    )
+}
+
 // ─── Main Community Component ────────────────────────────
 export default function Community() {
     const { user, currentPhase } = useUser()
@@ -937,7 +979,19 @@ export default function Community() {
                 }
 
                 if (isLoading) {
-                    return <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', padding: '2rem 0' }}>{t('common.loading')}</p>
+                    return (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <SkeletonPostCard />
+                            <SkeletonPostCard />
+                            <SkeletonPostCard />
+                            <style>{`
+                                @keyframes pulse-skeleton {
+                                    0%, 100% { opacity: 0.6; }
+                                    50% { opacity: 0.3; }
+                                }
+                            `}</style>
+                        </div>
+                    )
                 }
                 if (displayPosts.length === 0) {
                     return (

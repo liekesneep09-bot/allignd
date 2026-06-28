@@ -39,7 +39,8 @@ export default function Onboarding() {
         resultTempo: user.resultTempo || 'average',
         targetWeight: user.targetWeight || '',
         lifestyle_level: user.lifestyle_level || 'sedentary',
-        steps_range: user.steps_range || 'lt4k'
+        steps_range: user.steps_range || 'lt4k',
+        dietary_preference: user.dietary_preference || 'everything'
     })
 
     // NEW: Sync formData when user profile loads or changes (Fixes stale state bug)
@@ -56,7 +57,8 @@ export default function Onboarding() {
                 periodLength: prev.periodLength || user.periodLength || 5,
                 goal: prev.goal || user.goal || GOAL_TYPES.MAINTAIN,
                 lifestyle_level: prev.lifestyle_level || user.lifestyle_level || 'sedentary',
-                steps_range: prev.steps_range || user.steps_range || 'lt4k'
+                steps_range: prev.steps_range || user.steps_range || 'lt4k',
+                dietary_preference: prev.dietary_preference || user.dietary_preference || 'everything'
             }))
         }
     }, [user])
@@ -108,10 +110,10 @@ export default function Onboarding() {
                 goal: data.goal
             });
 
-            // 3. Move to Step 7 (Success Screen)
-            setStep(7);
+            // 3. Move to Step 8 (Success Screen)
+            setStep(8);
 
-            // 4. Navigation is handled by Step 7 finish button
+            // 4. Navigation is handled by Step 8 finish button
         } catch (error) {
             console.error("Onboarding Error:", error);
             alert(t('onboarding.error_generic') + ": " + error.message); // Show error to user
@@ -121,10 +123,10 @@ export default function Onboarding() {
     };
 
     const handleNext = async () => {
-        if (step < 6) { // Increased step count to 6
+        if (step < 7) { // Increased step count to 7
             setStep(step + 1)
         } else {
-            // FINISH STEP (Step 6)
+            // FINISH STEP (Step 7)
             await handleProfileSubmit(formData);
         }
     }
@@ -199,7 +201,7 @@ export default function Onboarding() {
 
             {/* Progress */}
             <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '6px', background: 'var(--color-surface)', zIndex: 20 }}>
-                <div style={{ height: '100%', width: `${Math.min(step, 6) / 6 * 100}%`, background: 'var(--color-primary)', transition: 'width 0.3s ease-out' }} />
+                <div style={{ height: '100%', width: `${Math.min(step, 7) / 7 * 100}%`, background: 'var(--color-primary)', transition: 'width 0.3s ease-out' }} />
             </div>
 
             <header style={{
@@ -214,7 +216,7 @@ export default function Onboarding() {
                 <button
                     onClick={handleBack}
                     style={{
-                        visibility: step === 7 ? 'hidden' : 'visible',
+                        visibility: step === 8 ? 'hidden' : 'visible',
                         border: 'none',
                         background: 'none',
                         fontSize: '0.85rem',
@@ -241,7 +243,7 @@ export default function Onboarding() {
                             objectFit: 'contain'
                         }}
                     />
-                    {step <= 6 && <p className="text-muted" style={{ fontSize: '0.8rem', margin: 0 }}>{t('onboarding.step_x_of_y').replace('{step}', step)}</p>}
+                    {step <= 7 && <p className="text-muted" style={{ fontSize: '0.8rem', margin: 0 }}>{t('onboarding.step_x_of_y').replace('{step}', step)}</p>}
                 </div>
 
                 {/* Logout Button (Top Right) */}
@@ -652,8 +654,37 @@ export default function Onboarding() {
                     </div>
                 )}
 
-                {/* STEP 6: ACCOUNT (Shifted) */}
+                {/* STEP 6: VOEDINGSVOORKEUR */}
                 {step === 6 && (
+                    <div className="fade-in">
+                        <div className="text-center">
+                            <h2 style={{ marginBottom: '0.5rem' }}>{t('onboarding.step6_title', { defaultValue: 'Voedingsvoorkeur' })}</h2>
+                            <p className="text-muted" style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+                                {t('onboarding.step6_subtitle', { defaultValue: 'We passen je recepten en voedingsadviezen hierop aan.' })}
+                            </p>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                            <SelectOption
+                                label={t('onboarding.diet_everything', { defaultValue: 'Alles (geen specifieke voorkeur)' })}
+                                selected={formData.dietary_preference === 'everything'}
+                                onClick={() => handleChange('dietary_preference', 'everything')}
+                            />
+                            <SelectOption
+                                label={t('onboarding.diet_vegetarian', { defaultValue: 'Vegetarisch' })}
+                                selected={formData.dietary_preference === 'vegetarian'}
+                                onClick={() => handleChange('dietary_preference', 'vegetarian')}
+                            />
+                            <SelectOption
+                                label={t('onboarding.diet_vegan', { defaultValue: 'Veganistisch' })}
+                                selected={formData.dietary_preference === 'vegan'}
+                                onClick={() => handleChange('dietary_preference', 'vegan')}
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {/* STEP 7: ACCOUNT (Shifted) */}
+                {step === 7 && (
                     <div className="fade-in">
                         <h2 className="text-center" style={{ marginBottom: '1.5rem' }}>
                             {authUser ? t('onboarding.step6_title_authed') : t('onboarding.step6_title_new')}
@@ -704,8 +735,8 @@ export default function Onboarding() {
                     </div>
                 )}
 
-                {/* STEP 7: RESULTS REVEAL */}
-                {step === 7 && (
+                {/* STEP 8: RESULTS REVEAL */}
+                {step === 8 && (
                     <div className="fade-in" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '2rem' }}>
                         <div>
                             <h2 style={{ fontSize: '1.8rem', color: 'var(--color-primary)', marginBottom: '0.5rem' }}>{t('onboarding.step7_title')}</h2>
@@ -759,8 +790,8 @@ export default function Onboarding() {
                     </div>
                 )}
 
-                {/* STEP 8: EMAIL VERIFICATION */}
-                {step === 8 && (
+                {/* STEP 9: EMAIL VERIFICATION */}
+                {step === 9 && (
                     <div className="fade-in" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '2rem' }}>
                         <div>
                             <h2 style={{ fontSize: '1.8rem', color: 'var(--color-primary)', marginBottom: '0.5rem' }}>{t('onboarding.verify_email_title', { defaultValue: 'Verifieer je e-mail' })}</h2>
@@ -771,10 +802,10 @@ export default function Onboarding() {
 
             </div>
 
-            {step !== 7 && step !== 8 && (
+            {step !== 8 && step !== 9 && (
                 <div style={{ marginTop: '2rem', paddingBottom: '2rem', position: 'relative', zIndex: 1 }}>
                     <button className="btn btn-primary" onClick={handleNext} disabled={isLoading || !isValid(step, formData, !!authUser)}>
-                        {isLoading ? t('onboarding.saving') : (step === 6 ? (authUser ? t('onboarding.save_start_authed') : t('onboarding.save_start_new')) : t('onboarding.next'))}
+                        {isLoading ? t('onboarding.saving') : (step === 7 ? (authUser ? t('onboarding.save_start_authed') : t('onboarding.save_start_new')) : t('onboarding.next'))}
                     </button>
                 </div>
             )}
@@ -883,8 +914,11 @@ function isValid(step, data, isAuthed) {
     // Step 5: Experience
     if (step === 5 && !data.experienceLevel) return false
 
-    // Step 6: Account
-    if (step === 6) {
+    // Step 6: Dietary Preference
+    if (step === 6) return true
+
+    // Step 7: Account
+    if (step === 7) {
         if (!data.name) return false
         // If NOT authed, we need email and password. If authed, we don't.
         if (!isAuthed && (!data.email || !data.password)) return false

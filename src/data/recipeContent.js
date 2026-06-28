@@ -751,6 +751,491 @@ for (const phase of Object.values(PHASES)) {
     }
 }
 
-export function getRecipeContent(language) {
-    return language === 'en' ? RECIPES_EN : RECIPES_NL
+const RECIPE_ADAPTATIONS_NL = {
+  // Menstrual phase
+  'Roerei met spinazie op volkoren toast': {
+    vegan: {
+      title: 'Scrambled tofu met spinazie op volkoren toast',
+      ingredients: ['150g stevige tofu (verkruimeld)', 'Handvol verse spinazie', '2 sneetjes volkoren brood', 'Snufje kurkuma & edelgistvlokken', 'Olijfolie'],
+      instructions: ['Verhit olie in de pan en slink de spinazie kort.', 'Verkruimel de tofu in de pan en voeg de kurkuma en edelgistvlokken toe.', 'Roerbak 5 minuten tot het goed warm is.', 'Serveer op geroosterd brood.'],
+      explanation: 'Een zachte, voedzame start met wat extra ijzer en plantaardige eiwitten uit tofu.'
+    }
+  },
+  'Warme quinoa met geroosterde biet en walnoten': {
+    vegan: {
+      ingredients: ['75g quinoa (ongekookt)', '2 bieden', 'Handje walnoten', 'Beetje vegan feta of avocado', '1 el olijfolie', 'Snufje komijn']
+    }
+  },
+  'Langzaam gegaarde runderstoof': {
+    vegetarian: {
+      title: 'Langzaam gegaarde paddenstoelenstoof met linzen',
+      emoji: '🍲',
+      explanation: 'Rijk, troostend en vol ijzer; perfect om je energie rustig weer op te bouwen met linzen en champignons.',
+      ingredients: ['150g kastanjechampignons (gehalveerd)', '100g linzen (gekookt)', '1 ui', '1 winterpeen', 'Tomatenpuree', 'Groentebouillon'],
+      instructions: ['Fruit de ui aan in een pan.', 'Voeg de champignons en wortel toe en bak 5 min.', 'Blus af met bouillon en tomatenpuree, voeg linzen toe.', 'Laat 30 min zachtjes pruttelen.', 'Serveer warm.'],
+      macros: { p: 16, c: 38, f: 8, kcal: 290, fiber: 9.5 }
+    },
+    vegan: {
+      title: 'Langzaam gegaarde paddenstoelenstoof met linzen',
+      emoji: '🍲',
+      explanation: 'Rijk, troostend en vol ijzer; perfect om je energie rustig weer op te bouwen met linzen en champignons.',
+      ingredients: ['150g kastanjechampignons (gehalveerd)', '100g linzen (gekookt)', '1 ui', '1 winterpeen', 'Tomatenpuree', 'Groentebouillon'],
+      instructions: ['Fruit de ui aan in een pan.', 'Voeg de champignons en wortel toe en bak 5 min.', 'Blus af met bouillon en tomatenpuree, voeg linzen toe.', 'Laat 30 min zachtjes pruttelen.', 'Serveer warm.'],
+      macros: { p: 16, c: 38, f: 8, kcal: 290, fiber: 9.5 }
+    }
+  },
+  'Gebakken vis (bijv. kabeljauw) met zoete aardappel': {
+    vegetarian: {
+      title: 'Gebakken tempeh met zoete aardappel',
+      emoji: '🫘',
+      explanation: 'Plantaardige eiwitten en gezonde vetten die je lichaam liefdevol ondersteunen.',
+      ingredients: ['150g tempeh (in plakken)', '1 zoete aardappel', 'Gestoomde broccoli', 'Citroensap & sojasaus', 'Olijfolie'],
+      instructions: ['Snijd aardappel in partjes en rooster 25 min in oven (200C).', 'Marineer de tempeh kort in sojasaus en bak deze 3-4 min per kant knapperig.', 'Stoom de broccoli kort.', 'Serveer samen met citroen.'],
+      macros: { p: 28, c: 42, f: 16, kcal: 420, fiber: 10.5 }
+    },
+    vegan: {
+      title: 'Gebakken tempeh met zoete aardappel',
+      emoji: '𫷾',
+      explanation: 'Plantaardige eiwitten en gezonde vetten die je lichaam liefdevol ondersteunen.',
+      ingredients: ['150g tempeh (in plakken)', '1 zoete aardappel', 'Gestoomde broccoli', 'Citroensap & sojasaus', 'Olijfolie'],
+      instructions: ['Snijd aardappel in partjes en rooster 25 min in oven (200C).', 'Marineer de tempeh kort in sojasaus en bak deze 3-4 min per kant knapperig.', 'Stoom de broccoli kort.', 'Serveer samen met citroen.'],
+      macros: { p: 28, c: 42, f: 16, kcal: 420, fiber: 10.5 }
+    }
+  },
+  
+  // Follicular phase
+  'Griekse yoghurt met granola en fruit': {
+    vegan: {
+      title: 'Kokos- of soja-yoghurt met granola en fruit',
+      ingredients: ['200g plantaardige yoghurt (bijv. soja of kokos)', '30g granola (laag suiker)', 'Halve banaan', 'Blauwe bessen'],
+      instructions: ['Doe de plantaardige yoghurt in een kom.', 'Snijd banaan in plakjes.', 'Voeg fruit en granola toe.', 'Eventueel toppen met een beetje esdoornsiroop.']
+    }
+  },
+  'Avocado toast met gepocheerd ei': {
+    vegan: {
+      title: 'Avocado toast met gekruide kikkererwten',
+      emoji: '🥑',
+      explanation: 'Heerlijk plantaardig en in balans, zodat je je lang verzadigd en scherp voelt.',
+      ingredients: ['2 sneetjes volkoren brood', 'Halve avocado', '100g kikkererwten (krokant gebakken)', 'Chilivlokken', 'Citroensap'],
+      instructions: ['Rooster het brood en prak de avocado erop.', 'Bak de kikkererwten kort met wat paprikapoeder in de pan.', 'Verdeel de kikkererwten over de avocado toast.', 'Kruid met peper, zout en chili.'],
+      macros: { p: 12, c: 42, f: 18, kcal: 378, fiber: 12.0 }
+    }
+  },
+  'Volkoren wrap met kip en hummus': {
+    vegetarian: {
+      title: 'Volkoren wrap met falafel en hummus',
+      emoji: '🧆',
+      explanation: 'Een heerlijke vegetarische wrap vol vezels en smaak.',
+      ingredients: ['1 volkoren wrap', '4 falafelballetjes', '2 el hummus', 'Rucola', 'Geraspte wortel'],
+      instructions: ['Bak de falafelballetjes kort in de pan.', 'Besmeer de wrap met hummus.', 'Plet de falafel eroverheen en voeg groenten toe.', 'Oprollen en doorsnijden.'],
+      macros: { p: 14, c: 42, f: 16, kcal: 368, fiber: 9.2 }
+    },
+    vegan: {
+      title: 'Volkoren wrap met falafel en hummus',
+      emoji: '🧆',
+      explanation: 'Een heerlijke vegan wrap vol vezels en smaak.',
+      ingredients: ['1 volkoren wrap', '4 falafelballetjes', '2 el hummus', 'Rucola', 'Geraspte wortel'],
+      instructions: ['Bak de falafelballetjes kort in de pan.', 'Besmeer de wrap met hummus.', 'Plet de falafel eroverheen en voeg groenten toe.', 'Oprollen en doorsnijden.'],
+      macros: { p: 14, c: 42, f: 16, kcal: 368, fiber: 9.2 }
+    }
+  },
+  'Frisse couscous salade met feta': {
+    vegan: {
+      title: 'Frisse couscous salade met vegan feta',
+      ingredients: ['75g couscous (droog)', 'Komkommer', 'Tomaat', '50g vegan feta (of olijven & avocado)', 'Verse munt'],
+      instructions: ['Wel de couscous in heet water (5 min).', 'Snijd groenten en vegan feta in blokjes.', 'Meng alles door elkaar met de munt.', 'Breng op smaak met citroensap en olijfolie.']
+    }
+  },
+  'Wokgerecht met kip en groenten': {
+    vegetarian: {
+      title: 'Wokgerecht met tofu en groenten',
+      ingredients: ['150g tofu (in blokjes)', 'Wokgroenten (paprika, courgette)', 'Sojasaus', 'Gember', 'Zilvervliesrijst'],
+      instructions: ['Kook de rijst.', 'Bak de tofu goudbruin in wat olie.', 'Voeg groenten, gember en sojasaus toe.', 'Roerbak kort op hoog vuur.']
+    },
+    vegan: {
+      title: 'Wokgerecht met tofu en groenten',
+      ingredients: ['150g tofu (in blokjes)', 'Wokgroenten (paprika, courgette)', 'Sojasaus', 'Gember', 'Zilvervliesrijst'],
+      instructions: ['Kook de rijst.', 'Bak de tofu goudbruin in wat olie.', 'Voeg groenten, gember en sojasaus toe.', 'Roerbak kort op hoog vuur.']
+    }
+  },
+  'Witvis met rijst en broccoli': {
+    vegetarian: {
+      title: 'Gebakken tofu met rijst en broccoli',
+      emoji: '🧎',
+      explanation: 'Lichte plantaardige eiwitten, makkelijk te verteren en puur.',
+      ingredients: ['150g stevige tofu (geperst en gekruid)', '75g rijst', '200g broccoli', 'Dille', 'Citroen', '1 el olijfolie'],
+      instructions: ['Kook rijst en broccoli.', 'Bak de tofublokjes krokant in de pan.', 'Serveer met verse dille en citroensap.'],
+      macros: { p: 22, c: 52, f: 12, kcal: 404, fiber: 7.2 }
+    },
+    vegan: {
+      title: 'Gebakken tofu met rijst en broccoli',
+      emoji: '🧎',
+      explanation: 'Lichte plantaardige eiwitten, makkelijk te verteren en puur.',
+      ingredients: ['150g stevige tofu (geperst en gekruid)', '75g rijst', '200g broccoli', 'Dille', 'Citroen', '1 el olijfolie'],
+      instructions: ['Kook rijst and broccoli.', 'Bak de tofublokjes krokant in de pan.', 'Serveer met verse dille en citroensap.'],
+      macros: { p: 22, c: 52, f: 12, kcal: 404, fiber: 7.2 }
+    }
+  },
+  'Rijstwafel met kalkoenfilet': {
+    vegetarian: {
+      title: 'Rijstwafel met hummus en komkommer',
+      emoji: '🍘',
+      ingredients: ['2 rijstwafels', '2 el hummus', 'Komkommer'],
+      instructions: ['Smeer de hummus op de rijstwafels.', 'Beleg met dunne plakjes komkommer.'],
+      macros: { p: 5, c: 18, f: 6, kcal: 146, fiber: 3.2 }
+    },
+    vegan: {
+      title: 'Rijstwafel met hummus en komkommer',
+      emoji: '🍘',
+      ingredients: ['2 rijstwafels', '2 el hummus', 'Komkommer'],
+      instructions: ['Smeer de hummus op de rijstwafels.', 'Beleg met dunne plakjes komkommer.'],
+      macros: { p: 5, c: 18, f: 6, kcal: 146, fiber: 3.2 }
+    }
+  },
+
+  // Ovulatory phase
+  'Omelet met paddenstoelen en tomaat': {
+    vegan: {
+      title: 'Tofu scramble met paddenstoelen en tomaat',
+      emoji: '🍳',
+      explanation: 'Stevig, eiwitrijk en volledig plantaardig.',
+      ingredients: ['150g tofu (verkruimeld)', 'Handje champignons', '1 tomaat', '1 volkoren boterham', 'Edelgistvlokken & kurkuma'],
+      instructions: ['Bak de champignons en tomaat aan.', 'Verkruimel de tofu erover en voeg kurkuma/edelgist toe.', 'Bak tot het goed verwarmd is.', 'Eet met de boterham.'],
+      macros: { p: 18, c: 22, f: 12, kcal: 268, fiber: 6.5 }
+    }
+  },
+  'Maaltijdsalade met tonijn en ei': {
+    vegetarian: {
+      title: 'Maaltijdsalade met kikkererwten en ei',
+      emoji: '🥗',
+      explanation: 'Een vegetarische variant boordevol eiwitten voor spierherstel.',
+      ingredients: ['150g kikkererwten (uit blik)', '1 gekookt ei', 'Gemengde sla', 'Olijven', 'Aardappel (gekookt)'],
+      instructions: ['Meng sla met gespoelde kikkererwten en partjes ei.', 'Voeg gekookte aardappelblokjes toe.', 'Breng op smaak met peper en olijfolie.'],
+      macros: { p: 18, c: 45, f: 12, kcal: 360, fiber: 9.5 }
+    },
+    vegan: {
+      title: 'Maaltijdsalade met kikkererwten en avocado',
+      emoji: '🥗',
+      explanation: 'Een veganistische salade vol gezonde vetten en plantaardige eiwitten.',
+      ingredients: ['150g kikkererwten (uit blik)', 'Halve avocado (in blokjes)', 'Gemengde sla', 'Olijven', 'Aardappel (gekookt)'],
+      instructions: ['Meng sla met gespoelde kikkererwten en avocadoblokjes.', 'Voeg gekookte aardappelblokjes toe.', 'Breng op smaak met citroensap en olijfolie.'],
+      macros: { p: 14, c: 48, f: 16, kcal: 392, fiber: 12.8 }
+    }
+  },
+  'Pasta salade met mozzarella': {
+    vegan: {
+      title: 'Pasta salade met vegan mozzarella of olijven',
+      ingredients: ['75g pasta (ongekookt)', '50g vegan mozzarella (of olijven)', 'Cherrytomaten', 'Basilicum', 'Pijnboompitten', 'Olijfolie']
+    }
+  },
+  'Gegrilde kip of biefstuk met groentefriet': {
+    vegetarian: {
+      title: 'Gegrilde tempeh met groentefriet',
+      emoji: '𫷾',
+      ingredients: ['150g tempeh (gemarineerd)', 'Zoete aardappel of wortel', 'Groene salade', '1 el olijfolie'],
+      instructions: ['Snijd groenten in frietvorm en bak 25 min in oven.', 'Snijd de tempeh in plakken en bak/grill deze 4-5 min per kant.', 'Serveer met salade.'],
+      macros: { p: 28, c: 32, f: 18, kcal: 402, fiber: 11.0 }
+    },
+    vegan: {
+      title: 'Gegrilde tempeh met groentefriet',
+      emoji: '𫷾',
+      ingredients: ['150g tempeh (gemarineerd)', 'Zoete aardappel of wortel', 'Groene salade', '1 el olijfolie'],
+      instructions: ['Snijd groenten in frietvorm en bak 25 min in oven.', 'Snijd de tempeh in plakken en bak/grill deze 4-5 min per kant.', 'Serveer met salade.'],
+      macros: { p: 28, c: 32, f: 18, kcal: 402, fiber: 11.0 }
+    }
+  },
+  'Gekookt ei': {
+    vegan: {
+      title: 'Hummus met snackworteltjes',
+      emoji: '🥕',
+      explanation: 'Een snelle, knapperige en volledig vegan snack.',
+      ingredients: ['100g worteltjes', '2 el hummus'],
+      instructions: ['Dip de worteltjes in de hummus.'],
+      macros: { p: 4, c: 12, f: 8, kcal: 136, fiber: 4.8 }
+    }
+  },
+
+  // Luteal phase
+  'Wrap met zalm en roomkaas': {
+    vegetarian: {
+      title: 'Wrap met gegrilde courgette en roomkaas',
+      emoji: '🌯',
+      explanation: 'Heerlijk zacht en vezelrijk, perfect om cravings te dempen.',
+      ingredients: ['1 volkoren wrap', '50g gegrilde courgette', 'Kruidenroomkaas', 'Ijsbergsla'],
+      instructions: ['Besmeer de wrap met roomkaas.', 'Beleg met courgette en sla.', 'Rol stevig op.'],
+      macros: { p: 10, c: 32, f: 14, kcal: 294, fiber: 5.2 }
+    },
+    vegan: {
+      title: 'Wrap met gegrilde courgette en hummus',
+      emoji: '🌯',
+      explanation: 'Een smaakvolle, vegan wrap die langdurige energie geeft.',
+      ingredients: ['1 volkoren wrap', '50g gegrilde courgette', '2 el hummus', 'Ijsbergsla'],
+      instructions: ['Besmeer de wrap met hummus.', 'Beleg met courgette en sla.', 'Rol stevig op.'],
+      macros: { p: 11, c: 35, f: 12, kcal: 292, fiber: 7.2 }
+    }
+  },
+  'Volkoren pasta bolognese': {
+    vegetarian: {
+      title: 'Volkoren pasta linzen-bolognese',
+      emoji: '🍝',
+      explanation: 'Een warm bord comfort, vol plantaardige vezels en ijzer.',
+      ingredients: ['75g volkoren pasta', '150g linzen (uit blik)', 'Tomatensaus met groenten', 'Eventueel geraspte kaas'],
+      instructions: ['Warm de tomatensaus op en voeg de afgespoelde linzen toe.', 'Kook de pasta.', 'Meng de pasta met de saus.', 'Top met geraspte kaas.'],
+      macros: { p: 20, c: 62, f: 8, kcal: 400, fiber: 13.5 }
+    },
+    vegan: {
+      title: 'Volkoren pasta linzen-bolognese',
+      emoji: '🍝',
+      explanation: 'Een warm bord comfort, vol plantaardige vezels en ijzer, volledig vegan.',
+      ingredients: ['75g volkoren pasta', '150g linzen (uit blik)', 'Tomatensaus met groenten', '1 el edelgistvlokken (optioneel)'],
+      instructions: ['Warm de tomatensaus op en voeg de afgespoelde linzen toe.', 'Kook de pasta.', 'Meng de pasta met de saus.', 'Top eventueel met edelgistvlokken.'],
+      macros: { p: 18, c: 62, f: 6, kcal: 374, fiber: 13.5 }
+    }
+  },
+  'Gele curry met rijst': {
+    vegetarian: {
+      title: 'Gele curry met tofu en rijst',
+      ingredients: ['75g rijst', '150g stevige tofu (blokjes)', 'Kokosmelk (light)', 'Currypasta', 'Bloemkool'],
+      instructions: ['Bak de tofublokjes in wat olie.', 'Voeg bloemkool en currypasta toe, bak kort mee.', 'Voeg kokosmelk toe en laat 10 min sudderen.', 'Serveer met rijst.']
+    },
+    vegan: {
+      title: 'Gele curry met tofu en rijst',
+      ingredients: ['75g rijst', '150g stevige tofu (blokjes)', 'Kokosmelk (light)', 'Currypasta', 'Bloemkool'],
+      instructions: ['Bak de tofublokjes in wat olie.', 'Voeg bloemkool en currypasta toe, bak kort mee.', 'Voeg kokosmelk toe en laat 10 min sudderen.', 'Serveer met rijst.']
+    }
+  },
+  'Volle kwark met zaden': {
+    vegan: {
+      title: 'Soja- of kokoskwark met zaden',
+      ingredients: ['200g plantaardige kwark of dikke yoghurt', '1 el pompoenpitten', 'Esdoornsiroop of druppeltje agave'],
+      instructions: ['Meng alles in een schaaltje.']
+    }
+  },
+  'Blokje kaas en druiven': {
+    vegan: {
+      title: 'Handje amandelen en druiven',
+      emoji: '🍇',
+      explanation: 'Een lekkere vegan snack van noten en fruit.',
+      ingredients: ['20g amandelen', 'Handje druiven'],
+      instructions: ['Eet samen op.'],
+      macros: { p: 5, c: 14, f: 10, kcal: 166, fiber: 2.2 }
+    }
+  },
+
+  // Hyped Recipes Menstrual
+  'Bone Broth Ramen met ei en spinazie': {
+    vegetarian: {
+      title: 'Miso Ramen met ei en spinazie',
+      emoji: '🍜',
+      explanation: 'Ramen met rijke misobouillon (vol gezonde probiotica) in plaats van bone broth, met een ei en spinazie voor extra ijzer.',
+      ingredients: ['250ml groentebouillon met 1 el miso', '50g ramen noedels', '1 zachtgekookt ei', 'Handvol verse spinazie', 'Paddenstoelen'],
+      instructions: ['Verhit bouillon, roer de miso erdoor en kook noedels.', 'Kook het ei 6 minuten.', 'Voeg spinazie en paddenstoelen toe.', 'Serveer met gehalveerd ei.'],
+      macros: { p: 16, c: 42, f: 8, kcal: 300, fiber: 4.2 }
+    },
+    vegan: {
+      title: 'Miso Ramen met tofu en spinazie',
+      emoji: '🍜',
+      explanation: 'Ramen met rijke misobouillon (probiotica) en gebakken tofu voor plantaardige eiwitten en ijzer.',
+      ingredients: ['250ml groentebouillon met 1 el miso', '50g ramen noedels', '100g tofu (blokjes)', 'Handvol verse spinazie', 'Paddenstoelen'],
+      instructions: ['Bak de tofublokjes knapperig.', 'Verhit bouillon, roer de miso erdoor en kook noedels.', 'Voeg spinazie en paddenstoelen toe.', 'Serveer samen met de tofu.'],
+      macros: { p: 18, c: 44, f: 9, kcal: 320, fiber: 5.5 }
+    }
+  },
+  'Bone Broth Ramen with egg and spinach': {
+    vegetarian: {
+      title: 'Miso Ramen with egg and spinach',
+      emoji: '🍜',
+      explanation: 'Ramen with rich miso broth (full of healthy probiotics) instead of bone broth, with an egg and spinach for extra iron.',
+      ingredients: ['250ml vegetable broth with 1 tbsp miso', '50g ramen noodles', '1 soft-boiled egg', 'Handful fresh spinach', 'Mushrooms'],
+      instructions: ['Heat broth, stir in miso and cook noodles.', 'Boil egg for 6 minutes.', 'Add spinach and mushrooms.', 'Serve with halved egg.'],
+      macros: { p: 16, c: 42, f: 8, kcal: 300, fiber: 4.2 }
+    },
+    vegan: {
+      title: 'Miso Ramen with tofu and spinach',
+      emoji: '🍜',
+      explanation: 'Ramen with rich miso broth (probiotics) and fried tofu for plant-based proteins and iron.',
+      ingredients: ['250ml vegetable broth with 1 tbsp miso', '50g ramen noodles', '100g tofu (cubed)', 'Handful fresh spinach', 'Mushrooms'],
+      instructions: ['Pan-fry tofu cubes until crispy.', 'Heat broth, stir in miso and cook noodles.', 'Add spinach and mushrooms.', 'Serve together with tofu.'],
+      macros: { p: 18, c: 44, f: 9, kcal: 320, fiber: 5.5 }
+    }
+  },
+  'Miso-glazed Zalm met groene asperges': {
+    vegetarian: {
+      title: 'Miso-glazed Tofu met groene asperges',
+      emoji: '🍢',
+      explanation: 'Tofu gemarineerd in miso en sojasaus, perfect gecombineerd met knapperige groene asperges.',
+      ingredients: ['150g stevige tofu', '1 el misopasta', '150g groene asperges', '50g zilvervliesrijst', 'Scheutje sojasaus'],
+      instructions: ['Kook de rijst.', 'Smeer de tofu in met miso en bak of grill deze in 8 min gaar.', 'Roerbak of stoom de asperges kort.', 'Serveer samen met sojasaus.'],
+      macros: { p: 20, c: 45, f: 8, kcal: 330, fiber: 5.5 }
+    },
+    vegan: {
+      title: 'Miso-glazed Tofu met groene asperges',
+      emoji: '🍢',
+      explanation: 'Tofu gemarineerd in miso en sojasaus, perfect gecombineerd met knapperige groene asperges.',
+      ingredients: ['150g stevige tofu', '1 el misopasta', '150g groene asperges', '50g zilvervliesrijst', 'Scheutje sojasaus'],
+      instructions: ['Kook de rijst.', 'Smeer de tofu in met miso en bak of grill deze in 8 min gaar.', 'Roerbak of stoom de asperges kort.', 'Serveer samen met sojasaus.'],
+      macros: { p: 20, c: 45, f: 8, kcal: 330, fiber: 5.5 }
+    }
+  },
+  'Miso-glazed Salmon with green asparagus': {
+    vegetarian: {
+      title: 'Miso-glazed Tofu with green asparagus',
+      emoji: '🍢',
+      explanation: 'Tofu marinated in miso and soy sauce, perfectly combined with crispy green asparagus.',
+      ingredients: ['150g firm tofu', '1 tbsp miso paste', '150g green asparagus', '50g brown rice', 'Splash of soy sauce'],
+      instructions: ['Cook the rice.', 'Spread miso on tofu and pan-fry or grill for 8 min.', 'Stir-fry or steam asparagus briefly.', 'Serve with soy sauce.'],
+      macros: { p: 20, c: 45, f: 8, kcal: 330, fiber: 5.5 }
+    },
+    vegan: {
+      title: 'Miso-glazed Tofu with green asparagus',
+      emoji: '🍢',
+      explanation: 'Tofu marinated in miso and soy sauce, perfectly combined with crispy green asparagus.',
+      ingredients: ['150g firm tofu', '1 tbsp miso paste', '150g green asparagus', '50g brown rice', 'Splash of soy sauce'],
+      instructions: ['Cook the rice.', 'Spread miso on tofu and pan-fry or grill for 8 min.', 'Stir-fry or steam asparagus briefly.', 'Serve with soy sauce.'],
+      macros: { p: 20, c: 45, f: 8, kcal: 330, fiber: 5.5 }
+    }
+  },
+
+  // Hyped Recipes Follicular - Zoodles met Kipgehaktballetjes
+  'Zoodles met Kipgehaktballetjes': {
+    vegetarian: {
+      title: 'Zoodles met Vega Gehaktballetjes',
+      emoji: '🍝',
+      explanation: 'Zucchini noodles (courgetti) houden de maaltijd fris en licht, met vegetarische gehaktballetjes in tomatensaus.',
+      ingredients: ['200g courgetti (zoodles)', '125g vegetarische gehaktballetjes', 'Verse tomatensaus', '1 el parmezaanse kaas', 'Italiaanse kruiden'],
+      instructions: ['Bak de vega balletjes goudbruin in een pan.', 'Voeg tomatensaus toe en laat warm worden.', 'Roerbak de zoodles 1-2 min.', 'Serveer samen en top met kaas.'],
+      macros: { p: 24, c: 22, f: 14, kcal: 300, fiber: 5.8 }
+    },
+    vegan: {
+      title: 'Zoodles met Vega Gehaktballetjes',
+      emoji: '🍝',
+      explanation: 'Zucchini noodles (courgetti) houden de maaltijd fris en licht, met veganistische gehaktballetjes in tomatensaus.',
+      ingredients: ['200g courgetti (zoodles)', '125g vegan gehaktballetjes', 'Verse tomatensaus', '1 el edelgistvlokken', 'Italiaanse kruiden'],
+      instructions: ['Bak de vegan balletjes goudbruin in een pan.', 'Voeg tomatensaus toe en laat warm worden.', 'Roerbak de zoodles 1-2 min.', 'Serveer samen en top met edelgistvlokken.'],
+      macros: { p: 22, c: 24, f: 12, kcal: 280, fiber: 5.8 }
+    }
+  },
+  'Zoodles with Chicken Meatballs': {
+    vegetarian: {
+      title: 'Zoodles with Veggie Meatballs',
+      emoji: '🍝',
+      explanation: 'Zucchini noodles (zoodles) keep the meal fresh and light, with vegetarian meatballs in tomato sauce.',
+      ingredients: ['200g zoodles', '125g vegetarian meatballs', 'Fresh tomato sauce', '1 tbsp parmesan cheese', 'Italian herbs'],
+      instructions: ['Pan-fry veggie meatballs until golden.', 'Add tomato sauce and heat.', 'Stir-fry zoodles 1-2 min.', 'Serve together and top with parmesan.'],
+      macros: { p: 24, c: 22, f: 14, kcal: 300, fiber: 5.8 }
+    },
+    vegan: {
+      title: 'Zoodles with Veggie Meatballs',
+      emoji: '🍝',
+      explanation: 'Zucchini noodles (zoodles) keep the meal fresh and light, with vegan meatballs in tomato sauce.',
+      ingredients: ['200g zoodles', '125g vegan meatballs', 'Fresh tomato sauce', '1 tbsp nutritional yeast', 'Italian herbs'],
+      instructions: ['Pan-fry vegan meatballs until golden.', 'Add tomato sauce and heat.', 'Stir-fry zoodles 1-2 min.', 'Serve together and top with nutritional yeast.'],
+      macros: { p: 22, c: 24, f: 12, kcal: 280, fiber: 5.8 }
+    }
+  },
+
+  // Hyped Recipes Ovulatory - Cauliflower Crust Pizza met Kip
+  'Cauliflower Crust Pizza met Kip': {
+    vegetarian: {
+      title: 'Cauliflower Crust Pizza Margherita',
+      emoji: '🍕',
+      explanation: 'Koolhydraatarme bloemkoolbodem belegd met rijke tomatensaus, verse mozzarella en tomaat.',
+      ingredients: ['1 bloemkoolbodem', '2 el tomatensaus', '75g verse mozzarella', 'Cherrytomaatjes', 'Verse basilicum'],
+      instructions: ['Bak de bodem voor volgens verpakking.', 'Besmeer met tomatensaus, beleg met mozzarella en tomaat.', 'Bak nog 8-10 min af in de oven.', 'Garneer met basilicum.'],
+      macros: { p: 20, c: 28, f: 15, kcal: 320, fiber: 4.8 }
+    },
+    vegan: {
+      title: 'Cauliflower Crust Pizza Margherita (Vegan)',
+      emoji: '🍕',
+      explanation: 'Koolhydraatarme bloemkoolbodem belegd met rijke tomatensaus en vegan kaas.',
+      ingredients: ['1 bloemkoolbodem (ei-vrij/vegan)', '2 el tomatensaus', '75g vegan kaas', 'Cherrytomaatjes', 'Verse basilicum'],
+      instructions: ['Bak de bodem voor volgens verpakking.', 'Besmeer met tomatensaus, beleg met vegan kaas en tomaat.', 'Bak nog 8-10 min af in de oven.', 'Garneer met basilicum.'],
+      macros: { p: 12, c: 32, f: 12, kcal: 284, fiber: 4.8 }
+    }
+  },
+  'Cauliflower Crust Pizza with Chicken': {
+    vegetarian: {
+      title: 'Cauliflower Crust Pizza Margherita',
+      emoji: '🍕',
+      explanation: 'Low-carb cauliflower crust topped with rich tomato sauce, fresh mozzarella, and tomato.',
+      ingredients: ['1 cauliflower pizza crust', '2 tbsp tomato sauce', '75g fresh mozzarella', 'Cherry tomatoes', 'Fresh basil'],
+      instructions: ['Pre-bake crust according to package instructions.', 'Spread with tomato sauce, top with mozzarella and tomatoes.', 'Bake for another 8-10 min.', 'Garnish with basil.'],
+      macros: { p: 20, c: 28, f: 15, kcal: 320, fiber: 4.8 }
+    },
+    vegan: {
+      title: 'Cauliflower Crust Pizza Margherita (Vegan)',
+      emoji: '🍕',
+      explanation: 'Low-carb cauliflower crust topped with rich tomato sauce and vegan cheese.',
+      ingredients: ['1 cauliflower pizza crust (vegan)', '2 tbsp tomato sauce', '75g vegan cheese', 'Cherry tomatoes', 'Fresh basil'],
+      instructions: ['Pre-bake crust according to package.', 'Spread with tomato sauce, top with vegan cheese and tomatoes.', 'Bake for another 8-10 min.', 'Garnish with basil.'],
+      macros: { p: 12, c: 32, f: 12, kcal: 284, fiber: 4.8 }
+    }
+  },
+
+  // Hyped Recipes Luteal - High-Protein Chicken & Veggie Stir-fry
+  'High-Protein Chicken & Veggie Stir-fry': {
+    vegetarian: {
+      title: 'High-Protein Tofu & Veggie Stir-fry',
+      emoji: '🍲',
+      explanation: 'Heerlijk eiwitrijk en stabiel voor je bloedsuikerspiegel, met knapperige tofu en volop groenten.',
+      ingredients: ['150g tofu (blokjes)', 'Gemengde wokgroenten', '1 el sesamolie', 'Sojasaus & gember'],
+      instructions: ['Bak de tofu krokant in sesamolie.', 'Voeg groenten en gember toe en roerbak 5 min.', 'Blus af met sojasaus.'],
+      macros: { p: 22, c: 18, f: 14, kcal: 280, fiber: 6.2 }
+    },
+    vegan: {
+      title: 'High-Protein Tofu & Veggie Stir-fry',
+      emoji: '🍲',
+      explanation: 'Heerlijk eiwitrijk en stabiel voor je bloedsuikerspiegel, met knapperige tofu en volop groenten.',
+      ingredients: ['150g tofu (blokjes)', 'Gemengde wokgroenten', '1 el sesamolie', 'Sojasaus & gember'],
+      instructions: ['Bak de tofu krokant in sesamolie.', 'Voeg groenten en gember toe en roerbak 5 min.', 'Blus af met sojasaus.'],
+      macros: { p: 22, c: 18, f: 14, kcal: 280, fiber: 6.2 }
+    }
+  },
+  'High-Protein Chicken & Veggie Stir-fry (EN)': {
+    vegetarian: {
+      title: 'High-Protein Tofu & Veggie Stir-fry',
+      emoji: '🍲',
+      explanation: 'Wonderfully protein-rich and stable for your blood sugar, with crispy tofu and plenty of vegetables.',
+      ingredients: ['150g tofu (cubed)', 'Mixed stir-fry vegetables', '1 tbsp sesame oil', 'Soy sauce & ginger'],
+      instructions: ['Fry tofu in sesame oil until crispy.', 'Add vegetables and ginger, stir-fry 5 min.', 'Deglaze with soy sauce.'],
+      macros: { p: 22, c: 18, f: 14, kcal: 280, fiber: 6.2 }
+    },
+    vegan: {
+      title: 'High-Protein Tofu & Veggie Stir-fry',
+      emoji: '🍲',
+      explanation: 'Wonderfully protein-rich and stable for your blood sugar, with crispy tofu and plenty of vegetables.',
+      ingredients: ['150g tofu (cubed)', 'Mixed stir-fry vegetables', '1 tbsp sesame oil', 'Soy sauce & ginger'],
+      instructions: ['Fry tofu in sesame oil until crispy.', 'Add vegetables and ginger, stir-fry 5 min.', 'Deglaze with soy sauce.'],
+      macros: { p: 22, c: 18, f: 14, kcal: 280, fiber: 6.2 }
+    }
+  }
+};
+
+export function getRecipeContent(language, dietaryPreference = 'everything') {
+    const rawRecipes = language === 'en' ? RECIPES_EN : RECIPES_NL;
+    if (dietaryPreference === 'everything') {
+        return rawRecipes;
+    }
+    
+    // Deep clone recipes to avoid mutation
+    const cloned = JSON.parse(JSON.stringify(rawRecipes));
+    const adaptations = language === 'en' ? RECIPE_ADAPTATIONS_EN : RECIPE_ADAPTATIONS_NL;
+    
+    for (const phase of Object.keys(cloned)) {
+        const meals = cloned[phase].meals;
+        for (const category of Object.keys(meals)) {
+            cloned[phase].meals[category] = meals[category].map(recipe => {
+                const adaptation = adaptations[recipe.title];
+                if (adaptation && adaptation[dietaryPreference]) {
+                    return {
+                        ...recipe,
+                        ...adaptation[dietaryPreference]
+                    };
+                }
+                return recipe;
+            });
+        }
+    }
+    
+    return cloned;
 }

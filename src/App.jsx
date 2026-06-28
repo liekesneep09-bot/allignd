@@ -121,8 +121,9 @@ function MainLayout() {
     // Fix for PWA background state flash:
     // If the app reloads from background while offline, the profile fetch might fail.
     // If it fails, hasOnboarded defaults to false. We don't want to show Onboarding if they were already in the app.
-    // We double check if they have an age and goal set; if so, they definitely onboarded.
-    const actuallyHasOnboarded = hasOnboarded || (user?.age && user?.goal)
+    // Only use fallback check if the user hasn't explicitly reset onboarding
+    const hasExplicitlyReset = localStorage.getItem('cyclus_onboarding_reset') === 'true'
+    const actuallyHasOnboarded = hasExplicitlyReset ? hasOnboarded : (hasOnboarded || (user?.age && user?.goal))
     
     if (!actuallyHasOnboarded) {
         // If they are offline, don't force them to Onboarding
@@ -141,22 +142,22 @@ function MainLayout() {
         <>
             {/* App Header */}
             <header style={{
-                padding: '4px 16px', // Compact padding
+                padding: '6px 16px',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 background: '#FFFFFF',
                 position: 'sticky',
                 top: 0,
-                zIndex: 10
+                zIndex: 50
             }}>
                 <div style={{ width: '32px' }}></div> {/* Spacer for centering */}
 
                 <img
                     src={logo}
-                    alt="Cyclus Logo"
+                    alt="Allignd Logo"
                     style={{
-                        height: '74px',
+                        height: '36px',
                         width: 'auto',
                         objectFit: 'contain',
                         display: 'block'
@@ -184,11 +185,14 @@ function MainLayout() {
 
             </header>
 
-            <main style={{
-                background: currentView !== 'today' ? phaseStyle.bg : undefined,
-                minHeight: currentView !== 'today' ? 'calc(100vh - 82px)' : undefined,
-                transition: 'background 0.5s ease'
-            }}>
+            <main 
+                style={{
+                    background: currentView !== 'today' ? phaseStyle.bg : undefined,
+                    minHeight: currentView !== 'today' ? 'calc(100vh - 56px)' : undefined,
+                    transition: 'background 0.5s ease',
+                    flex: 1
+                }}
+            >
                 {currentView === 'today' && <Today onNavigate={navigateTo} />}
                 {currentView === 'community' && <Community />}
                 {currentView === 'fitness' && <Fitness />}
@@ -205,12 +209,13 @@ function MainLayout() {
                 right: 0,
                 backgroundColor: 'var(--color-surface)',
                 borderTop: '1px solid var(--color-border)',
-                padding: 'calc(0.8rem + env(safe-area-inset-bottom, 0px)) 0 0.8rem 0', // Account for iPhone home indicator
+                paddingTop: '6px',
+                paddingBottom: 'calc(6px + env(safe-area-inset-bottom, 0px))',
                 display: 'flex',
                 justifyContent: 'space-around',
-                boxShadow: '0 -2px 10px rgba(0,0,0,0.05)',
-                maxWidth: '480px', /* Match root constraint */
-                margin: '0 auto', /* center nav */
+                boxShadow: '0 -2px 10px rgba(0,0,0,0.04)',
+                maxWidth: '480px',
+                margin: '0 auto',
                 zIndex: 100
             }}>
                 <button
@@ -221,13 +226,25 @@ function MainLayout() {
                         flexDirection: 'column',
                         alignItems: 'center',
                         fontSize: '0.7rem',
-                        fontWeight: currentView === 'today' ? '600' : '400',
+                        fontWeight: currentView === 'today' ? '700' : '500',
                         background: 'none',
-                        gap: '4px',
-                        width: '64px' // Consistent touch target
+                        gap: '2px',
+                        width: '64px',
+                        cursor: 'pointer'
                     }}
                 >
-                    <IconHome size={24} />
+                    <div style={{
+                        padding: '4px 14px',
+                        borderRadius: '16px',
+                        background: currentView === 'today' ? `${phaseStyle.text}1c` : 'transparent',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'background 0.25s ease',
+                        marginBottom: '2px'
+                    }}>
+                        <IconHome size={20} />
+                    </div>
                     {t('nav.today')}
                 </button>
 
@@ -239,13 +256,25 @@ function MainLayout() {
                         flexDirection: 'column',
                         alignItems: 'center',
                         fontSize: '0.7rem',
-                        fontWeight: currentView === 'community' ? '600' : '400',
+                        fontWeight: currentView === 'community' ? '700' : '500',
                         background: 'none',
-                        gap: '4px',
-                        width: '64px'
+                        gap: '2px',
+                        width: '64px',
+                        cursor: 'pointer'
                     }}
                 >
-                    <IconCommunity size={24} />
+                    <div style={{
+                        padding: '4px 14px',
+                        borderRadius: '16px',
+                        background: currentView === 'community' ? `${phaseStyle.text}1c` : 'transparent',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'background 0.25s ease',
+                        marginBottom: '2px'
+                    }}>
+                        <IconCommunity size={20} />
+                    </div>
                     {t('nav.community')}
                 </button>
 
@@ -257,13 +286,25 @@ function MainLayout() {
                         flexDirection: 'column',
                         alignItems: 'center',
                         fontSize: '0.7rem',
-                        fontWeight: currentView === 'fitness' ? '600' : '400',
+                        fontWeight: currentView === 'fitness' ? '700' : '500',
                         background: 'none',
-                        gap: '4px',
-                        width: '64px'
+                        gap: '2px',
+                        width: '64px',
+                        cursor: 'pointer'
                     }}
                 >
-                    <IconActivity size={24} />
+                    <div style={{
+                        padding: '4px 14px',
+                        borderRadius: '16px',
+                        background: currentView === 'fitness' ? `${phaseStyle.text}1c` : 'transparent',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'background 0.25s ease',
+                        marginBottom: '2px'
+                    }}>
+                        <IconActivity size={20} />
+                    </div>
                     {t('nav.fitness')}
                 </button>
 
@@ -275,13 +316,25 @@ function MainLayout() {
                         flexDirection: 'column',
                         alignItems: 'center',
                         fontSize: '0.7rem',
-                        fontWeight: currentView === 'recipes' ? '600' : '400',
+                        fontWeight: currentView === 'recipes' ? '700' : '500',
                         background: 'none',
-                        gap: '4px',
-                        width: '64px'
+                        gap: '2px',
+                        width: '64px',
+                        cursor: 'pointer'
                     }}
                 >
-                    <IconRecipe size={24} />
+                    <div style={{
+                        padding: '4px 14px',
+                        borderRadius: '16px',
+                        background: currentView === 'recipes' ? `${phaseStyle.text}1c` : 'transparent',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'background 0.25s ease',
+                        marginBottom: '2px'
+                    }}>
+                        <IconRecipe size={20} />
+                    </div>
                     {t('nav.recipes')}
                 </button>
 
@@ -293,13 +346,25 @@ function MainLayout() {
                         flexDirection: 'column',
                         alignItems: 'center',
                         fontSize: '0.7rem',
-                        fontWeight: currentView === 'guide' ? '600' : '400',
+                        fontWeight: currentView === 'guide' ? '700' : '500',
                         background: 'none',
-                        gap: '4px',
-                        width: '64px'
+                        gap: '2px',
+                        width: '64px',
+                        cursor: 'pointer'
                     }}
                 >
-                    <IconGuide size={24} />
+                    <div style={{
+                        padding: '4px 14px',
+                        borderRadius: '16px',
+                        background: currentView === 'guide' ? `${phaseStyle.text}1c` : 'transparent',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'background 0.25s ease',
+                        marginBottom: '2px'
+                    }}>
+                        <IconGuide size={20} />
+                    </div>
                     {t('nav.guide')}
                 </button>
             </nav>
