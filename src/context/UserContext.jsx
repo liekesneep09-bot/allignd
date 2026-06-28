@@ -326,6 +326,14 @@ export function UserProvider({ children }) {
             .maybeSingle()
 
           if (targetData) {
+            // AUTO-RECOVERY: If targets exist, the user definitely finished onboarding.
+            // If they suffered from the database bug, fix it now implicitly.
+            if (!profile.is_onboarded) {
+               console.log('Auto-recovering onboarding status based on existing targets')
+               supabase.from('profiles').update({ is_onboarded: true, updated_at: new Date().toISOString() }).eq('id', authUser.id).then()
+               setIsOnboarded(true)
+               localStorage.setItem('cyclus_onboarded', 'true')
+            }
             setUser(prev => ({
               ...prev,
               macroTargets: {
@@ -825,12 +833,10 @@ export function UserProvider({ children }) {
 
     // Sync to Supabase
     if (authUser) {
-      await supabase.from('profiles').upsert({
-        id: authUser.id,
+      await supabase.from('profiles').update({
         is_onboarded: true,
-        onboarding_completed_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
-      })
+      }).eq('id', authUser.id)
     }
 
     // SUBSCRIPTION BYPASSED FOR TESTING - redirect straight to app

@@ -159,24 +159,8 @@ function MainLayout() {
                     }}
                 />
 
-                {/* Profile Button top right */}
-                <button
-                    onClick={() => navigateTo('profile')}
-                    style={{
-                        width: '32px',
-                        height: '32px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        color: currentView === 'profile' ? 'var(--color-primary)' : 'var(--color-text-muted)',
-                        padding: 0
-                    }}
-                >
-                    <IconAccount size={24} />
-                </button>
+                {/* Profile Button top right (Removed to avoid duplication, as it exists top left in Today view) */}
+                <div style={{ width: '32px' }}></div> {/* Spacer for centering */}
 
             </header>
 

@@ -42,8 +42,8 @@ export default function Onboarding() {
         cycleStart: user.cycleStart || '',
         cycleLength: user.cycleLength || 28,
         periodLength: user.periodLength || 5,
-        periodEnded: null, // null = not answered, 'yes' = still menstruating, 'no' = period ended
-        periodEndDate: '',
+        periodEnded: user.cycleStart ? 'no' : null, // If they already have a cycleStart, don't block them with a null answer
+        periodEndDate: user.cycleStart ? user.cycleStart : '',
         age: user.age || '',
         height: user.height || '',
         weight: user.weight || '',
@@ -70,6 +70,8 @@ export default function Onboarding() {
                 cycleStart: prev.cycleStart || user.cycleStart || '',
                 cycleLength: prev.cycleLength || user.cycleLength || 28,
                 periodLength: prev.periodLength || user.periodLength || 5,
+                periodEnded: prev.periodEnded !== null ? prev.periodEnded : (user.cycleStart ? 'no' : null),
+                periodEndDate: prev.periodEndDate || (user.cycleStart ? user.cycleStart : ''),
                 goal: prev.goal || user.goal || GOAL_TYPES.MAINTAIN,
                 lifestyle_level: prev.lifestyle_level || user.lifestyle_level || 'sedentary',
                 steps_range: prev.steps_range || user.steps_range || 'lt4k',

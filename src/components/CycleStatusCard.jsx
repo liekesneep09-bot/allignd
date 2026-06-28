@@ -347,33 +347,7 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
           </div>
         </div>
 
-        {/* Predicted date (if applicable) */}
-        {formattedPrediction && phase !== 'menstrual' && phase !== 'luteal' && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            padding: '0.4rem 0.65rem',
-            background: `${phaseColor}12`,
-            borderRadius: '12px',
-            width: 'fit-content',
-            marginTop: '0.5rem'
-          }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={phaseColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
-            <span style={{
-              fontSize: '0.75rem',
-              fontWeight: '600',
-              color: phaseColor
-            }}>
-              {language === 'nl' ? 'Verwacht' : 'Expected'}: {formattedPrediction}
-            </span>
-          </div>
-        )}
+
       </div>
     </div>
   )
