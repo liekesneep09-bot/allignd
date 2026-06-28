@@ -118,12 +118,7 @@ function MainLayout() {
     // temporarily reads as false during initial load.
     if (isLoading || !appReady) return <SplashScreen />
 
-    // Fix for PWA background state flash:
-    // If the app reloads from background while offline, the profile fetch might fail.
-    // If it fails, hasOnboarded defaults to false. We don't want to show Onboarding if they were already in the app.
-    // Only use fallback check if the user hasn't explicitly reset onboarding
-    const hasExplicitlyReset = localStorage.getItem('cyclus_onboarding_reset') === 'true'
-    const actuallyHasOnboarded = hasExplicitlyReset ? hasOnboarded : (hasOnboarded || (user?.age && user?.goal))
+    const actuallyHasOnboarded = hasOnboarded
     
     if (!actuallyHasOnboarded) {
         // If they are offline, don't force them to Onboarding
