@@ -453,38 +453,55 @@ export default function Today({ onNavigate }) {
                   {currentText.normal}
                 </p>
 
-                {/* Menstruatie gestopt link (Under description text, above nutrition card) */}
+                {/* Menstruatie gestopt / Log menstruatie link (Under description text, above nutrition card) */}
                 {(() => {
+                  const isNotFuture = viewDateStr <= todayDateStr;
+                  if (!isNotFuture) return null;
+
                   const isPeriodToday = isDateInPeriod(viewDateStr);
                   const isViewingToday = viewDateStr === todayDateStr;
+
+                  let actionText = '';
+                  let actionClick = null;
+
                   if (isPeriodToday && isViewingToday && viewPhase === 'menstrual') {
-                    return (
-                      <div style={{ marginTop: '0.8rem', marginBottom: '0.2rem' }}>
-                        <span 
-                          onClick={() => stopPeriod(viewDateStr)}
-                          style={{
-                            fontSize: '0.95rem',
-                            fontWeight: '600',
-                            color: phaseStyle.text, // Same color as the menstruation phase
-                            cursor: 'pointer',
-                            textDecoration: 'underline',
-                            display: 'inline-block',
-                            padding: '4px 8px',
-                            transition: 'opacity 0.2s ease'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.opacity = '0.8';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.opacity = '1';
-                          }}
-                        >
-                          {t('today.period_stopped_question', { defaultValue: 'Menstruatie gestopt?' })}
-                        </span>
-                      </div>
-                    );
+                    actionText = t('today.period_stopped_question', { defaultValue: 'Menstruatie gestopt?' });
+                    actionClick = () => stopPeriod(viewDateStr);
+                  } else if (!isPeriodToday && (viewPhase === 'luteal' || viewPhase === 'menstrual')) {
+                    actionText = t('today.log_period', { defaultValue: 'Log menstruatie' }).replace('+ ', '').replace('+', '');
+                    actionClick = () => startPeriod(viewDateStr);
+                  } else if (isPeriodToday) {
+                    actionText = t('today.period_logged', { defaultValue: 'Menstruatie gelogd' }).replace('✓ ', '').replace('✓', '');
+                    actionClick = () => togglePeriodDate(viewDateStr);
                   }
-                  return null;
+
+                  if (!actionText) return null;
+
+                  return (
+                    <div style={{ marginTop: '0.8rem', marginBottom: '0.2rem' }}>
+                      <span 
+                        onClick={actionClick}
+                        style={{
+                          fontSize: '0.95rem',
+                          fontWeight: '600',
+                          color: phaseStyle.text, // Same color as the current phase (e.g., green for luteal)
+                          cursor: 'pointer',
+                          textDecoration: 'underline',
+                          display: 'inline-block',
+                          padding: '4px 8px',
+                          transition: 'opacity 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.opacity = '0.8';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.opacity = '1';
+                        }}
+                      >
+                        {actionText}
+                      </span>
+                    </div>
+                  );
                 })()}
 
                 {/* Voedingskaartje — elegant licht design */}
@@ -593,62 +610,7 @@ export default function Today({ onNavigate }) {
                 onNavigate={onNavigate}
               />
 
-              {/* PERIOD ACTION BUTTON */}
-              {(() => {
-            const isNotFuture = viewDateStr <= todayDateStr;
-            if (!isNotFuture) return null;
 
-            const isPeriodToday = isDateInPeriod(viewDateStr);
-            const isViewingToday = viewDateStr === todayDateStr;
-
-            if (!isPeriodToday && viewPhase !== 'luteal' && viewPhase !== 'menstrual') return null;
-
-            let actionText = '';
-            let actionClick = null;
-
-            if (isPeriodToday && isViewingToday && viewPhase === 'menstrual') {
-              // Moved to inline link above nutrition card
-              return null;
-            } else if (!isPeriodToday && (viewPhase === 'luteal' || viewPhase === 'menstrual')) {
-              actionText = t('today.log_period', { defaultValue: 'Log menstruatie' }).replace('+ ', '').replace('+', '');
-              actionClick = () => startPeriod(viewDateStr);
-            } else if (isPeriodToday) {
-              actionText = t('today.period_logged', { defaultValue: 'Menstruatie gelogd' }).replace('✓ ', '').replace('✓', '');
-              actionClick = () => togglePeriodDate(viewDateStr);
-            }
-
-            if (!actionText) return null;
-
-            return (
-              <button
-                onClick={actionClick}
-                style={{
-                  width: '100%',
-                  background: '#FFFFFF',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: '16px',
-                  padding: '0.85rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '0.9rem',
-                  fontWeight: '700',
-                  color: phaseStyle.text,
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = `${phaseStyle.text}08`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#FFFFFF';
-                }}
-              >
-                {actionText}
-              </button>
-            )
-          })()}
             </div>
           )}
 

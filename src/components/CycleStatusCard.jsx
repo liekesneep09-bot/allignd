@@ -348,7 +348,7 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
         </div>
 
         {/* Predicted date (if applicable) */}
-        {formattedPrediction && phase !== 'menstrual' && (
+        {formattedPrediction && phase !== 'menstrual' && phase !== 'luteal' && (
           <div style={{
             display: 'flex',
             alignItems: 'center',
