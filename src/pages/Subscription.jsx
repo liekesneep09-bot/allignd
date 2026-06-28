@@ -72,6 +72,9 @@ export default function Subscription() {
         window.location.href = checkoutUrl;
     };
 
+    // Check if user just returned from Stripe
+    const isProcessingPayment = window.location.search.includes('session_id');
+
     return (
         <div className="page-container" style={{ 
             display: 'flex', 
@@ -98,13 +101,40 @@ export default function Subscription() {
                 </p>
             </div>
 
-            <div style={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                gap: '1.5rem', 
-                width: '100%', 
-                maxWidth: '400px' 
-            }}>
+            {isProcessingPayment ? (
+                <div style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'center', 
+                    gap: '1rem',
+                    background: '#FFFFFF',
+                    padding: '2.5rem',
+                    borderRadius: '24px',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
+                    maxWidth: '400px',
+                    width: '100%'
+                }}>
+                    <div className="spinner" style={{ 
+                        width: '40px', 
+                        height: '40px', 
+                        border: '4px solid var(--color-surface)',
+                        borderTop: '4px solid var(--color-primary)',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite'
+                    }} />
+                    <h3 style={{ margin: 0, color: '#333' }}>Betaling verwerken...</h3>
+                    <p style={{ color: '#666', fontSize: '0.9rem', margin: 0 }}>
+                        Een moment geduld, we koppelen je account. Dit duurt maximaal een paar seconden.
+                    </p>
+                </div>
+            ) : (
+                <div style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: '1.5rem', 
+                    width: '100%', 
+                    maxWidth: '400px' 
+                }}>
 
                 {/* YEARLY CARD */}
                 <div
