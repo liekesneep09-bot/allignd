@@ -195,7 +195,7 @@ export default function Subscription() {
                             boxShadow: selectedPlan === 'yearly' ? '0 8px 20px rgba(255, 174, 185, 0.3)' : 'none'
                         }}
                     >
-                        {isLoading ? t('common.loading') : (isPolling ? "Controleren..." : "Start 7 dagen gratis")}
+                        {isLoading ? t('common.loading') : "Start 7 dagen gratis"}
                     </button>
                 </div>
 
@@ -247,7 +247,7 @@ export default function Subscription() {
                             boxShadow: selectedPlan === 'monthly' ? '0 8px 20px rgba(255, 174, 185, 0.3)' : 'none'
                         }}
                     >
-                        {isLoading ? t('common.loading') : (isPolling ? "Controleren..." : "Start 7 dagen gratis")}
+                        {isLoading ? t('common.loading') : "Start 7 dagen gratis"}
                     </button>
                 </div>
 

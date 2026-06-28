@@ -11,18 +11,27 @@ export default function Onboarding() {
     const { t, language } = useLanguage()
     const [step, setStep] = useState(0) // Start at Step 0 (Welcome)
 
-    // NEW: Auto-skip Welcome Screen if already logged in or jump to Step 8 if returning from verification
-    useEffect(() => {
-        if (localStorage.getItem('cyclus_show_step_8') === 'true' || (authUser && localStorage.getItem('pending_onboarding_data'))) {
-            localStorage.removeItem('cyclus_show_step_8');
-            setStep(8);
-            return;
-        }
+    // FLOW:
+    // Step 0: Welcome
+    // Step 1: Account creation (name, email, password)
+    // Step 2: Email verification screen
+    // --- user clicks email link, comes back, authUser is set ---
+    // Step 3: Cyclus info (start date, cycle length, period length)
+    // Step 4: Lichaam (age, height, weight)
+    // Step 5: Doel + tempo + target weight
+    // Step 6: Activiteit (lifestyle, steps, frequency)
+    // Step 7: Ervaring
+    // Step 8: Voedingsvoorkeur
+    // Step 9: Resultaten + "Start 7 dagen gratis" knop
 
-        if (authUser && step === 0) {
-            setStep(1)
+    // Auto-skip to the right step based on auth state
+    useEffect(() => {
+        if (authUser && step <= 2) {
+            // User is logged in (either just verified email or returning user)
+            // Skip welcome + account + verification, go straight to onboarding questions
+            setStep(3);
         }
-    }, [authUser, step])
+    }, [authUser]) // Only run when authUser changes, not on every step change
 
     const [isLoading, setIsLoading] = useState(false)
 
@@ -49,7 +58,7 @@ export default function Onboarding() {
         dietary_preference: user.dietary_preference || 'everything'
     })
 
-    // NEW: Sync formData when user profile loads or changes (Fixes stale state bug)
+    // Sync formData when user profile loads or changes
     useEffect(() => {
         if (user && Object.keys(user).length > 0) {
             setFormData(prev => ({
@@ -85,63 +94,81 @@ export default function Onboarding() {
         }
     }
 
-    const handleProfileSubmit = async (data) => {
+    // Step 1: Create account
+    const handleAccountSubmit = async () => {
         setIsLoading(true);
         try {
-            // 1. If not logged in, create account first
-            let userId = authUser?.id;
-            let needsVerification = false;
-            if (!userId) {
-                const signUpResult = await signUp(data.email, data.password);
-                userId = signUpResult?.user?.id;
-                needsVerification = !signUpResult?.session;
-            }
+            const signUpResult = await signUp(formData.email, formData.password);
+            const userId = signUpResult?.user?.id;
+            const needsVerification = !signUpResult?.session;
 
             if (!userId) throw new Error(t('onboarding.error_account_creation'));
 
-            // If email verification is required, store pending data and show step 9 (Verify email)
             if (needsVerification) {
-                localStorage.setItem('pending_onboarding_data', JSON.stringify(data));
-                setStep(9);
-                return;
+                // Go to email verification screen
+                setStep(2);
+            } else {
+                // Already verified (unlikely but possible), go to onboarding questions
+                setStep(3);
             }
+        } catch (error) {
+            console.error("Account creation error:", error);
+            alert(t('onboarding.error_generic') + ": " + error.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-            // 2. Save & Calculate Exact Targets (Server-Side Logic)
+    // Step 9: Submit all onboarding data
+    const handleOnboardingSubmit = async () => {
+        setIsLoading(true);
+        try {
+            const userId = authUser?.id;
+            if (!userId) throw new Error('Geen gebruiker gevonden');
+
             await saveProfileAndCalculate({
-                ...data,
+                ...formData,
                 id: userId,
-                trainingFrequency: data.trainingFrequency,
-                trainingType: data.trainingType,
-                resultTempo: data.resultTempo,
-                goal: data.goal
+                trainingFrequency: formData.trainingFrequency,
+                trainingType: formData.trainingType,
+                resultTempo: formData.resultTempo,
+                goal: formData.goal
             });
 
-            // 3. Move to Step 8 (Success Screen)
-            setStep(8);
-
-            // 4. Navigation is handled by Step 8 finish button
+            // Show results screen
+            setStep(9);
         } catch (error) {
             console.error("Onboarding Error:", error);
-            alert(t('onboarding.error_generic') + ": " + error.message); // Show error to user
+            alert(t('onboarding.error_generic') + ": " + error.message);
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleNext = async () => {
-        if (step < 7) { // Increased step count to 7
+        if (step === 1) {
+            // Account creation step
+            if (authUser) {
+                // Already logged in, skip to onboarding
+                setStep(3);
+            } else {
+                await handleAccountSubmit();
+            }
+        } else if (step === 8) {
+            // Last onboarding question, submit all data
+            await handleOnboardingSubmit();
+        } else if (step < 8) {
             setStep(step + 1)
-        } else {
-            // FINISH STEP (Step 7)
-            await handleProfileSubmit(formData);
         }
     }
 
-    // NEW: Back Function
+    // Back Function
     const handleBack = () => {
-        if (step > 0) {
+        if (step > 3 && step <= 8) {
+            // Can go back within onboarding questions (steps 3-8)
             setStep(step - 1)
         }
+        // Can't go back from step 3 to step 2 (verification) or step 1 (account)
     }
 
     // Step 0: Welcome Screen
@@ -200,14 +227,17 @@ export default function Onboarding() {
         )
     }
 
-    // Steps 1-6: Profile Setup (Updated Flow)
+    // Steps 1-9: Main flow
+    // Calculate progress: steps 1-8 map to progress, step 9 is complete
+    const progressSteps = step <= 8 ? step : 8;
+    const totalSteps = 8;
+
     return (
         <div className="container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: '100px', position: 'relative', overflow: 'hidden' }}>
 
-
             {/* Progress */}
             <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '6px', background: 'var(--color-surface)', zIndex: 20 }}>
-                <div style={{ height: '100%', width: `${Math.min(step, 7) / 7 * 100}%`, background: 'var(--color-primary)', transition: 'width 0.3s ease-out' }} />
+                <div style={{ height: '100%', width: `${progressSteps / totalSteps * 100}%`, background: 'var(--color-primary)', transition: 'width 0.3s ease-out' }} />
             </div>
 
             <header style={{
@@ -222,7 +252,7 @@ export default function Onboarding() {
                 <button
                     onClick={handleBack}
                     style={{
-                        visibility: step === 8 ? 'hidden' : 'visible',
+                        visibility: (step <= 3 || step === 9) ? 'hidden' : 'visible',
                         border: 'none',
                         background: 'none',
                         fontSize: '0.85rem',
@@ -243,13 +273,13 @@ export default function Onboarding() {
                         src={logo}
                         alt="Cyclus Logo"
                         style={{
-                            height: '42px', // Slightly smaller
+                            height: '42px',
                             width: 'auto',
                             marginBottom: '0.2rem',
                             objectFit: 'contain'
                         }}
                     />
-                    {step <= 7 && <p className="text-muted" style={{ fontSize: '0.8rem', margin: 0 }}>{t('onboarding.step_x_of_y').replace('{step}', step)}</p>}
+                    {step >= 3 && step <= 8 && <p className="text-muted" style={{ fontSize: '0.8rem', margin: 0 }}>{t('onboarding.step_x_of_y').replace('{step}', step - 2)}</p>}
                 </div>
 
                 {/* Logout Button (Top Right) */}
@@ -275,8 +305,63 @@ export default function Onboarding() {
 
             <div style={{ flex: 1, position: 'relative', zIndex: 1 }}>
 
-                {/* STEP 1: CYCLUS */}
+                {/* STEP 1: ACCOUNT AANMAKEN */}
                 {step === 1 && (
+                    <div className="fade-in">
+                        <h2 className="text-center" style={{ marginBottom: '1.5rem' }}>
+                            {t('onboarding.step6_title_new')}
+                        </h2>
+                        <p className="text-center text-muted" style={{ marginBottom: '2rem' }}>
+                            {t('onboarding.step6_sub_new')}
+                        </p>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <div>
+                                <label style={labelStyle}>{t('onboarding.name')}</label>
+                                <input
+                                    type="text"
+                                    value={formData.name}
+                                    onChange={e => handleChange('name', e.target.value)}
+                                    placeholder={t('onboarding.name_placeholder')}
+                                    style={inputStyle}
+                                />
+                            </div>
+                            <div>
+                                <label style={labelStyle}>{t('onboarding.email')}</label>
+                                <input
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={e => handleChange('email', e.target.value)}
+                                    placeholder={t('onboarding.email_placeholder')}
+                                    style={inputStyle}
+                                />
+                            </div>
+                            <div>
+                                <label style={labelStyle}>{t('onboarding.password')}</label>
+                                <input
+                                    type="password"
+                                    value={formData.password}
+                                    onChange={e => handleChange('password', e.target.value)}
+                                    placeholder="••••••••"
+                                    style={inputStyle}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* STEP 2: EMAIL VERIFICATIE */}
+                {step === 2 && (
+                    <div className="fade-in" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '2rem' }}>
+                        <div>
+                            <h2 style={{ fontSize: '1.8rem', color: 'var(--color-primary)', marginBottom: '0.5rem' }}>{t('onboarding.verify_email_title', { defaultValue: 'Verifieer je e-mail' })}</h2>
+                            <p className="text-muted">{t('onboarding.verify_email_subtitle', { defaultValue: 'We hebben een bevestigingslink naar je e-mailadres gestuurd. Klik op de link om je account te activeren en daarna kom je automatisch terug in de app.' })}</p>
+                        </div>
+                    </div>
+                )}
+
+                {/* STEP 3: CYCLUS */}
+                {step === 3 && (
                     <div className="fade-in">
                         <div className="text-center">
                             <h2 style={{ marginBottom: '0.5rem' }}>{t('onboarding.step1_title')}</h2>
@@ -314,16 +399,15 @@ export default function Onboarding() {
                                         value={formatDateForInput(formData.cycleStart)}
                                         onChange={e => {
                                             handleChange('cycleStart', e.target.value)
-                                            // Reset the period status when date changes
                                             const isToday = e.target.value === new Date().toISOString().split('T')[0]
                                             handleChange('periodEnded', isToday ? 'yes' : null)
                                             handleChange('periodEndDate', '')
                                         }}
                                         style={{
                                             ...inputStyle,
-                                            WebkitAppearance: 'none', // fixes iOS native styling issues
-                                            minHeight: '3.5rem', // Ensure same height as other inputs
-                                            color: formData.cycleStart ? 'var(--color-text)' : 'transparent' // Hide default d/m/y text if empty
+                                            WebkitAppearance: 'none',
+                                            minHeight: '3.5rem',
+                                            color: formData.cycleStart ? 'var(--color-text)' : 'transparent'
                                         }}
                                         max={new Date().toISOString().split('T')[0]}
                                     />
@@ -468,8 +552,8 @@ export default function Onboarding() {
                     </div>
                 )}
 
-                {/* STEP 2: LICHAAM */}
-                {step === 2 && (
+                {/* STEP 4: LICHAAM */}
+                {step === 4 && (
                     <div className="fade-in">
                         <div className="text-center">
                             <h2 style={{ marginBottom: '0.5rem' }}>{t('onboarding.step2_title')}</h2>
@@ -514,8 +598,8 @@ export default function Onboarding() {
                     </div>
                 )}
 
-                {/* STEP 3: DOEL (Split Part 1) */}
-                {step === 3 && (
+                {/* STEP 5: DOEL */}
+                {step === 5 && (
                     <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                         <div className="text-center">
                             <h2 style={{ marginBottom: '0.5rem' }}>{t('onboarding.step3_title')}</h2>
@@ -559,8 +643,8 @@ export default function Onboarding() {
                     </div>
                 )}
 
-                {/* STEP 4: ACTIVITEIT (Split Part 2) */}
-                {step === 4 && (
+                {/* STEP 6: ACTIVITEIT */}
+                {step === 6 && (
                     <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                         <div className="text-center">
                             <h2 style={{ marginBottom: '0.5rem' }}>{t('onboarding.step4_title')}</h2>
@@ -631,8 +715,8 @@ export default function Onboarding() {
                     </div>
                 )}
 
-                {/* STEP 5: ERVARING (Shifted) */}
-                {step === 5 && (
+                {/* STEP 7: ERVARING */}
+                {step === 7 && (
                     <div className="fade-in">
                         <div className="text-center">
                             <h2 style={{ marginBottom: '0.5rem' }}>{t('onboarding.step5_title')}</h2>
@@ -660,8 +744,8 @@ export default function Onboarding() {
                     </div>
                 )}
 
-                {/* STEP 6: VOEDINGSVOORKEUR */}
-                {step === 6 && (
+                {/* STEP 8: VOEDINGSVOORKEUR */}
+                {step === 8 && (
                     <div className="fade-in">
                         <div className="text-center">
                             <h2 style={{ marginBottom: '0.5rem' }}>{t('onboarding.step6_title', { defaultValue: 'Voedingsvoorkeur' })}</h2>
@@ -689,60 +773,8 @@ export default function Onboarding() {
                     </div>
                 )}
 
-                {/* STEP 7: ACCOUNT (Shifted) */}
-                {step === 7 && (
-                    <div className="fade-in">
-                        <h2 className="text-center" style={{ marginBottom: '1.5rem' }}>
-                            {authUser ? t('onboarding.step6_title_authed') : t('onboarding.step6_title_new')}
-                        </h2>
-                        <p className="text-center text-muted" style={{ marginBottom: '2rem' }}>
-                            {authUser
-                                ? t('onboarding.step6_sub_authed')
-                                : t('onboarding.step6_sub_new')}
-                        </p>
-
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <div>
-                                <label style={labelStyle}>{t('onboarding.name')}</label>
-                                <input
-                                    type="text"
-                                    value={formData.name}
-                                    onChange={e => handleChange('name', e.target.value)}
-                                    placeholder={t('onboarding.name_placeholder')}
-                                    style={inputStyle}
-                                />
-                            </div>
-
-                            {!authUser && (
-                                <>
-                                    <div>
-                                        <label style={labelStyle}>{t('onboarding.email')}</label>
-                                        <input
-                                            type="email"
-                                            value={formData.email}
-                                            onChange={e => handleChange('email', e.target.value)}
-                                            placeholder={t('onboarding.email_placeholder')}
-                                            style={inputStyle}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label style={labelStyle}>{t('onboarding.password')}</label>
-                                        <input
-                                            type="password"
-                                            value={formData.password}
-                                            onChange={e => handleChange('password', e.target.value)}
-                                            placeholder="••••••••"
-                                            style={inputStyle}
-                                        />
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {/* STEP 8: RESULTS REVEAL */}
-                {step === 8 && (
+                {/* STEP 9: RESULTATEN */}
+                {step === 9 && (
                     <div className="fade-in" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '2rem' }}>
                         <div>
                             <h2 style={{ fontSize: '1.8rem', color: 'var(--color-primary)', marginBottom: '0.5rem' }}>{t('onboarding.step7_title')}</h2>
@@ -796,22 +828,13 @@ export default function Onboarding() {
                     </div>
                 )}
 
-                {/* STEP 9: EMAIL VERIFICATION */}
-                {step === 9 && (
-                    <div className="fade-in" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '2rem' }}>
-                        <div>
-                            <h2 style={{ fontSize: '1.8rem', color: 'var(--color-primary)', marginBottom: '0.5rem' }}>{t('onboarding.verify_email_title', { defaultValue: 'Verifieer je e-mail' })}</h2>
-                            <p className="text-muted">{t('onboarding.verify_email_subtitle', { defaultValue: 'We hebben een bevestigingslink naar je e-mailadres gestuurd. Klik op de link om je account te activeren. Je kunt dit venster daarna sluiten.' })}</p>
-                        </div>
-                    </div>
-                )}
-
             </div>
 
-            {step !== 8 && step !== 9 && (
+            {/* Next button for steps 1 and 3-8 (not for step 0, 2, 9) */}
+            {step !== 0 && step !== 2 && step !== 9 && (
                 <div style={{ marginTop: '2rem', paddingBottom: '2rem', position: 'relative', zIndex: 1 }}>
                     <button className="btn btn-primary" onClick={handleNext} disabled={isLoading || !isValid(step, formData, !!authUser)}>
-                        {isLoading ? t('onboarding.saving') : (step === 7 ? (authUser ? t('onboarding.save_start_authed') : t('onboarding.save_start_new')) : t('onboarding.next'))}
+                        {isLoading ? t('onboarding.saving') : (step === 8 ? t('onboarding.save_start_authed') : t('onboarding.next'))}
                     </button>
                 </div>
             )}
@@ -890,26 +913,31 @@ const inputStyle = {
 }
 
 function isValid(step, data, isAuthed) {
+    // Step 1: Account creation
     if (step === 1) {
-        // Very lenient validation: just needs a truthy date and a number > 10 for cycle length
+        if (!data.name) return false
+        if (!isAuthed && (!data.email || !data.password)) return false
+        return true
+    }
+
+    // Step 3: Cyclus
+    if (step === 3) {
         if (!data.cycleStart) return false;
         if (!data.cycleLength || isNaN(data.cycleLength) || data.cycleLength < 10) return false;
-        // If a past date is selected, user must answer the "still menstruating?" question
         const isToday = data.cycleStart === new Date().toISOString().split('T')[0];
         if (!isToday && !data.periodEnded) return false;
-        // If they said "no", they need to provide an end date
         if (data.periodEnded === 'no' && !data.periodEndDate) return false;
         return true;
     }
     
-    if (step === 2 && (!data.age || !data.height || !data.weight)) return false
+    // Step 4: Lichaam
+    if (step === 4 && (!data.age || !data.height || !data.weight)) return false
 
-    // Step 3: Goals (Must have goal)
-    if (step === 3 && !data.goal) return false
+    // Step 5: Doel
+    if (step === 5 && !data.goal) return false
 
-    // Step 4: Activity (Must have lifestyle, steps, frequency)
-    // Frequency 0 is valid, so check undefined/null explicitly
-    if (step === 4 && (
+    // Step 6: Activiteit
+    if (step === 6 && (
         !data.lifestyle_level ||
         !data.steps_range ||
         data.trainingFrequency === undefined ||
@@ -917,18 +945,11 @@ function isValid(step, data, isAuthed) {
         data.trainingFrequency === ''
     )) return false
 
-    // Step 5: Experience
-    if (step === 5 && !data.experienceLevel) return false
+    // Step 7: Ervaring
+    if (step === 7 && !data.experienceLevel) return false
 
-    // Step 6: Dietary Preference
-    if (step === 6) return true
-
-    // Step 7: Account
-    if (step === 7) {
-        if (!data.name) return false
-        // If NOT authed, we need email and password. If authed, we don't.
-        if (!isAuthed && (!data.email || !data.password)) return false
-    }
+    // Step 8: Voedingsvoorkeur (always valid, has default)
+    if (step === 8) return true
 
     return true
 }
