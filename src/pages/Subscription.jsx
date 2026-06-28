@@ -252,6 +252,7 @@ export default function Subscription() {
                 </div>
 
             </div>
+            )}
 
             <p style={{ fontSize: '0.85rem', color: '#999999', marginTop: '2.5rem', maxWidth: '300px', lineHeight: '1.4' }}>
                 Geen kosten tijdens de proefperiode. Je kunt op elk moment opzeggen via je accountinstellingen.
