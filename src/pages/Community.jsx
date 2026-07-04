@@ -1027,13 +1027,13 @@ export default function Community() {
             <button
                 onClick={() => { setView('new'); window.scrollTo(0, 0) }}
                 style={{
-                    position: 'fixed', bottom: '90px', right: '20px',
+                    position: 'fixed', bottom: 'calc(90px + env(safe-area-inset-bottom, 0px))', right: '20px',
                     width: '60px', height: '60px', borderRadius: '50%',
                     background: 'var(--color-primary)', color: '#333333',
                     border: 'none', fontSize: '2rem', cursor: 'pointer',
                     boxShadow: '0 8px 24px rgba(255,174,185,0.4)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    zIndex: 50,
+                    zIndex: 101,
                     transition: 'transform 0.2s ease'
                 }}
                 onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
