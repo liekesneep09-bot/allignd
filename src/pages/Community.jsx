@@ -18,9 +18,9 @@ function timeAgo(dateStr, t, language) {
     const date = new Date(dateStr)
     const diff = Math.floor((now - date) / 1000)
     if (diff < 60) return t('community.just_now')
-    if (diff < 3600) return `${Math.floor(diff / 60)}min`
-    if (diff < 86400) return `${Math.floor(diff / 3600)}u`
-    if (diff < 604800) return `${Math.floor(diff / 86400)}d`
+    if (diff < 3600) return t('community.time_minutes').replace('{n}', Math.floor(diff / 60))
+    if (diff < 86400) return t('community.time_hours').replace('{n}', Math.floor(diff / 3600))
+    if (diff < 604800) return t('community.time_days').replace('{n}', Math.floor(diff / 86400))
     return date.toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { day: 'numeric', month: 'short' })
 }
 
@@ -771,7 +771,7 @@ export default function Community() {
                                         opacity: 0.7,
                                         display: 'flex', alignItems: 'center', gap: '4px'
                                     }}
-                                    title="Reactie verwijderen"
+                                    title={t('community.delete_comment_tooltip')}
                                 >
                                     🗑️
                                 </button>
@@ -835,10 +835,10 @@ export default function Community() {
                             }}
                         >
                             <p style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--color-text)' }}>
-                                Bericht verwijderen?
+                                {t('community.delete_post_title')}
                             </p>
                             <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '1.25rem' }}>
-                                Dit kan niet ongedaan worden gemaakt.
+                                {t('community.delete_post_warning')}
                             </p>
                             <div style={{ display: 'flex', gap: '0.75rem' }}>
                                 <button
@@ -850,7 +850,7 @@ export default function Community() {
                                         cursor: 'pointer'
                                     }}
                                 >
-                                    Annuleren
+                                    {t('common.cancel')}
                                 </button>
                                 <button
                                     onClick={executeDelete}
@@ -861,7 +861,7 @@ export default function Community() {
                                         cursor: 'pointer'
                                     }}
                                 >
-                                    Verwijderen
+                                    {t('community.delete')}
                                 </button>
                             </div>
                         </div>
@@ -879,7 +879,7 @@ export default function Community() {
             {/* Header */}
             <div style={{ marginBottom: '1rem' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.25rem' }}>Community</h2>
-                <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>Deel je ervaring. Stel je vraag. Groei samen.</p>
+                <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>{t('community.subtitle')}</p>
             </div>
 
             {/* Category tabs */}
@@ -914,7 +914,7 @@ export default function Community() {
             }}>
                 {/* Horizontal scroll container for all filters */}
                 <div style={{ display: 'flex', gap: '0.4rem', minWidth: 'max-content' }}>
-                    {[{ key: 'nieuwste', label: 'Nieuwste' }, { key: 'populairst', label: 'Populairst' }].map(opt => (
+                    {[{ key: 'nieuwste', label: t('community.sort_newest') }, { key: 'populairst', label: t('community.sort_popular') }].map(opt => (
                         <button
                             key={opt.key}
                             onClick={() => {
@@ -938,7 +938,7 @@ export default function Community() {
                     <span style={{ width: '1px', height: '16px', background: 'var(--color-border)', margin: '0 0.2rem', alignSelf: 'center' }} />
 
                     {/* Personal filters */}
-                    {[{ key: 'mijn', label: 'Mijn posts' }, { key: 'geliked', label: '♥' }, { key: 'gereageerd', label: '💬' }].map(f => (
+                    {[{ key: 'mijn', label: t('community.filter_my_posts') }, { key: 'geliked', label: '♥' }, { key: 'gereageerd', label: '💬' }].map(f => (
                         <button
                             key={f.key}
                             onClick={() => setActiveFilter(prev => prev === f.key ? null : f.key)}

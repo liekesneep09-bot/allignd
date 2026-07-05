@@ -238,7 +238,16 @@
     "period_stopped": "✓ Period stopped",
     "period_stopped_question": "Period stopped?",
     "when_last_period": "When did your last period start?",
-    "choose_first_day": "Choose the first day of your last period."
+    "choose_first_day": "Choose the first day of your last period.",
+    "no_workouts_desc": "Try again later.",
+    "complete_workout": "Complete Workout",
+    "workout_completed_title": "Well done!",
+    "workout_completed_desc": "Workout completed successfully.",
+    "symptoms_count": "{n} logged",
+    "log_btn": "Log",
+    "nutrition_label": "Nutrition",
+    "your_insights": "Your Insights",
+    "protein_grams": "{p}g protein"
   },
   "guide": {
     "science_title": "What's happening in your body?",
@@ -359,7 +368,7 @@
         "title": "Follicular phase",
         "prefix": "You are likely in your",
         "normal": "This is a great phase to pick up new things or sharpen habits again. Your head is clear and your recovery is faster.",
-        "nutrition": "B-vitamines and zinc support your energy production and recovery: think of eggs, nuts, and whole grains."
+        "nutrition": "B-vitamins and zinc support your energy production and recovery: think of eggs, nuts, and whole grains."
       },
       {
         "title": "Follicular phase",
@@ -498,7 +507,8 @@
     "phase_highlight_intensity": "Intensity",
     "phase_highlight_types": "Recommended movement",
     "phase_highlight_why_toggle": "Why?",
-    "phase_highlight_why_close": "Close"
+    "phase_highlight_why_close": "Close",
+    "days_short": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
   },
   "recipes": {
     "title": "Recipes",
@@ -531,6 +541,7 @@
   },
   "community": {
     "title": "Community",
+    "subtitle": "Share your experience. Ask your question. Grow together.",
     "back": "Back",
     "new_post": "New post",
     "category": "Category",
@@ -544,11 +555,20 @@
     "posting": "Posting...",
     "anonymous": "Anonymous",
     "just_now": "just now",
+    "time_minutes": "{n}min",
+    "time_hours": "{n}h",
+    "time_days": "{n}d",
     "reactions": "Comments",
     "no_comments": "No comments yet. Be the first!",
     "write_comment": "Write a comment...",
     "delete": "Delete",
     "delete_confirm": "Do you want to delete this comment?",
+    "delete_post_title": "Delete post?",
+    "delete_post_warning": "This cannot be undone.",
+    "delete_comment_tooltip": "Delete comment",
+    "sort_newest": "Newest",
+    "sort_popular": "Most popular",
+    "filter_my_posts": "My posts",
     "post_failed": "Failed to post",
     "comment_failed": "Failed to post comment",
     "delete_failed": "Failed to delete",
@@ -583,7 +603,20 @@
     "start_free": "Start 7-day free trial",
     "trial_desc": "No charges during trial. Cancel anytime.",
     "failed": "Could not start checkout. Please try again later.",
-    "error": "Something went wrong. Please check your connection."
+    "error": "Something went wrong. Please check your connection.",
+    "heading": "Work with your",
+    "heading_highlight": "cycle",
+    "heading_suffix": ", not against it",
+    "tagline": "Fitness, nutrition & cycle insights: all in one place.",
+    "processing": "Processing payment...",
+    "processing_desc": "One moment, we're linking your account. This takes a few seconds at most.",
+    "free_trial": "7-day free trial",
+    "yearly_desc": "Pay once a year. That's less than",
+    "yearly_price_highlight": "€6.67/mo",
+    "monthly_price_suffix": "per month",
+    "monthly_desc": "Cancel anytime. No long-term commitment.",
+    "disclaimer": "No charges during the trial. You can cancel at any time via your account settings.",
+    "logout": "Log out"
   },
   "cycle": {
     "title": "Your Cycle",
@@ -645,6 +678,42 @@
     "later": "Later",
     "install": "Install"
   },
+  "beta": {
+    "title": "Beta Access",
+    "description": "Enter the password to unlock the early version of the Allignd app.",
+    "password_placeholder": "Password",
+    "wrong_password": "Incorrect password. Please try again.",
+    "unlock_btn": "Unlock App",
+    "back_to_waitlist": "Back to Waitlist"
+  },
+  "error_boundary": {
+    "title": "Oops, something went wrong",
+    "description": "The app crashed unexpectedly. Reloading the page often helps.",
+    "reload_btn": "Reload App",
+    "clear_cache_btn": "Clear Cache"
+  },
+  "config_error": {
+    "title": "Configuration Missing",
+    "description": "The Supabase environment variables are not correctly set up.",
+    "how_to_fix": "How to fix:",
+    "step1": "Create a {file} file in the root of your project",
+    "step2": "Add the following variables:",
+    "step3": "Restart the development server ({cmd})",
+    "step4": "Reload this page",
+    "your_project": "yourproject",
+    "your_anon_key": "your-anon-key-here",
+    "tip": "You can find your Supabase credentials in your Supabase project dashboard under \"Settings\" → \"API\"",
+    "reload_btn": "🔄 Reload Page"
+  },
+  "cycle_status": {
+    "days_late_one": "day\nlate",
+    "days_late_other": "days\nlate",
+    "day_of_period": "day of your\nperiod",
+    "days_until_period_one": "day until\nyour period",
+    "days_until_period_other": "days until\nyour period",
+    "day_x_of_y": "Day {current} of {total}",
+    "read_more": "Read more about this phase"
+  },
   "calendar": {
     "title": "Calendar",
     "days": [
@@ -678,6 +747,7 @@
   "progress": {
     "title": "My Progress",
     "weekly_avg": "Weekly average",
+    "nutrition_weekly_avg": "Nutrition Weekly Average",
     "based_on_days": "Based on {n} days with logs",
     "of_goal": "of your goal",
     "weight_trend": "Weight trend",
@@ -703,6 +773,9 @@
     "more_than": "more than on",
     "less_than": "less than on",
     "sheet_title": "What is your weight today?",
+    "log_btn": "Log",
+    "kg": "kg",
+    "not_logged": "Not logged",
     "phases": {
       "menstrual": "menstrual",
       "follicular": "follicular",
@@ -716,5 +789,15 @@
       "luteal": "You hold more water (sometimes 1-2 kg). Don't panic, this is temporary.",
       "default": "Listen to your body and don't stare blindly at the scale."
     }
+  },
+  "profile_extra": {
+    "manage_subscription": "Manage Subscription (Cancel)"
+  },
+  "onboarding_extra": {
+    "current_phase_label": "Current Phase:",
+    "start_free_trial": "Start 7-day free trial",
+    "verify_email_title": "Verify your email",
+    "verify_email_subtitle": "We sent a confirmation link to your email address. Click the link to activate your account and you'll automatically return to the app.",
+    "no_user_found": "No user found"
   }
 }

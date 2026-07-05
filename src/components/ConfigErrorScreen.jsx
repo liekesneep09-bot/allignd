@@ -1,6 +1,9 @@
 import React from 'react'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function ConfigErrorScreen() {
+    const { t } = useLanguage()
+
     return (
         <div style={{
             display: 'flex',
@@ -31,7 +34,7 @@ export default function ConfigErrorScreen() {
                     marginBottom: '12px',
                     textAlign: 'center'
                 }}>
-                    Configuratie Ontbreekt
+                    {t('config_error.title')}
                 </h1>
 
                 <p style={{
@@ -41,7 +44,7 @@ export default function ConfigErrorScreen() {
                     textAlign: 'center',
                     lineHeight: '1.5'
                 }}>
-                    De Supabase omgevingsvariabelen zijn niet correct ingesteld.
+                    {t('config_error.description')}
                 </p>
 
                 <div style={{
@@ -57,7 +60,7 @@ export default function ConfigErrorScreen() {
                         marginBottom: '12px',
                         color: '#856404'
                     }}>
-                        Hoe te fixen:
+                        {t('config_error.how_to_fix')}
                     </h3>
 
                     <ol style={{
@@ -66,13 +69,13 @@ export default function ConfigErrorScreen() {
                         lineHeight: '1.8',
                         paddingLeft: '20px'
                     }}>
-                        <li>Maak een <code style={{
+                        <li>{t('config_error.step1').split('{file}')[0]}<code style={{
                             background: '#f5f5f5',
                             padding: '2px 6px',
                             borderRadius: '3px',
                             fontFamily: 'monospace'
-                        }}>.env</code> bestand in de root van je project</li>
-                        <li>Voeg de volgende variabelen toe:</li>
+                        }}>.env</code>{t('config_error.step1').split('{file}')[1]}</li>
+                        <li>{t('config_error.step2')}</li>
                     </ol>
 
                     <pre style={{
@@ -95,13 +98,13 @@ VITE_SUPABASE_ANON_KEY=jouw-anon-key-hier`}
                         lineHeight: '1.8',
                         paddingLeft: '20px'
                     }}>
-                        <li>Herstart de development server (<code style={{
+                        <li>{t('config_error.step3').split('{cmd}')[0]}<code style={{
                             background: '#f5f5f5',
                             padding: '2px 6px',
                             borderRadius: '3px',
                             fontFamily: 'monospace'
-                        }}>npm run dev</code>)</li>
-                        <li>Herlaad deze pagina</li>
+                        }}>npm run dev</code>{t('config_error.step3').split('{cmd}')[1]}</li>
+                        <li>{t('config_error.step4')}</li>
                     </ol>
                 </div>
 
@@ -113,7 +116,7 @@ VITE_SUPABASE_ANON_KEY=jouw-anon-key-hier`}
                     fontSize: '14px',
                     color: '#0d47a1'
                 }}>
-                    <strong>💡 Tip:</strong> Je kunt je Supabase credentials vinden in je Supabase project dashboard onder "Settings" → "API"
+                    <strong>💡 Tip:</strong> {t('config_error.tip')}
                 </div>
 
                 <button
@@ -131,7 +134,7 @@ VITE_SUPABASE_ANON_KEY=jouw-anon-key-hier`}
                         marginTop: '24px'
                     }}
                 >
-                    🔄 Herlaad Pagina
+                    {t('config_error.reload_btn')}
                 </button>
             </div>
         </div>

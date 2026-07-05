@@ -39,10 +39,13 @@ export const PHASE_CONTENT_NL = {
         icon: 'Fe',
         description: 'Kan helpen bij het aanvullen van wat je lichaam verliest tijdens de menstruatie.',
         sources: [
+          { food: 'Rood vlees' },
           { food: 'Spinazie' },
           { food: 'Linzen' },
-          { food: 'Rood vlees' },
-          { food: 'Pompoenpitten' }
+          { food: 'Pompoenpitten' },
+          { food: 'Tofu' },
+          { food: 'Zwarte bonen' },
+          { food: 'Quinoa' }
         ]
       },
       {
@@ -53,7 +56,9 @@ export const PHASE_CONTENT_NL = {
           { food: 'Paprika' },
           { food: 'Sinaasappel' },
           { food: 'Broccoli' },
-          { food: 'Aardbeien' }
+          { food: 'Aardbeien' },
+          { food: 'Kiwi' },
+          { food: 'Spruitjes' }
         ]
       },
       {
@@ -64,7 +69,9 @@ export const PHASE_CONTENT_NL = {
           { food: 'Pure chocolade' },
           { food: 'Amandelen' },
           { food: 'Avocado' },
-          { food: 'Banaan' }
+          { food: 'Banaan' },
+          { food: 'Pompoenpitten' },
+          { food: 'Zwarte bonen' }
         ]
       },
       {
@@ -73,9 +80,13 @@ export const PHASE_CONTENT_NL = {
         description: 'Kunnen ondersteunend zijn bij ontstekingsprocessen in het lichaam.',
         sources: [
           { food: 'Zalm' },
+          { food: 'Makreel' },
           { food: 'Walnoten' },
           { food: 'Lijnzaad' },
-          { food: 'Makreel' }
+          { food: 'Chiazaad' },
+          { food: 'Hennepzaad' },
+          { food: 'Edamame' },
+          { food: 'Zeewier' }
         ]
       }
     ],
@@ -133,7 +144,10 @@ export const PHASE_CONTENT_NL = {
           { food: 'Eieren' },
           { food: 'Havermout' },
           { food: 'Kikkererwten' },
-          { food: 'Zonnebloempitten' }
+          { food: 'Zonnebloempitten' },
+          { food: 'Edelgistvlokken' },
+          { food: 'Spinazie' },
+          { food: 'Zwarte bonen' }
         ]
       },
       {
@@ -141,10 +155,13 @@ export const PHASE_CONTENT_NL = {
         icon: 'Zn',
         description: 'Ondersteunt celvernieuwing en herstel na inspanning.',
         sources: [
-          { food: 'Pompoenpitten' },
           { food: 'Rundvlees' },
+          { food: 'Pompoenpitten' },
           { food: 'Cashewnoten' },
-          { food: 'Tempeh' }
+          { food: 'Tempeh' },
+          { food: 'Hennepzaad' },
+          { food: 'Linzen' },
+          { food: 'Quinoa' }
         ]
       },
       {
@@ -155,7 +172,13 @@ export const PHASE_CONTENT_NL = {
           { food: 'Kipfilet' },
           { food: 'Griekse yoghurt' },
           { food: 'Eieren' },
-          { food: 'Kwark' }
+          { food: 'Kwark' },
+          { food: 'Tofu' },
+          { food: 'Linzen' },
+          { food: 'Edamame' },
+          { food: 'Kikkererwten' },
+          { food: 'Seitan' },
+          { food: 'Quinoa' }
         ]
       }
     ],
@@ -214,7 +237,9 @@ export const PHASE_CONTENT_NL = {
           { food: 'Bosbessen' },
           { food: 'Paprika' },
           { food: 'Groene thee' },
-          { food: 'Tomaten' }
+          { food: 'Tomaten' },
+          { food: 'Pecannoten' },
+          { food: 'Pure chocolade' }
         ]
       },
       {
@@ -225,7 +250,11 @@ export const PHASE_CONTENT_NL = {
           { food: 'Zalm' },
           { food: 'Makreel' },
           { food: 'Walnoten' },
-          { food: 'Chiazaad' }
+          { food: 'Chiazaad' },
+          { food: 'Lijnzaad' },
+          { food: 'Hennepzaad' },
+          { food: 'Edamame' },
+          { food: 'Zeewier' }
         ]
       },
       {
@@ -236,7 +265,9 @@ export const PHASE_CONTENT_NL = {
           { food: 'Quinoa' },
           { food: 'Kikkererwten' },
           { food: 'Broccoli' },
-          { food: 'Appel' }
+          { food: 'Appel' },
+          { food: 'Havermout' },
+          { food: 'Chiazaad' }
         ]
       }
     ],
@@ -293,7 +324,9 @@ export const PHASE_CONTENT_NL = {
           { food: 'Pure chocolade' },
           { food: 'Amandelen' },
           { food: 'Spinazie' },
-          { food: 'Avocado' }
+          { food: 'Avocado' },
+          { food: 'Pompoenpitten' },
+          { food: 'Zwarte bonen' }
         ]
       },
       {
@@ -301,10 +334,13 @@ export const PHASE_CONTENT_NL = {
         icon: 'B6',
         description: 'Speelt een rol in hormonale processen en de aanmaak van serotonine in het lichaam.',
         sources: [
-          { food: 'Banaan' },
           { food: 'Kip' },
+          { food: 'Banaan' },
           { food: 'Aardappel' },
-          { food: 'Zonnebloempitten' }
+          { food: 'Zonnebloempitten' },
+          { food: 'Kikkererwten' },
+          { food: 'Walnoten' },
+          { food: 'Spinazie' }
         ]
       },
       {
@@ -315,7 +351,9 @@ export const PHASE_CONTENT_NL = {
           { food: 'Zoete aardappel' },
           { food: 'Havermout' },
           { food: 'Zilvervliesrijst' },
-          { food: 'Linzen' }
+          { food: 'Linzen' },
+          { food: 'Quinoa' },
+          { food: 'Zwarte bonen' }
         ]
       }
     ],
@@ -370,10 +408,13 @@ export const PHASE_CONTENT_EN = {
         icon: 'Fe',
         description: 'Can help replenish what your body loses during menstruation.',
         sources: [
+          { food: 'Red meat' },
           { food: 'Spinach' },
           { food: 'Lentils' },
-          { food: 'Red meat' },
-          { food: 'Pumpkin seeds' }
+          { food: 'Pumpkin seeds' },
+          { food: 'Tofu' },
+          { food: 'Black beans' },
+          { food: 'Quinoa' }
         ]
       },
       {
@@ -384,7 +425,9 @@ export const PHASE_CONTENT_EN = {
           { food: 'Bell pepper' },
           { food: 'Orange' },
           { food: 'Broccoli' },
-          { food: 'Strawberries' }
+          { food: 'Strawberries' },
+          { food: 'Kiwi' },
+          { food: 'Brussels sprouts' }
         ]
       },
       {
@@ -395,7 +438,9 @@ export const PHASE_CONTENT_EN = {
           { food: 'Dark chocolate' },
           { food: 'Almonds' },
           { food: 'Avocado' },
-          { food: 'Banana' }
+          { food: 'Banana' },
+          { food: 'Pumpkin seeds' },
+          { food: 'Black beans' }
         ]
       },
       {
@@ -404,9 +449,13 @@ export const PHASE_CONTENT_EN = {
         description: 'Can be supportive in inflammatory processes in the body.',
         sources: [
           { food: 'Salmon' },
+          { food: 'Mackerel' },
           { food: 'Walnuts' },
           { food: 'Flaxseed' },
-          { food: 'Mackerel' }
+          { food: 'Chia seeds' },
+          { food: 'Hemp seeds' },
+          { food: 'Edamame' },
+          { food: 'Seaweed' }
         ]
       }
     ],
@@ -464,7 +513,10 @@ export const PHASE_CONTENT_EN = {
           { food: 'Eggs' },
           { food: 'Oatmeal' },
           { food: 'Chickpeas' },
-          { food: 'Sunflower seeds' }
+          { food: 'Sunflower seeds' },
+          { food: 'Nutritional yeast' },
+          { food: 'Spinach' },
+          { food: 'Black beans' }
         ]
       },
       {
@@ -472,10 +524,13 @@ export const PHASE_CONTENT_EN = {
         icon: 'Zn',
         description: 'Supports cell renewal and recovery after exertion.',
         sources: [
-          { food: 'Pumpkin seeds' },
           { food: 'Beef' },
+          { food: 'Pumpkin seeds' },
           { food: 'Cashews' },
-          { food: 'Tempeh' }
+          { food: 'Tempeh' },
+          { food: 'Hemp seeds' },
+          { food: 'Lentils' },
+          { food: 'Quinoa' }
         ]
       },
       {
@@ -486,7 +541,13 @@ export const PHASE_CONTENT_EN = {
           { food: 'Chicken breast' },
           { food: 'Greek yogurt' },
           { food: 'Eggs' },
-          { food: 'Cottage cheese' }
+          { food: 'Cottage cheese' },
+          { food: 'Tofu' },
+          { food: 'Lentils' },
+          { food: 'Edamame' },
+          { food: 'Chickpeas' },
+          { food: 'Seitan' },
+          { food: 'Quinoa' }
         ]
       }
     ],
@@ -545,7 +606,9 @@ export const PHASE_CONTENT_EN = {
           { food: 'Blueberries' },
           { food: 'Bell pepper' },
           { food: 'Green tea' },
-          { food: 'Tomatoes' }
+          { food: 'Tomatoes' },
+          { food: 'Pecans' },
+          { food: 'Dark chocolate' }
         ]
       },
       {
@@ -556,7 +619,11 @@ export const PHASE_CONTENT_EN = {
           { food: 'Salmon' },
           { food: 'Mackerel' },
           { food: 'Walnuts' },
-          { food: 'Chia seeds' }
+          { food: 'Chia seeds' },
+          { food: 'Flaxseed' },
+          { food: 'Hemp seeds' },
+          { food: 'Edamame' },
+          { food: 'Seaweed' }
         ]
       },
       {
@@ -567,7 +634,9 @@ export const PHASE_CONTENT_EN = {
           { food: 'Quinoa' },
           { food: 'Chickpeas' },
           { food: 'Broccoli' },
-          { food: 'Apple' }
+          { food: 'Apple' },
+          { food: 'Oatmeal' },
+          { food: 'Chia seeds' }
         ]
       }
     ],
@@ -624,7 +693,9 @@ export const PHASE_CONTENT_EN = {
           { food: 'Dark chocolate' },
           { food: 'Almonds' },
           { food: 'Spinach' },
-          { food: 'Avocado' }
+          { food: 'Avocado' },
+          { food: 'Pumpkin seeds' },
+          { food: 'Black beans' }
         ]
       },
       {
@@ -632,10 +703,13 @@ export const PHASE_CONTENT_EN = {
         icon: 'B6',
         description: 'Plays a role in hormonal processes and the production of serotonin in the body.',
         sources: [
-          { food: 'Banana' },
           { food: 'Chicken' },
+          { food: 'Banana' },
           { food: 'Potato' },
-          { food: 'Sunflower seeds' }
+          { food: 'Sunflower seeds' },
+          { food: 'Chickpeas' },
+          { food: 'Walnuts' },
+          { food: 'Spinach' }
         ]
       },
       {
@@ -646,7 +720,9 @@ export const PHASE_CONTENT_EN = {
           { food: 'Sweet potato' },
           { food: 'Oatmeal' },
           { food: 'Brown rice' },
-          { food: 'Lentils' }
+          { food: 'Lentils' },
+          { food: 'Quinoa' },
+          { food: 'Black beans' }
         ]
       }
     ],
@@ -675,7 +751,7 @@ export const getPhaseContent = (language, phase, dietaryPreference = 'everything
 }
 
 function adaptPhaseContent(content, dietaryPreference) {
-  if (!content || dietaryPreference === 'everything' || !content.nutrients) {
+  if (!content || !content.nutrients) {
     return content;
   }
   
@@ -684,35 +760,39 @@ function adaptPhaseContent(content, dietaryPreference) {
   adapted.nutrients = content.nutrients.map(nutrient => {
     if (!nutrient.sources) return nutrient;
     
-    const filteredSources = nutrient.sources.filter(source => {
-      const foodLower = source.food.toLowerCase();
-      
-      const isAnimalMeat = [
-        'vlees', 'meat', 'zalm', 'salmon', 'makreel', 'mackerel', 
-        'kip', 'chicken', 'kalkoen', 'turkey', 'biefstuk', 'steak', 
-        'vis', 'fish', 'tonijn', 'tuna', 'rundergehakt', 'kipgehakt', 
-        'ground beef', 'chicken mince', 'kabeljauw', 'cod', 'witvis', 
-        'white fish', 'oesters', 'oysters', 'bone broth', 'bottenbouillon'
-      ].some(keyword => foodLower.includes(keyword));
-      
-      if (isAnimalMeat) return false;
-      
-      if (dietaryPreference === 'vegan') {
-        const isAnimalByproduct = [
-          'eieren', 'eggs', 'ei', 'egg', 'yoghurt', 'yogurt', 'kwark', 
-          'quark', 'feta', 'mozzarella', 'kaas', 'cheese', 'hüttenkäse', 
-          'cottage cheese', 'kefir', 'honing', 'honey'
+    let filteredSources = nutrient.sources;
+    
+    if (dietaryPreference !== 'everything') {
+      filteredSources = nutrient.sources.filter(source => {
+        const foodLower = source.food.toLowerCase();
+        
+        const isAnimalMeat = [
+          'vlees', 'meat', 'zalm', 'salmon', 'makreel', 'mackerel', 
+          'kip', 'chicken', 'kalkoen', 'turkey', 'biefstuk', 'steak', 
+          'vis', 'fish', 'tonijn', 'tuna', 'rundergehakt', 'kipgehakt', 
+          'ground beef', 'chicken mince', 'kabeljauw', 'cod', 'witvis', 
+          'white fish', 'oesters', 'oysters', 'bone broth', 'bottenbouillon'
         ].some(keyword => foodLower.includes(keyword));
         
-        if (isAnimalByproduct) return false;
-      }
-      
-      return true;
-    });
+        if (isAnimalMeat) return false;
+        
+        if (dietaryPreference === 'vegan') {
+          const isAnimalByproduct = [
+            'eieren', 'eggs', 'ei', 'egg', 'yoghurt', 'yogurt', 'kwark', 
+            'quark', 'feta', 'mozzarella', 'kaas', 'cheese', 'hüttenkäse', 
+            'cottage cheese', 'kefir', 'honing', 'honey'
+          ].some(keyword => foodLower.includes(keyword));
+          
+          if (isAnimalByproduct) return false;
+        }
+        
+        return true;
+      });
+    }
     
     return {
       ...nutrient,
-      sources: filteredSources
+      sources: filteredSources.slice(0, 6)
     };
   });
   

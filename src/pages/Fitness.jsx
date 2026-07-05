@@ -25,7 +25,7 @@ function getThisWeekWorkouts(movementLogs) {
 }
 
 // Helper to get this week's days (Mon-Sun) with movement status
-function getWeekDays(movementLogs, language) {
+function getWeekDays(movementLogs, t) {
     const now = new Date()
     const dayOfWeek = now.getDay()
     const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1
@@ -34,9 +34,7 @@ function getWeekDays(movementLogs, language) {
     monday.setHours(0, 0, 0, 0)
 
     const days = []
-    const dayLabelsNl = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo']
-    const dayLabelsEn = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-    const dayLabels = language === 'en' ? dayLabelsEn : dayLabelsNl
+    const dayLabels = t('guide.days_short', { returnObjects: true }) || ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo']
 
     for (let i = 0; i < 7; i++) {
         const d = new Date(monday)
@@ -74,7 +72,7 @@ export default function Fitness() {
     const todayStr = getLocalDateStr(new Date())
     const todayLog = user.movementLogs?.find(l => l.date === todayStr)
     const todayStatus = todayLog?.status || null
-    const weekDays = useMemo(() => getWeekDays(user.movementLogs || [], language), [user.movementLogs, language])
+    const weekDays = useMemo(() => getWeekDays(user.movementLogs || [], t), [user.movementLogs, t])
 
     // --- VIEW 1: OVERVIEW ---
     if (!selectedBodyPart) {

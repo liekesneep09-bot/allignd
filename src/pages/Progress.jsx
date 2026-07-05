@@ -69,7 +69,7 @@ function MacroWeekCard({ t, language }) {
     if (!weekStats) {
         return (
             <div style={cardStyle}>
-                <h3 style={cardTitleStyle}>Voeding Weekgemiddelde</h3>
+                <h3 style={cardTitleStyle}>{t('progress.nutrition_weekly_avg')}</h3>
                 <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', textAlign: 'center', padding: '1.5rem 0' }}>
                     {t('progress.no_food_logs')}
                 </p>
@@ -90,7 +90,7 @@ function MacroWeekCard({ t, language }) {
         <div style={cardStyle}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
                 <div>
-                    <h3 style={cardTitleStyle}>Voeding Weekgemiddelde</h3>
+                    <h3 style={cardTitleStyle}>{t('progress.nutrition_weekly_avg')}</h3>
                     <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                         {t('progress.based_on_days').replace('{n}', weekStats.daysWithLogs)}
                     </span>

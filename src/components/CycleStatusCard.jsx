@@ -142,9 +142,7 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
 
     if (isOverdue) {
       countdownNumber = overdueDays
-      countdownLabel = isNL
-        ? (overdueDays === 1 ? 'dag\novertijd' : 'dagen\novertijd')
-        : (overdueDays === 1 ? 'day\nlate' : 'days\nlate')
+      countdownLabel = overdueDays === 1 ? t('cycle_status.days_late_one') : t('cycle_status.days_late_other')
     } else if (phase === 'menstrual') {
       // During period: show what day of period you're on
       const dayNum = Math.min(currentDay, periodLen)
@@ -154,19 +152,17 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
         return n + (s[(v - 20) % 10] || s[v] || s[0])
       }
       countdownNumber = isNL ? `${dayNum}e` : getOrdinalEn(dayNum)
-      countdownLabel = isNL ? `dag van je\nmenstruatie` : `day of your\nperiod`
+      countdownLabel = t('cycle_status.day_of_period')
     } else {
       // All other phases: always count down to next period
       const daysUntilPeriod = Math.max(0, cycleLen - currentDay)
       countdownNumber = daysUntilPeriod
-      countdownLabel = isNL
-        ? (daysUntilPeriod === 1 ? 'dag tot je\nmenstruatie' : 'dagen tot je\nmenstruatie')
-        : (daysUntilPeriod === 1 ? 'day until\nyour period' : 'days until\nyour period')
+      countdownLabel = daysUntilPeriod === 1 ? t('cycle_status.days_until_period_one') : t('cycle_status.days_until_period_other')
     }
 
     // Phase and day label
     const phaseLabel = phaseNames[phase] || phaseNames.follicular
-    const dayLabel = isNL ? `Dag ${currentLinearDay} van ${cycleLen}` : `Day ${currentLinearDay} of ${cycleLen}`
+    const dayLabel = t('cycle_status.day_x_of_y').replace('{current}', currentLinearDay).replace('{total}', cycleLen)
 
     // Predicted next period date
     let predictedDate = null
@@ -330,7 +326,7 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
             overflow: 'hidden',
             textOverflow: 'ellipsis'
           }}>
-            {language === 'nl' ? 'Lees meer over deze fase' : 'Read more about this phase'}
+            {t('cycle_status.read_more')}
           </div>
 
           {/* Chevron */}

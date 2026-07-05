@@ -1,5 +1,13 @@
 import React from 'react'
 import { IconHome } from './Icons'
+import nl from '../i18n/nl.json'
+import en from '../i18n/en.json'
+
+const t = (key) => {
+    const lang = localStorage.getItem('app_language') || 'nl'
+    const dict = lang === 'en' ? en : nl
+    return key.split('.').reduce((obj, k) => (obj && obj[k] !== undefined) ? obj[k] : obj, dict) || key
+}
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
@@ -69,7 +77,7 @@ class ErrorBoundary extends React.Component {
                                 color: 'var(--color-primary, #d4567a)',
                                 margin: '0 0 12px 0'
                             }}>
-                                Oeps, er ging iets mis
+                                {t('error_boundary.title')}
                             </h1>
                             <p style={{
                                 fontSize: '15px',
@@ -77,7 +85,7 @@ class ErrorBoundary extends React.Component {
                                 margin: 0,
                                 lineHeight: '1.5'
                             }}>
-                                De app is onverwachts vastgelopen. Vaak helpt het om de pagina even opnieuw te laden.
+                                {t('error_boundary.description')}
                             </p>
                         </div>
 
@@ -110,7 +118,7 @@ class ErrorBoundary extends React.Component {
                                     fontWeight: '600'
                                 }}
                             >
-                                Herlaad App
+                                {t('error_boundary.reload_btn')}
                             </button>
 
                             <button
@@ -126,7 +134,7 @@ class ErrorBoundary extends React.Component {
                                     fontWeight: '500'
                                 }}
                             >
-                                Cache legen
+                                {t('error_boundary.clear_cache_btn')}
                             </button>
                         </div>
                     </div>

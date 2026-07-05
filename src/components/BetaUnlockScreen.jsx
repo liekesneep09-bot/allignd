@@ -56,7 +56,7 @@ export default function BetaUnlockScreen() {
                     marginBottom: '0.5rem',
                     fontWeight: '700'
                 }}>
-                    Beta Access
+                    {t('beta.title')}
                 </h2>
                 
                 <p style={{ 
@@ -65,7 +65,7 @@ export default function BetaUnlockScreen() {
                     marginBottom: '2rem',
                     lineHeight: '1.5'
                 }}>
-                    Voer het wachtwoord in om de vroege versie van de Allignd app te openen.
+                    {t('beta.description')}
                 </p>
 
                 <form onSubmit={handleSubmit} style={{ width: '100%' }}>
@@ -73,7 +73,7 @@ export default function BetaUnlockScreen() {
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Wachtwoord"
+                        placeholder={t('beta.password_placeholder')}
                         style={{
                             width: '100%',
                             padding: '14px 16px',
@@ -90,7 +90,7 @@ export default function BetaUnlockScreen() {
                     
                     {error && (
                         <p style={{ color: '#FF4D4D', fontSize: '0.8rem', marginTop: '-0.5rem', marginBottom: '1rem', textAlign: 'left' }}>
-                            Onjuist wachtwoord. Probeer het opnieuw.
+                            {t('beta.wrong_password')}
                         </p>
                     )}
 
@@ -110,7 +110,7 @@ export default function BetaUnlockScreen() {
                             opacity: password.length > 0 ? 1 : 0.7
                         }}
                     >
-                        Ontgrendel App
+                        {t('beta.unlock_btn')}
                     </button>
                 </form>
 
@@ -126,7 +126,7 @@ export default function BetaUnlockScreen() {
                         textDecoration: 'underline'
                     }}
                 >
-                    Terug naar Waitlist
+                    {t('beta.back_to_waitlist')}
                 </button>
             </div>
             <style>{`

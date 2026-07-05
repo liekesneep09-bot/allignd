@@ -20,7 +20,6 @@ const config: CapacitorConfig = {
     contentInset: 'automatic',
     backgroundColor: '#FFFFFF',
     preferredContentMode: 'mobile',
-    scheme: 'Allignd',
   },
   android: {
     backgroundColor: '#FFFFFF',

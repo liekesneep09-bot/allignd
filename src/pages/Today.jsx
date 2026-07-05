@@ -558,7 +558,7 @@ export default function Today({ onNavigate }) {
                       marginBottom: '2px',
                       letterSpacing: '0.01em'
                     }}>
-                      Voeding
+                      {t('today.nutrition_label')}
                     </div>
                     <div style={{
                       fontSize: '0.78rem',
@@ -719,7 +719,7 @@ export default function Today({ onNavigate }) {
                         <div>
                             <h2 style={{ fontSize: '1rem', margin: '0 0 2px 0', color: 'var(--color-text)', fontWeight: '700' }}>{t('checkin.title', { defaultValue: 'Symptomen' })}</h2>
                             <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>
-                                {todaysSymptoms.length > 0 ? `${todaysSymptoms.length} gelogd` : t('today.how_do_you_feel')}
+                                {todaysSymptoms.length > 0 ? t('today.symptoms_count').replace('{n}', todaysSymptoms.length) : t('today.how_do_you_feel')}
                             </div>
                         </div>
                     </div>
@@ -727,7 +727,7 @@ export default function Today({ onNavigate }) {
                         onClick={() => setShowCheckInModal(true)}
                         style={{ background: 'var(--color-primary)', color: '#333333', border: 'none', borderRadius: '20px', padding: '6px 16px', fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer', boxShadow: '0 2px 8px rgba(255, 174, 185, 0.3)' }}
                     >
-                        Log
+                        {t('today.log_btn')}
                     </button>
                   </div>
 
@@ -766,7 +766,7 @@ export default function Today({ onNavigate }) {
                   }}
                 >
                   <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    Jouw Inzichten
+                    {t('today.your_insights')}
                   </span>
                   <span style={{ color: phaseStyle.text, fontSize: '1.2rem', lineHeight: 1 }}>→</span>
                 </button>
@@ -880,7 +880,7 @@ export default function Today({ onNavigate }) {
                                         })()}
                                         {(log.unitName || log.grams) && ' · '}
                                         <span style={{ fontWeight: '500', color: 'var(--color-text)' }}>{log.kcal} kcal</span>
-                                        {log.p != null && ` · ${log.p}g eiwit`}
+                                        {log.p != null && ` · ${t('today.protein_grams').replace('{p}', log.p)}`}
                                       </div>
                                     </div>
                                     <button

@@ -301,7 +301,7 @@ export default function Profile() {
                 )}
 
                 <div className="form-group" style={{ marginBottom: '2rem' }}>
-                    <label style={labelStyle}>{t('profile.dietary_preference', { defaultValue: 'Voedingsvoorkeur' })}</label>
+                    <label style={labelStyle}>{t('profile.dietary_preference')}</label>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.6rem' }}>
                         {[
                             { value: 'everything', label: t('profile.dietary.everything', { defaultValue: 'Alles' }) },
@@ -476,7 +476,7 @@ export default function Profile() {
                     }}
                     style={{ background: 'transparent', border: 'none', color: 'var(--color-primary)', fontWeight: '600', cursor: 'pointer', textAlign: 'left', padding: 0, marginTop: '0.5rem' }}
                 >
-                    Beheer Abonnement (Opzeggen)
+                    {t('profile_extra.manage_subscription')}
                 </button>
 
                 {!showDeleteConfirm ? (

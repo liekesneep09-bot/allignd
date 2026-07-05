@@ -94,10 +94,10 @@ export default function Subscription() {
                     color: '#333333',
                     lineHeight: '1.1'
                 }}>
-                    Work with your <span style={{ color: 'var(--color-primary)' }}>cycle</span>, not against it
+                    {t('subscription.heading')} <span style={{ color: 'var(--color-primary)' }}>{t('subscription.heading_highlight')}</span>{t('subscription.heading_suffix')}
                 </h1>
                 <p style={{ color: '#666666', fontSize: '1.1rem', maxWidth: '450px', margin: '0 auto', lineHeight: '1.5' }}>
-                    Fitness, nutrition & cycle insights: all in one place.
+                    {t('subscription.tagline')}
                 </p>
             </div>
 
@@ -122,9 +122,9 @@ export default function Subscription() {
                         borderRadius: '50%',
                         animation: 'spin 1s linear infinite'
                     }} />
-                    <h3 style={{ margin: 0, color: '#333' }}>Betaling verwerken...</h3>
+                    <h3 style={{ margin: 0, color: '#333' }}>{t('subscription.processing')}</h3>
                     <p style={{ color: '#666', fontSize: '0.9rem', margin: 0 }}>
-                        Een moment geduld, we koppelen je account. Dit duurt maximaal een paar seconden.
+                        {t('subscription.processing_desc')}
                     </p>
                 </div>
             ) : (
@@ -160,14 +160,14 @@ export default function Subscription() {
                         borderRadius: '20px', letterSpacing: '0.05em',
                         boxShadow: '0 4px 12px rgba(255, 142, 157, 0.3)'
                     }}>
-                        BESTE WAARDE
+                        {t('subscription.best_value')}
                     </div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                         <div>
-                            <div style={{ fontWeight: '700', fontSize: '1.3rem', color: '#333333' }}>Jaarlijks</div>
+                            <div style={{ fontWeight: '700', fontSize: '1.3rem', color: '#333333' }}>{t('subscription.yearly')}</div>
                             <div style={{ color: 'var(--color-primary)', fontWeight: '600', fontSize: '0.9rem', marginTop: '4px' }}>
-                                7 dagen gratis proefperiode
+                                {t('subscription.free_trial')}
                             </div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
@@ -176,7 +176,7 @@ export default function Subscription() {
                     </div>
                     
                     <p style={{ fontSize: '0.95rem', color: '#666666', marginBottom: '1.5rem', lineHeight: '1.4' }}>
-                        Betaal één keer per jaar. Dat is <span style={{ color: '#FF8E9D', fontWeight: '700' }}>minder dan €6,67 p/m</span>.
+                        {t('subscription.yearly_desc')} <span style={{ color: '#FF8E9D', fontWeight: '700' }}>{t('subscription.yearly_price_highlight')}</span>.
                     </p>
 
                     <button
@@ -195,7 +195,7 @@ export default function Subscription() {
                             boxShadow: selectedPlan === 'yearly' ? '0 8px 20px rgba(255, 174, 185, 0.3)' : 'none'
                         }}
                     >
-                        {isLoading ? t('common.loading') : "Start 7 dagen gratis"}
+                        {isLoading ? t('common.loading') : t('subscription.start_free')}
                     </button>
                 </div>
 
@@ -216,19 +216,19 @@ export default function Subscription() {
                 >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                         <div>
-                            <div style={{ fontWeight: '700', fontSize: '1.3rem', color: '#333333' }}>Maandelijks</div>
+                            <div style={{ fontWeight: '700', fontSize: '1.3rem', color: '#333333' }}>{t('subscription.monthly')}</div>
                             <div style={{ color: 'var(--color-primary)', fontWeight: '600', fontSize: '0.9rem', marginTop: '4px' }}>
-                                7 dagen gratis proefperiode
+                                {t('subscription.free_trial')}
                             </div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
                             <div style={{ fontWeight: '800', fontSize: '1.6rem', color: '#333333' }}>€7,99</div>
-                            <div style={{ fontSize: '0.85rem', color: '#888888' }}>per maand</div>
+                            <div style={{ fontSize: '0.85rem', color: '#888888' }}>{t('subscription.monthly_price_suffix')}</div>
                         </div>
                     </div>
                     
                     <p style={{ fontSize: '0.95rem', color: '#666666', marginBottom: '1.5rem', lineHeight: '1.4' }}>
-                        Flexibel opzegbaar. Geen verplichtingen op de lange termijn.
+                        {t('subscription.monthly_desc')}
                     </p>
 
                     <button
@@ -247,7 +247,7 @@ export default function Subscription() {
                             boxShadow: selectedPlan === 'monthly' ? '0 8px 20px rgba(255, 174, 185, 0.3)' : 'none'
                         }}
                     >
-                        {isLoading ? t('common.loading') : "Start 7 dagen gratis"}
+                        {isLoading ? t('common.loading') : t('subscription.start_free')}
                     </button>
                 </div>
 
@@ -255,7 +255,7 @@ export default function Subscription() {
             )}
 
             <p style={{ fontSize: '0.85rem', color: '#999999', marginTop: '2.5rem', maxWidth: '300px', lineHeight: '1.4' }}>
-                Geen kosten tijdens de proefperiode. Je kunt op elk moment opzeggen via je accountinstellingen.
+                {t('subscription.disclaimer')}
             </p>
 
             <button
@@ -270,7 +270,7 @@ export default function Subscription() {
                     cursor: 'pointer'
                 }}
             >
-                Uitloggen
+                {t('subscription.logout')}
             </button>
 
         </div>

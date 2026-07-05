@@ -351,7 +351,7 @@ export default function WeightTracker({ date, compact = false }) {
                         <div>
                             <h2 style={{ fontSize: '1rem', margin: '0 0 2px 0', color: 'var(--color-text)', fontWeight: '700' }}>{t('weight.title')}</h2>
                             <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>
-                                {currentWeight ? `${currentWeight} kg` : t('common.not_logged', { defaultValue: 'Niet gelogd' })}
+                                {currentWeight ? `${currentWeight} ${t('weight.kg')}` : t('weight.not_logged')}
                             </div>
                         </div>
                     </div>
@@ -359,7 +359,7 @@ export default function WeightTracker({ date, compact = false }) {
                         onClick={() => { setTempWeight(currentWeight ? String(currentWeight) : ''); setShowSheet(true) }}
                         style={{ background: 'var(--color-primary)', color: '#333333', border: 'none', borderRadius: '20px', padding: '6px 16px', fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer', boxShadow: '0 2px 8px rgba(255, 174, 185, 0.3)' }}
                     >
-                        Log
+                        {t('weight.log_btn')}
                     </button>
                 </section>
                 {bottomSheet}
@@ -376,7 +376,7 @@ export default function WeightTracker({ date, compact = false }) {
                         <span style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--color-text)', lineHeight: 1, letterSpacing: '-0.02em' }}>
                             {currentWeight || '—'}
                         </span>
-                        <span style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>kg</span>
+                        <span style={{ fontSize: '1rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>{t('weight.kg')}</span>
                     </div>
                     {trendSentence && (
                         <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '4px', fontWeight: '500' }}>
@@ -393,7 +393,7 @@ export default function WeightTracker({ date, compact = false }) {
                     onClick={() => { setTempWeight(currentWeight ? String(currentWeight) : ''); setShowSheet(true) }}
                     style={{ background: 'var(--color-primary)', color: '#333333', border: 'none', borderRadius: '20px', padding: '6px 16px', fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer', boxShadow: '0 2px 8px rgba(255, 174, 185, 0.3)' }}
                 >
-                    Log
+                    {t('weight.log_btn')}
                 </button>
             </div>
 

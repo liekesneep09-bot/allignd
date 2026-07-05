@@ -242,7 +242,12 @@
     "no_workouts_desc": "Probeer later opnieuw.",
     "complete_workout": "Rond Workout Af",
     "workout_completed_title": "Goed bezig!",
-    "workout_completed_desc": "Workout succesvol afgerond."
+    "workout_completed_desc": "Workout succesvol afgerond.",
+    "symptoms_count": "{n} gelogd",
+    "log_btn": "Log",
+    "nutrition_label": "Voeding",
+    "your_insights": "Jouw Inzichten",
+    "protein_grams": "{p}g eiwit"
   },
   "guide": {
     "science_title": "Wat gebeurt er in je lichaam?",
@@ -502,7 +507,8 @@
     "phase_highlight_intensity": "Intensiteit",
     "phase_highlight_types": "Aanbevolen beweging",
     "phase_highlight_why_toggle": "Waarom?",
-    "phase_highlight_why_close": "Sluit"
+    "phase_highlight_why_close": "Sluit",
+    "days_short": ["Ma", "Di", "Wo", "Do", "Vr", "Za", "Zo"]
   },
   "recipes": {
     "title": "Recepten",
@@ -535,6 +541,7 @@
   },
   "community": {
     "title": "Community",
+    "subtitle": "Deel je ervaring. Stel je vraag. Groei samen.",
     "back": "Terug",
     "new_post": "Nieuw bericht",
     "category": "Categorie",
@@ -548,11 +555,20 @@
     "posting": "Plaatsen...",
     "anonymous": "Anoniem",
     "just_now": "zojuist",
+    "time_minutes": "{n}min",
+    "time_hours": "{n}u",
+    "time_days": "{n}d",
     "reactions": "Reacties",
     "no_comments": "Nog geen reacties. Wees de eerste!",
     "write_comment": "Schrijf een reactie...",
     "delete": "Verwijderen",
     "delete_confirm": "Wil je deze reactie verwijderen?",
+    "delete_post_title": "Bericht verwijderen?",
+    "delete_post_warning": "Dit kan niet ongedaan worden gemaakt.",
+    "delete_comment_tooltip": "Reactie verwijderen",
+    "sort_newest": "Nieuwste",
+    "sort_popular": "Populairst",
+    "filter_my_posts": "Mijn posts",
     "post_failed": "Post plaatsen mislukt",
     "comment_failed": "Reactie plaatsen mislukt",
     "delete_failed": "Verwijderen mislukt",
@@ -587,7 +603,20 @@
     "start_free": "Start 7 dagen gratis",
     "trial_desc": "Geen kosten tijdens de proefperiode. Je kunt op elk moment annuleren.",
     "failed": "Kon checkout niet starten. Probeer het later opnieuw.",
-    "error": "Er ging iets mis. Controleer je verbinding."
+    "error": "Er ging iets mis. Controleer je verbinding.",
+    "heading": "Werk met je",
+    "heading_highlight": "cyclus",
+    "heading_suffix": ", niet ertegen",
+    "tagline": "Fitness, voeding & cyclusinzichten: alles op één plek.",
+    "processing": "Betaling verwerken...",
+    "processing_desc": "Een moment geduld, we koppelen je account. Dit duurt maximaal een paar seconden.",
+    "free_trial": "7 dagen gratis proefperiode",
+    "yearly_desc": "Betaal één keer per jaar. Dat is minder dan",
+    "yearly_price_highlight": "€6,67 p/m",
+    "monthly_price_suffix": "per maand",
+    "monthly_desc": "Flexibel opzegbaar. Geen verplichtingen op de lange termijn.",
+    "disclaimer": "Geen kosten tijdens de proefperiode. Je kunt op elk moment opzeggen via je accountinstellingen.",
+    "logout": "Uitloggen"
   },
   "cycle": {
     "title": "Jouw Cyclus",
@@ -641,6 +670,42 @@
     "later": "Later",
     "install": "Installeren"
   },
+  "beta": {
+    "title": "Beta Access",
+    "description": "Voer het wachtwoord in om de vroege versie van de Allignd app te openen.",
+    "password_placeholder": "Wachtwoord",
+    "wrong_password": "Onjuist wachtwoord. Probeer het opnieuw.",
+    "unlock_btn": "Ontgrendel App",
+    "back_to_waitlist": "Terug naar Waitlist"
+  },
+  "error_boundary": {
+    "title": "Oeps, er ging iets mis",
+    "description": "De app is onverwachts vastgelopen. Vaak helpt het om de pagina even opnieuw te laden.",
+    "reload_btn": "Herlaad App",
+    "clear_cache_btn": "Cache legen"
+  },
+  "config_error": {
+    "title": "Configuratie Ontbreekt",
+    "description": "De Supabase omgevingsvariabelen zijn niet correct ingesteld.",
+    "how_to_fix": "Hoe te fixen:",
+    "step1": "Maak een {file} bestand in de root van je project",
+    "step2": "Voeg de volgende variabelen toe:",
+    "step3": "Herstart de development server ({cmd})",
+    "step4": "Herlaad deze pagina",
+    "your_project": "jouwproject",
+    "your_anon_key": "jouw-anon-key-hier",
+    "tip": "Je kunt je Supabase credentials vinden in je Supabase project dashboard onder \"Settings\" → \"API\"",
+    "reload_btn": "🔄 Herlaad Pagina"
+  },
+  "cycle_status": {
+    "days_late_one": "dag\novertijd",
+    "days_late_other": "dagen\novertijd",
+    "day_of_period": "dag van je\nmenstruatie",
+    "days_until_period_one": "dag tot je\nmenstruatie",
+    "days_until_period_other": "dagen tot je\nmenstruatie",
+    "day_x_of_y": "Dag {current} van {total}",
+    "read_more": "Lees meer over deze fase"
+  },
   "calendar": {
     "title": "Kalender",
     "days": ["ma", "di", "wo", "do", "vr", "za", "zo"],
@@ -666,6 +731,7 @@
   "progress": {
     "title": "Jouw Inzichten",
     "weekly_avg": "Gemiddelde deze week",
+    "nutrition_weekly_avg": "Voeding Weekgemiddelde",
     "based_on_days": "Gebaseerd op {n} dagen met logs",
     "of_goal": "van je doel",
     "weight_trend": "Gewichtstrend",
@@ -691,6 +757,9 @@
     "more_than": "meer dan op",
     "less_than": "minder dan op",
     "sheet_title": "Wat weeg je vandaag?",
+    "log_btn": "Log",
+    "kg": "kg",
+    "not_logged": "Niet gelogd",
     "phases": {
       "menstrual": "menstruatie",
       "follicular": "folliculair",
@@ -704,5 +773,15 @@
       "luteal": "Je houdt meer vocht vast (soms 1-2 kg). Raak niet in paniek, dit is tijdelijk.",
       "default": "Luister naar je lichaam en staar je niet blind op de weegschaal."
     }
+  },
+  "profile_extra": {
+    "manage_subscription": "Beheer Abonnement (Opzeggen)"
+  },
+  "onboarding_extra": {
+    "current_phase_label": "Huidige fase:",
+    "start_free_trial": "Start 7 dagen gratis",
+    "verify_email_title": "Verifieer je e-mail",
+    "verify_email_subtitle": "We hebben een bevestigingslink naar je e-mailadres gestuurd. Klik op de link om je account te activeren en daarna kom je automatisch terug in de app.",
+    "no_user_found": "Geen gebruiker gevonden"
   }
 }

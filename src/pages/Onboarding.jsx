@@ -126,7 +126,7 @@ export default function Onboarding() {
         setIsLoading(true);
         try {
             const userId = authUser?.id;
-            if (!userId) throw new Error('Geen gebruiker gevonden');
+            if (!userId) throw new Error(t('onboarding_extra.no_user_found'));
 
             await saveProfileAndCalculate({
                 ...formData,
@@ -356,8 +356,8 @@ export default function Onboarding() {
                 {step === 2 && (
                     <div className="fade-in" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '2rem' }}>
                         <div>
-                            <h2 style={{ fontSize: '1.8rem', color: 'var(--color-primary)', marginBottom: '0.5rem' }}>{t('onboarding.verify_email_title', { defaultValue: 'Verifieer je e-mail' })}</h2>
-                            <p className="text-muted">{t('onboarding.verify_email_subtitle', { defaultValue: 'We hebben een bevestigingslink naar je e-mailadres gestuurd. Klik op de link om je account te activeren en daarna kom je automatisch terug in de app.' })}</p>
+                            <h2 style={{ fontSize: '1.8rem', color: 'var(--color-primary)', marginBottom: '0.5rem' }}>{t('onboarding_extra.verify_email_title')}</h2>
+                            <p className="text-muted">{t('onboarding_extra.verify_email_subtitle')}</p>
                         </div>
                     </div>
                 )}
@@ -757,17 +757,17 @@ export default function Onboarding() {
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                             <SelectOption
-                                label={t('onboarding.diet_everything', { defaultValue: 'Alles (geen specifieke voorkeur)' })}
+                                label={t('profile.dietary.everything')}
                                 selected={formData.dietary_preference === 'everything'}
                                 onClick={() => handleChange('dietary_preference', 'everything')}
                             />
                             <SelectOption
-                                label={t('onboarding.diet_vegetarian', { defaultValue: 'Vegetarisch' })}
+                                label={t('profile.dietary.vegetarian')}
                                 selected={formData.dietary_preference === 'vegetarian'}
                                 onClick={() => handleChange('dietary_preference', 'vegetarian')}
                             />
                             <SelectOption
-                                label={t('onboarding.diet_vegan', { defaultValue: 'Veganistisch' })}
+                                label={t('profile.dietary.vegan')}
                                 selected={formData.dietary_preference === 'vegan'}
                                 onClick={() => handleChange('dietary_preference', 'vegan')}
                             />
@@ -808,7 +808,7 @@ export default function Onboarding() {
 
                         <div className="card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--color-primary)', background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', borderRadius: '16px', textAlign: 'left' }}>
                             <div style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>
-                                {language === 'en' ? 'Current Phase:' : 'Huidige fase:'}
+                                {t('onboarding_extra.current_phase_label')}
                             </div>
                             <div style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--color-text)', textTransform: 'capitalize' }}>
                                 {t(`profile.phases.${user?.currentPhase || 'follicular'}`)}
@@ -825,7 +825,7 @@ export default function Onboarding() {
                             style={{ marginTop: '1rem', padding: '1rem', fontSize: '1.1rem' }}
                             disabled={isLoading}
                         >
-                            {isLoading ? t('common.loading') : "Start 7 dagen gratis"}
+                            {isLoading ? t('common.loading') : t('onboarding_extra.start_free_trial')}
                         </button>
                     </div>
                 )}
