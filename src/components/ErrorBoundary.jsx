@@ -21,9 +21,11 @@ class ErrorBoundary extends React.Component {
 
     componentDidCatch(error, errorInfo) {
         console.error('ErrorBoundary caught an error:', error, errorInfo)
-        try {
-            fetch('http://localhost:9999/log', { method: 'POST', body: error.stack + '\n\n' + JSON.stringify(errorInfo) });
-        } catch(e) {}
+        if (import.meta.env.DEV) {
+            try {
+                fetch('http://localhost:9999/log', { method: 'POST', body: error.stack + '\n\n' + JSON.stringify(errorInfo) });
+            } catch(e) {}
+        }
         this.setState({ hasError: true, error, errorInfo })
     }
 

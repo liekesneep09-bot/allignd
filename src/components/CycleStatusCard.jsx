@@ -29,7 +29,7 @@ function getPhaseSegments(cycleLength, periodLength) {
 }
 
 // SVG Segmented Cycle Ring
-function CycleRing({ size, strokeWidth, cycleLength, periodLength, currentDay, currentPhase }) {
+function CycleRing({ size, strokeWidth, cycleLength, periodLength, currentDay, currentPhase, ringColor }) {
   const radius = size / 2
   const normalizedRadius = radius - strokeWidth * 2
   const circumference = normalizedRadius * 2 * Math.PI
@@ -40,6 +40,9 @@ function CycleRing({ size, strokeWidth, cycleLength, periodLength, currentDay, c
   const dotAngleRad = ((currentAngle - 90) * Math.PI) / 180
   const dotX = radius + normalizedRadius * Math.cos(dotAngleRad)
   const dotY = radius + normalizedRadius * Math.sin(dotAngleRad)
+
+  // Use ringColor for dot if provided, otherwise use phase color
+  const dotColor = ringColor || PHASE_COLORS[currentPhase] || '#999'
 
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
@@ -95,7 +98,7 @@ function CycleRing({ size, strokeWidth, cycleLength, periodLength, currentDay, c
         cy={dotY}
         r={strokeWidth * 0.9}
         fill="#FFFFFF"
-        stroke={PHASE_COLORS[currentPhase] || '#999'}
+        stroke={dotColor}
         strokeWidth={2}
         style={{
           filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.15))',
@@ -114,9 +117,10 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
 
   const effectiveCycleLen = user?.cycleStats?.learnedCycleLength || user?.cycleLength || 28
   const effectivePeriodLen = user?.bleedingLengthDays || user?.periodLength || 5
+  const variability = user?.cycleStats?.variability || 0
 
   // Calculate countdown and context text
-  const { countdownNumber, countdownLabel, phaseLabel, dayLabel, predictedDate, ringDay } = useMemo(() => {
+  const { countdownNumber, countdownLabel, phaseLabel, dayLabel, predictedDate, ringDay, isWithinWindow, isBeyondWindow } = useMemo(() => {
     const cycleLen = effectiveCycleLen
     const periodLen = effectivePeriodLen
     const lutealLength = 14
@@ -129,6 +133,14 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
     // Freeze ring at the end of the cycle if overdue
     const ringDay = isOverdue ? cycleLen : currentDay
 
+    // Calculate prediction window based on variability
+    // Window = cycleLen +/- (variability + 1 day buffer)
+    const windowBuffer = Math.max(1, Math.ceil(variability))
+    const windowStart = cycleLen - windowBuffer
+    const windowEnd = cycleLen + windowBuffer
+    const isWithinWindow = isOverdue && currentLinearDay <= windowEnd
+    const isBeyondWindow = isOverdue && currentLinearDay > windowEnd
+
     // Phase labels from translations
     const phaseNames = {
       menstrual: t('profile.phases.menstrual'),
@@ -140,15 +152,21 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
     let countdownNumber, countdownLabel
     const isNL = language === 'nl'
 
-    if (isOverdue) {
-      countdownNumber = overdueDays
-      countdownLabel = overdueDays === 1 ? t('cycle_status.days_late_one') : t('cycle_status.days_late_other')
+    if (isBeyondWindow) {
+      // Beyond prediction window - cycle is longer than expected
+      const daysBeyond = currentLinearDay - cycleLen
+      countdownNumber = daysBeyond
+      countdownLabel = t('cycle_status.days_longer')
+    } else if (isWithinWindow) {
+      // Within prediction window - period could start any moment
+      countdownNumber = null
+      countdownLabel = t('cycle_status.any_moment')
     } else if (phase === 'menstrual') {
       // During period: show what day of period you're on
       const dayNum = Math.min(currentDay, periodLen)
       const getOrdinalEn = (n) => {
         const s = ["th", "st", "nd", "rd"]
-        const v = n % 100
+        const v = n % 10
         return n + (s[(v - 20) % 10] || s[v] || s[0])
       }
       countdownNumber = isNL ? `${dayNum}e` : getOrdinalEn(dayNum)
@@ -161,8 +179,19 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
     }
 
     // Phase and day label
-    const phaseLabel = phaseNames[phase] || phaseNames.follicular
-    const dayLabel = t('cycle_status.day_x_of_y').replace('{current}', currentLinearDay).replace('{total}', cycleLen)
+    let phaseLabel = phaseNames[phase] || phaseNames.follicular
+    if (isWithinWindow || isBeyondWindow) {
+      phaseLabel = t('cycle_status.end_of_cycle')
+    }
+    
+    // Day label - handle overdue states differently
+    let dayLabel
+    if (isWithinWindow || isBeyondWindow) {
+      // For overdue states, just show the day number without "of Y"
+      dayLabel = t('cycle_status.day_x').replace('{current}', currentLinearDay)
+    } else {
+      dayLabel = t('cycle_status.day_x_of_y').replace('{current}', currentLinearDay).replace('{total}', cycleLen)
+    }
 
     // Predicted next period date
     let predictedDate = null
@@ -173,13 +202,16 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
       }
     }
 
-    return { countdownNumber, countdownLabel, phaseLabel, dayLabel, predictedDate, ringDay }
-  }, [phase, day, linearDay, overdueDays, effectiveCycleLen, effectivePeriodLen, user?.cycleStart, language])
+    return { countdownNumber, countdownLabel, phaseLabel, dayLabel, predictedDate, ringDay, isWithinWindow, isBeyondWindow }
+  }, [phase, day, linearDay, overdueDays, effectiveCycleLen, effectivePeriodLen, variability, user?.cycleStart, language])
 
   // Don't render if no cycle data
   if (!user?.cycleStart) return null
 
-  const phaseColor = PHASE_COLORS[phase] || '#999'
+  // Use luteal color for window states, slightly muted for beyond window
+  const phaseColor = (isWithinWindow || isBeyondWindow) 
+    ? (isBeyondWindow ? '#8a9a8b' : PHASE_COLORS.luteal)
+    : (PHASE_COLORS[phase] || '#999')
 
   // Format predicted date
   const formattedPrediction = predictedDate
@@ -213,6 +245,7 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
           periodLength={effectivePeriodLen}
           currentDay={ringDay}
           currentPhase={phase}
+          ringColor={phaseColor}
         />
 
         {/* Center text inside ring */}

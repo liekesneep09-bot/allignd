@@ -1,7 +1,7 @@
 import { supabase, getUserFromToken, cors } from './_lib/shared.js'
 
 export default async function handler(req, res) {
-    cors(res)
+    cors(res, req)
     if (req.method === 'OPTIONS') return res.status(200).end()
 
     // Parse the sub-route from the URL
@@ -17,6 +17,11 @@ export default async function handler(req, res) {
 
         if (!userId && !deviceId) {
             return res.status(400).json({ error: 'Missing authentication or device ID' })
+        }
+
+        // Validate device_id format (must be UUID)
+        if (deviceId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(deviceId)) {
+            return res.status(400).json({ error: 'Invalid device ID format' })
         }
 
         try {
@@ -57,6 +62,11 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Missing required fields' })
         }
 
+        // Validate device_id format (must be UUID)
+        if (deviceId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(deviceId)) {
+            return res.status(400).json({ error: 'Invalid device ID format' })
+        }
+
         const authUser = await getUserFromToken(req.headers.authorization)
         if (userId && (!authUser || authUser.id !== userId)) {
             return res.status(401).json({ error: 'Niet ingelogd of ongeldige token' })
@@ -82,6 +92,11 @@ export default async function handler(req, res) {
 
         if (!deviceId || !logs || !Array.isArray(logs)) {
             return res.status(400).json({ error: 'Invalid batch request' })
+        }
+
+        // Validate device_id format (must be UUID)
+        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(deviceId)) {
+            return res.status(400).json({ error: 'Invalid device ID format' })
         }
 
         const authUser = await getUserFromToken(req.headers.authorization)

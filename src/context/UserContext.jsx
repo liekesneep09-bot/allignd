@@ -183,17 +183,20 @@ export function UserProvider({ children }) {
   }
 
   const getPhaseForDate = useCallback((dateStr) => {
-    if (!user) return { phase: 'follicular', day: 1, confidence: 'low' }
+    if (!user) return { phase: 'follicular', day: 1, linearDay: 1, overdueDays: 0, confidence: 'low' }
     const effectiveCycleLength = user.cycleStats?.learnedCycleLength || user.cycleLength || 28
     const effectiveBleedingDays = user.bleedingLengthDays || user.periodLength || 5
     const dayCount = calculateCycleDay(user.cycleStart, effectiveCycleLength, dateStr)
     const hasValidStart = !!user.cycleStart
+    const overdueDays = Math.max(0, dayCount - effectiveCycleLength)
 
     // 1. PRIORITY: Manual Log check for THIS specific date
     if (isDateInPeriod(dateStr, user)) {
       return {
         phase: 'menstrual',
         day: dayCount,
+        linearDay: dayCount,
+        overdueDays: 0,
         confidence: 'high'
       }
     }
@@ -205,6 +208,8 @@ export function UserProvider({ children }) {
     return {
       phase: getPhaseForDay(dayCount, effectiveCycleLength, effectiveBleedingDays, isMenstruating, hasValidStart),
       day: dayCount,
+      linearDay: dayCount,
+      overdueDays,
       confidence: user.cycleStats?.confidence || 'low'
     }
   // Only regenerate when cycle-related data changes, NOT on food/water/step log changes
@@ -214,13 +219,22 @@ export function UserProvider({ children }) {
   const currentPhase = useMemo(() => {
     const todayStr = getLocalDateStr()
     return getPhaseForDate(todayStr).phase
-  }, [user, user.menstruationLogs, currentDay]) // Recalculate when user logs change
+  }, [
+    user.cycleStart,
+    user.cycleLength,
+    user.cycleStats,
+    user.bleedingLengthDays,
+    user.periodLength,
+    user.menstruationLogs,
+    user.isMenstruatingNow,
+    currentDay
+  ])
 
   // Derived: Is Menstruating NOW? (Absolute Source of Truth for UI)
   const isMenstruatingNow = useMemo(() => {
     const todayStr = getLocalDateStr()
     return isDateInPeriod(todayStr, user)
-  }, [user.menstruationLogs])
+  }, [user.menstruationLogs, user.bleedingLengthDays, user.periodLength])
 
   // USE STORED TARGETS (No fallback defaults!)
   const targets = user.macroTargets || null
@@ -273,7 +287,6 @@ export function UserProvider({ children }) {
           .single()
 
         if (profile) {
-          console.log('Loaded profile from Supabase')
           const profileData = {
             name: profile.name,
             cycleStart: profile.cycle_start,
@@ -329,7 +342,6 @@ export function UserProvider({ children }) {
             // AUTO-RECOVERY: If targets exist, the user definitely finished onboarding.
             // If they suffered from the database bug, fix it now implicitly.
             if (!profile.is_onboarded) {
-               console.log('Auto-recovering onboarding status based on existing targets')
                supabase.from('profiles').update({ is_onboarded: true, updated_at: new Date().toISOString() }).eq('id', authUser.id).then()
                setIsOnboarded(true)
                localStorage.setItem('cyclus_onboarded', 'true')
@@ -599,11 +611,9 @@ export function UserProvider({ children }) {
       if (data.user_language !== undefined) updates.user_language = data.user_language
       if (data.dietary_preference !== undefined) updates.dietary_preference = data.dietary_preference
 
-      if (data.experienceLevel !== undefined) updates.experience_level = data.experienceLevel
-      if (data.resultTempo !== undefined) updates.result_tempo = data.resultTempo
-      if (data.trainingType !== undefined) updates.training_type = data.trainingType
+      if (data.lifestyle_level !== undefined) updates.lifestyle_level = data.lifestyle_level
+      if (data.steps_range !== undefined) updates.steps_range = data.steps_range
 
-      // Add New Macros if recalculated
       if (newMacros) {
         updates.target_calories = newMacros.calories
         updates.target_protein = newMacros.p
@@ -676,8 +686,6 @@ export function UserProvider({ children }) {
       // 2. Calculate Targets (Range Based)
       const targets = calculateTargetRanges(cleanProfile);
       if (!targets) throw new Error("Failed to calculate targets");
-
-      console.log("Calculated Targets:", targets);
 
       // 3. Save to Supabase
       // B1. Upsert Profile
@@ -1649,31 +1657,10 @@ export function UserProvider({ children }) {
     })
   }
 
-  // Log Period Start - core of cycle learning system
+  // Log Period Start - delegates to startPeriod (single source of truth)
   const logPeriodStart = (date) => {
-    const todayStr = date || new Date().toISOString().split('T')[0]
-
-    // Add to history and calculate new stats
-    const { periodStartDates: newStarts } = addPeriodStartToHistory(todayStr, user.periodStartDates || [])
-    const stats = calculateCycleStats(newStarts, user.cycleLength)
-
-    // NOTE: isMenstruatingNow is derived from menstruationLogs via useMemo — do NOT set it directly
-    updateUser({
-      periodStartDates: newStarts,
-      cycleLengthHistory: stats.cycleLengthHistory,
-      // Keep main cycleLength in sync with learned stats
-      ...(stats.learnedCycleLength ? { cycleLength: stats.learnedCycleLength } : {}),
-      cycleStats: {
-        learnedCycleLength: stats.learnedCycleLength,
-        variability: stats.variability,
-        confidence: stats.confidence
-      },
-      // Also set cycle start to this date (for backwards compatibility)
-      cycleStart: new Date(todayStr).toISOString(),
-      // Clear manual override when new period is logged
-      // Adding 'yes' log for this date drives isMenstruatingNow=true via useMemo
-      menstruationLogs: [...(user.menstruationLogs || []).filter(l => l.date !== todayStr), { date: todayStr, status: 'yes' }]
-    })
+    const dateStr = date || new Date().toISOString().split('T')[0]
+    startPeriod(dateStr)
   }
 
   // Get Cycle Predictions with learning system

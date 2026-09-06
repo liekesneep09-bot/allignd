@@ -10,7 +10,7 @@ import { IconAccount, IconCalendar } from '../components/Icons'
  * - Smart Save Button (appears on change)
  * - Clear Sections
  */
-export default function Profile() {
+export default function Profile({ onNavigate }) {
     const {
         user,
         saveProfileAndCalculate,
@@ -43,6 +43,7 @@ export default function Profile() {
         lifestyle_level: user?.lifestyle_level || 'sedentary',
         steps_range: user?.steps_range || 'lt4k',
         trainingFrequency: user?.training_days_per_week || 0,
+        experienceLevel: user?.experienceLevel || 'beginner',
         dietary_preference: user?.dietary_preference || 'everything',
         // Cycle
         cycleLength: user?.cycleLength || 28,
@@ -75,6 +76,7 @@ export default function Profile() {
                 lifestyle_level: user.lifestyle_level || 'sedentary',
                 steps_range: user.steps_range || 'lt4k',
                 trainingFrequency: user.training_days_per_week || 0,
+                experienceLevel: user.experienceLevel || 'beginner',
                 dietary_preference: user.dietary_preference || 'everything'
             }))
         }
@@ -284,21 +286,19 @@ export default function Profile() {
                     </div>
                 </div>
 
-                {formData.goal !== 'maintain' && (
-                    <div className="form-group" style={{ marginBottom: '2rem' }}>
-                        <label style={labelStyle}>{t('profile.tempo')}</label>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.6rem' }}>
-                            {TEMPOS.map(t => (
-                                <CompactOption
-                                    key={t.value}
-                                    label={t.label}
-                                    selected={formData.resultTempo === t.value}
-                                    onClick={() => handleChange('resultTempo', t.value)}
-                                />
-                            ))}
-                        </div>
+                <div className="form-group" style={{ marginBottom: '2rem' }}>
+                    <label style={labelStyle}>{t('profile.tempo')}</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.6rem' }}>
+                        {TEMPOS.map(t => (
+                            <CompactOption
+                                key={t.value}
+                                label={t.label}
+                                selected={formData.resultTempo === t.value}
+                                onClick={() => handleChange('resultTempo', t.value)}
+                            />
+                        ))}
                     </div>
-                )}
+                </div>
 
                 <div className="form-group" style={{ marginBottom: '2rem' }}>
                     <label style={labelStyle}>{t('profile.dietary_preference')}</label>
@@ -368,6 +368,24 @@ export default function Profile() {
                                 >
                                     {n}
                                 </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label style={labelStyle}>{t('onboarding.step5_title')}</label>
+                        <div style={{ display: 'grid', gap: '0.6rem' }}>
+                            {[
+                                { value: 'beginner', label: t('onboarding.exp_beginner') },
+                                { value: 'intermediate', label: t('onboarding.exp_intermediate') },
+                                { value: 'advanced', label: t('onboarding.exp_advanced') }
+                            ].map(e => (
+                                <SelectOption
+                                    key={e.value}
+                                    label={e.label}
+                                    selected={formData.experienceLevel === e.value}
+                                    onClick={() => handleChange('experienceLevel', e.value)}
+                                />
                             ))}
                         </div>
                     </div>
@@ -460,6 +478,58 @@ export default function Profile() {
                 </button>
 
                 <button
+                    onClick={() => {
+                        const data = {
+                            profile: {
+                                name: user?.name,
+                                email: user?.email,
+                                age: user?.age,
+                                height: user?.height,
+                                weight: user?.weight,
+                                goal: user?.goal,
+                                lifestyle_level: user?.lifestyle_level,
+                                training_days_per_week: user?.training_days_per_week,
+                                dietary_preference: user?.dietary_preference
+                            },
+                            cycle: {
+                                cycleStart: user?.cycleStart,
+                                cycleLength: user?.cycleLength,
+                                periodLength: user?.periodLength
+                            },
+                            logs: {
+                                waterLogs: user?.waterLogs || [],
+                                stepLogs: user?.stepLogs || [],
+                                weightLogs: user?.weightLogs || [],
+                                movementLogs: user?.movementLogs || [],
+                                foodLogs: user?.foodLogs || [],
+                                menstruationLogs: user?.menstruationLogs || []
+                            },
+                            exportedAt: new Date().toISOString()
+                        }
+                        
+                        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+                        const url = URL.createObjectURL(blob)
+                        const a = document.createElement('a')
+                        a.href = url
+                        a.download = `allignd-data-${new Date().toISOString().split('T')[0]}.json`
+                        document.body.appendChild(a)
+                        a.click()
+                        document.body.removeChild(a)
+                        URL.revokeObjectURL(url)
+                    }}
+                    style={{ background: 'transparent', border: 'none', color: 'var(--color-text)', textDecoration: 'underline', cursor: 'pointer', textAlign: 'left', padding: 0 }}
+                >
+                    {t('profile.export_data')}
+                </button>
+
+                <button
+                    onClick={() => onNavigate && onNavigate('privacy')}
+                    style={{ background: 'transparent', border: 'none', color: 'var(--color-text)', textDecoration: 'underline', cursor: 'pointer', textAlign: 'left', padding: 0 }}
+                >
+                    {t('profile.privacy_policy')}
+                </button>
+
+                <button
                     onClick={logout}
                     style={{ background: 'transparent', border: 'none', color: 'var(--color-text)', cursor: 'pointer', textAlign: 'left', padding: 0 }}
                 >
@@ -469,10 +539,10 @@ export default function Profile() {
                 {/* STRIPE CUSTOMER PORTAL */}
                 <button
                     onClick={() => {
-                        // In the future, this can be an API endpoint that generates a secure Portal session
-                        // For now, we link to the hardcoded portal if configured in VITE_STRIPE_PORTAL_LINK
-                        const portalLink = import.meta.env.VITE_STRIPE_PORTAL_LINK || 'https://billing.stripe.com/p/login/test_4gM28rgag3rw3LsgA6b7y00'
-                        window.open(portalLink, '_blank')
+                        const portalLink = import.meta.env.VITE_STRIPE_PORTAL_LINK
+                        if (portalLink) {
+                            window.open(portalLink, '_blank')
+                        }
                     }}
                     style={{ background: 'transparent', border: 'none', color: 'var(--color-primary)', fontWeight: '600', cursor: 'pointer', textAlign: 'left', padding: 0, marginTop: '0.5rem' }}
                 >

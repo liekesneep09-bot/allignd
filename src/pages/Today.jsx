@@ -263,11 +263,10 @@ export default function Today({ onNavigate }) {
   const showMovementLog = !(user.movementLogs && user.movementLogs.find(l => l.date === viewDateStr))
 
   const [showModal, setShowModal] = useState(false)
-  const scrollPosRef = useRef(0)
+  const dailyGoalRef = useRef(null)
   const [showCheckInModal, setShowCheckInModal] = useState(false)
   const [showLog, setShowLog] = useState(false)
   const [showCalendar, setShowCalendar] = useState(false)
-  const [showDatePicker, setShowDatePicker] = useState(false)
 
   const todaysSymptomsLog = user?.symptomLogs?.find(l => l.date === viewDateStr)
   const todaysSymptoms = todaysSymptomsLog?.symptoms || []
@@ -339,36 +338,62 @@ export default function Today({ onNavigate }) {
   }
 
   return (
-    <div style={{ paddingBottom: '120px', maxWidth: '100%', overflowX: 'hidden', background: '#FFFFFF' }}>
+    <div style={{ paddingBottom: '120px', maxWidth: '100%', overflowX: 'hidden', background: 'var(--color-bg)' }}>
 
-      {/* HEADER SECTION - Soft Glow */}
+      {/* HEADER SECTION */}
       <div style={{
-        background: phaseStyle.bg,
-        paddingBottom: '1.25rem',
-        paddingTop: '1rem',
-        position: 'relative',
+        paddingBottom: 'var(--space-4)',
+        paddingTop: 'var(--space-3)',
         transition: 'background 0.5s ease'
       }}>
 
         <div className="container" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', paddingBottom: 0 }}>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+          {/* Top Bar: Profile + Date + Calendar */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3)' }}>
             <button
               onClick={() => onNavigate && onNavigate('profile')}
-              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-text)', display: 'flex', opacity: 0.7 }}
+              aria-label={t('nav.profile')}
+              style={{ 
+                background: 'var(--color-surface)', 
+                border: 'none', 
+                padding: 'var(--space-2)', 
+                cursor: 'pointer', 
+                color: 'var(--color-text)', 
+                display: 'flex',
+                borderRadius: 'var(--radius-md)',
+                boxShadow: 'var(--shadow-sm)'
+              }}
             >
               <IconAccount />
             </button>
 
-            <div style={{ textAlign: 'center', opacity: 0.8 }}>
-              <h1 style={{ fontSize: '0.9rem', fontWeight: '600', margin: 0, textTransform: 'capitalize', color: 'var(--color-text)' }}>
+            <div style={{ textAlign: 'center' }}>
+              <h1 style={{ 
+                fontSize: 'var(--font-size-xs)', 
+                fontWeight: '600', 
+                margin: 0, 
+                textTransform: 'capitalize', 
+                color: 'var(--color-text-secondary)',
+                letterSpacing: '0.02em'
+              }}>
                 {viewDate.toLocaleDateString(language === 'nl' ? 'nl-NL' : 'en-US', { day: 'numeric', month: 'long' })}
               </h1>
             </div>
 
             <button
               onClick={() => setShowCalendar(true)}
-              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-text)', display: 'flex', opacity: 0.7 }}
+              aria-label={t('nav.calendar')}
+              style={{ 
+                background: 'var(--color-surface)', 
+                border: 'none', 
+                padding: 'var(--space-2)', 
+                cursor: 'pointer', 
+                color: 'var(--color-text)', 
+                display: 'flex',
+                borderRadius: 'var(--radius-md)',
+                boxShadow: 'var(--shadow-sm)'
+              }}
             >
               <IconCalendar />
             </button>
@@ -384,46 +409,44 @@ export default function Today({ onNavigate }) {
             const rawVariants = t('phase_variants.' + viewPhase, { returnObjects: true })
             const variants = Array.isArray(rawVariants) ? rawVariants : (t('phase_variants.follicular', { returnObjects: true }) || [])
 
-            // Kies variant op basis van cyclusnummer (roteert elke maand)
             const cycleIndex = (user?.periodStartDates ? user.periodStartDates.length : 0) % 3
             const currentText = (variants && variants[cycleIndex]) ? variants[cycleIndex] : (variants ? variants[0] : {})
 
             return (
               <div style={{
-                marginTop: '0.5rem',
+                marginTop: 'var(--space-3)',
                 textAlign: 'center',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: '0.25rem'
+                gap: 'var(--space-2)'
               }}>
                 {currentText.prefix && (
                   <div style={{
-                    fontSize: '0.95rem',
-                    color: 'var(--color-text)',
-                    fontWeight: '500',
-                    marginBottom: '2px'
+                    fontSize: 'var(--font-size-sm)',
+                    color: 'var(--color-text-secondary)',
+                    fontWeight: '500'
                   }}>
                     {currentText.prefix}
                   </div>
                 )}
 
                 <h2 style={{
-                  fontSize: '2.1rem',
+                  fontSize: 'var(--font-size-4xl)',
                   color: phaseStyle.text,
-                  fontWeight: '700',
-                  letterSpacing: '-0.02em',
-                  lineHeight: '1.1'
+                  fontWeight: '800',
+                  letterSpacing: '-0.03em',
+                  lineHeight: '1.05',
+                  margin: 0
                 }}>
                   {currentText.title}
                 </h2>
 
                 {phaseTransition && phaseTransition.isTransition && viewPhase !== 'menstrual' && (
                   <div style={{
-                    fontSize: '0.85rem',
+                    fontSize: 'var(--font-size-sm)',
                     color: phaseStyle.text,
                     fontWeight: '600',
-                    marginTop: '0.2rem',
                     opacity: 0.85,
                     fontStyle: 'italic'
                   }}>
@@ -431,23 +454,12 @@ export default function Today({ onNavigate }) {
                   </div>
                 )}
 
-                {/* Streepje onder de titel */}
-                <div style={{
-                  width: '48px',
-                  height: '2px',
-                  background: phaseStyle.text,
-                  borderRadius: '2px',
-                  margin: '0.6rem 0 0.5rem 0',
-                  opacity: 0.5
-                }} />
-
                 <p style={{
-                  fontSize: '0.95rem',
-                  color: 'var(--color-text)',
+                  fontSize: 'var(--font-size-base)',
+                  color: 'var(--color-text-secondary)',
                   lineHeight: '1.5',
                   margin: '0',
-                  maxWidth: '100%',
-                  opacity: 0.9,
+                  maxWidth: '320px',
                   fontWeight: '400'
                 }}>
                   {currentText.normal}
@@ -478,113 +490,106 @@ export default function Today({ onNavigate }) {
                   if (!actionText) return null;
 
                   return (
-                    <div style={{ marginTop: '0.8rem', marginBottom: '0.2rem' }}>
-                      <span 
-                        onClick={actionClick}
-                        style={{
-                          fontSize: '0.95rem',
-                          fontWeight: '600',
-                          color: phaseStyle.text, // Same color as the current phase (e.g., green for luteal)
-                          cursor: 'pointer',
-                          textDecoration: 'underline',
-                          display: 'inline-block',
-                          padding: '4px 8px',
-                          transition: 'opacity 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.opacity = '0.8';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.opacity = '1';
-                        }}
-                      >
-                        {actionText}
-                      </span>
-                    </div>
+                    <button
+                      onClick={actionClick}
+                      style={{
+                        marginTop: 'var(--space-4)',
+                        background: 'var(--color-surface)',
+                        border: '1px solid var(--color-border-light)',
+                        borderRadius: 'var(--radius-md)',
+                        padding: 'var(--space-3) var(--space-4)',
+                        fontSize: 'var(--font-size-sm)',
+                        fontWeight: '600',
+                        color: phaseStyle.text,
+                        cursor: 'pointer',
+                        transition: 'all var(--transition-base)',
+                        boxShadow: 'var(--shadow-sm)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 'var(--space-2)',
+                        width: '100%',
+                        maxWidth: '320px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      <span>{actionText}</span>
+                    </button>
                   );
                 })()}
 
-                {/* Voedingskaartje — elegant licht design */}
-                <div
+                {/* Nutrition Card — Compact */}
+                <button
                   onClick={() => onNavigate && onNavigate('recipes')}
                   style={{
-                    marginTop: '1rem',
+                    marginTop: 'var(--space-2)',
                     width: '100%',
-                    background: '#FFFFFF',
-                    borderRadius: '16px',
-                    padding: '0.85rem 1rem',
+                    maxWidth: '320px',
+                    background: 'var(--color-surface)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: 'var(--space-3)',
                     textAlign: 'left',
                     display: 'flex',
-                    gap: '0.75rem',
+                    gap: 'var(--space-3)',
                     alignItems: 'center',
                     boxSizing: 'border-box',
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-                    border: '1px solid rgba(0,0,0,0.04)',
+                    boxShadow: 'var(--shadow-sm)',
+                    border: 'none',
                     cursor: 'pointer',
-                    transition: 'box-shadow 0.2s ease, transform 0.2s ease'
+                    transition: 'all var(--transition-base)'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'
-                    e.currentTarget.style.transform = 'translateY(-1px)'
+                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)'
-                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                    e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >
-                  {/* Appel icoon in zacht fase-gekleurd rondje */}
                   <div style={{
                     width: '36px',
                     height: '36px',
-                    borderRadius: '10px',
-                    background: `${phaseStyle.text}12`,
+                    borderRadius: 'var(--radius-sm)',
+                    background: 'var(--color-primary-light)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0
                   }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={phaseStyle.text} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22 0-2.25-1.94-4.22-4.14-4.22-2.19 0-3.69 1.62-5.86 1.62-2.16 0-3.65-1.62-5.84-1.62C3.97 5.56 2 7.72 2 10.41c0 4.19 3 11.59 6 11.59 1.25 0 2.5-1.06 4-1.06Z" />
                       <path d="M10 2c1 0 3.5 1.5 3.5 3.5" />
                     </svg>
                   </div>
 
-                  {/* Tekst kolom */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{
-                      fontSize: '0.8rem',
+                      fontSize: 'var(--font-size-sm)',
                       fontWeight: '600',
                       color: 'var(--color-text)',
-                      marginBottom: '2px',
-                      letterSpacing: '0.01em'
+                      lineHeight: '1.2'
                     }}>
                       {t('today.nutrition_label')}
                     </div>
-                    <div style={{
-                      fontSize: '0.78rem',
-                      color: 'var(--color-text)',
-                      lineHeight: '1.4',
-                      opacity: 0.6
-                    }}>
-                      {adaptNutritionTip(currentText.nutrition, user?.dietary_preference, language)}
-                    </div>
                   </div>
 
-                  {/* Pijltje rechts */}
                   <div style={{
                     flexShrink: 0,
-                    color: phaseStyle.text,
-                    opacity: 0.5,
-                    fontSize: '1.1rem',
-                    lineHeight: 1,
-                    display: 'flex',
-                    alignItems: 'center'
+                    color: 'var(--color-primary)',
+                    fontSize: 'var(--font-size-lg)',
+                    lineHeight: 1
                   }}>
-                    ›
+                    →
                   </div>
-                </div>
-
-
+                </button>
 
               </div>
             )
@@ -594,9 +599,9 @@ export default function Today({ onNavigate }) {
       </div>
 
       {/* MAIN CONTENT SECTION */}
-      <div className="container" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', marginTop: '-1.5rem', position: 'relative', zIndex: 2 }}>
+      <div className="container" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', paddingTop: 'var(--space-2)' }}>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
 
           {/* CYCLE STATUS CARD & PERIOD BUTTON */}
           {user?.cycleStart && (
@@ -616,12 +621,8 @@ export default function Today({ onNavigate }) {
 
           {(user.tracking !== 'none') && (
             <>
-              <div className="card-minimal" style={{
-                background: '#fff',
-                borderRadius: '24px',
-                padding: '1rem 1.25rem 1.25rem',
-                border: '1px solid var(--color-border)',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+              <div ref={dailyGoalRef} className="card" style={{
+                padding: 'var(--space-5)',
                 display: 'flex',
                 flexDirection: 'column'
               }}>
@@ -631,18 +632,18 @@ export default function Today({ onNavigate }) {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  marginBottom: '0.75rem'
+                  marginBottom: 'var(--space-4)'
                 }}>
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                      <span style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>{t('today.daily_goal')}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-1)' }}>
+                      <span style={{ fontSize: 'var(--font-size-sm)', fontWeight: '600', color: 'var(--color-text-secondary)' }}>{t('today.daily_goal')}</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-                      <div style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--color-text)', lineHeight: 1 }}>
-                        {Math.round(toNum(stats.kcal))} <span style={{ fontSize: '1rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>/ {toNum(targets.calories)} kcal</span>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--space-2)' }}>
+                      <div style={{ fontSize: 'var(--font-size-3xl)', fontWeight: '800', color: 'var(--color-text)', lineHeight: 1 }}>
+                        {Math.round(toNum(stats.kcal))} <span style={{ fontSize: 'var(--font-size-base)', color: 'var(--color-text-secondary)', fontWeight: '500' }}>/ {toNum(targets.calories)} kcal</span>
                       </div>
                     </div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--color-calories)', marginTop: '0.25rem' }}>
+                    <div style={{ fontSize: 'var(--font-size-sm)', fontWeight: '600', color: 'var(--color-calories)', marginTop: 'var(--space-1)' }}>
                       {Math.max(0, Math.round(toNum(targets.calories) - toNum(stats.kcal)))} kcal {t('today.remaining')}
                     </div>
                   </div>
@@ -663,16 +664,15 @@ export default function Today({ onNavigate }) {
 
                 {/* BOTTOM SECTION: MACROS & FIBER */}
                 <div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
                     <MacroListItem label={t('today.carbs')} current={toNum(stats.c)} target={toNum(targets.carbsMin)} color="var(--color-carbs)" />
                     <MacroListItem label={t('today.fats')} current={toNum(stats.f)} target={toNum(targets.fatMin)} color="var(--color-fat)" />
                     <MacroListItem label={t('today.proteins')} current={toNum(stats.p)} target={toNum(targets.proteinMin)} color="var(--color-protein)" />
                   </div>
 
-                  {/* Subtiele Vezels weergave */}
-                  <div style={{ textAlign: 'center', marginTop: '1.25rem' }}>
-                    <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', opacity: 0.8 }}>
-                      🌿 {t('today.fiber')}: {Math.round(toNum(stats.fiber))}g <span style={{ opacity: 0.6 }}>/ 25g ({t('today.fiber_recommended')})</span>
+                  <div style={{ textAlign: 'center', marginTop: 'var(--space-4)' }}>
+                    <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)' }}>
+                      🌿 {t('today.fiber')}: {Math.round(toNum(stats.fiber))}g <span style={{ color: 'var(--color-text-tertiary)' }}>/ 25g ({t('today.fiber_recommended')})</span>
                     </span>
                   </div>
                 </div>
@@ -680,19 +680,17 @@ export default function Today({ onNavigate }) {
 
               <button
                 onClick={() => {
-                  scrollPosRef.current = window.scrollY
                   setShowModal(true)
                 }}
                 className="btn btn-primary"
                 style={{
                   width: 'fit-content',
                   alignSelf: 'center',
-                  padding: '0.75rem 2rem',
-                  borderRadius: '24px',
-                  boxShadow: 'var(--shadow-soft)',
-                  marginTop: '0.5rem',
-                  fontSize: '0.92rem',
-                  fontWeight: '700'
+                  padding: 'var(--space-3) var(--space-6)',
+                  borderRadius: 'var(--radius-full)',
+                  boxShadow: 'var(--shadow-md)',
+                  fontSize: 'var(--font-size-sm)',
+                  fontWeight: '600'
                 }}
               >
                 {t('today.add_food')}
@@ -704,71 +702,84 @@ export default function Today({ onNavigate }) {
               <HabitsCard date={viewDateStr} />
               <WeightTracker date={viewDateStr} compact={true} />
 
-              {/* NEW: DAILY CHECK-IN WIDGET (Symptom Tracker Redesign) */}
-              <section className="card-minimal" style={{ padding: '1rem 1.25rem', background: '#fff', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '0.75rem', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid var(--color-border)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: `${phaseStyle.text}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: phaseStyle.text }}>
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                              <circle cx="12" cy="12" r="10"></circle>
-                              <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                              <line x1="9" y1="9" x2="9.01" y2="9"></line>
-                              <line x1="15" y1="9" x2="15.01" y2="9"></line>
-                            </svg>
-                        </div>
-                        <div>
-                            <h2 style={{ fontSize: '1rem', margin: '0 0 2px 0', color: 'var(--color-text)', fontWeight: '700' }}>{t('checkin.title', { defaultValue: 'Symptomen' })}</h2>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>
-                                {todaysSymptoms.length > 0 ? t('today.symptoms_count').replace('{n}', todaysSymptoms.length) : t('today.how_do_you_feel')}
-                            </div>
-                        </div>
-                    </div>
-                    <button
-                        onClick={() => setShowCheckInModal(true)}
-                        style={{ background: 'var(--color-primary)', color: '#333333', border: 'none', borderRadius: '20px', padding: '6px 16px', fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer', boxShadow: '0 2px 8px rgba(255, 174, 185, 0.3)' }}
-                    >
-                        {t('today.log_btn')}
-                    </button>
+              {/* DAILY CHECK-IN WIDGET */}
+              <section className="card" style={{ padding: 'var(--space-4)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                      <div style={{ 
+                        width: '40px', 
+                        height: '40px', 
+                        borderRadius: 'var(--radius-md)', 
+                        background: 'var(--color-primary-light)', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        color: 'var(--color-primary)' 
+                      }}>
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                            <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                            <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                          </svg>
+                      </div>
+                      <div>
+                          <h2 style={{ fontSize: 'var(--font-size-base)', margin: '0 0 2px 0', color: 'var(--color-text)', fontWeight: '600' }}>{t('checkin.title', { defaultValue: 'Symptomen' })}</h2>
+                          <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)', fontWeight: '500' }}>
+                              {todaysSymptoms.length > 0 ? t('today.symptoms_count').replace('{n}', todaysSymptoms.length) : t('today.how_do_you_feel')}
+                          </div>
+                      </div>
                   </div>
+                  <button
+                      onClick={() => setShowCheckInModal(true)}
+                      className="btn btn-primary"
+                      style={{ 
+                        width: 'auto',
+                        padding: 'var(--space-2) var(--space-4)', 
+                        borderRadius: 'var(--radius-full)', 
+                        fontSize: 'var(--font-size-xs)', 
+                        fontWeight: '600' 
+                      }}
+                  >
+                      {t('today.log_btn')}
+                  </button>
+              </section>
 
-                  {todaysSymptoms.length > 0 && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
-                      {todaysSymptoms.map(sympId => {
-                        const sympDef = SYMPTOMS_LIST.find(s => s.id === sympId)
-                        if (!sympDef) return null
-                        return (
-                          <span key={sympId} style={{ fontSize: '0.75rem', padding: '4px 10px', backgroundColor: 'var(--color-bg)', color: 'var(--color-text)', borderRadius: '12px', fontWeight: '500', border: '1px solid var(--color-border)' }}>
-                            {t(`checkin.symptoms.${sympId}`)}
-                          </span>
-                        )
-                      })}
-                    </div>
-                  )}
-                </section>
+              {todaysSymptoms.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)', marginTop: 'calc(var(--space-2) * -1)', marginBottom: 'var(--space-4)', paddingLeft: 'calc(40px + var(--space-3) + var(--space-3))' }}>
+                  {todaysSymptoms.map(sympId => {
+                    const sympDef = SYMPTOMS_LIST.find(s => s.id === sympId)
+                    if (!sympDef) return null
+                    return (
+                      <span key={sympId} style={{ 
+                        fontSize: 'var(--font-size-xs)', 
+                        padding: 'var(--space-1) var(--space-3)', 
+                        backgroundColor: 'var(--color-bg)', 
+                        color: 'var(--color-text-secondary)', 
+                        borderRadius: 'var(--radius-full)', 
+                        fontWeight: '500', 
+                        border: '1px solid var(--color-border-light)' 
+                      }}>
+                        {t(`checkin.symptoms.${sympId}`)}
+                      </span>
+                    )
+                  })}
+                </div>
+              )}
 
-                {/* Progressie shortcut (now at the bottom) */}
+                {/* Progressie shortcut */}
                 <button
                   onClick={() => onNavigate && onNavigate('progress')}
+                  className="btn btn-secondary"
                   style={{
-                    width: '100%',
-                    padding: '1rem 1.25rem',
-                    background: `${phaseStyle.text}15`,
-                    border: 'none',
-                    borderRadius: '16px',
-                    color: 'var(--color-text)',
-                    fontWeight: '700',
-                    fontSize: '0.95rem',
-                    cursor: 'pointer',
-                    marginTop: 0,
-                    display: 'flex',
                     justifyContent: 'space-between',
-                    alignItems: 'center'
+                    padding: 'var(--space-4)',
+                    borderRadius: 'var(--radius-md)'
                   }}
                 >
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
                     {t('today.your_insights')}
                   </span>
-                  <span style={{ color: phaseStyle.text, fontSize: '1.2rem', lineHeight: 1 }}>→</span>
+                  <span style={{ color: 'var(--color-primary)', fontSize: 'var(--font-size-lg)', lineHeight: 1 }}>→</span>
                 </button>
 
 
@@ -795,79 +806,83 @@ export default function Today({ onNavigate }) {
                 const activeCats = MEAL_ORDER.filter(cat => grouped[String(cat)].length > 0)
 
                 return (
-                  <div style={{ marginTop: '2rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                      <h3 style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--color-text)', margin: 0 }}>
+                  <div style={{ marginTop: 'var(--space-6)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+                      <h3 style={{ fontSize: 'var(--font-size-lg)', fontWeight: '700', color: 'var(--color-text)', margin: 0 }}>
                         {t('today.logged_today')}
                       </h3>
                       <button
                         onClick={() => setShowLog(!showLog)}
-                        style={{ background: 'none', color: 'var(--color-primary)', fontSize: '0.82rem', fontWeight: '600', fontFamily: 'inherit' }}
+                        className="btn btn-ghost"
+                        style={{ width: 'auto', padding: 'var(--space-2) var(--space-3)', fontSize: 'var(--font-size-xs)' }}
                       >
                         {showLog ? t('today.hide_items') : t('today.show_items')}
                       </button>
                     </div>
 
                     {showLog && (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
                         {activeCats.map(cat => {
                           const catLogs = grouped[String(cat)]
                           const catKcal = catLogs.reduce((sum, l) => sum + (l.kcal || 0), 0)
 
                           return (
-                            <div key={String(cat)}>
+                            <div key={String(cat)} className="card" style={{ padding: 'var(--space-4)' }}>
                               {/* Category header */}
                               <div style={{
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'baseline',
-                                marginBottom: '0.5rem',
-                                paddingBottom: '0.4rem',
-                                borderBottom: '1px solid var(--color-border)'
+                                marginBottom: 'var(--space-3)',
+                                paddingBottom: 'var(--space-3)',
+                                borderBottom: '1px solid var(--color-border-light)'
                               }}>
                                 <span style={{
-                                  fontSize: '0.72rem',
+                                  fontSize: 'var(--font-size-sm)',
                                   fontWeight: '700',
                                   textTransform: 'uppercase',
-                                  letterSpacing: '0.07em',
-                                  color: phaseStyle.text
+                                  letterSpacing: '0.05em',
+                                  color: 'var(--color-primary)'
                                 }}>
                                   {MEAL_LABELS[String(cat)]}
                                 </span>
                                 <span style={{
-                                  fontSize: '0.75rem',
-                                  fontWeight: '600',
-                                  color: 'var(--color-text-muted)'
+                                  fontSize: 'var(--font-size-sm)',
+                                  fontWeight: '700',
+                                  color: 'var(--color-text)'
                                 }}>
                                   {Math.round(catKcal)} kcal
                                 </span>
                               </div>
 
                               {/* Items */}
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                                {catLogs.map((log, idx) => (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                                {catLogs.map((log) => (
                                   <div key={log.id} style={{
                                     display: 'flex',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
-                                    padding: '0.65rem 0',
-                                    borderBottom: idx < catLogs.length - 1 ? '1px solid rgba(0,0,0,0.04)' : 'none'
+                                    padding: 'var(--space-3)',
+                                    background: 'var(--color-bg)',
+                                    borderRadius: 'var(--radius-md)',
+                                    border: '1px solid var(--color-border-light)'
                                   }}>
                                     <div style={{ flex: 1, minWidth: 0 }}>
                                       <div style={{
-                                        fontWeight: '500',
-                                        fontSize: '0.9rem',
+                                        fontWeight: '600',
+                                        fontSize: 'var(--font-size-base)',
                                         color: 'var(--color-text)',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis'
+                                        marginBottom: 'var(--space-1)'
                                       }}>
                                         {log.name}
                                       </div>
                                       <div style={{
-                                        fontSize: '0.75rem',
-                                        color: 'var(--color-text-muted)',
-                                        marginTop: '1px'
+                                        fontSize: 'var(--font-size-sm)',
+                                        color: 'var(--color-text-secondary)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 'var(--space-2)',
+                                        flexWrap: 'wrap'
                                       }}>
                                         {(() => {
                                           if (log.unitName && log.quantity) return `${log.quantity} ${log.unitName}`;
@@ -878,23 +893,23 @@ export default function Today({ onNavigate }) {
                                           }
                                           return null;
                                         })()}
-                                        {(log.unitName || log.grams) && ' · '}
-                                        <span style={{ fontWeight: '500', color: 'var(--color-text)' }}>{log.kcal} kcal</span>
-                                        {log.p != null && ` · ${t('today.protein_grams').replace('{p}', log.p)}`}
+                                        <span style={{ fontWeight: '700', color: 'var(--color-text)' }}>{log.kcal} kcal</span>
+                                        {log.p != null && <span>· {t('today.protein_grams').replace('{p}', log.p)}</span>}
                                       </div>
                                     </div>
                                     <button
                                       onClick={() => deleteFoodLog(log.id)}
+                                      aria-label={t('common.delete')}
                                       style={{
-                                        color: 'var(--color-text-muted)',
+                                        color: 'var(--color-text-tertiary)',
                                         background: 'none',
                                         border: 'none',
-                                        padding: '0.4rem 0.5rem',
-                                        fontSize: '0.8rem',
+                                        padding: 'var(--space-2)',
                                         cursor: 'pointer',
                                         flexShrink: 0,
                                         opacity: 0.5,
-                                        fontFamily: 'inherit'
+                                        fontFamily: 'inherit',
+                                        fontSize: 'var(--font-size-lg)'
                                       }}
                                     >
                                       ✕
@@ -930,17 +945,29 @@ export default function Today({ onNavigate }) {
           <FoodModal
             onClose={() => {
               setShowModal(false)
-              // Restore scroll position after keyboard dismiss + re-render
+              // Restore scroll to daily goal card
               requestAnimationFrame(() => {
-                setTimeout(() => window.scrollTo(0, scrollPosRef.current), 100)
+                setTimeout(() => {
+                  if (dailyGoalRef.current) {
+                    const yOffset = -20
+                    const y = dailyGoalRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset
+                    window.scrollTo({ top: y, behavior: 'smooth' })
+                  }
+                }, 100)
               })
             }}
             onAdd={(foodId, grams, _, config) => {
               logFood(foodId, grams, viewDateStr, config)
               setShowModal(false)
-              // Scroll to top (daily goal card)
+              // Scroll to daily goal card
               requestAnimationFrame(() => {
-                setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100)
+                setTimeout(() => {
+                  if (dailyGoalRef.current) {
+                    const yOffset = -20
+                    const y = dailyGoalRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset
+                    window.scrollTo({ top: y, behavior: 'smooth' })
+                  }
+                }, 100)
               })
             }}
           />
@@ -958,57 +985,6 @@ export default function Today({ onNavigate }) {
         />
       )}
 
-
-      {showDatePicker && (
-        <div className="modal-overlay" onClick={() => setShowDatePicker(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>{t('today.when_last_period')}</h3>
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-              {t('today.choose_first_day')}
-            </p>
-
-            <form onSubmit={(e) => {
-              e.preventDefault()
-              const dateVal = e.target.rootDate.value
-              if (dateVal) {
-                logMenstruation(dateVal)
-                setShowDatePicker(false)
-              }
-            }}>
-              <input
-                name="rootDate"
-                type="date"
-                defaultValue={todayDateStr}
-                max={todayDateStr}
-                style={{
-                  width: '100%',
-                  padding: '1rem',
-                  fontSize: '1rem',
-                  borderRadius: '12px',
-                  border: '1px solid var(--color-border)',
-                  marginBottom: '1rem',
-                  fontFamily: 'inherit'
-                }}
-              />
-
-              <button
-                type="submit"
-                className="btn btn-primary"
-                style={{ width: '100%', marginBottom: '0.5rem' }}
-              >
-                {t('common.save')}
-              </button>
-            </form>
-
-            <button
-              onClick={() => setShowDatePicker(false)}
-              className="btn-soft"
-            >
-              {t('common.cancel')}
-            </button>
-          </div>
-        </div>
-      )}
 
       <style>{`
         .card-minimal {

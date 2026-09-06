@@ -92,6 +92,7 @@ function PostCard({ post, onOpen, onLike, isLiked, t, language }) {
             <div style={{ display: 'flex', gap: '1rem', marginTop: '0.4rem', alignItems: 'center' }}>
                 <button
                     onClick={(e) => { e.stopPropagation(); onLike(post.id) }}
+                    aria-label={isLiked ? t('community.unlike') : t('community.like')}
                     style={{
                         background: 'none', border: 'none', cursor: 'pointer', padding: 0,
                         display: 'flex', alignItems: 'center', gap: '4px',
@@ -765,6 +766,7 @@ export default function Community() {
                                             removeCommentFromUI(comment.id)
                                         }
                                     }}
+                                    aria-label={t('community.delete_comment_tooltip')}
                                     style={{
                                         background: 'none', border: 'none', color: '#ef4444',
                                         fontSize: '0.75rem', cursor: 'pointer', padding: '0.2rem 0.5rem',
@@ -782,10 +784,10 @@ export default function Community() {
 
                 {/* Add comment */}
                 <div style={{
-                    position: 'fixed', bottom: '70px', left: 0, right: 0,
+                    position: 'fixed', bottom: 'calc(70px + env(safe-area-inset-bottom, 0px))', left: 0, right: 0,
                     background: 'var(--color-surface)', borderTop: '1px solid var(--color-border)',
                     padding: '0.75rem 1rem', display: 'flex', gap: '0.5rem',
-                    maxWidth: '480px', margin: '0 auto'
+                    maxWidth: '480px', margin: '0 auto', zIndex: 99
                 }}>
                     <input
                         type="text"

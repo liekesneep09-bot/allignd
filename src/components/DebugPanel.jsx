@@ -7,6 +7,26 @@ export default function DebugPanel() {
     // Only show in development
     if (!import.meta.env.DEV) return null
 
+    const simulateCycleDay = async (daysAgo) => {
+        try {
+            const date = new Date()
+            date.setDate(date.getDate() - daysAgo)
+            const dateStr = date.toISOString().split('T')[0]
+            
+            const { error } = await supabase
+                .from('profiles')
+                .update({ cycle_start: dateStr })
+                .eq('id', (await supabase.auth.getUser()).data.user?.id)
+            
+            if (error) throw error
+            
+            window.location.reload()
+        } catch (err) {
+            console.error('Failed to simulate:', err)
+            alert('Failed: ' + err.message)
+        }
+    }
+
     const resetSession = async () => {
         if (!confirm('Reset local session? Dit verwijdert alle lokale data en logt je uit.')) {
             return
@@ -153,6 +173,98 @@ export default function DebugPanel() {
                     >
                         🗑️ Reset Local Session
                     </button>
+
+                    <hr style={{ borderColor: '#00ff00', margin: '12px 0' }} />
+
+                    <div style={{ marginBottom: '8px' }}>
+                        <strong>🧪 Simulate Cycle:</strong>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '8px' }}>
+                        <button
+                            onClick={() => simulateCycleDay(5)}
+                            style={{
+                                background: '#4CAF50',
+                                color: 'white',
+                                border: 'none',
+                                padding: '6px 8px',
+                                borderRadius: '4px',
+                                fontSize: '11px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Dag 6 (Follicular)
+                        </button>
+                        <button
+                            onClick={() => simulateCycleDay(14)}
+                            style={{
+                                background: '#e8785f',
+                                color: 'white',
+                                border: 'none',
+                                padding: '6px 8px',
+                                borderRadius: '4px',
+                                fontSize: '11px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Dag 15 (Ovulatory)
+                        </button>
+                        <button
+                            onClick={() => simulateCycleDay(20)}
+                            style={{
+                                background: '#6a9f6b',
+                                color: 'white',
+                                border: 'none',
+                                padding: '6px 8px',
+                                borderRadius: '4px',
+                                fontSize: '11px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Dag 21 (Luteal)
+                        </button>
+                        <button
+                            onClick={() => simulateCycleDay(26)}
+                            style={{
+                                background: '#6a9f6b',
+                                color: 'white',
+                                border: 'none',
+                                padding: '6px 8px',
+                                borderRadius: '4px',
+                                fontSize: '11px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Dag 27 (Window)
+                        </button>
+                        <button
+                            onClick={() => simulateCycleDay(30)}
+                            style={{
+                                background: '#8a9a8b',
+                                color: 'white',
+                                border: 'none',
+                                padding: '6px 8px',
+                                borderRadius: '4px',
+                                fontSize: '11px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Dag 31 (Beyond)
+                        </button>
+                        <button
+                            onClick={() => simulateCycleDay(35)}
+                            style={{
+                                background: '#8a9a8b',
+                                color: 'white',
+                                border: 'none',
+                                padding: '6px 8px',
+                                borderRadius: '4px',
+                                fontSize: '11px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Dag 36 (Very Late)
+                        </button>
+                    </div>
 
                     <div style={{
                         marginTop: '12px',

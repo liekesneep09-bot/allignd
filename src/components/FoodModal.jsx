@@ -343,6 +343,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                     <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--color-text)' }}>{t('food_modal.add_food_title')}</h3>
                                     <button 
                                         onClick={onClose} 
+                                        aria-label={t('common.close')}
                                         style={{ 
                                             width: '32px', 
                                             height: '32px', 

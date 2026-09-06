@@ -150,7 +150,7 @@ export default function Recipes() {
 
                 <button
                     onClick={() => setIsConfirming(true)}
-                    className="button-primary"
+                    className="btn btn-primary"
                     style={{
                         width: '100%',
                         padding: '1rem',
@@ -203,7 +203,7 @@ export default function Recipes() {
                                         </button>
                                         <button
                                             onClick={() => handleLogRecipe(selectedRecipe)}
-                                            className="button-primary"
+                                            className="btn btn-primary"
                                             style={{ flex: 1, padding: '0.75rem', borderRadius: 'var(--radius-md)' }}
                                         >
                                             {t('recipes.confirm_add')}

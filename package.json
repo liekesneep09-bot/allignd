@@ -11,6 +11,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "test": "node tests/test_cycle.mjs && node tests/test_nutrition.mjs",
     "cap:build": "vite build && npx cap sync",
     "cap:ios": "npx cap open ios",
     "cap:android": "npx cap open android"

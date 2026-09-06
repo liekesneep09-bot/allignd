@@ -1,7 +1,7 @@
 import { supabase, requireAuth, cors, calculateMealTotals } from './_lib/shared.js'
 
 export default async function handler(req, res) {
-    cors(res)
+    cors(res, req)
     if (req.method === 'OPTIONS') return res.status(200).end()
 
     const url = new URL(req.url, `http://${req.headers.host}`)

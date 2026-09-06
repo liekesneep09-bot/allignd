@@ -8,10 +8,10 @@ import PhaseGuide from './pages/PhaseGuide'
 import Recipes from './pages/Recipes'
 import Fitness from './pages/Fitness'
 import Profile from './pages/Profile'
+import Privacy from './pages/Privacy'
 import Community from './pages/Community'
 import Progress from './pages/Progress'
 import Login from './pages/Login'
-import InstallPrompt from './components/InstallPrompt'
 import OfflineBanner from './components/OfflineBanner'
 import DebugView from './components/DebugView'
 import ErrorBoundary from './components/ErrorBoundary'
@@ -121,17 +121,34 @@ function MainLayout() {
     const actuallyHasOnboarded = hasOnboarded
     
     if (!actuallyHasOnboarded) {
-        // If they are offline, don't force them to Onboarding
         if (!navigator.onLine) {
-            return <SplashScreen /> // Stay on splash until network returns
+            return (
+                <div style={{
+                    minHeight: '100vh',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '2rem',
+                    textAlign: 'center'
+                }}>
+                    <img src={logo} alt="Allignd" style={{ height: '80px', marginBottom: '2rem' }} />
+                    <h2 style={{ color: 'var(--color-primary)', marginBottom: '1rem' }}>
+                        {t('offline.title') || 'Geen internetverbinding'}
+                    </h2>
+                    <p className="text-muted">
+                        {t('offline.onboarding_message') || 'Verbind met internet om de setup te voltooien.'}
+                    </p>
+                </div>
+            )
         }
         return <Onboarding />
     }
 
-    // ABONNEMENTEN-MUUR (PAYWALL)
-    if (user?.subscription_status !== 'active') {
-        return <Subscription />
-    }
+    // ABONNEMENTEN-MUUR (PAYWALL) — TIJDELIJK UITGESCHAKELD VOOR TESTEN
+    // if (user?.subscription_status !== 'active') {
+    //     return <Subscription />
+    // }
 
     return (
         <>
@@ -177,7 +194,8 @@ function MainLayout() {
                 {currentView === 'fitness' && <Fitness />}
                 {currentView === 'recipes' && <Recipes />}
                 {currentView === 'guide' && <PhaseGuide />}
-                {currentView === 'profile' && <Profile />}
+                {currentView === 'profile' && <Profile onNavigate={navigateTo} />}
+                {currentView === 'privacy' && <Privacy onNavigate={navigateTo} />}
                 {currentView === 'progress' && <Progress onClose={() => navigateTo('today')} />}
             </main>
 
@@ -186,166 +204,62 @@ function MainLayout() {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                backgroundColor: 'var(--color-surface)',
-                borderTop: '1px solid var(--color-border)',
-                paddingTop: '6px',
-                paddingBottom: 'calc(6px + env(safe-area-inset-bottom, 0px))',
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                borderTop: '1px solid var(--color-border-light)',
+                paddingTop: 'var(--space-2)',
+                paddingBottom: 'calc(var(--space-2) + env(safe-area-inset-bottom, 0px))',
                 display: 'flex',
                 justifyContent: 'space-around',
-                boxShadow: '0 -2px 10px rgba(0,0,0,0.04)',
+                alignItems: 'center',
                 maxWidth: '480px',
                 margin: '0 auto',
                 zIndex: 100
             }}>
-                <button
-                    onClick={() => navigateTo('today')}
-                    style={{
-                        color: currentView === 'today' ? phaseStyle.text : 'var(--color-text-muted)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        fontSize: '0.7rem',
-                        fontWeight: currentView === 'today' ? '700' : '500',
-                        background: 'none',
-                        gap: '2px',
-                        width: '64px',
-                        cursor: 'pointer'
-                    }}
-                >
-                    <div style={{
-                        padding: '4px 14px',
-                        borderRadius: '16px',
-                        background: currentView === 'today' ? `${phaseStyle.text}1c` : 'transparent',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'background 0.25s ease',
-                        marginBottom: '2px'
-                    }}>
-                        <IconHome size={20} />
-                    </div>
-                    {t('nav.today')}
-                </button>
-
-                <button
-                    onClick={() => navigateTo('community')}
-                    style={{
-                        color: currentView === 'community' ? phaseStyle.text : 'var(--color-text-muted)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        fontSize: '0.7rem',
-                        fontWeight: currentView === 'community' ? '700' : '500',
-                        background: 'none',
-                        gap: '2px',
-                        width: '64px',
-                        cursor: 'pointer'
-                    }}
-                >
-                    <div style={{
-                        padding: '4px 14px',
-                        borderRadius: '16px',
-                        background: currentView === 'community' ? `${phaseStyle.text}1c` : 'transparent',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'background 0.25s ease',
-                        marginBottom: '2px'
-                    }}>
-                        <IconCommunity size={20} />
-                    </div>
-                    {t('nav.community')}
-                </button>
-
-                <button
-                    onClick={() => navigateTo('fitness')}
-                    style={{
-                        color: currentView === 'fitness' ? phaseStyle.text : 'var(--color-text-muted)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        fontSize: '0.7rem',
-                        fontWeight: currentView === 'fitness' ? '700' : '500',
-                        background: 'none',
-                        gap: '2px',
-                        width: '64px',
-                        cursor: 'pointer'
-                    }}
-                >
-                    <div style={{
-                        padding: '4px 14px',
-                        borderRadius: '16px',
-                        background: currentView === 'fitness' ? `${phaseStyle.text}1c` : 'transparent',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'background 0.25s ease',
-                        marginBottom: '2px'
-                    }}>
-                        <IconActivity size={20} />
-                    </div>
-                    {t('nav.fitness')}
-                </button>
-
-                <button
-                    onClick={() => navigateTo('recipes')}
-                    style={{
-                        color: currentView === 'recipes' ? phaseStyle.text : 'var(--color-text-muted)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        fontSize: '0.7rem',
-                        fontWeight: currentView === 'recipes' ? '700' : '500',
-                        background: 'none',
-                        gap: '2px',
-                        width: '64px',
-                        cursor: 'pointer'
-                    }}
-                >
-                    <div style={{
-                        padding: '4px 14px',
-                        borderRadius: '16px',
-                        background: currentView === 'recipes' ? `${phaseStyle.text}1c` : 'transparent',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'background 0.25s ease',
-                        marginBottom: '2px'
-                    }}>
-                        <IconRecipe size={20} />
-                    </div>
-                    {t('nav.recipes')}
-                </button>
-
-                <button
-                    onClick={() => navigateTo('guide')}
-                    style={{
-                        color: currentView === 'guide' ? phaseStyle.text : 'var(--color-text-muted)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        fontSize: '0.7rem',
-                        fontWeight: currentView === 'guide' ? '700' : '500',
-                        background: 'none',
-                        gap: '2px',
-                        width: '64px',
-                        cursor: 'pointer'
-                    }}
-                >
-                    <div style={{
-                        padding: '4px 14px',
-                        borderRadius: '16px',
-                        background: currentView === 'guide' ? `${phaseStyle.text}1c` : 'transparent',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'background 0.25s ease',
-                        marginBottom: '2px'
-                    }}>
-                        <IconGuide size={20} />
-                    </div>
-                    {t('nav.guide')}
-                </button>
+                {[
+                    { view: 'today', icon: IconHome, label: t('nav.today') },
+                    { view: 'community', icon: IconCommunity, label: t('nav.community') },
+                    { view: 'fitness', icon: IconActivity, label: t('nav.fitness') },
+                    { view: 'recipes', icon: IconRecipe, label: t('nav.recipes') },
+                    { view: 'guide', icon: IconGuide, label: t('nav.guide') }
+                ].map(({ view, icon: Icon, label }) => {
+                    const isActive = currentView === view;
+                    return (
+                        <button
+                            key={view}
+                            onClick={() => navigateTo(view)}
+                            style={{
+                                color: isActive ? 'var(--color-primary)' : 'var(--color-text-tertiary)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                fontSize: 'var(--font-size-xs)',
+                                fontWeight: isActive ? '600' : '500',
+                                background: 'none',
+                                gap: 'var(--space-1)',
+                                padding: 'var(--space-2) var(--space-3)',
+                                borderRadius: 'var(--radius-md)',
+                                cursor: 'pointer',
+                                transition: 'all var(--transition-base)',
+                                minWidth: '56px'
+                            }}
+                        >
+                            <div style={{
+                                padding: 'var(--space-2)',
+                                borderRadius: 'var(--radius-md)',
+                                background: isActive ? 'var(--color-primary-light)' : 'transparent',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                transition: 'all var(--transition-base)'
+                            }}>
+                                <Icon size={22} />
+                            </div>
+                            <span style={{ lineHeight: 1 }}>{label}</span>
+                        </button>
+                    );
+                })}
             </nav>
         </>
     )
@@ -460,7 +374,7 @@ export default function App() {
                 <AuthProvider>
                     <OfflineBanner isOnline={isOnline} />
                     <AuthenticatedApp />
-                    {/* <InstallPrompt /> */}
+                    <DebugPanel />
                 </AuthProvider>
             </LanguageProvider>
         </ErrorBoundary>

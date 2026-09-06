@@ -34,6 +34,7 @@ export default function Onboarding() {
     }, [authUser]) // Only run when authUser changes, not on every step change
 
     const [isLoading, setIsLoading] = useState(false)
+    const [calculatedTargets, setCalculatedTargets] = useState(null)
 
     const [formData, setFormData] = useState({
         name: authUser?.user_metadata?.name || '',
@@ -128,7 +129,7 @@ export default function Onboarding() {
             const userId = authUser?.id;
             if (!userId) throw new Error(t('onboarding_extra.no_user_found'));
 
-            await saveProfileAndCalculate({
+            const targets = await saveProfileAndCalculate({
                 ...formData,
                 id: userId,
                 trainingFrequency: formData.trainingFrequency,
@@ -137,7 +138,7 @@ export default function Onboarding() {
                 goal: formData.goal
             });
 
-            // Show results screen
+            setCalculatedTargets(targets);
             setStep(9);
         } catch (error) {
             console.error("Onboarding Error:", error);
@@ -665,14 +666,19 @@ export default function Onboarding() {
                                     onClick={() => handleChange('lifestyle_level', 'sedentary')}
                                 />
                                 <SelectOption
-                                    label={t('onboarding.lifestyle_mixed')}
-                                    selected={formData.lifestyle_level === 'mixed'}
-                                    onClick={() => handleChange('lifestyle_level', 'mixed')}
+                                    label={t('onboarding.lifestyle_lightly_active')}
+                                    selected={formData.lifestyle_level === 'lightly_active'}
+                                    onClick={() => handleChange('lifestyle_level', 'lightly_active')}
                                 />
                                 <SelectOption
-                                    label={t('onboarding.lifestyle_active')}
-                                    selected={formData.lifestyle_level === 'active'}
-                                    onClick={() => handleChange('lifestyle_level', 'active')}
+                                    label={t('onboarding.lifestyle_moderately_active')}
+                                    selected={formData.lifestyle_level === 'moderately_active'}
+                                    onClick={() => handleChange('lifestyle_level', 'moderately_active')}
+                                />
+                                <SelectOption
+                                    label={t('onboarding.lifestyle_very_active')}
+                                    selected={formData.lifestyle_level === 'very_active'}
+                                    onClick={() => handleChange('lifestyle_level', 'very_active')}
                                 />
                             </div>
                         </div>
@@ -691,22 +697,23 @@ export default function Onboarding() {
                         {/* 3. Frequency (0-7) */}
                         <div>
                             <label style={labelStyle}>{t('onboarding.training_days')}</label>
-                            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem' }}>
                                 {[0, 1, 2, 3, 4, 5, 6, 7].map(val => (
                                     <button
                                         key={val}
                                         onClick={() => handleChange('trainingFrequency', val)}
                                         style={{
-                                            flex: 1,
-                                            padding: '0.8rem 0',
+                                            padding: '0.9rem 0',
                                             border: formData.trainingFrequency === val ? '2.5px solid var(--color-primary)' : '1px solid var(--color-border)',
                                             borderRadius: '12px',
                                             background: formData.trainingFrequency === val ? 'rgba(255, 174, 185, 0.05)' : 'transparent',
                                             color: formData.trainingFrequency === val ? 'var(--color-primary)' : 'var(--color-text)',
                                             fontWeight: formData.trainingFrequency === val ? '700' : '400',
-                                            fontSize: '0.9rem',
+                                            fontSize: '1rem',
                                             cursor: 'pointer',
-                                            transition: 'all 0.2s'
+                                            transition: 'all 0.2s',
+                                            minWidth: '44px',
+                                            minHeight: '44px'
                                         }}
                                     >
                                         {val}
@@ -788,19 +795,19 @@ export default function Onboarding() {
                                 {t('today.daily_goal')}
                             </div>
                             <div style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--color-text)', marginBottom: '1rem' }}>
-                                {user?.macroTargets?.calories || 2000} <span style={{ fontSize: '1rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>kcal</span>
+                                {calculatedTargets?.calorie_target_min || user?.macroTargets?.calories || 2000} <span style={{ fontSize: '1rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>kcal</span>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
                                 <div>
-                                    <div style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--color-carbs)' }}>{user?.macroTargets?.carbsMin || 0}g</div>
+                                    <div style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--color-carbs)' }}>{calculatedTargets?.carbs_g_min || user?.macroTargets?.carbsMin || 0}g</div>
                                     <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{t('today.carbs')}</div>
                                 </div>
                                 <div>
-                                    <div style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--color-protein)' }}>{user?.macroTargets?.proteinMin || 0}g</div>
+                                    <div style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--color-protein)' }}>{calculatedTargets?.protein_g_min || user?.macroTargets?.proteinMin || 0}g</div>
                                     <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{t('today.proteins')}</div>
                                 </div>
                                 <div>
-                                    <div style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--color-fat)' }}>{user?.macroTargets?.fatMin || 0}g</div>
+                                    <div style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--color-fat)' }}>{calculatedTargets?.fat_g_min || user?.macroTargets?.fatMin || 0}g</div>
                                     <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{t('today.fats')}</div>
                                 </div>
                             </div>
@@ -838,6 +845,11 @@ export default function Onboarding() {
                     <button className="btn btn-primary" onClick={handleNext} disabled={isLoading || !isValid(step, formData, !!authUser)}>
                         {isLoading ? t('onboarding.saving') : (step === 8 ? t('onboarding.save_start_authed') : t('onboarding.next'))}
                     </button>
+                    {(!isValid(step, formData, !!authUser)) && (
+                        <p className="text-muted" style={{ fontSize: '0.8rem', textAlign: 'center', marginTop: '0.5rem', margin: '0.5rem auto 0', maxWidth: '300px' }}>
+                            {t('onboarding.fill_all_fields')}
+                        </p>
+                    )}
                 </div>
             )}
 
@@ -851,16 +863,16 @@ function SelectOption({ label, selected, onClick }) {
         <button
             onClick={onClick}
             style={{
-                padding: '1rem',
-                border: selected ? '2.5px solid var(--color-primary)' : '1px solid var(--color-border)',
-                borderRadius: '16px',
-                background: selected ? 'rgba(255, 174, 185, 0.05)' : 'var(--color-surface)',
+                padding: 'var(--space-4)',
+                border: selected ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)',
+                background: selected ? 'var(--color-primary-light)' : 'var(--color-surface)',
                 color: selected ? 'var(--color-primary)' : 'var(--color-text)',
-                fontWeight: selected ? '700' : '500',
+                fontWeight: selected ? '600' : '500',
                 textAlign: 'left',
                 width: '100%',
-                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                fontSize: '0.95rem'
+                transition: 'all var(--transition-base)',
+                fontSize: 'var(--font-size-base)'
             }}
         >
             {label}
@@ -873,15 +885,15 @@ function CompactOption({ label, selected, onClick }) {
         <button
             onClick={onClick}
             style={{
-                padding: '0.75rem 0.5rem',
-                border: selected ? '2.5px solid var(--color-primary)' : '1px solid var(--color-border)',
-                borderRadius: '12px',
-                background: selected ? 'rgba(255, 174, 185, 0.05)' : 'var(--color-surface)',
+                padding: 'var(--space-3) var(--space-4)',
+                border: selected ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)',
+                background: selected ? 'var(--color-primary-light)' : 'var(--color-surface)',
                 color: selected ? 'var(--color-primary)' : 'var(--color-text)',
-                fontWeight: selected ? '700' : '500',
+                fontWeight: selected ? '600' : '500',
                 width: '100%',
-                fontSize: '0.82rem',
-                transition: 'all 0.2s ease',
+                fontSize: 'var(--font-size-sm)',
+                transition: 'all var(--transition-base)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',

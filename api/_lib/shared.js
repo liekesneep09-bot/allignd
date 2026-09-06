@@ -38,10 +38,23 @@ export async function requireAuth(req) {
 // CORS HELPER
 // ------------------------------------------------------------------
 
-export function cors(res) {
-    res.setHeader('Access-Control-Allow-Origin', process.env.CLIENT_URL || '*')
+const ALLOWED_ORIGINS = [
+    'https://allignd.nl',
+    'https://www.allignd.nl',
+    'https://allignd.fit',
+    'https://www.allignd.fit',
+    'http://localhost:5173',
+    'http://localhost:3000'
+]
+
+export function cors(res, req) {
+    const origin = req?.headers?.origin
+    const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]
+    
+    res.setHeader('Access-Control-Allow-Origin', allowedOrigin)
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Device-Id')
+    res.setHeader('Access-Control-Allow-Credentials', 'true')
 }
 
 // ------------------------------------------------------------------

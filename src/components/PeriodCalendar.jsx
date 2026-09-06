@@ -296,7 +296,7 @@ function DaySummarySheet({ dateStr, summaryData, justLogged, onClose, onToggle }
                     <h3 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--color-text)', textTransform: 'capitalize' }}>
                         {isToday ? t('calendar.today') : dateHeader}
                     </h3>
-                    <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '1.4rem', padding: 0, cursor: 'pointer', color: 'var(--color-text-muted)' }}>✕</button>
+                    <button onClick={onClose} aria-label={t('common.close')} style={{ background: 'none', border: 'none', fontSize: '1.4rem', padding: 0, cursor: 'pointer', color: 'var(--color-text-muted)' }}>✕</button>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.25rem' }}>

@@ -125,7 +125,11 @@ export function calculateTargetRanges(profile) {
     // 7. Exact kcal from macros (ensures UI consistency)
     const exactTargetKcal = proteinCals + (carbs * 4) + fatCals;
 
-    console.log(`[Nutrition] Goal=${goal} Tempo=${tempo} TDEE=${tdee} Factor=${factor} Target=${targetCals} → Exact=${exactTargetKcal} (P${protein} C${carbs} F${fat})`);
+    // 8. Range calculation (daily fluctuation buffer)
+    const calorieBuffer = Math.round(exactTargetKcal * 0.05);
+    const proteinBuffer = Math.round(protein * 0.1);
+    const fatBuffer = Math.round(fat * 0.1);
+    const carbBuffer = Math.round(carbs * 0.1);
 
     return {
         tdee_estimate: tdee,
@@ -133,14 +137,13 @@ export function calculateTargetRanges(profile) {
         protein_g: protein,
         fat_g: fat,
         carbs_g: carbs,
-        // Legacy range fields (single value for compatibility)
         calorie_target_min: exactTargetKcal,
-        calorie_target_max: exactTargetKcal,
+        calorie_target_max: exactTargetKcal + calorieBuffer,
         protein_g_min: protein,
-        protein_g_max: protein,
+        protein_g_max: protein + proteinBuffer,
         fat_g_min: fat,
-        fat_g_max: fat,
+        fat_g_max: fat + fatBuffer,
         carbs_g_min: carbs,
-        carbs_g_max: carbs
+        carbs_g_max: carbs + carbBuffer
     };
 }

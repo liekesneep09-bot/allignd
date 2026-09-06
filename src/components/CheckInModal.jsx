@@ -102,6 +102,7 @@ export default function CheckInModal({ isOpen, onClose, dateStr }) {
                     <h2 style={{ fontSize: '1.25rem', margin: 0 }}>{t('checkin.title')}</h2>
                     <button
                         onClick={onClose}
+                        aria-label={t('common.close')}
                         style={{ background: 'none', border: 'none', padding: '0.5rem', cursor: 'pointer', fontSize: '1.5rem', lineHeight: 1 }}
                     >
                         &times;

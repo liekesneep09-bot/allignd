@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
 import { getFitnessAdvice, getFitnessContent, getBodyPartAdvice } from '../data/fitnessContent'
@@ -55,6 +55,11 @@ export default function Fitness() {
     const { user, currentPhase, logMovement } = useUser()
     const { language, t } = useLanguage()
     const [selectedBodyPart, setSelectedBodyPart] = useState(null)
+
+    // Reset selected body part when component mounts
+    useEffect(() => {
+        setSelectedBodyPart(null)
+    }, [])
 
     const fitnessContent = getFitnessContent(language)
     const phaseContent = getPhaseContent(language, currentPhase)

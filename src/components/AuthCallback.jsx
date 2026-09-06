@@ -28,7 +28,6 @@ export default function AuthCallback() {
                 // Newer Supabase default: ?code=xxx
                 const code = params.get('code')
                 if (code) {
-                    console.log('[AuthCallback] PKCE flow detected, exchanging code...')
                     const { error } = await supabase.auth.exchangeCodeForSession(code)
                     if (error) throw error
                     if (mounted) doRedirect()
@@ -40,7 +39,6 @@ export default function AuthCallback() {
                 const token_hash = params.get('token_hash')
                 const type = params.get('type')
                 if (token_hash && type) {
-                    console.log('[AuthCallback] token_hash flow detected, verifying OTP...')
                     const { error } = await supabase.auth.verifyOtp({ token_hash, type })
                     if (error) throw error
                     if (mounted) doRedirect()
@@ -51,7 +49,6 @@ export default function AuthCallback() {
                 // Older Supabase: #access_token=xxx in URL hash
                 // The Supabase client handles this automatically via onAuthStateChange
                 // So we just wait a bit and check for session
-                console.log('[AuthCallback] No explicit token found, waiting for implicit flow...')
                 await new Promise(resolve => setTimeout(resolve, 1200))
                 if (!mounted || hasRedirected.current) return
 
@@ -77,7 +74,6 @@ export default function AuthCallback() {
         // Also listen for auth state changes (handles implicit flow hash)
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             if (!mounted) return
-            console.log('[AuthCallback] Auth state change:', event)
             if (session && !hasRedirected.current) {
                 doRedirect()
             }

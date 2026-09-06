@@ -17,6 +17,7 @@
     "gram": "gram",
     "ml": "ml",
     "portions": "portions",
+    "close": "Close",
     "offline": "You are offline. Some features may not work."
   },
   "landing": {
@@ -125,7 +126,7 @@
     "welcome_subtitle": "Based on your body, goals, and energy",
     "start_now": "START NOW",
     "logout_other": "Log out / Other account",
-    "step_x_of_y": "Step {step} of 7",
+    "step_x_of_y": "Step {step} of 6",
     "step6_title": "Dietary Preference",
     "step6_subtitle": "We will adapt your recipes and food advice accordingly.",
     "dietary_preference": "Dietary Preference",
@@ -167,8 +168,9 @@
     "step4_subtitle": "This determines your daily energy expenditure.",
     "lifestyle": "Work & lifestyle",
     "lifestyle_sedentary": "Mostly sitting",
-    "lifestyle_mixed": "Mixed / Alternating",
-    "lifestyle_active": "Mostly standing / physical",
+    "lifestyle_lightly_active": "Lightly active (1-2 days/week)",
+    "lifestyle_moderately_active": "Moderately active (3-4 days/week)",
+    "lifestyle_very_active": "Very active (5+ days/week)",
     "steps": "Daily steps",
     "steps_lt4k": "Less than 4,000 steps",
     "steps_4k_8k": "4,000 – 8,000 steps",
@@ -193,6 +195,7 @@
     "save_start_authed": "Save Profile & Start",
     "save_start_new": "Create Account & Start",
     "next": "Next",
+    "fill_all_fields": "Fill in all required fields to continue",
     "step7_title": "Your personal plan is ready.",
     "step7_subtitle": "Here is what we calculated for you.",
     "go_to_dashboard": "Go to dashboard",
@@ -290,6 +293,8 @@
     "onboarding_reset": "Redo Onboarding",
     "onboarding_reset_confirm": "Are you sure you want to redo onboarding? Your settings will be reset.",
     "logout": "Log Out",
+    "export_data": "Export my data",
+    "privacy_policy": "Privacy Policy",
     "delete_account": "Delete Account",
     "delete_confirm_title": "Are you sure?",
     "delete_confirm_desc": "This will permanently delete all your data (logs, profile, and account) and cannot be undone.",
@@ -537,7 +542,8 @@
     "fitness": "Fitness",
     "recipes": "Recipes",
     "profile": "Profile",
-    "guide": "Guide"
+    "guide": "Guide",
+    "calendar": "Calendar"
   },
   "community": {
     "title": "Community",
@@ -577,6 +583,8 @@
     "empty_my_posts": "You haven't posted anything yet.",
     "empty_liked": "You haven't liked any posts yet.",
     "empty_commented": "You haven't commented on anything yet.",
+    "like": "Like",
+    "unlike": "Unlike",
     "categories": {
       "alles": "All",
       "voeding": "Nutrition",
@@ -611,12 +619,18 @@
     "processing": "Processing payment...",
     "processing_desc": "One moment, we're linking your account. This takes a few seconds at most.",
     "free_trial": "7-day free trial",
+    "yearly_price": "€79.99",
     "yearly_desc": "Pay once a year. That's less than",
     "yearly_price_highlight": "€6.67/mo",
+    "monthly_price": "€7.99",
     "monthly_price_suffix": "per month",
     "monthly_desc": "Cancel anytime. No long-term commitment.",
     "disclaimer": "No charges during the trial. You can cancel at any time via your account settings.",
-    "logout": "Log out"
+    "logout": "Log out",
+    "feature_cycle": "Personalized cycle insights & phase tracking",
+    "feature_nutrition": "Nutrition & macros aligned with your cycle",
+    "feature_fitness": "Workouts that move with your energy",
+    "feature_community": "Community of women who understand"
   },
   "cycle": {
     "title": "Your Cycle",
@@ -712,7 +726,11 @@
     "days_until_period_one": "day until\nyour period",
     "days_until_period_other": "days until\nyour period",
     "day_x_of_y": "Day {current} of {total}",
-    "read_more": "Read more about this phase"
+    "day_x": "Day {current}",
+    "read_more": "Read more about this phase",
+    "any_moment": "could start\nany moment",
+    "days_longer": "days longer\nthan usual",
+    "end_of_cycle": "End of cycle"
   },
   "calendar": {
     "title": "Calendar",
@@ -799,5 +817,45 @@
     "verify_email_title": "Verify your email",
     "verify_email_subtitle": "We sent a confirmation link to your email address. Click the link to activate your account and you'll automatically return to the app.",
     "no_user_found": "No user found"
+  },
+  "water": {
+    "glass": "+ Glass",
+    "bottle": "+ Bottle",
+    "bidon": "+ Bidon",
+    "restore": "Restore"
+  },
+  "steps": {
+    "title": "Steps",
+    "input_placeholder": "Number of steps...",
+    "save": "Save",
+    "add_1000": "+ 1,000",
+    "manual_entry": "Manual entry"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "intro_title": "Introduction",
+    "intro_text": "At Allignd, we respect your privacy and are committed to protecting your personal data. This privacy policy explains what data we collect, how we use it, and your rights.",
+    "data_collection_title": "What data do we collect?",
+    "data_collection_text": "We collect the following data:",
+    "data_personal": "Personal data: name, email address, age, height, weight",
+    "data_health": "Health data: menstrual cycle, symptoms, nutrition patterns, training habits",
+    "data_usage": "Usage data: app activity, preferences, progress",
+    "data_usage_title": "How do we use your data?",
+    "data_usage_text": "Your data is used for:",
+    "usage_personalize": "Personalization: we tailor nutrition and training advice to your cycle and goals",
+    "usage_calculate": "Calculations: we calculate your macro targets based on your profile",
+    "usage_track": "Tracking: we track your progress so you can see your development",
+    "data_sharing_title": "Do we share your data?",
+    "data_sharing_text": "No. We do not sell or share your personal data with third parties. Your health data remains private and is only used within the app. We do not use external analytics that track personal data.",
+    "data_security_title": "How do we secure your data?",
+    "data_security_text": "We use industry-standard security measures: all data is encrypted during transport (HTTPS) and storage. We use Supabase as our database provider with enterprise-grade security. Payments are processed through Stripe, a PCI-compliant payment processor.",
+    "your_rights_title": "Your rights",
+    "your_rights_text": "You have the right to:",
+    "right_access": "Access: request a copy of all your data",
+    "right_export": "Export: download your data in a machine-readable format",
+    "right_delete": "Deletion: delete your account and all associated data permanently",
+    "contact_title": "Contact",
+    "contact_text": "For privacy questions or to exercise your rights, contact us at: privacy@allignd.nl",
+    "last_updated": "Last updated"
   }
 }

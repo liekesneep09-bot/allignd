@@ -79,7 +79,7 @@ export default async function handler(req, res) {
       const { error } = await supabase
         .from('profiles')
         .update({ subscription_status: 'active' })
-        .eq('id', userId);
+        .eq('user_id', userId);
 
       if (error) {
         console.error('Failed to update Supabase profile:', error);
@@ -117,7 +117,7 @@ export default async function handler(req, res) {
           const { error } = await supabase
               .from('profiles')
               .update({ subscription_status: 'inactive' })
-              .eq('id', userId);
+              .eq('user_id', userId);
 
           if (error) {
               console.error('Failed to revoke Supabase access:', error);

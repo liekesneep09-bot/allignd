@@ -339,25 +339,41 @@ export default function WeightTracker({ date, compact = false }) {
     if (compact) {
         return (
             <>
-                <section className="card-minimal" style={{ padding: '1rem 1.25rem', background: '#fff', borderRadius: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid var(--color-border)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: `${phaseColor}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ color: phaseColor }}>
+                <section className="card" style={{ padding: 'var(--space-4)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                        <div style={{ 
+                          width: '40px', 
+                          height: '40px', 
+                          borderRadius: 'var(--radius-md)', 
+                          background: 'var(--color-primary-light)', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center',
+                          color: 'var(--color-primary)'
+                        }}>
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <rect x="3" y="6" width="18" height="12" rx="3" />
                                 <path d="M12 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
                                 <path d="M12 10v4" />
                             </svg>
                         </div>
                         <div>
-                            <h2 style={{ fontSize: '1rem', margin: '0 0 2px 0', color: 'var(--color-text)', fontWeight: '700' }}>{t('weight.title')}</h2>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>
+                            <h2 style={{ fontSize: 'var(--font-size-base)', margin: '0 0 2px 0', color: 'var(--color-text)', fontWeight: '600' }}>{t('weight.title')}</h2>
+                            <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)', fontWeight: '500' }}>
                                 {currentWeight ? `${currentWeight} ${t('weight.kg')}` : t('weight.not_logged')}
                             </div>
                         </div>
                     </div>
                     <button
                         onClick={() => { setTempWeight(currentWeight ? String(currentWeight) : ''); setShowSheet(true) }}
-                        style={{ background: 'var(--color-primary)', color: '#333333', border: 'none', borderRadius: '20px', padding: '6px 16px', fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer', boxShadow: '0 2px 8px rgba(255, 174, 185, 0.3)' }}
+                        className="btn btn-primary"
+                        style={{ 
+                          width: 'auto',
+                          padding: 'var(--space-2) var(--space-4)', 
+                          borderRadius: 'var(--radius-full)', 
+                          fontSize: 'var(--font-size-xs)', 
+                          fontWeight: '600' 
+                        }}
                     >
                         {t('weight.log_btn')}
                     </button>
