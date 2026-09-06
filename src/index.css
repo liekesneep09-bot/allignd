@@ -112,11 +112,12 @@ body {
 #root {
   max-width: 480px;
   margin: 0 auto;
-  min-height: 100vh;
+  height: 100dvh;
   background-color: var(--color-surface);
   position: relative;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 /* ──────────────────────────────────────────────────────────────

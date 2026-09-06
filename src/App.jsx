@@ -181,12 +181,14 @@ function MainLayout() {
 
             </header>
 
-            <main 
+            <main
                 style={{
                     background: currentView !== 'today' ? phaseStyle.bg : undefined,
-                    minHeight: currentView !== 'today' ? 'calc(100vh - 56px)' : undefined,
                     transition: 'background 0.5s ease',
-                    flex: 1
+                    flex: 1,
+                    overflowY: 'auto',
+                    overflowX: 'hidden',
+                    WebkitOverflowScrolling: 'touch'
                 }}
             >
                 {currentView === 'today' && <Today onNavigate={navigateTo} />}
