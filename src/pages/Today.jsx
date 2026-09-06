@@ -690,7 +690,9 @@ export default function Today({ onNavigate }) {
                   borderRadius: 'var(--radius-full)',
                   boxShadow: 'var(--shadow-md)',
                   fontSize: 'var(--font-size-sm)',
-                  fontWeight: '600'
+                  fontWeight: '600',
+                  marginTop: 'var(--space-5)',
+                  marginBottom: 'var(--space-5)'
                 }}
               >
                 {t('today.add_food')}
