@@ -119,7 +119,7 @@ export default function Login() {
         width: '100%',
         maxWidth: '400px', // slightly smaller, tighter for premium feel
         backgroundColor: '#FFFFFF',
-        borderRadius: '24px',
+        borderRadius: 'var(--radius-lg)',
         padding: '2.5rem 2rem',
         boxShadow: '0 12px 48px rgba(0,0,0,0.06)', // deep soft shadow
         border: '1px solid rgba(0,0,0,0.03)',
@@ -133,7 +133,7 @@ export default function Login() {
     const inputStyle = {
         width: '100%',
         padding: '1rem 1.25rem',
-        borderRadius: '12px',
+        borderRadius: 'var(--radius-sm)',
         border: '1px solid #EBEBEB',
         backgroundColor: '#FCFCFC',
         color: '#333333',
@@ -146,7 +146,7 @@ export default function Login() {
     const primaryBtnStyle = {
         width: '100%',
         padding: '1.1rem',
-        borderRadius: '14px',
+        borderRadius: 'var(--radius-md)',
         border: 'none',
         background: 'var(--color-primary)', // Keeping brand identity
         color: '#333333',
@@ -162,7 +162,7 @@ export default function Login() {
     const secondaryBtnStyle = {
         width: '100%',
         padding: '1.1rem',
-        borderRadius: '14px',
+        borderRadius: 'var(--radius-md)',
         border: '1px solid #EBEBEB',
         backgroundColor: '#FFFFFF',
         color: '#333333',
@@ -191,7 +191,7 @@ export default function Login() {
                 {t('auth.confirm_sent')} <strong style={{color: '#333'}}>{email}</strong>.<br/>
                 {t('auth.confirm_click')}
             </p>
-            <div style={{ padding: '1rem', background: '#F8F8F8', borderRadius: '12px', fontSize: '0.9rem', color: '#666', width: '100%', boxSizing: 'border-box' }}>
+            <div style={{ padding: '1rem', background: '#F8F8F8', borderRadius: 'var(--radius-sm)', fontSize: '0.9rem', color: '#666', width: '100%', boxSizing: 'border-box' }}>
                 {t('auth.tip_spam')}
             </div>
             {successMessage && <div style={{ color: '#10B981', fontSize: '0.9rem', fontWeight: '500' }}>{successMessage}</div>}
@@ -228,7 +228,7 @@ export default function Login() {
                     <p style={{ color: '#666', lineHeight: '1.5', margin: 0 }}>
                         {t('auth.reset_sent_to')} <strong style={{color: '#333'}}>{email}</strong> {t('auth.reset_link_info')}
                     </p>
-                    <div style={{ padding: '1rem', background: '#F8F8F8', borderRadius: '12px', fontSize: '0.9rem', color: '#666', width: '100%', boxSizing: 'border-box' }}>
+                    <div style={{ padding: '1rem', background: '#F8F8F8', borderRadius: 'var(--radius-sm)', fontSize: '0.9rem', color: '#666', width: '100%', boxSizing: 'border-box' }}>
                         {t('auth.tip_spam')}
                     </div>
                     <button onClick={() => { setView('login'); setResetSent(false); setError('') }} style={primaryBtnStyle}>
@@ -242,7 +242,7 @@ export default function Login() {
                         {t('auth.forgot_desc')}
                     </p>
                     <input type="email" placeholder={t('auth.email_placeholder')} value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" style={inputStyle} />
-                    {error && <div style={{ padding: '0.8rem', borderRadius: '10px', background: '#FEF2F2', color: '#EF4444', fontSize: '0.875rem', width: '100%', boxSizing: 'border-box' }}>{error}</div>}
+                    {error && <div style={{ padding: '0.8rem', borderRadius: 'var(--radius-sm)', background: '#FEF2F2', color: '#EF4444', fontSize: '0.875rem', width: '100%', boxSizing: 'border-box' }}>{error}</div>}
                     <button onClick={handleResetPassword} disabled={isLoading} style={primaryBtnStyle}>
                         {isLoading ? t('auth.loading') : t('auth.send_reset')}
                     </button>
@@ -304,7 +304,7 @@ export default function Login() {
                 <input type="email" placeholder={t('auth.email_placeholder')} value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" style={inputStyle} />
                 <input type="password" placeholder={t('auth.password_placeholder')} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={view === 'login' ? 'current-password' : 'new-password'} style={inputStyle} />
                 
-                {error && <div style={{ padding: '0.8rem', borderRadius: '10px', background: '#FEF2F2', color: '#EF4444', fontSize: '0.875rem', width: '100%', boxSizing: 'border-box', textAlign: 'left' }}>{error}</div>}
+                {error && <div style={{ padding: '0.8rem', borderRadius: 'var(--radius-sm)', background: '#FEF2F2', color: '#EF4444', fontSize: '0.875rem', width: '100%', boxSizing: 'border-box', textAlign: 'left' }}>{error}</div>}
                 
                 <button type="submit" disabled={isLoading} style={{...primaryBtnStyle, marginTop: '1rem'}}>
                     {isLoading ? t('auth.loading') : (view === 'login' ? t('auth.login_btn') : t('auth.signup_btn'))}

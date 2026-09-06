@@ -80,12 +80,12 @@ function MacroListItem({ label, current, target, color }) {
         <span style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--color-text)', minWidth: '35px' }}>
           {Math.round(percentage)}%
         </span>
-        <div style={{ flex: 1, height: '6px', background: 'var(--color-bg)', borderRadius: '3px', overflow: 'hidden' }}>
+        <div style={{ flex: 1, height: '6px', background: 'var(--color-bg)', borderRadius: 'var(--radius-xs)', overflow: 'hidden' }}>
           <div style={{
             width: `${percentage}%`,
             height: '100%',
             background: color,
-            borderRadius: '3px',
+            borderRadius: 'var(--radius-xs)',
             transition: 'width 0.3s ease-out'
           }} />
         </div>
@@ -103,13 +103,13 @@ function RecipeTeaser({ item, cat }) {
       gap: '1rem',
       alignItems: 'center',
       background: 'var(--color-surface)',
-      borderRadius: '12px',
+      borderRadius: 'var(--radius-md)',
       border: '1px solid var(--color-border)'
     }}>
       <div style={{
         width: '40px',
         height: '40px',
-        borderRadius: '50%',
+                  borderRadius: 'var(--radius-full)',
         background: 'var(--color-bg)',
         display: 'flex',
         alignItems: 'center',
@@ -165,7 +165,7 @@ function DayStrip({ selectedDate, onSelect, accentColor }) {
               cursor: 'pointer',
               padding: '0.5rem',
               minWidth: '36px',
-              borderRadius: '20px',
+              borderRadius: 'var(--radius-lg)',
               background: isSelected ? '#FFFFFF' : 'transparent',
               color: isSelected ? (accentColor || 'var(--color-primary)') : 'var(--color-text)',
               boxShadow: isSelected ? '0 2px 10px rgba(0,0,0,0.05)' : 'none'
@@ -192,7 +192,7 @@ function DayStrip({ selectedDate, onSelect, accentColor }) {
                   transform: 'translateX(-50%)',
                   width: '4px',
                   height: '4px',
-                  borderRadius: '50%',
+                  borderRadius: 'var(--radius-full)',
                   background: 'var(--color-primary)'
                 }} />
               )}
@@ -304,7 +304,7 @@ export default function Today({ onNavigate }) {
   if (isLoading) {
     return (
       <div className="container" style={{ paddingTop: '2rem', paddingBottom: '120px' }}>
-        <div style={{ height: '200px', background: 'var(--color-surface)', borderRadius: '24px', marginBottom: '1.5rem' }}></div>
+        <div style={{ height: '200px', background: 'var(--color-surface)', borderRadius: 'var(--radius-lg)', marginBottom: '1.5rem' }}></div>
       </div>
     )
   }
@@ -347,7 +347,7 @@ export default function Today({ onNavigate }) {
         transition: 'background 0.5s ease'
       }}>
 
-        <div className="container" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', paddingBottom: 0 }}>
+        <div className="container" style={{ paddingBottom: 0 }}>
 
           {/* Top Bar: Profile + Date + Calendar */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3)' }}>
@@ -599,7 +599,7 @@ export default function Today({ onNavigate }) {
       </div>
 
       {/* MAIN CONTENT SECTION */}
-      <div className="container" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem', paddingTop: 'var(--space-2)' }}>
+      <div className="container" style={{ paddingTop: 'var(--space-2)' }}>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
 
@@ -989,17 +989,17 @@ export default function Today({ onNavigate }) {
       <style>{`
         .card-minimal {
           background: var(--color-surface);
-          border-radius: 20px;
+          border-radius: var(--radius-lg);
           padding: 1.5rem;
           border: 1px solid var(--color-border);
         }
-        
+
         .chip-action {
           display: inline-flex;
           align-items: center;
           padding: 0.5rem 1rem;
           background-color: var(--color-bg);
-          border-radius: 20px;
+          border-radius: var(--radius-lg);
           font-size: 0.9rem;
           color: var(--color-text);
           font-weight: 500;
@@ -1011,7 +1011,7 @@ export default function Today({ onNavigate }) {
           background: var(--color-surface);
           color: var(--color-primary);
           border: 1px solid var(--color-border);
-          border-radius: 12px;
+          border-radius: var(--radius-md);
           width: 100%;
           padding: 1rem;
           font-size: 1rem;
@@ -1047,11 +1047,11 @@ export default function Today({ onNavigate }) {
             width: 100%;
             max-width: 480px;
             padding: 2rem;
-            border-radius: 20px 20px 0 0;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
             animation: slideUp 0.3s ease-out;
         }
         @media(min-width: 480px) {
-            .modal-content { border-radius: 20px; width: 90%; }
+            .modal-content { border-radius: var(--radius-lg); width: 90%; }
         }
         @keyframes slideUp {
             from { transform: translateY(100%); }

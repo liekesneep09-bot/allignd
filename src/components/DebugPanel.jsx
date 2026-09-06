@@ -81,7 +81,7 @@ export default function DebugPanel() {
                         color: 'white',
                         border: 'none',
                         padding: '12px 16px',
-                        borderRadius: '8px',
+                        borderRadius: 'var(--radius-sm)',
                         fontSize: '14px',
                         fontWeight: '600',
                         cursor: 'pointer',
@@ -116,7 +116,7 @@ export default function DebugPanel() {
                                 color: '#00ff00',
                                 border: '1px solid #00ff00',
                                 padding: '4px 8px',
-                                borderRadius: '4px',
+                                borderRadius: 'var(--radius-xs)',
                                 fontSize: '10px',
                                 cursor: 'pointer'
                             }}
@@ -187,7 +187,7 @@ export default function DebugPanel() {
                                 color: 'white',
                                 border: 'none',
                                 padding: '6px 8px',
-                                borderRadius: '4px',
+                                borderRadius: 'var(--radius-xs)',
                                 fontSize: '11px',
                                 cursor: 'pointer'
                             }}
@@ -201,7 +201,7 @@ export default function DebugPanel() {
                                 color: 'white',
                                 border: 'none',
                                 padding: '6px 8px',
-                                borderRadius: '4px',
+                                borderRadius: 'var(--radius-xs)',
                                 fontSize: '11px',
                                 cursor: 'pointer'
                             }}
@@ -215,7 +215,7 @@ export default function DebugPanel() {
                                 color: 'white',
                                 border: 'none',
                                 padding: '6px 8px',
-                                borderRadius: '4px',
+                                borderRadius: 'var(--radius-xs)',
                                 fontSize: '11px',
                                 cursor: 'pointer'
                             }}
@@ -229,7 +229,7 @@ export default function DebugPanel() {
                                 color: 'white',
                                 border: 'none',
                                 padding: '6px 8px',
-                                borderRadius: '4px',
+                                borderRadius: 'var(--radius-xs)',
                                 fontSize: '11px',
                                 cursor: 'pointer'
                             }}
@@ -243,7 +243,7 @@ export default function DebugPanel() {
                                 color: 'white',
                                 border: 'none',
                                 padding: '6px 8px',
-                                borderRadius: '4px',
+                                borderRadius: 'var(--radius-xs)',
                                 fontSize: '11px',
                                 cursor: 'pointer'
                             }}
@@ -257,7 +257,7 @@ export default function DebugPanel() {
                                 color: 'white',
                                 border: 'none',
                                 padding: '6px 8px',
-                                borderRadius: '4px',
+                                borderRadius: 'var(--radius-xs)',
                                 fontSize: '11px',
                                 cursor: 'pointer'
                             }}

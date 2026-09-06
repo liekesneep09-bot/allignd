@@ -107,12 +107,12 @@ function MacroWeekCard({ t, language }) {
 
             {/* Kcal progress bar */}
             <div style={{ marginBottom: '1.25rem' }}>
-                <div style={{ height: '8px', background: 'var(--color-bg)', borderRadius: '4px', overflow: 'hidden', marginBottom: '4px' }}>
+                <div style={{ height: '8px', background: 'var(--color-bg)', borderRadius: 'var(--radius-xs)', overflow: 'hidden', marginBottom: '4px' }}>
                     <div style={{
                         width: `${kcalPct}%`,
                         height: '100%',
                         background: kcalColor,
-                        borderRadius: '4px',
+                        borderRadius: 'var(--radius-xs)',
                         transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)'
                     }} />
                 </div>
@@ -132,12 +132,12 @@ function MacroWeekCard({ t, language }) {
                                     {m.avg}g <span style={{ opacity: 0.5, fontWeight: 400 }}>/ {m.goal}g</span>
                                 </span>
                             </div>
-                            <div style={{ height: '5px', background: 'var(--color-bg)', borderRadius: '3px', overflow: 'hidden' }}>
+                            <div style={{ height: '5px', background: 'var(--color-bg)', borderRadius: 'var(--radius-xs)', overflow: 'hidden' }}>
                                 <div style={{
                                     width: `${pct}%`,
                                     height: '100%',
                                     background: m.color,
-                                    borderRadius: '3px',
+                                    borderRadius: 'var(--radius-xs)',
                                     transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)'
                                 }} />
                             </div>
@@ -238,7 +238,7 @@ function SymptomCompareCard({ t, language }) {
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                                 {comparison.current.map(s => (
                                     <span key={s} style={{
-                                        padding: '4px 10px', borderRadius: '20px',
+                                        padding: '4px 10px', borderRadius: 'var(--radius-lg)',
                                         background: `${phaseColor}15`,
                                         border: `1px solid ${phaseColor}30`,
                                         fontSize: '0.78rem', color: 'var(--color-text)', fontWeight: '500'
@@ -252,7 +252,7 @@ function SymptomCompareCard({ t, language }) {
 
                     {/* Previous cycle comparison */}
                     {comparison.hasPrevData && (
-                        <div style={{ padding: '0.75rem', background: 'var(--color-bg)', borderRadius: '12px' }}>
+                        <div style={{ padding: '0.75rem', background: 'var(--color-bg)', borderRadius: 'var(--radius-sm)' }}>
                             <div style={{ fontSize: '0.72rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>
                                 {t('progress.prev_cycle')}
                             </div>
@@ -307,7 +307,7 @@ function SymptomCompareCard({ t, language }) {
 
 const cardStyle = {
     background: '#fff',
-    borderRadius: '20px',
+    borderRadius: 'var(--radius-lg)',
     padding: '1.5rem',
     border: '1px solid var(--color-border)',
     boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
@@ -365,13 +365,13 @@ export default function Progress({ onClose }) {
                 padding: '0.6rem 1.5rem',
                 background: `${phaseColor}10`
             }}>
-                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: phaseColor }} />
+                <div style={{ width: '8px', height: '8px', borderRadius: 'var(--radius-full)', background: phaseColor }} />
                 <span style={{ fontSize: '0.78rem', color: phaseColor, fontWeight: '600' }}>
                     {t('progress.current_phase')}: {t(`profile.phases.${currentPhase}`)}
                 </span>
             </div>
 
-            <div style={{ padding: '1.25rem 1.25rem 0', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ padding: '1.5rem 1.5rem 0', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <MacroWeekCard t={t} language={language} />
                 <WeightTracker date={getLocalDateStr(new Date())} />
                 <SymptomCompareCard t={t} language={language} />

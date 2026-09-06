@@ -159,7 +159,7 @@ export default function LandingPage({ onEnterApp }) {
             letterSpacing: '1px',
             border: '1px solid rgba(255,255,255,0.3)',
             padding: '10px 20px',
-            borderRadius: '30px',
+            borderRadius: 'var(--radius-lg)',
             marginLeft: '20px'
           }}>{t('landing.cta_first')}</a>
 
@@ -171,7 +171,7 @@ export default function LandingPage({ onEnterApp }) {
                   color: '#FFF',
                   border: 'none',
                   padding: '10px 20px',
-                  borderRadius: '30px',
+                  borderRadius: 'var(--radius-lg)',
                   marginLeft: '10px',
                   fontWeight: 700,
                   cursor: 'pointer',
@@ -211,7 +211,7 @@ export default function LandingPage({ onEnterApp }) {
                   color: '#FFF',
                   border: 'none',
                   padding: '12px',
-                  borderRadius: '12px',
+                  borderRadius: 'var(--radius-sm)',
                   marginTop: '1rem',
                   fontWeight: 700,
                   cursor: 'pointer',
@@ -240,7 +240,7 @@ export default function LandingPage({ onEnterApp }) {
             backgroundColor: '#ffaeb9',
             color: '#1E1B1B',
             padding: '16px 32px',
-            borderRadius: '30px',
+            borderRadius: 'var(--radius-lg)',
             textDecoration: 'none',
             fontWeight: 700,
             fontSize: '0.9rem',
@@ -340,7 +340,7 @@ export default function LandingPage({ onEnterApp }) {
         
         <div>
           {status === 'success' ? (
-            <div style={{ padding: '20px', backgroundColor: '#FFF', borderRadius: '8px', color: '#6a9f6b', fontWeight: 600, textAlign: 'center' }}>
+            <div style={{ padding: '20px', backgroundColor: '#FFF', borderRadius: 'var(--radius-sm)', color: '#6a9f6b', fontWeight: 600, textAlign: 'center' }}>
               {t('landing.waitlist_success')}
             </div>
           ) : (

@@ -34,7 +34,7 @@ export default function BetaUnlockScreen() {
             <div style={{
                 background: 'var(--color-surface, #ffffff)',
                 padding: '3rem 2rem',
-                borderRadius: '24px',
+                borderRadius: 'var(--radius-lg)',
                 boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
                 width: '100%',
                 maxWidth: '400px',
@@ -77,7 +77,7 @@ export default function BetaUnlockScreen() {
                         style={{
                             width: '100%',
                             padding: '14px 16px',
-                            borderRadius: '12px',
+                            borderRadius: 'var(--radius-sm)',
                             border: error ? '2px solid #FF4D4D' : '1px solid #E0E0E0',
                             fontSize: '1rem',
                             marginBottom: '1rem',
@@ -102,7 +102,7 @@ export default function BetaUnlockScreen() {
                             color: '#ffffff',
                             border: 'none',
                             padding: '14px',
-                            borderRadius: '30px',
+                            borderRadius: 'var(--radius-lg)',
                             fontSize: '1rem',
                             fontWeight: '600',
                             cursor: 'pointer',

@@ -43,6 +43,7 @@
   --color-info: #2196F3;
 
   /* Border Radius — 3-tier system */
+  --radius-xs: 4px;
   --radius-sm: 8px;
   --radius-md: 16px;
   --radius-lg: 24px;
@@ -415,6 +416,11 @@ input::placeholder {
 
 .fade-in {
   animation: fadeIn var(--transition-slow);
+}
+
+.container {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
 .slide-up {

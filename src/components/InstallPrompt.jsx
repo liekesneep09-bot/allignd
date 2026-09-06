@@ -77,7 +77,7 @@ export default function InstallPrompt() {
             margin: '0 auto',
             padding: '16px',
             background: 'var(--color-surface)',
-            borderRadius: '16px',
+            borderRadius: 'var(--radius-md)',
             boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
             zIndex: 1000,
             animation: 'slideUp 0.3s ease-out'
@@ -93,7 +93,7 @@ export default function InstallPrompt() {
                 <img
                     src="/logo-192.png"
                     alt="Allignd"
-                    style={{ width: '48px', height: '48px', borderRadius: '12px' }}
+                    style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-sm)' }}
                 />
 
                 <div style={{ flex: 1 }}>
@@ -144,7 +144,7 @@ export default function InstallPrompt() {
                             padding: '8px 20px',
                             background: 'var(--color-primary)',
                             border: 'none',
-                            borderRadius: '8px',
+                            borderRadius: 'var(--radius-sm)',
                             color: 'white',
                             fontSize: '0.9rem',
                             fontWeight: '500',

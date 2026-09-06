@@ -228,7 +228,7 @@ export default function Recipes() {
     const nutrients = phaseInfo?.nutrients || []
 
     return (
-        <div className="container" style={{ paddingBottom: '90px' }}>
+        <div className="container" style={{ paddingBottom: '90px', paddingTop: '1rem' }}>
             <header style={{ marginBottom: '1.5rem' }}>
                 <h1 style={{ fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>{t('recipes.title')}</h1>
             </header>
@@ -263,7 +263,7 @@ export default function Recipes() {
                                 <div style={{
                                     minWidth: '36px',
                                     height: '36px',
-                                    borderRadius: '8px',
+                                    borderRadius: 'var(--radius-sm)',
                                     background: phaseColors.icon,
                                     display: 'flex',
                                     alignItems: 'center',
@@ -315,7 +315,7 @@ export default function Recipes() {
                                                     <span key={j} style={{
                                                         background: 'var(--color-surface)',
                                                         border: `1px solid ${phaseColors.border}`,
-                                                        borderRadius: '100px',
+                                                        borderRadius: 'var(--radius-full)',
                                                         padding: '0.2rem 0.55rem',
                                                         fontSize: '0.75rem',
                                                         color: 'var(--color-text)',

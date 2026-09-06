@@ -154,7 +154,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                     margin: '0.75rem 1rem 0',
                     padding: '10px 14px',
                     background: 'rgba(196,80,106,0.07)',
-                    borderRadius: '12px',
+                    borderRadius: 'var(--radius-sm)',
                     display: 'flex',
                     alignItems: 'flex-start',
                     gap: '8px',
@@ -223,7 +223,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                         color: '#333333',
                         border: 'none',
                         padding: '0.8rem 3rem',
-                        borderRadius: '30px',
+                        borderRadius: 'var(--radius-lg)',
                         fontWeight: '600',
                         fontSize: '1rem',
                         boxShadow: '0 4px 12px rgba(255, 174, 185, 0.4)',
@@ -253,11 +253,11 @@ function LegendItem({ color, filled, dashed, dot, label }) {
     return (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
             {dot ? (
-                <div style={{ width: 6, height: 6, borderRadius: '50%', background: color }} />
+                <div style={{ width: 6, height: 6, borderRadius: 'var(--radius-full)', background: color }} />
             ) : dashed ? (
-                <div style={{ width: 10, height: 10, borderRadius: '50%', border: `2px dashed ${color}`, boxSizing: 'border-box' }} />
+                <div style={{ width: 10, height: 10, borderRadius: 'var(--radius-full)', border: `2px dashed ${color}`, boxSizing: 'border-box' }} />
             ) : (
-                <div style={{ width: 10, height: 10, borderRadius: '50%', background: color }} />
+                <div style={{ width: 10, height: 10, borderRadius: 'var(--radius-full)', background: color }} />
             )}
             <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>{label}</span>
         </div>
@@ -290,7 +290,7 @@ function DaySummarySheet({ dateStr, summaryData, justLogged, onClose, onToggle }
                 animation: 'slideUp 0.25s ease-out'
             }}>
                 {/* Handle */}
-                <div style={{ width: '40px', height: '4px', background: 'var(--color-border)', borderRadius: '2px', margin: '0 auto 1.25rem' }} />
+                <div style={{ width: '40px', height: '4px', background: 'var(--color-border)', borderRadius: 'var(--radius-xs)', margin: '0 auto 1.25rem' }} />
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
                     <h3 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--color-text)', textTransform: 'capitalize' }}>
@@ -331,7 +331,7 @@ function DaySummarySheet({ dateStr, summaryData, justLogged, onClose, onToggle }
                         textAlign: 'center',
                         padding: '1rem',
                         background: 'rgba(196,80,106,0.08)',
-                        borderRadius: '16px',
+                        borderRadius: 'var(--radius-md)',
                         color: '#c4506a',
                         fontWeight: '600',
                         fontSize: '0.95rem'
@@ -344,7 +344,7 @@ function DaySummarySheet({ dateStr, summaryData, justLogged, onClose, onToggle }
                         style={{
                             width: '100%',
                             padding: '1rem',
-                            borderRadius: '16px',
+                            borderRadius: 'var(--radius-md)',
                             border: 'none',
                             background: isPeriod ? 'rgba(255,174,185,0.15)' : 'var(--color-primary)',
                             color: isPeriod ? 'var(--color-primary)' : '#333333',
@@ -366,7 +366,7 @@ function SummaryRow({ color, label, active }) {
     return (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <div style={{
-                width: '26px', height: '26px', borderRadius: '50%',
+                width: '26px', height: '26px', borderRadius: 'var(--radius-full)',
                 background: color,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 flexShrink: 0
@@ -428,7 +428,7 @@ function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef, is
                 <div style={{
                     width: '32px',
                     height: '32px',
-                    borderRadius: '50%',
+                    borderRadius: 'var(--radius-full)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -457,13 +457,13 @@ function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef, is
                 }}>
                     {hasMoved && (
                         <div style={{
-                            width: 4, height: 4, borderRadius: '50%',
+                            width: 4, height: 4, borderRadius: 'var(--radius-full)',
                             background: isPeriod ? 'rgba(255,255,255,0.8)' : '#4DB6AC'
                         }} />
                     )}
                     {hasSymptoms && (
                         <div style={{
-                            width: 4, height: 4, borderRadius: '50%',
+                            width: 4, height: 4, borderRadius: 'var(--radius-full)',
                             background: isPeriod ? 'rgba(255,255,255,0.6)' : '#e8785f'
                         }} />
                     )}

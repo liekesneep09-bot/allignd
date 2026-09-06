@@ -104,7 +104,7 @@ export default function Fitness() {
         const phaseColors = phaseColorMap[phaseKey] || phaseColorMap.luteal
 
         return (
-            <div className="container" style={{ paddingBottom: '90px' }}>
+            <div className="container" style={{ paddingBottom: '90px', paddingTop: '1rem' }}>
                 <header style={{ marginBottom: '1.5rem' }}>
                     <h1 style={{ fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>{t('fitness.title')}</h1>
                 </header>
@@ -134,7 +134,7 @@ export default function Fitness() {
                             color: phaseColors.accent,
                             background: `${phaseColors.border}`,
                             padding: '0.2rem 0.6rem',
-                            borderRadius: '100px'
+                            borderRadius: 'var(--radius-full)'
                         }}>
                             {phaseName}
                         </span>
@@ -169,7 +169,7 @@ export default function Fitness() {
                                 <span key={i} style={{
                                     background: 'var(--color-surface)',
                                     border: `1px solid ${phaseColors.border}`,
-                                    borderRadius: '100px',
+                                    borderRadius: 'var(--radius-full)',
                                     padding: '0.3rem 0.7rem',
                                     fontSize: '0.78rem',
                                     color: 'var(--color-text)',
@@ -198,7 +198,7 @@ export default function Fitness() {
                                 <div key={n} style={{
                                     width: '10px',
                                     height: '10px',
-                                    borderRadius: '50%',
+                                    borderRadius: 'var(--radius-full)',
                                     background: n <= intensityDots ? phaseColors.dot : 'var(--color-border)',
                                     transition: 'background 0.2s'
                                 }} />
@@ -237,7 +237,7 @@ export default function Fitness() {
                             letterSpacing: '0.5px',
                             background: 'rgba(255,174,185,0.15)',
                             padding: '0.2rem 0.6rem',
-                            borderRadius: '100px'
+                            borderRadius: 'var(--radius-full)'
                         }}>
                             {phaseName}
                         </span>
@@ -248,7 +248,7 @@ export default function Fitness() {
                             <div style={{
                                 width: '36px',
                                 height: '36px',
-                                borderRadius: '50%',
+                                borderRadius: 'var(--radius-full)',
                                 background: todayStatus === 'moved'
                                     ? 'rgba(76, 175, 80, 0.15)'
                                     : 'rgba(158, 158, 158, 0.15)',
@@ -351,7 +351,7 @@ export default function Fitness() {
                                 <div style={{
                                     width: '12px',
                                     height: '12px',
-                                    borderRadius: '50%',
+                                    borderRadius: 'var(--radius-full)',
                                     background: day.status === 'moved'
                                         ? '#4CAF50'
                                         : day.status === 'rest'

@@ -52,7 +52,7 @@ function Ring({ value, max, size = 100, stroke = 8, color, label, sublabel, show
                             right: '-2px',
                             width: '28px',
                             height: '28px',
-                            borderRadius: '50%',
+                            borderRadius: 'var(--radius-full)',
                             backgroundColor: 'var(--color-primary)', // #ffaeb9
                             display: 'flex',
                             alignItems: 'center',
@@ -100,7 +100,7 @@ function Sheet({ title, onClose, children }) {
                 }}
                 onClick={e => e.stopPropagation()}
             >
-                <div style={{ width: '40px', height: '4px', background: 'var(--color-border)', borderRadius: '2px', margin: '0 auto 1.25rem' }} />
+                <div style={{ width: '40px', height: '4px', background: 'var(--color-border)', borderRadius: 'var(--radius-xs)', margin: '0 auto 1.25rem' }} />
                 <h3 style={{ margin: '0 0 1.5rem', textAlign: 'center', fontSize: '1.15rem', fontWeight: '700' }}>{title}</h3>
                 {children}
             </div>
@@ -182,7 +182,7 @@ export default function HabitsCard({ date }) {
                     padding: '1.25rem',
                     background: 'rgba(51, 51, 51, 0.045)', // very light, semi-transparent #333333
                     border: '1px solid rgba(51, 51, 51, 0.08)', // matching transparent border
-                    borderRadius: '24px', // smoother rounded corners matching the mockup
+                    borderRadius: 'var(--radius-lg)', // smoother rounded corners matching the mockup
                     boxShadow: 'none',
                     position: 'relative'
                 }}
@@ -203,7 +203,7 @@ export default function HabitsCard({ date }) {
                             style={{
                                 width: '32px',
                                 height: '32px',
-                                borderRadius: '50%',
+                                borderRadius: 'var(--radius-full)',
                                 backgroundColor: 'var(--color-primary)', // #ffaeb9
                                 display: 'flex',
                                 alignItems: 'center',
@@ -233,7 +233,7 @@ export default function HabitsCard({ date }) {
                                     right: 0,
                                     top: '38px',
                                     backgroundColor: '#ffffff',
-                                    borderRadius: '12px',
+                                    borderRadius: 'var(--radius-md)',
                                     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
                                     border: '1px solid var(--color-border)',
                                     padding: '6px',
@@ -251,7 +251,7 @@ export default function HabitsCard({ date }) {
                                             alignItems: 'center',
                                             gap: '8px',
                                             padding: '10px 12px',
-                                            borderRadius: '8px',
+                                            borderRadius: 'var(--radius-sm)',
                                             background: 'none',
                                             width: '100%',
                                             textAlign: 'left',
@@ -272,7 +272,7 @@ export default function HabitsCard({ date }) {
                                             alignItems: 'center',
                                             gap: '8px',
                                             padding: '10px 12px',
-                                            borderRadius: '8px',
+                                            borderRadius: 'var(--radius-sm)',
                                             background: 'none',
                                             width: '100%',
                                             textAlign: 'left',
@@ -384,7 +384,7 @@ export default function HabitsCard({ date }) {
                                 onClick={() => { handleAddWater(opt.ml); setSheet(null) }}
                                 style={{
                                     padding: '0.9rem 0.5rem',
-                                    borderRadius: '16px',
+                                    borderRadius: 'var(--radius-md)',
                                     border: '1.5px solid #89C4F420',
                                     background: '#89C4F410',
                                     cursor: 'pointer',
@@ -415,7 +415,7 @@ export default function HabitsCard({ date }) {
                             style={{
                                 flex: 1,
                                 padding: '14px 16px',
-                                borderRadius: '14px',
+                                borderRadius: 'var(--radius-md)',
                                 border: '2px solid #89C4F4',
                                 fontSize: '1.15rem',
                                 fontWeight: '700',
@@ -430,14 +430,14 @@ export default function HabitsCard({ date }) {
                     <div style={{ display: 'flex', gap: '0.75rem' }}>
                         <button
                             onClick={() => setSheet(null)}
-                            style={{ flex: 1, padding: '1rem', borderRadius: '16px', border: 'none', background: 'var(--color-bg)', fontWeight: '600', fontSize: '1rem', cursor: 'pointer' }}
+                            style={{ flex: 1, padding: '1rem', borderRadius: 'var(--radius-md)', border: 'none', background: 'var(--color-bg)', fontWeight: '600', fontSize: '1rem', cursor: 'pointer' }}
                         >
                             {t('common.cancel')}
                         </button>
                         <button
                             onClick={handleSaveWater}
                             className="btn btn-primary"
-                            style={{ flex: 2, padding: '1rem', borderRadius: '16px', fontWeight: '600', fontSize: '1rem', background: '#89C4F4' }}
+                            style={{ flex: 2, padding: '1rem', borderRadius: 'var(--radius-md)', fontWeight: '600', fontSize: '1rem', background: '#89C4F4' }}
                         >
                             {t('common.save')}
                         </button>
@@ -487,7 +487,7 @@ export default function HabitsCard({ date }) {
                                 onClick={() => { handleAddSteps(opt.n); setSheet(null) }}
                                 style={{
                                     padding: '0.9rem 0.5rem',
-                                    borderRadius: '16px',
+                                    borderRadius: 'var(--radius-md)',
                                     border: '1.5px solid rgba(245,217,139,0.5)',
                                     background: 'rgba(245,217,139,0.18)',
                                     cursor: 'pointer',
@@ -517,7 +517,7 @@ export default function HabitsCard({ date }) {
                             style={{
                                 flex: 1,
                                 padding: '14px 16px',
-                                borderRadius: '14px',
+                                borderRadius: 'var(--radius-md)',
                                 border: '2px solid #F5D98B',
                                 fontSize: '1.15rem',
                                 fontWeight: '700',
@@ -532,14 +532,14 @@ export default function HabitsCard({ date }) {
                     <div style={{ display: 'flex', gap: '0.75rem' }}>
                         <button
                             onClick={() => setSheet(null)}
-                            style={{ flex: 1, padding: '1rem', borderRadius: '16px', border: 'none', background: 'var(--color-bg)', fontWeight: '600', fontSize: '1rem', cursor: 'pointer' }}
+                            style={{ flex: 1, padding: '1rem', borderRadius: 'var(--radius-md)', border: 'none', background: 'var(--color-bg)', fontWeight: '600', fontSize: '1rem', cursor: 'pointer' }}
                         >
                             {t('common.cancel')}
                         </button>
                         <button
                             onClick={handleSaveSteps}
                             className="btn btn-primary"
-                            style={{ flex: 2, padding: '1rem', borderRadius: '16px', fontWeight: '600', fontSize: '1rem', background: '#F5D98B', color: '#333' }}
+                            style={{ flex: 2, padding: '1rem', borderRadius: 'var(--radius-md)', fontWeight: '600', fontSize: '1rem', background: '#F5D98B', color: '#333' }}
                         >
                             {t('common.save')}
                         </button>

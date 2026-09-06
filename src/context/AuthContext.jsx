@@ -127,6 +127,22 @@ export function AuthProvider({ children }) {
         if (error) throw new Error(error.message)
     }
 
+    const signInWithGoogle = async () => {
+        if (!isSupabaseConfigured()) {
+            throw new Error(t('auth.error_not_configured'))
+        }
+
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: `${window.location.origin}/auth/callback`
+            }
+        })
+
+        if (error) throw new Error(error.message)
+        return data
+    }
+
     const value = {
         session,
         user,
@@ -136,6 +152,7 @@ export function AuthProvider({ children }) {
         signOut,
         resetPassword,
         resendVerificationEmail,
+        signInWithGoogle,
         getAccessToken: () => session?.access_token,
         isConfigured: isSupabaseConfigured()
     }

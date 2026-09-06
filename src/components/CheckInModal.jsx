@@ -61,7 +61,7 @@ export default function CheckInModal({ isOpen, onClose, dateStr }) {
                 onClick={() => toggleSymptom(item.id)}
                 style={{
                     padding: '0.6rem 1rem',
-                    borderRadius: '20px',
+                    borderRadius: 'var(--radius-lg)',
                     border: isSelected ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
                     backgroundColor: isSelected ? 'var(--color-bg)' : '#fff',
                     color: isSelected ? 'var(--color-primary)' : 'var(--color-text)',

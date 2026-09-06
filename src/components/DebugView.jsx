@@ -44,7 +44,7 @@ export default function DebugView() {
             background: '#1a1a1a',
             color: '#00ff00',
             padding: '10px',
-            borderRadius: '8px',
+            borderRadius: 'var(--radius-sm)',
             fontSize: '11px',
             fontFamily: 'monospace',
             zIndex: 9999,

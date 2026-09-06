@@ -46,7 +46,7 @@ function SplashScreen() {
                 marginTop: '1.5rem',
                 width: '36px',
                 height: '3px',
-                borderRadius: '2px',
+                borderRadius: 'var(--radius-xs)',
                 background: 'var(--color-primary)',
                 opacity: 0.4,
                 animation: 'pulse 1.2s ease-in-out infinite'

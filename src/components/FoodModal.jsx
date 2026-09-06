@@ -347,7 +347,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                         style={{ 
                                             width: '32px', 
                                             height: '32px', 
-                                            borderRadius: '50%', 
+                                            borderRadius: 'var(--radius-full)', 
                                             background: 'rgba(0,0,0,0.05)', 
                                             border: 'none',
                                             display: 'flex', 
@@ -376,7 +376,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                         style={{
                                             width: '100%',
                                             padding: '0.8rem 1rem',
-                                            borderRadius: '12px',
+                                            borderRadius: 'var(--radius-sm)',
                                             border: '1px solid var(--color-border)',
                                             background: 'var(--color-bg)',
                                             fontSize: '1rem',
@@ -439,7 +439,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                         style={{
                                             width: '32px',
                                             height: '32px',
-                                            borderRadius: '50%',
+                                            borderRadius: 'var(--radius-full)',
                                             background: 'rgba(0,0,0,0.05)',
                                             border: 'none',
                                             display: 'flex',
@@ -525,7 +525,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                         </div>
                                     </div>
 
-                                    <div style={{ padding: '1rem', background: 'var(--color-bg)', borderRadius: '12px', border: '1px solid var(--color-border)' }}>
+                                    <div style={{ padding: '1rem', background: 'var(--color-bg)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)' }}>
                                         <div style={{ fontWeight: '600', fontSize: '0.9rem', marginBottom: '0.75rem', color: 'var(--color-text)' }}>
                                             {t('food_modal.standard_unit_title')}
                                         </div>
@@ -581,7 +581,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                         style={{
                                             width: '32px',
                                             height: '32px',
-                                            borderRadius: '50%',
+                                            borderRadius: 'var(--radius-full)',
                                             background: 'rgba(0,0,0,0.05)',
                                             border: 'none',
                                             display: 'flex',
@@ -605,13 +605,13 @@ export default function FoodModal({ onClose, onAdd }) {
                                 </div>
 
                                 {/* Segmented Unit Type Selector */}
-                                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', background: 'var(--color-bg)', padding: '4px', borderRadius: '14px', border: '1px solid var(--color-border)' }}>
+                                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', background: 'var(--color-bg)', padding: '4px', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}>
                                     <button
                                         onClick={() => setUnitType('g')}
                                         style={{
                                             flex: 1,
                                             padding: '0.65rem',
-                                            borderRadius: '10px',
+                                            borderRadius: 'var(--radius-sm)',
                                             border: 'none',
                                             background: unitType === 'g' ? '#ffffff' : 'transparent',
                                             color: unitType === 'g' ? 'var(--color-primary)' : 'var(--color-text-muted)',
@@ -630,7 +630,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                             style={{
                                                 flex: 1,
                                                 padding: '0.65rem',
-                                                borderRadius: '10px',
+                                                borderRadius: 'var(--radius-sm)',
                                                 border: 'none',
                                                 background: unitType === 'unit' ? '#ffffff' : 'transparent',
                                                 color: unitType === 'unit' ? 'var(--color-primary)' : 'var(--color-text-muted)',
@@ -685,7 +685,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                 <div style={{
                                     background: 'var(--color-bg)',
                                     padding: '1rem 0.5rem',
-                                    borderRadius: '16px',
+                                    borderRadius: 'var(--radius-md)',
                                     marginBottom: '1.5rem',
                                     display: 'flex',
                                     justifyContent: 'space-between',
@@ -722,7 +722,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                                 onClick={() => setMealCategory(mealCategory === cat.key ? null : cat.key)}
                                                 style={{
                                                     padding: '0.45rem 1rem',
-                                                    borderRadius: '20px',
+                                                    borderRadius: 'var(--radius-lg)',
                                                     border: mealCategory === cat.key
                                                         ? '2px solid var(--color-primary)'
                                                         : '1px solid var(--color-border)',
@@ -752,7 +752,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                     style={{
                                         width: '100%',
                                         padding: '1rem',
-                                        borderRadius: '16px',
+                                        borderRadius: 'var(--radius-md)',
                                         background: 'var(--color-primary)',
                                         color: '#333333',
                                         fontWeight: '700',
@@ -780,7 +780,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                 style={{ 
                                     width: '32px', 
                                     height: '32px', 
-                                    borderRadius: '50%', 
+                                    borderRadius: 'var(--radius-full)', 
                                     background: 'rgba(0,0,0,0.05)', 
                                     border: 'none',
                                     display: 'flex', 
@@ -804,7 +804,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                 background: 'rgba(220, 38, 38, 0.1)',
                                 color: '#dc2626',
                                 padding: '0.75rem',
-                                borderRadius: '8px',
+                                borderRadius: 'var(--radius-sm)',
                                 marginBottom: '1rem',
                                 fontSize: '0.9rem'
                             }}>
@@ -824,7 +824,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                         padding: '2rem',
                                         color: 'var(--color-text-muted)',
                                         background: 'var(--color-bg)',
-                                        borderRadius: '12px',
+                                        borderRadius: 'var(--radius-sm)',
                                         border: '1px dashed var(--color-border)'
                                     }}>
                                         <div style={{ marginBottom: '0.5rem' }}>{t('food_modal.no_meals_yet')}</div>
@@ -838,7 +838,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                                 style={{
                                                     background: 'var(--color-surface)',
                                                     border: '1px solid var(--color-border)',
-                                                    borderRadius: '12px',
+                                                    borderRadius: 'var(--radius-sm)',
                                                     padding: '1rem'
                                                 }}
                                             >
@@ -872,7 +872,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                                             background: 'var(--color-primary)',
                                                             color: '#333333',
                                                             border: 'none',
-                                                            borderRadius: '8px',
+                                                            borderRadius: 'var(--radius-sm)',
                                                             fontWeight: '600',
                                                             fontSize: '0.85rem',
                                                             cursor: 'pointer'
@@ -886,7 +886,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                                             padding: '0.5rem 0.75rem',
                                                             background: 'transparent',
                                                             border: '1px solid var(--color-border)',
-                                                            borderRadius: '8px',
+                                                            borderRadius: 'var(--radius-sm)',
                                                             fontSize: '0.85rem',
                                                             cursor: 'pointer'
                                                         }}
@@ -899,7 +899,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                                             padding: '0.5rem 0.75rem',
                                                             background: 'transparent',
                                                             border: '1px solid var(--color-border)',
-                                                            borderRadius: '8px',
+                                                            borderRadius: 'var(--radius-sm)',
                                                             fontSize: '0.85rem',
                                                             color: 'var(--color-text-muted)',
                                                             cursor: 'pointer'
@@ -951,13 +951,13 @@ const tabStyles = {
         marginBottom: '1rem',
         padding: '0.25rem',
         background: 'var(--color-bg)',
-        borderRadius: '10px'
+        borderRadius: 'var(--radius-sm)'
     },
     tab: {
         flex: 1,
         padding: '0.6rem 1rem',
         border: 'none',
-        borderRadius: '8px',
+                                                            borderRadius: 'var(--radius-sm)',
         background: 'transparent',
         color: 'var(--color-text-muted)',
         fontWeight: '600',

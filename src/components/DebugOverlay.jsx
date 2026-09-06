@@ -22,7 +22,7 @@ export default function DebugOverlay() {
             background: 'rgba(0, 0, 0, 0.9)',
             color: '#00ff00',
             padding: '12px',
-            borderRadius: '8px',
+            borderRadius: 'var(--radius-sm)',
             fontSize: '11px',
             fontFamily: 'monospace',
             maxWidth: '300px',

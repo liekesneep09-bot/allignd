@@ -72,7 +72,7 @@ export default function PhaseGuide() {
     const phase = getPhaseContent(language, currentPhase, user?.dietary_preference)
 
     return (
-        <div className="container" style={{ paddingBottom: '90px' }}>
+        <div className="container" style={{ paddingBottom: '90px', paddingTop: '1rem' }}>
             <header style={{ marginBottom: '1.5rem', marginTop: '0' }}>
                 <h1 style={{ fontSize: '1.5rem', color: 'var(--color-primary)', margin: 0 }}>{t('cycle.title')}</h1>
             </header>
@@ -122,7 +122,7 @@ export default function PhaseGuide() {
                                 <div style={{
                                     width: '32px',
                                     height: '32px',
-                                    borderRadius: '50%',
+                                    borderRadius: 'var(--radius-full)',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
@@ -143,7 +143,7 @@ export default function PhaseGuide() {
                                 {/* Indicator dots */}
                                 <div style={{ position: 'absolute', bottom: '0', left: 0, right: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px', zIndex: 2 }}>
                                     {hasMovement && (
-                                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--color-movement)' }} />
+                                        <div style={{ width: '6px', height: '6px', borderRadius: 'var(--radius-full)', background: 'var(--color-movement)' }} />
                                     )}
                                 </div>
                             </div>
@@ -154,15 +154,15 @@ export default function PhaseGuide() {
                 {/* Legend */}
                 <div style={{ marginTop: '2rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'var(--color-primary)' }}></div>
+                        <div style={{ width: '16px', height: '16px', borderRadius: 'var(--radius-full)', background: 'var(--color-primary)' }}></div>
                         <span>{t('cycle.menstruation')}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px dashed var(--color-primary)' }}></div>
+                        <div style={{ width: '16px', height: '16px', borderRadius: 'var(--radius-full)', border: '2px dashed var(--color-primary)' }}></div>
                         <span>{t('cycle.predicted_menstruation')}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--color-movement)' }}></div>
+                        <div style={{ width: '6px', height: '6px', borderRadius: 'var(--radius-full)', background: 'var(--color-movement)' }}></div>
                         <span>{t('cycle.moved')}</span>
                     </div>
                 </div>
@@ -275,7 +275,7 @@ export default function PhaseGuide() {
                             <div key={idx} style={{ display: 'flex', gap: '1rem' }}>
                                 <div style={{
                                     width: '40px', height: '40px',
-                                    borderRadius: '12px',
+                                    borderRadius: 'var(--radius-sm)',
                                     background: `rgba(0,0,0,0.04)`,
                                     border: `1px solid rgba(0,0,0,0.08)`,
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',

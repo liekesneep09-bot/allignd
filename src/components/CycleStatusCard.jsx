@@ -227,7 +227,7 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
   return (
     <div style={{
       background: '#FFFFFF',
-      borderRadius: '24px',
+      borderRadius: 'var(--radius-lg)',
       padding: '1rem',
       border: '1px solid var(--color-border)',
       boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
@@ -296,7 +296,7 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
           <div style={{
             width: 8,
             height: 8,
-            borderRadius: '50%',
+            borderRadius: 'var(--radius-full)',
             background: phaseColor,
             flexShrink: 0,
             boxShadow: `0 0 6px ${phaseColor}60`
@@ -326,7 +326,7 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
           onClick={() => onNavigate && onNavigate('guide')}
           style={{
             background: `${phaseColor}10`,
-            borderRadius: '8px',
+            borderRadius: 'var(--radius-sm)',
             padding: '0.35rem 0.5rem',
             display: 'flex',
             alignItems: 'center',

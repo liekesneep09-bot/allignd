@@ -292,7 +292,7 @@ export default function WeightTracker({ date, compact = false }) {
                 }}
                 onClick={e => e.stopPropagation()}
             >
-                <div style={{ width: '40px', height: '4px', background: 'var(--color-border)', borderRadius: '2px', margin: '0 auto 1.5rem auto' }} />
+                <div style={{ width: '40px', height: '4px', background: 'var(--color-border)', borderRadius: 'var(--radius-xs)', margin: '0 auto 1.5rem auto' }} />
                 <h3 style={{ margin: '0 0 1.5rem 0', textAlign: 'center', fontSize: '1.2rem' }}>{t('weight.sheet_title')}</h3>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '2rem' }}>
                     <input
@@ -305,7 +305,7 @@ export default function WeightTracker({ date, compact = false }) {
                         style={{
                             width: '140px',
                             padding: '16px',
-                            borderRadius: '16px',
+                            borderRadius: 'var(--radius-md)',
                             border: `2px solid ${phaseColor}`,
                             fontSize: '1.5rem',
                             fontWeight: '800',
@@ -320,14 +320,14 @@ export default function WeightTracker({ date, compact = false }) {
                 <div style={{ display: 'flex', gap: '1rem' }}>
                     <button
                         onClick={() => setShowSheet(false)}
-                        style={{ flex: 1, padding: '1rem', borderRadius: '16px', border: 'none', background: 'var(--color-bg)', color: 'var(--color-text)', fontWeight: '600', fontSize: '1rem', cursor: 'pointer' }}
+                        style={{ flex: 1, padding: '1rem', borderRadius: 'var(--radius-md)', border: 'none', background: 'var(--color-bg)', color: 'var(--color-text)', fontWeight: '600', fontSize: '1rem', cursor: 'pointer' }}
                     >
                         {t('common.cancel')}
                     </button>
                     <button
                         onClick={handleSaveManual}
                         disabled={!tempWeight}
-                        style={{ flex: 1, padding: '1rem', borderRadius: '16px', border: 'none', background: 'var(--color-primary)', color: '#333333', fontWeight: '700', fontSize: '1rem', cursor: tempWeight ? 'pointer' : 'not-allowed', opacity: tempWeight ? 1 : 0.5, boxShadow: tempWeight ? '0 4px 12px rgba(255, 174, 185, 0.3)' : 'none' }}
+                        style={{ flex: 1, padding: '1rem', borderRadius: 'var(--radius-md)', border: 'none', background: 'var(--color-primary)', color: '#333333', fontWeight: '700', fontSize: '1rem', cursor: tempWeight ? 'pointer' : 'not-allowed', opacity: tempWeight ? 1 : 0.5, boxShadow: tempWeight ? '0 4px 12px rgba(255, 174, 185, 0.3)' : 'none' }}
                     >
                         {t('common.save')}
                     </button>
@@ -407,7 +407,7 @@ export default function WeightTracker({ date, compact = false }) {
                 </div>
                 <button
                     onClick={() => { setTempWeight(currentWeight ? String(currentWeight) : ''); setShowSheet(true) }}
-                    style={{ background: 'var(--color-primary)', color: '#333333', border: 'none', borderRadius: '20px', padding: '6px 16px', fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer', boxShadow: '0 2px 8px rgba(255, 174, 185, 0.3)' }}
+                    style={{ background: 'var(--color-primary)', color: '#333333', border: 'none', borderRadius: 'var(--radius-lg)', padding: '6px 16px', fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer', boxShadow: '0 2px 8px rgba(255, 174, 185, 0.3)' }}
                 >
                     {t('weight.log_btn')}
                 </button>
@@ -421,7 +421,7 @@ export default function WeightTracker({ date, compact = false }) {
                     {scrubPoint && (
                         <div style={{
                             position: 'absolute', left: tooltipLeft, top: '-8px', transform: 'translateX(-50%)',
-                            background: 'var(--color-text)', color: '#fff', padding: '6px 12px', borderRadius: '12px',
+                            background: 'var(--color-text)', color: '#fff', padding: '6px 12px', borderRadius: 'var(--radius-sm)',
                             fontSize: '0.75rem', fontWeight: '700', pointerEvents: 'none', zIndex: 10,
                             whiteSpace: 'nowrap', boxShadow: '0 4px 16px rgba(0,0,0,0.18)', lineHeight: 1.4
                         }}>
@@ -469,8 +469,8 @@ export default function WeightTracker({ date, compact = false }) {
                 </div>
             )}
 
-            <div style={{ padding: '0.85rem 1rem', background: `${phaseColor}15`, borderRadius: '16px', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: phaseColor, marginTop: '6px', flexShrink: 0 }} />
+            <div style={{ padding: '0.85rem 1rem', background: `${phaseColor}15`, borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                <div style={{ width: '6px', height: '6px', borderRadius: 'var(--radius-full)', backgroundColor: phaseColor, marginTop: '6px', flexShrink: 0 }} />
                 <span style={{ fontSize: '0.85rem', color: 'var(--color-text)', lineHeight: '1.45', fontWeight: '500' }}>
                     {getInsight(currentPhase)}
                 </span>

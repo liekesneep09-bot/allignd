@@ -16,7 +16,7 @@ export default function ConfigErrorScreen() {
             <div style={{
                 background: 'white',
                 padding: '40px',
-                borderRadius: '16px',
+                borderRadius: 'var(--radius-md)',
                 boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
                 maxWidth: '700px',
                 width: '100%'
@@ -50,7 +50,7 @@ export default function ConfigErrorScreen() {
                 <div style={{
                     background: '#fff3cd',
                     border: '1px solid #ffc107',
-                    borderRadius: '8px',
+                    borderRadius: 'var(--radius-sm)',
                     padding: '20px',
                     marginBottom: '24px'
                 }}>
@@ -72,7 +72,7 @@ export default function ConfigErrorScreen() {
                         <li>{t('config_error.step1').split('{file}')[0]}<code style={{
                             background: '#f5f5f5',
                             padding: '2px 6px',
-                            borderRadius: '3px',
+                            borderRadius: 'var(--radius-xs)',
                             fontFamily: 'monospace'
                         }}>.env</code>{t('config_error.step1').split('{file}')[1]}</li>
                         <li>{t('config_error.step2')}</li>
@@ -81,7 +81,7 @@ export default function ConfigErrorScreen() {
                     <pre style={{
                         background: '#f5f5f5',
                         padding: '16px',
-                        borderRadius: '8px',
+                        borderRadius: 'var(--radius-sm)',
                         fontSize: '13px',
                         fontFamily: 'monospace',
                         overflow: 'auto',
@@ -101,7 +101,7 @@ VITE_SUPABASE_ANON_KEY=jouw-anon-key-hier`}
                         <li>{t('config_error.step3').split('{cmd}')[0]}<code style={{
                             background: '#f5f5f5',
                             padding: '2px 6px',
-                            borderRadius: '3px',
+                            borderRadius: 'var(--radius-xs)',
                             fontFamily: 'monospace'
                         }}>npm run dev</code>{t('config_error.step3').split('{cmd}')[1]}</li>
                         <li>{t('config_error.step4')}</li>
@@ -111,7 +111,7 @@ VITE_SUPABASE_ANON_KEY=jouw-anon-key-hier`}
                 <div style={{
                     background: '#e3f2fd',
                     border: '1px solid #2196f3',
-                    borderRadius: '8px',
+                    borderRadius: 'var(--radius-sm)',
                     padding: '16px',
                     fontSize: '14px',
                     color: '#0d47a1'
@@ -126,7 +126,7 @@ VITE_SUPABASE_ANON_KEY=jouw-anon-key-hier`}
                         color: 'white',
                         border: 'none',
                         padding: '14px 24px',
-                        borderRadius: '8px',
+                        borderRadius: 'var(--radius-sm)',
                         fontSize: '16px',
                         fontWeight: '600',
                         cursor: 'pointer',

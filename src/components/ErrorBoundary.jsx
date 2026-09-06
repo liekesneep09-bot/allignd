@@ -95,7 +95,7 @@ class ErrorBoundary extends React.Component {
                             <div style={{
                                 background: 'rgba(0,0,0,0.05)',
                                 padding: '12px',
-                                borderRadius: '8px',
+                                borderRadius: 'var(--radius-sm)',
                                 fontSize: '12px',
                                 fontFamily: 'monospace',
                                 color: '#333',
@@ -115,7 +115,7 @@ class ErrorBoundary extends React.Component {
                                 className="btn btn-primary"
                                 style={{
                                     padding: '16px',
-                                    borderRadius: '16px',
+                                    borderRadius: 'var(--radius-md)',
                                     fontSize: '16px',
                                     fontWeight: '600'
                                 }}
@@ -131,7 +131,7 @@ class ErrorBoundary extends React.Component {
                                     color: 'var(--color-text-muted, #666)',
                                     border: '1px solid var(--color-border, #eaeaea)',
                                     padding: '16px',
-                                    borderRadius: '16px',
+                                    borderRadius: 'var(--radius-md)',
                                     fontSize: '15px',
                                     fontWeight: '500'
                                 }}

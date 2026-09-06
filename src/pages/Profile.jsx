@@ -1,15 +1,420 @@
-
 import React, { useState, useEffect } from 'react'
 import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
-import { IconAccount, IconCalendar } from '../components/Icons'
+import { IconAccount, IconCalendar, IconRecipe, IconActivity } from '../components/Icons'
+import { GOAL_TYPES } from '../logic/nutrition'
 
 /**
- * Modern Profile & Settings Page
- * - Always editable (no "Edit Mode")
- * - Smart Save Button (appears on change)
- * - Clear Sections
+ * Profile & Settings Page — Settings List Style
+ * - Main page: overview of sections
+ * - Each section: sub-page with back button
+ * - Language toggle stays inline
  */
+
+// ─── Sub-page components ──────────────────────────────────
+
+function PersonalSection({ formData, handleChange, t }) {
+    const inputStyle = {
+        width: '100%',
+        padding: '1rem',
+        fontSize: '1rem',
+        border: '1px solid var(--color-border)',
+        borderRadius: 'var(--radius-sm)',
+        background: 'var(--color-surface)',
+        color: 'var(--color-text)',
+        transition: 'all 0.2s ease'
+    }
+    const labelStyle = {
+        display: 'block',
+        fontSize: '0.75rem',
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        letterSpacing: '0.05em',
+        color: 'var(--color-text-muted)',
+        marginBottom: '0.6rem'
+    }
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div>
+                <label style={labelStyle}>{t('profile.name')}</label>
+                <input
+                    type="text"
+                    value={formData.name}
+                    onChange={e => handleChange('name', e.target.value)}
+                    placeholder={t('profile.name_placeholder')}
+                    style={inputStyle}
+                />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+                <div>
+                    <label style={labelStyle}>{t('profile.age')}</label>
+                    <input
+                        type="number"
+                        value={formData.age}
+                        onChange={e => handleChange('age', e.target.value)}
+                        style={inputStyle}
+                    />
+                </div>
+                <div>
+                    <label style={labelStyle}>{t('profile.height')}</label>
+                    <input
+                        type="number"
+                        value={formData.height}
+                        onChange={e => handleChange('height', e.target.value)}
+                        style={inputStyle}
+                    />
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function BodyGoalsSection({ formData, handleChange, t }) {
+    const inputStyle = {
+        width: '100%',
+        padding: '1rem',
+        fontSize: '1rem',
+        border: '1px solid var(--color-border)',
+        borderRadius: 'var(--radius-sm)',
+        background: 'var(--color-surface)',
+        color: 'var(--color-text)'
+    }
+    const labelStyle = {
+        display: 'block',
+        fontSize: '0.75rem',
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        letterSpacing: '0.05em',
+        color: 'var(--color-text-muted)',
+        marginBottom: '0.6rem'
+    }
+
+    const GOALS = [
+        { value: 'lose_fat', label: t('profile.goals.lose_fat') },
+        { value: 'recomp', label: t('profile.goals.recomp') },
+        { value: 'maintain', label: t('profile.goals.maintain') },
+        { value: 'gain_muscle', label: t('profile.goals.gain_muscle') }
+    ]
+    const TEMPOS = [
+        { value: 'slow', label: t('profile.tempos.slow') },
+        { value: 'average', label: t('profile.tempos.average') },
+        { value: 'fast', label: t('profile.tempos.fast') }
+    ]
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+                <div>
+                    <label style={labelStyle}>{t('profile.current_weight')}</label>
+                    <input type="number" value={formData.weight} onChange={e => handleChange('weight', e.target.value)} style={inputStyle} />
+                </div>
+                <div>
+                    <label style={labelStyle}>{t('profile.target_weight')}</label>
+                    <input type="number" value={formData.targetWeight} onChange={e => handleChange('targetWeight', e.target.value)} placeholder={t('profile.optional')} style={inputStyle} />
+                </div>
+            </div>
+
+            <div>
+                <label style={labelStyle}>{t('profile.main_goal')}</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                    {GOALS.map(g => (
+                        <button
+                            key={g.value}
+                            onClick={() => handleChange('goal', g.value)}
+                            style={{
+                                padding: '1rem',
+                                border: formData.goal === g.value ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                borderRadius: 'var(--radius-md)',
+                                background: formData.goal === g.value ? 'var(--color-primary-light)' : 'var(--color-surface)',
+                                color: formData.goal === g.value ? 'var(--color-primary)' : 'var(--color-text)',
+                                fontWeight: formData.goal === g.value ? '600' : '500',
+                                textAlign: 'left',
+                                width: '100%',
+                                fontSize: '0.95rem',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            {g.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div>
+                <label style={labelStyle}>{t('profile.tempo')}</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.6rem' }}>
+                    {TEMPOS.map(tempo => (
+                        <button
+                            key={tempo.value}
+                            onClick={() => handleChange('resultTempo', tempo.value)}
+                            style={{
+                                padding: '0.75rem 0.5rem',
+                                border: formData.resultTempo === tempo.value ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                borderRadius: 'var(--radius-md)',
+                                background: formData.resultTempo === tempo.value ? 'var(--color-primary-light)' : 'var(--color-surface)',
+                                color: formData.resultTempo === tempo.value ? 'var(--color-primary)' : 'var(--color-text)',
+                                fontWeight: formData.resultTempo === tempo.value ? '600' : '500',
+                                fontSize: '0.82rem',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            {tempo.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function CycleSection({ formData, handleChange, adjustCyclePhase, t }) {
+    const [showPhaseCorrection, setShowPhaseCorrection] = useState(false)
+    const inputStyle = {
+        width: '100%',
+        padding: '1rem',
+        fontSize: '1rem',
+        border: '1px solid var(--color-border)',
+        borderRadius: 'var(--radius-sm)',
+        background: 'var(--color-surface)',
+        color: 'var(--color-text)'
+    }
+    const labelStyle = {
+        display: 'block',
+        fontSize: '0.75rem',
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        letterSpacing: '0.05em',
+        color: 'var(--color-text-muted)',
+        marginBottom: '0.6rem'
+    }
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div>
+                <label style={labelStyle}>{t('profile.avg_cycle_length')}</label>
+                <input type="number" value={formData.cycleLength} onChange={e => handleChange('cycleLength', e.target.value)} style={inputStyle} />
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.5rem', fontStyle: 'italic' }}>
+                    {t('profile.cycle_learning_tip')}
+                </p>
+            </div>
+
+            <div>
+                <label style={labelStyle}>{t('profile.last_period_start')}</label>
+                <input type="date" value={formData.cycleStart} onChange={e => handleChange('cycleStart', e.target.value)} style={inputStyle} />
+            </div>
+
+            <button
+                onClick={() => setShowPhaseCorrection(!showPhaseCorrection)}
+                style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--color-text-muted)',
+                    textDecoration: 'underline',
+                    fontSize: '0.85rem',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    padding: '0'
+                }}
+            >
+                {showPhaseCorrection ? t('profile.close_phase_options') : t('profile.other_phase')}
+            </button>
+
+            {showPhaseCorrection && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {['menstrual', 'follicular', 'ovulatory', 'luteal'].map(phase => (
+                        <button
+                            key={phase}
+                            onClick={() => adjustCyclePhase(phase)}
+                            style={{
+                                padding: '1rem',
+                                border: '1px solid var(--color-border)',
+                                borderRadius: 'var(--radius-md)',
+                                background: 'var(--color-surface)',
+                                color: 'var(--color-text)',
+                                textAlign: 'left',
+                                fontSize: '0.95rem',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            {t(`profile.phases.${phase}`)}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    )
+}
+
+function NutritionSection({ formData, handleChange, t }) {
+    const DIETS = [
+        { value: 'everything', label: t('profile.dietary.everything', { defaultValue: 'Alles' }) },
+        { value: 'vegetarian', label: t('profile.dietary.vegetarian', { defaultValue: 'Vegetarisch' }) },
+        { value: 'vegan', label: t('profile.dietary.vegan', { defaultValue: 'Vegan' }) }
+    ]
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            {DIETS.map(d => (
+                <button
+                    key={d.value}
+                    onClick={() => handleChange('dietary_preference', d.value)}
+                    style={{
+                        padding: '1rem',
+                        border: formData.dietary_preference === d.value ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                        borderRadius: 'var(--radius-md)',
+                        background: formData.dietary_preference === d.value ? 'var(--color-primary-light)' : 'var(--color-surface)',
+                        color: formData.dietary_preference === d.value ? 'var(--color-primary)' : 'var(--color-text)',
+                        fontWeight: formData.dietary_preference === d.value ? '600' : '500',
+                        textAlign: 'left',
+                        width: '100%',
+                        fontSize: '0.95rem',
+                        cursor: 'pointer'
+                    }}
+                >
+                    {d.label}
+                </button>
+            ))}
+        </div>
+    )
+}
+
+function ActivitySection({ formData, handleChange, t }) {
+    const LIFESTYLES = [
+        { value: 'sedentary', label: t('profile.lifestyles.sedentary') },
+        { value: 'lightly_active', label: t('profile.lifestyles.lightly_active') },
+        { value: 'moderately_active', label: t('profile.lifestyles.moderately_active') },
+        { value: 'very_active', label: t('profile.lifestyles.very_active') }
+    ]
+    const STEPS = [
+        { value: 'lt4k', label: t('profile.steps.lt4k') },
+        { value: '4k_8k', label: t('profile.steps.4k_8k') },
+        { value: '8k_12k', label: t('profile.steps.8k_12k') },
+        { value: 'gt12k', label: t('profile.steps.gt12k') }
+    ]
+    const labelStyle = {
+        display: 'block',
+        fontSize: '0.75rem',
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        letterSpacing: '0.05em',
+        color: 'var(--color-text-muted)',
+        marginBottom: '0.6rem'
+    }
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div>
+                <label style={labelStyle}>{t('profile.lifestyle')}</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                    {LIFESTYLES.map(l => (
+                        <button
+                            key={l.value}
+                            onClick={() => handleChange('lifestyle_level', l.value)}
+                            style={{
+                                padding: '1rem',
+                                border: formData.lifestyle_level === l.value ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                borderRadius: 'var(--radius-md)',
+                                background: formData.lifestyle_level === l.value ? 'var(--color-primary-light)' : 'var(--color-surface)',
+                                color: formData.lifestyle_level === l.value ? 'var(--color-primary)' : 'var(--color-text)',
+                                fontWeight: formData.lifestyle_level === l.value ? '600' : '500',
+                                textAlign: 'left',
+                                width: '100%',
+                                fontSize: '0.95rem',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            {l.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div>
+                <label style={labelStyle}>{t('profile.daily_steps')}</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                    {STEPS.map(s => (
+                        <button
+                            key={s.value}
+                            onClick={() => handleChange('steps_range', s.value)}
+                            style={{
+                                padding: '1rem',
+                                border: formData.steps_range === s.value ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                borderRadius: 'var(--radius-md)',
+                                background: formData.steps_range === s.value ? 'var(--color-primary-light)' : 'var(--color-surface)',
+                                color: formData.steps_range === s.value ? 'var(--color-primary)' : 'var(--color-text)',
+                                fontWeight: formData.steps_range === s.value ? '600' : '500',
+                                textAlign: 'left',
+                                width: '100%',
+                                fontSize: '0.95rem',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            {s.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div>
+                <label style={labelStyle}>{t('profile.training_days')}</label>
+                <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                    {[0, 1, 2, 3, 4, 5, 6, 7].map(n => (
+                        <button
+                            key={n}
+                            onClick={() => handleChange('trainingFrequency', n)}
+                            style={{
+                                width: '40px', height: '40px',
+                                borderRadius: 'var(--radius-full)',
+                                border: formData.trainingFrequency === n ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                background: formData.trainingFrequency === n ? 'rgba(255,174,185,0.1)' : 'transparent',
+                                color: formData.trainingFrequency === n ? 'var(--color-primary)' : 'var(--color-text)',
+                                fontWeight: '700',
+                                fontSize: '0.9rem',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            {n}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div>
+                <label style={labelStyle}>{t('onboarding.step5_title')}</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                    {[
+                        { value: 'beginner', label: t('onboarding.exp_beginner') },
+                        { value: 'intermediate', label: t('onboarding.exp_intermediate') },
+                        { value: 'advanced', label: t('onboarding.exp_advanced') }
+                    ].map(e => (
+                        <button
+                            key={e.value}
+                            onClick={() => handleChange('experienceLevel', e.value)}
+                            style={{
+                                padding: '1rem',
+                                border: formData.experienceLevel === e.value ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                borderRadius: 'var(--radius-md)',
+                                background: formData.experienceLevel === e.value ? 'var(--color-primary-light)' : 'var(--color-surface)',
+                                color: formData.experienceLevel === e.value ? 'var(--color-primary)' : 'var(--color-text)',
+                                fontWeight: formData.experienceLevel === e.value ? '600' : '500',
+                                textAlign: 'left',
+                                width: '100%',
+                                fontSize: '0.95rem',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            {e.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// ─── Main Profile Component ───────────────────────────────
+
 export default function Profile({ onNavigate }) {
     const {
         user,
@@ -18,20 +423,16 @@ export default function Profile({ onNavigate }) {
         logout,
         deleteAccount,
         resetOnboarding,
-        logPeriodStart,
-        endPeriodToday,
         adjustCyclePhase
     } = useUser()
 
-    const { language, setLanguage, t } = useLanguage()
-
+    const { language, t } = useLanguage()
+    const [activeSection, setActiveSection] = useState(null)
     const [isDirty, setIsDirty] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-    const [showCycleCorrection, setShowCycleCorrection] = useState(false)
 
-    // Local State for Form (initialized from user)
     const [formData, setFormData] = useState({
         name: user?.name || '',
         age: user?.age || '',
@@ -45,7 +446,6 @@ export default function Profile({ onNavigate }) {
         trainingFrequency: user?.training_days_per_week || 0,
         experienceLevel: user?.experienceLevel || 'beginner',
         dietary_preference: user?.dietary_preference || 'everything',
-        // Cycle
         cycleLength: user?.cycleLength || 28,
         periodLength: user?.periodLength || 5,
         cycleStart: (() => {
@@ -61,8 +461,6 @@ export default function Profile({ onNavigate }) {
     })
 
     useEffect(() => {
-        // Only sync from global state if user is NOT currently editing (isDirty is false)
-        // OR if a save just completed (isSaving became false)
         if (user && !isDirty && !isSaving) {
             setFormData(prev => ({
                 ...prev,
@@ -82,6 +480,32 @@ export default function Profile({ onNavigate }) {
         }
     }, [user, isDirty, isSaving])
 
+    const handleChange = (field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }))
+        setIsDirty(true)
+    }
+
+    const handleSave = async () => {
+        setIsSaving(true)
+        try {
+            await saveProfileAndCalculate({
+                ...formData,
+                age: Number(formData.age),
+                height: Number(formData.height),
+                weight: Number(formData.weight),
+                targetWeight: Number(formData.targetWeight),
+                trainingFrequency: Number(formData.trainingFrequency),
+            })
+            setIsDirty(false)
+            setActiveSection(null)
+        } catch (e) {
+            console.error(e)
+            alert(t('profile.save_error'))
+        } finally {
+            setIsSaving(false)
+        }
+    }
+
     const handleDeleteAccount = async () => {
         setIsDeleting(true)
         try {
@@ -93,109 +517,77 @@ export default function Profile({ onNavigate }) {
         }
     }
 
-    // Handle Input Change
-    const handleChange = (field, value) => {
-        setFormData(prev => ({ ...prev, [field]: value }))
-        setIsDirty(true)
+    // ─── Sub-page views ───────────────────────────────────
+    if (activeSection === 'personal') {
+        return (
+            <SubPage title={t('profile.personal')} onBack={() => setActiveSection(null)}>
+                <PersonalSection formData={formData} handleChange={handleChange} t={t} />
+            </SubPage>
+        )
+    }
+    if (activeSection === 'body') {
+        return (
+            <SubPage title={t('profile.body_goals')} onBack={() => setActiveSection(null)}>
+                <BodyGoalsSection formData={formData} handleChange={handleChange} t={t} />
+            </SubPage>
+        )
+    }
+    if (activeSection === 'cycle') {
+        return (
+            <SubPage title={t('profile.your_cycle')} onBack={() => setActiveSection(null)}>
+                <CycleSection formData={formData} handleChange={handleChange} adjustCyclePhase={adjustCyclePhase} t={t} />
+            </SubPage>
+        )
+    }
+    if (activeSection === 'nutrition') {
+        return (
+            <SubPage title={t('profile.dietary_preference')} onBack={() => setActiveSection(null)}>
+                <NutritionSection formData={formData} handleChange={handleChange} t={t} />
+            </SubPage>
+        )
+    }
+    if (activeSection === 'activity') {
+        return (
+            <SubPage title={t('profile.activity')} onBack={() => setActiveSection(null)}>
+                <ActivitySection formData={formData} handleChange={handleChange} t={t} />
+            </SubPage>
+        )
     }
 
-    // Handle Save
-    const handleSave = async () => {
-        setIsSaving(true)
-        try {
-            await saveProfileAndCalculate({
-                ...formData,
-                // Ensure numbers
-                age: Number(formData.age),
-                height: Number(formData.height),
-                weight: Number(formData.weight),
-                targetWeight: Number(formData.targetWeight),
-                trainingFrequency: Number(formData.trainingFrequency),
-            })
-            setIsDirty(false)
-            // alert(t('profile.save_success'))
-        } catch (e) {
-            console.error(e)
-            alert(t('profile.save_error'))
-        } finally {
-            setIsSaving(false)
-        }
-    }
-
-    // Goal Options
-    const GOALS = [
-        { value: 'lose_fat', label: t('profile.goals.lose_fat') },
-        { value: 'recomp', label: t('profile.goals.recomp') },
-        { value: 'maintain', label: t('profile.goals.maintain') },
-        { value: 'gain_muscle', label: t('profile.goals.gain_muscle') }
-    ]
-
-    // Activity / Lifestyle Options (New System)
-    const LIFESTYLES = [
-        { value: 'sedentary', label: t('profile.lifestyles.sedentary') },
-        { value: 'lightly_active', label: t('profile.lifestyles.lightly_active') },
-        { value: 'moderately_active', label: t('profile.lifestyles.moderately_active') },
-        { value: 'very_active', label: t('profile.lifestyles.very_active') }
-    ]
-
-    const STEPS = [
-        { value: 'lt4k', label: t('profile.steps.lt4k') },
-        { value: '4k_8k', label: t('profile.steps.4k_8k') },
-        { value: '8k_12k', label: t('profile.steps.8k_12k') },
-        { value: 'gt12k', label: t('profile.steps.gt12k') }
-    ]
-
-    const TEMPOS = [
-        { value: 'slow', label: t('profile.tempos.slow') },
-        { value: 'average', label: t('profile.tempos.average') },
-        { value: 'fast', label: t('profile.tempos.fast') }
-    ]
-
-    const labelStyle = {
-        display: 'block',
-        fontSize: '0.75rem',
-        fontWeight: '700',
-        textTransform: 'uppercase',
-        letterSpacing: '0.05em',
-        color: 'var(--color-text-muted)',
-        marginBottom: '0.6rem'
-    }
-
+    // ─── Main settings list ───────────────────────────────
     return (
-        <div className="container" style={{ paddingBottom: '10rem', backgroundColor: 'var(--color-bg)' }}>
+        <div className="container" style={{ paddingBottom: '10rem', backgroundColor: 'var(--color-bg)', paddingTop: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                 <h1 className="page-title" style={{ fontSize: '2.2rem', fontWeight: '700', margin: 0 }}>{t('profile.title')}</h1>
-                
+
                 {/* Language Switcher */}
-                <div style={{ display: 'flex', background: 'var(--color-surface)', borderRadius: '12px', padding: '4px', border: '1px solid var(--color-border)' }}>
-                    <button 
+                <div style={{ display: 'flex', background: 'var(--color-surface)', borderRadius: 'var(--radius-md)', padding: '4px', border: '1px solid var(--color-border)' }}>
+                    <button
                         onClick={() => updateUser({ user_language: 'nl' })}
-                        style={{ 
-                            padding: '6px 12px', 
-                            borderRadius: '8px', 
-                            border: 'none', 
-                            background: language === 'nl' ? 'var(--color-primary)' : 'transparent', 
+                        style={{
+                            padding: '6px 12px',
+                            borderRadius: 'var(--radius-sm)',
+                            border: 'none',
+                            background: language === 'nl' ? 'var(--color-primary)' : 'transparent',
                             color: language === 'nl' ? '#333' : 'var(--color-text-muted)',
                             fontWeight: language === 'nl' ? '700' : '500',
                             fontSize: '0.85rem',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
+                            cursor: 'pointer'
                         }}
                     >
                         NL
                     </button>
-                    <button 
+                    <button
                         onClick={() => updateUser({ user_language: 'en' })}
-                        style={{ 
-                            padding: '6px 12px', 
-                            borderRadius: '8px', 
-                            border: 'none', 
-                            background: language === 'en' ? 'var(--color-primary)' : 'transparent', 
+                        style={{
+                            padding: '6px 12px',
+                            borderRadius: 'var(--radius-sm)',
+                            border: 'none',
+                            background: language === 'en' ? 'var(--color-primary)' : 'transparent',
                             color: language === 'en' ? '#333' : 'var(--color-text-muted)',
                             fontWeight: language === 'en' ? '700' : '500',
                             fontSize: '0.85rem',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
+                            cursor: 'pointer'
                         }}
                     >
                         EN
@@ -203,498 +595,170 @@ export default function Profile({ onNavigate }) {
                 </div>
             </div>
 
-            {/* SECTION 1: PERSONAL */}
-            <section className="card" style={{ marginBottom: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <IconAccount opacity={1} /> {t('profile.personal')}
-                </h2>
+            {/* Settings List */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <SettingsItem icon={<IconAccount opacity={1} />} label={t('profile.personal')} onClick={() => setActiveSection('personal')} />
+                <SettingsItem icon={<IconAccount opacity={1} />} label={t('profile.body_goals')} onClick={() => setActiveSection('body')} />
+                <SettingsItem icon={<IconCalendar opacity={1} />} label={t('profile.your_cycle')} onClick={() => setActiveSection('cycle')} />
+                <SettingsItem icon={<IconRecipe opacity={1} size={20} />} label={t('profile.dietary_preference')} onClick={() => setActiveSection('nutrition')} />
+                <SettingsItem icon={<IconActivity opacity={1} size={20} />} label={t('profile.activity')} onClick={() => setActiveSection('activity')} />
 
-                <div className="form-group">
-                    <label style={labelStyle}>{t('profile.name')}</label>
-                    <input
-                        type="text"
-                        value={formData.name}
-                        onChange={e => handleChange('name', e.target.value)}
-                        placeholder={t('profile.name_placeholder')}
-                        className="input-field"
-                        style={{ padding: '1rem', fontSize: '1rem', borderRadius: '12px' }}
-                    />
-                </div>
+                {/* Divider */}
+                <div style={{ height: '1px', background: 'var(--color-border)', margin: '0.5rem 0' }} />
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
-                    <div className="form-group">
-                        <label style={labelStyle}>{t('profile.age')}</label>
-                        <input
-                            type="number"
-                            value={formData.age}
-                            onChange={e => handleChange('age', e.target.value)}
-                            className="input-field"
-                            style={{ padding: '1rem', fontSize: '1rem', borderRadius: '12px' }}
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label style={labelStyle}>{t('profile.height')}</label>
-                        <input
-                            type="number"
-                            value={formData.height}
-                            onChange={e => handleChange('height', e.target.value)}
-                            className="input-field"
-                            style={{ padding: '1rem', fontSize: '1rem', borderRadius: '12px' }}
-                        />
-                    </div>
-                </div>
-            </section>
-            {/* SECTION 2: BODY & GOALS */}
-            <section className="card" style={{ marginBottom: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>{t('profile.body_goals')}</h2>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem', marginBottom: '1.5rem' }}>
-                    <div className="form-group">
-                        <label style={labelStyle}>{t('profile.current_weight')}</label>
-                        <input
-                            type="number"
-                            value={formData.weight}
-                            onChange={e => handleChange('weight', e.target.value)}
-                            className="input-field"
-                            style={{ padding: '1rem', fontSize: '1rem', borderRadius: '12px' }}
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label style={labelStyle}>{t('profile.target_weight')}</label>
-                        <input
-                            type="number"
-                            value={formData.targetWeight}
-                            onChange={e => handleChange('targetWeight', e.target.value)}
-                            className="input-field"
-                            style={{ padding: '1rem', fontSize: '1rem', borderRadius: '12px' }}
-                            placeholder={t('profile.optional')}
-                        />
-                    </div>
-                </div>
-
-                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                    <label style={labelStyle}>{t('profile.main_goal')}</label>
-                    <div style={{ display: 'grid', gap: '0.6rem' }}>
-                        {GOALS.map(g => (
-                            <SelectOption
-                                key={g.value}
-                                label={g.label}
-                                selected={formData.goal === g.value}
-                                onClick={() => handleChange('goal', g.value)}
-                            />
-                        ))}
-                    </div>
-                </div>
-
-                <div className="form-group" style={{ marginBottom: '2rem' }}>
-                    <label style={labelStyle}>{t('profile.tempo')}</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.6rem' }}>
-                        {TEMPOS.map(t => (
-                            <CompactOption
-                                key={t.value}
-                                label={t.label}
-                                selected={formData.resultTempo === t.value}
-                                onClick={() => handleChange('resultTempo', t.value)}
-                            />
-                        ))}
-                    </div>
-                </div>
-
-                <div className="form-group" style={{ marginBottom: '2rem' }}>
-                    <label style={labelStyle}>{t('profile.dietary_preference')}</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.6rem' }}>
-                        {[
-                            { value: 'everything', label: t('profile.dietary.everything', { defaultValue: 'Alles' }) },
-                            { value: 'vegetarian', label: t('profile.dietary.vegetarian', { defaultValue: 'Vegetarisch' }) },
-                            { value: 'vegan', label: t('profile.dietary.vegan', { defaultValue: 'Vegan' }) }
-                        ].map(d => (
-                            <CompactOption
-                                key={d.value}
-                                label={d.label}
-                                selected={formData.dietary_preference === d.value}
-                                onClick={() => handleChange('dietary_preference', d.value)}
-                            />
-                        ))}
-                    </div>
-                </div>
-
-                <div style={{ marginBottom: '1.5rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
-                    <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                        <label style={labelStyle}>{t('profile.lifestyle')}</label>
-                        <div style={{ display: 'grid', gap: '0.6rem' }}>
-                            {LIFESTYLES.map(l => (
-                                <SelectOption
-                                    key={l.value}
-                                    label={l.label}
-                                    selected={formData.lifestyle_level === l.value}
-                                    onClick={() => handleChange('lifestyle_level', l.value)}
-                                />
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                        <label style={labelStyle}>{t('profile.daily_steps')}</label>
-                        <div style={{ display: 'grid', gap: '0.6rem' }}>
-                            {STEPS.map(s => (
-                                <SelectOption
-                                    key={s.value}
-                                    label={s.label}
-                                    selected={formData.steps_range === s.value}
-                                    onClick={() => handleChange('steps_range', s.value)}
-                                />
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="form-group">
-                        <label style={labelStyle}>{t('profile.training_days')}</label>
-                        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-                            {[0, 1, 2, 3, 4, 5, 6, 7].map(n => (
-                                <button
-                                    key={n}
-                                    onClick={() => handleChange('trainingFrequency', n)}
-                                    style={{
-                                        width: '40px', height: '40px',
-                                        borderRadius: '50%',
-                                        border: formData.trainingFrequency === n ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
-                                        background: formData.trainingFrequency === n ? 'rgba(255,174,185,0.1)' : 'transparent',
-                                        color: formData.trainingFrequency === n ? 'var(--color-primary)' : 'var(--color-text)',
-                                        fontWeight: '700',
-                                        fontSize: '0.9rem',
-                                        transition: 'all 0.2s',
-                                        flexShrink: 0
-                                    }}
-                                >
-                                    {n}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="form-group">
-                        <label style={labelStyle}>{t('onboarding.step5_title')}</label>
-                        <div style={{ display: 'grid', gap: '0.6rem' }}>
-                            {[
-                                { value: 'beginner', label: t('onboarding.exp_beginner') },
-                                { value: 'intermediate', label: t('onboarding.exp_intermediate') },
-                                { value: 'advanced', label: t('onboarding.exp_advanced') }
-                            ].map(e => (
-                                <SelectOption
-                                    key={e.value}
-                                    label={e.label}
-                                    selected={formData.experienceLevel === e.value}
-                                    onClick={() => handleChange('experienceLevel', e.value)}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* SECTION 3: CYCLE */}
-            <section className="card" style={{ marginBottom: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <IconCalendar opacity={1} /> {t('profile.your_cycle')}
-                </h2>
-
-                <div className="form-group">
-                    <label style={labelStyle}>{t('profile.avg_cycle_length')}</label>
-                    <div style={{ position: 'relative' }}>
-                        <input
-                            type="number"
-                            value={formData.cycleLength}
-                            onChange={e => handleChange('cycleLength', e.target.value)}
-                            className="input-field"
-                            style={{ padding: '1rem', fontSize: '1rem', borderRadius: '12px' }}
-                        />
-                    </div>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.5rem', fontStyle: 'italic' }}>
-                        {t('profile.cycle_learning_tip')}
-                    </p>
-                </div>
-
-                <div style={{ marginTop: '2rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
-                    <h3 style={{ fontSize: '0.8rem', fontWeight: '700', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: '1rem', letterSpacing: '0.05em' }}>{t('profile.corrections')}</h3>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                        <div>
-                            <label style={labelStyle}>{t('profile.last_period_start')}</label>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                                <input
-                                    type="date"
-                                    value={formData.cycleStart}
-                                    onChange={e => handleChange('cycleStart', e.target.value)}
-                                    className="input-field"
-                                    style={{ width: '100%', padding: '1rem', fontSize: '1rem', borderRadius: '12px' }}
-                                />
-                            </div>
-                        </div>
-
-                        <button
-                            style={{
-                                background: 'none',
-                                border: 'none',
-                                color: 'var(--color-text-muted)',
-                                textDecoration: 'underline',
-                                fontSize: '0.85rem',
-                                cursor: 'pointer',
-                                textAlign: 'left',
-                                padding: '0'
-                            }}
-                            onClick={() => setShowCycleCorrection(!showCycleCorrection)}
-                        >
-                            {showCycleCorrection ? t('profile.close_phase_options') : t('profile.other_phase')}
-                        </button>
-
-                        {showCycleCorrection && (
-                            <div className="fade-in" style={{
-                                background: 'var(--color-bg)',
-                                padding: '1rem',
-                                borderRadius: '12px',
-                                display: 'grid', gap: '0.5rem'
-                            }}>
-                                <SelectOption label={t('profile.phases.menstrual')} onClick={() => adjustCyclePhase('menstrual')} />
-                                <SelectOption label={t('profile.phases.follicular')} onClick={() => adjustCyclePhase('follicular')} />
-                                <SelectOption label={t('profile.phases.ovulatory')} onClick={() => adjustCyclePhase('ovulatory')} />
-                                <SelectOption label={t('profile.phases.luteal')} onClick={() => adjustCyclePhase('luteal')} />
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </section>
-
-            {/* SECTION 4: ACCOUNT ACTIONS */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '2rem', opacity: 0.8 }}>
-                <button
-                    onClick={() => {
-                        if (window.confirm(t('profile.onboarding_reset_confirm'))) {
-                            resetOnboarding()
-                        }
-                    }}
-                    style={{ background: 'transparent', border: 'none', color: 'var(--color-text)', textDecoration: 'underline', cursor: 'pointer' }}
-                >
-                    {t('profile.onboarding_reset')}
-                </button>
-
-                <button
-                    onClick={() => {
-                        const data = {
-                            profile: {
-                                name: user?.name,
-                                email: user?.email,
-                                age: user?.age,
-                                height: user?.height,
-                                weight: user?.weight,
-                                goal: user?.goal,
-                                lifestyle_level: user?.lifestyle_level,
-                                training_days_per_week: user?.training_days_per_week,
-                                dietary_preference: user?.dietary_preference
-                            },
-                            cycle: {
-                                cycleStart: user?.cycleStart,
-                                cycleLength: user?.cycleLength,
-                                periodLength: user?.periodLength
-                            },
-                            logs: {
-                                waterLogs: user?.waterLogs || [],
-                                stepLogs: user?.stepLogs || [],
-                                weightLogs: user?.weightLogs || [],
-                                movementLogs: user?.movementLogs || [],
-                                foodLogs: user?.foodLogs || [],
-                                menstruationLogs: user?.menstruationLogs || []
-                            },
-                            exportedAt: new Date().toISOString()
-                        }
-                        
-                        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-                        const url = URL.createObjectURL(blob)
-                        const a = document.createElement('a')
-                        a.href = url
-                        a.download = `allignd-data-${new Date().toISOString().split('T')[0]}.json`
-                        document.body.appendChild(a)
-                        a.click()
-                        document.body.removeChild(a)
-                        URL.revokeObjectURL(url)
-                    }}
-                    style={{ background: 'transparent', border: 'none', color: 'var(--color-text)', textDecoration: 'underline', cursor: 'pointer', textAlign: 'left', padding: 0 }}
-                >
-                    {t('profile.export_data')}
-                </button>
-
-                <button
-                    onClick={() => onNavigate && onNavigate('privacy')}
-                    style={{ background: 'transparent', border: 'none', color: 'var(--color-text)', textDecoration: 'underline', cursor: 'pointer', textAlign: 'left', padding: 0 }}
-                >
-                    {t('profile.privacy_policy')}
-                </button>
-
-                <button
-                    onClick={logout}
-                    style={{ background: 'transparent', border: 'none', color: 'var(--color-text)', cursor: 'pointer', textAlign: 'left', padding: 0 }}
-                >
-                    {t('profile.logout')}
-                </button>
-
-                {/* STRIPE CUSTOMER PORTAL */}
-                <button
+                {/* Account actions */}
+                <SettingsItem label={t('profile.privacy_policy')} onClick={() => onNavigate && onNavigate('privacy')} />
+                <SettingsItem
+                    label={t('profile_extra.manage_subscription')}
                     onClick={() => {
                         const portalLink = import.meta.env.VITE_STRIPE_PORTAL_LINK
-                        if (portalLink) {
-                            window.open(portalLink, '_blank')
-                        }
+                        if (portalLink) window.open(portalLink, '_blank')
                     }}
-                    style={{ background: 'transparent', border: 'none', color: 'var(--color-primary)', fontWeight: '600', cursor: 'pointer', textAlign: 'left', padding: 0, marginTop: '0.5rem' }}
-                >
-                    {t('profile_extra.manage_subscription')}
-                </button>
+                    color="var(--color-primary)"
+                />
+                <SettingsItem label={t('profile.logout')} onClick={logout} />
+                <SettingsItem label={t('profile.delete_account')} onClick={() => setShowDeleteConfirm(true)} />
+            </div>
 
-                {!showDeleteConfirm ? (
-                    <button
-                        onClick={() => setShowDeleteConfirm(true)}
-                        style={{ background: 'transparent', border: 'none', color: '#D32F2F', fontSize: '0.8rem', cursor: 'pointer', textAlign: 'left', padding: 0, marginTop: '1rem' }}
+            {/* Delete Confirm Modal */}
+            {showDeleteConfirm && (
+                <div
+                    onClick={() => setShowDeleteConfirm(false)}
+                    style={{
+                        position: 'fixed',
+                        top: 0, left: 0, right: 0, bottom: 0,
+                        background: 'rgba(0,0,0,0.5)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1000,
+                        padding: '1rem'
+                    }}
+                >
+                    <div
+                        onClick={e => e.stopPropagation()}
+                        style={{
+                            background: 'var(--color-surface)',
+                            borderRadius: 'var(--radius-md)',
+                            padding: '1.5rem',
+                            maxWidth: '320px',
+                            width: '100%',
+                            boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+                            textAlign: 'center'
+                        }}
                     >
-                        {t('profile.delete_account')}
-                    </button>
-                ) : (
-                    <div style={{ background: '#FFF5F5', padding: '1rem', borderRadius: '12px', border: '1px solid #FFE3E3', marginTop: '1rem' }}>
-                        <p style={{ fontSize: '0.85rem', color: '#D32F2F', marginBottom: '0.75rem', fontWeight: 600 }}>
+                        <p style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--color-text)' }}>
+                            {t('profile.delete_confirm_title')}
+                        </p>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '1.25rem' }}>
                             {t('profile.delete_confirm_desc')}
                         </p>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', gap: '0.75rem' }}>
+                            <button
+                                onClick={() => setShowDeleteConfirm(false)}
+                                style={{
+                                    flex: 1, padding: '0.7rem', borderRadius: 'var(--radius-sm)',
+                                    border: '1px solid var(--color-border)', background: 'var(--color-bg)',
+                                    color: 'var(--color-text)', fontSize: '0.9rem', fontWeight: '500',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                {t('common.cancel')}
+                            </button>
                             <button
                                 onClick={handleDeleteAccount}
                                 disabled={isDeleting}
                                 style={{
-                                    flex: 1, padding: '0.6rem', borderRadius: '8px', border: 'none',
-                                    background: '#D32F2F', color: 'white', fontSize: '0.85rem', fontWeight: 600,
+                                    flex: 1, padding: '0.7rem', borderRadius: 'var(--radius-sm)',
+                                    border: 'none', background: '#D32F2F',
+                                    color: 'white', fontSize: '0.9rem', fontWeight: '600',
                                     cursor: isDeleting ? 'not-allowed' : 'pointer', opacity: isDeleting ? 0.7 : 1
                                 }}
                             >
                                 {isDeleting ? t('common.deleting') : t('profile.delete_permanent')}
                             </button>
-                            <button
-                                onClick={() => setShowDeleteConfirm(false)}
-                                disabled={isDeleting}
-                                style={{
-                                    flex: 1, padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--color-border)',
-                                    background: 'white', color: 'var(--color-text)', fontSize: '0.85rem', fontWeight: 600,
-                                    cursor: isDeleting ? 'not-allowed' : 'pointer'
-                                }}
-                            >
-                                {t('common.cancel')}
-                            </button>
                         </div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
 
-            {/* STICKY SAVE BUTTON (Mobile Friendly) */}
-            <div style={{
-                position: 'fixed',
-                bottom: '90px', // Above bottom nav
-                left: '50%',
-                transform: isDirty ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(150%)',
-                transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                zIndex: 100,
-                width: 'auto',
-                pointerEvents: isDirty ? 'auto' : 'none'
-            }}>
-                <button
-                    className="btn btn-primary"
-                    style={{
-                        minWidth: '140px',
-                        boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
-                        borderRadius: '100px',
-                        padding: '0.75rem 1.5rem',
-                        fontSize: '0.9rem',
-                        fontWeight: 600,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.5rem'
-                    }}
-                    onClick={handleSave}
-                    disabled={isSaving}
-                >
-                    {isSaving ? t('common.saving') : t('common.save')}
-                </button>
-            </div>
-
-            <style>{`
-                .form-group { margin-bottom: 1rem; }
-                .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
-                .input-field {
-                    width: 100%;
-                    padding: 0.8rem;
-                    border: 1px solid var(--color-border);
-                    border-radius: 12px;
-                    background: transparent;
-                    color: var(--color-text);
-                    font-size: 1rem;
-                    transition: all 0.2s;
-                }
-                .input-field:focus {
-                    border-color: var(--color-primary);
-                    background: var(--color-surface);
-                    outline: none;
-                }
-                .page-title {
-                    color: var(--color-primary);
-                    margin-bottom: 1.5rem;
-                    margin-top: 0;
-                    font-size: 1.8rem;
-                }
-            `}</style>
+            {/* Sticky Save Button */}
+            {isDirty && (
+                <div style={{
+                    position: 'fixed',
+                    bottom: '90px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    zIndex: 100
+                }}>
+                    <button
+                        className="btn btn-primary"
+                        style={{
+                            minWidth: '140px',
+                            boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+                            borderRadius: 'var(--radius-full)',
+                            padding: '0.75rem 1.5rem',
+                            fontSize: '0.9rem',
+                            fontWeight: 600
+                        }}
+                        onClick={handleSave}
+                        disabled={isSaving}
+                    >
+                        {isSaving ? t('common.saving') : t('common.save')}
+                    </button>
+                </div>
+            )}
         </div>
     )
 }
 
-// --- UI COMPONENTS ---
+// ─── Helper Components ────────────────────────────────────
 
-function SelectOption({ label, selected, onClick }) {
+function SubPage({ title, onBack, children }) {
     return (
-        <button
-            onClick={onClick}
-            style={{
-                padding: '1rem',
-                border: selected ? '2.5px solid var(--color-primary)' : '1px solid var(--color-border)',
-                borderRadius: '16px',
-                background: selected ? 'rgba(255, 174, 185, 0.05)' : 'var(--color-surface)',
-                color: selected ? 'var(--color-primary)' : 'var(--color-text)',
-                fontWeight: selected ? '700' : '500',
-                textAlign: 'left',
-                width: '100%',
-                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                fontSize: '0.95rem'
-            }}
-        >
-            {label}
-        </button>
+        <div className="container" style={{ paddingBottom: '10rem', backgroundColor: 'var(--color-bg)', paddingTop: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+                <button
+                    onClick={onBack}
+                    style={{
+                        background: 'none',
+                        border: 'none',
+                        fontSize: '1.2rem',
+                        color: 'var(--color-text-muted)',
+                        cursor: 'pointer',
+                        padding: '0.5rem'
+                    }}
+                >
+                    ←
+                </button>
+                <h1 style={{ fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>{title}</h1>
+            </div>
+            {children}
+        </div>
     )
 }
 
-function CompactOption({ label, selected, onClick }) {
+function SettingsItem({ icon, label, onClick, color }) {
     return (
         <button
             onClick={onClick}
             style={{
-                padding: '0.75rem 0.5rem',
-                border: selected ? '2.5px solid var(--color-primary)' : '1px solid var(--color-border)',
-                borderRadius: '12px',
-                background: selected ? 'rgba(255, 174, 185, 0.05)' : 'var(--color-surface)',
-                color: selected ? 'var(--color-primary)' : 'var(--color-text)',
-                fontWeight: selected ? '700' : '500',
-                width: '100%',
-                fontSize: '0.82rem',
-                transition: 'all 0.2s ease',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                textAlign: 'center'
+                gap: '1rem',
+                padding: '1rem 1.25rem',
+                background: 'var(--color-surface)',
+                border: '1px solid var(--color-border-light)',
+                borderRadius: 'var(--radius-md)',
+                cursor: 'pointer',
+                width: '100%',
+                textAlign: 'left',
+                transition: 'all 0.2s'
             }}
         >
-            {label}
+            {icon && <span style={{ display: 'flex', alignItems: 'center', color: color || 'var(--color-text)' }}>{icon}</span>}
+            <span style={{ flex: 1, fontSize: '1rem', fontWeight: '500', color: color || 'var(--color-text)' }}>{label}</span>
+            <span style={{ color: 'var(--color-text-tertiary)', fontSize: '1.2rem' }}>›</span>
         </button>
     )
 }

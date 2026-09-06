@@ -120,7 +120,7 @@ export default function AuthCallback() {
                             background: 'var(--color-primary)',
                             color: '#333',
                             border: 'none',
-                            borderRadius: '8px',
+                            borderRadius: 'var(--radius-sm)',
                             cursor: 'pointer',
                             fontWeight: '600'
                         }}
@@ -143,7 +143,7 @@ export default function AuthCallback() {
                             background: 'var(--color-primary)',
                             color: '#333',
                             border: 'none',
-                            borderRadius: '8px',
+                            borderRadius: 'var(--radius-sm)',
                             cursor: 'pointer',
                             fontWeight: '600'
                         }}

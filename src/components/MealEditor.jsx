@@ -484,7 +484,7 @@ const styles = {
         color: '#333333',
         border: 'none',
         padding: '0.5rem 1rem',
-        borderRadius: '8px',
+        borderRadius: 'var(--radius-sm)',
         fontWeight: '600',
         cursor: 'pointer'
     },
@@ -492,7 +492,7 @@ const styles = {
         background: 'rgba(220, 38, 38, 0.1)',
         color: '#dc2626',
         padding: '0.75rem',
-        borderRadius: '8px',
+        borderRadius: 'var(--radius-sm)',
         marginBottom: '1rem',
         fontSize: '0.9rem'
     },
@@ -509,7 +509,7 @@ const styles = {
         width: '100%',
         padding: '0.75rem',
         border: '1px solid var(--color-border)',
-        borderRadius: '10px',
+        borderRadius: 'var(--radius-sm)',
         fontSize: '1rem',
         background: 'var(--color-bg)'
     },
@@ -517,7 +517,7 @@ const styles = {
         width: '100%',
         padding: '0.75rem',
         border: '1px solid var(--color-border)',
-        borderRadius: '10px',
+        borderRadius: 'var(--radius-sm)',
         fontSize: '1rem',
         background: 'var(--color-bg)'
     },
@@ -539,7 +539,7 @@ const styles = {
         color: '#333333',
         border: 'none',
         padding: '0.4rem 0.75rem',
-        borderRadius: '6px',
+        borderRadius: 'var(--radius-sm)',
         fontSize: '0.85rem',
         fontWeight: '500',
         cursor: 'pointer'
@@ -549,7 +549,7 @@ const styles = {
         textAlign: 'center',
         color: 'var(--color-text-muted)',
         background: 'var(--color-bg)',
-        borderRadius: '12px',
+        borderRadius: 'var(--radius-sm)',
         border: '1px dashed var(--color-border)'
     },
     itemsList: {
@@ -563,7 +563,7 @@ const styles = {
         alignItems: 'center',
         padding: '0.75rem',
         background: 'var(--color-surface)',
-        borderRadius: '10px',
+        borderRadius: 'var(--radius-sm)',
         border: '1px solid var(--color-border)'
     },
     itemInfo: {
@@ -590,7 +590,7 @@ const styles = {
         marginTop: '1.5rem',
         padding: '1rem',
         background: 'var(--color-bg)',
-        borderRadius: '12px'
+        borderRadius: 'var(--radius-sm)'
     },
     totalsTitle: {
         fontSize: '0.85rem',
@@ -621,7 +621,7 @@ const styles = {
         width: '100%',
         maxWidth: '480px',
         maxHeight: '80vh',
-        borderRadius: '20px 20px 0 0',
+        borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0',
         padding: '1.5rem',
         overflow: 'auto'
     },
@@ -642,7 +642,7 @@ const styles = {
         width: '100%',
         padding: '0.75rem 1rem',
         border: '1px solid var(--color-border)',
-        borderRadius: '10px',
+        borderRadius: 'var(--radius-sm)',
         fontSize: '1rem',
         marginBottom: '1rem'
     },
@@ -660,7 +660,7 @@ const styles = {
         padding: '0.75rem',
         background: 'var(--color-bg)',
         border: '1px solid var(--color-border)',
-        borderRadius: '10px',
+        borderRadius: 'var(--radius-sm)',
         cursor: 'pointer',
         textAlign: 'left'
     },
@@ -671,7 +671,7 @@ const styles = {
     selectedProduct: {
         padding: '1rem',
         background: 'var(--color-bg)',
-        borderRadius: '10px',
+        borderRadius: 'var(--radius-sm)',
         marginBottom: '1rem'
     },
     quantityRow: {
@@ -686,7 +686,7 @@ const styles = {
         width: '100%',
         padding: '0.75rem',
         border: '1px solid var(--color-border)',
-        borderRadius: '10px',
+        borderRadius: 'var(--radius-sm)',
         fontSize: '1.25rem',
         fontWeight: '600'
     },
@@ -694,7 +694,7 @@ const styles = {
         width: '100%',
         padding: '0.75rem',
         border: '1px solid var(--color-border)',
-        borderRadius: '10px',
+        borderRadius: 'var(--radius-sm)',
         fontSize: '1rem'
     },
     pickerActions: {
@@ -705,7 +705,7 @@ const styles = {
         flex: 1,
         padding: '0.75rem',
         border: '1px solid var(--color-border)',
-        borderRadius: '10px',
+        borderRadius: 'var(--radius-sm)',
         background: 'transparent',
         fontSize: '1rem',
         cursor: 'pointer'
@@ -714,7 +714,7 @@ const styles = {
         flex: 1,
         padding: '0.75rem',
         border: 'none',
-        borderRadius: '10px',
+        borderRadius: 'var(--radius-sm)',
         background: 'var(--color-primary)',
         color: '#333333',
         fontSize: '1rem',

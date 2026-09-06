@@ -31,7 +31,7 @@ function PostCard({ post, onOpen, onLike, isLiked, t, language }) {
             onClick={() => onOpen(post)}
             style={{
                 background: 'var(--color-surface)',
-                borderRadius: '16px',
+                borderRadius: 'var(--radius-lg)',
                 padding: '1.25rem',
                 cursor: 'pointer',
                 boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
@@ -43,7 +43,7 @@ function PostCard({ post, onOpen, onLike, isLiked, t, language }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <span style={{
-                        width: '32px', height: '32px', borderRadius: '50%',
+                        width: '32px', height: '32px', borderRadius: 'var(--radius-full)',
                         background: post.is_anonymous ? '#F2F4F5' : 'rgba(255,174,185,0.2)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: '0.8rem', color: post.is_anonymous ? '#8898AA' : 'var(--color-primary)', fontWeight: '700',
@@ -60,7 +60,7 @@ function PostCard({ post, onOpen, onLike, isLiked, t, language }) {
                                 marginLeft: '0.5rem',
                                 fontSize: '0.7rem',
                                 padding: '2px 8px',
-                                borderRadius: '10px',
+                                borderRadius: 'var(--radius-sm)',
                                 background: `${PHASE_COLORS[post.phase_tag]}20`,
                                 color: PHASE_COLORS[post.phase_tag],
                                 fontWeight: '500'
@@ -116,7 +116,7 @@ function SkeletonPostCard() {
         <div
             style={{
                 background: 'var(--color-surface)',
-                borderRadius: '16px',
+                borderRadius: 'var(--radius-lg)',
                 padding: '1.25rem',
                 border: '1px solid #f2f2f2',
                 boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
@@ -130,23 +130,23 @@ function SkeletonPostCard() {
             {/* Header: avatar + name */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#EAEAEA' }} />
+                    <div style={{ width: '32px', height: '32px', borderRadius: 'var(--radius-full)', background: '#EAEAEA' }} />
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <div style={{ width: '80px', height: '12px', borderRadius: '4px', background: '#EAEAEA' }} />
-                        <div style={{ width: '60px', height: '8px', borderRadius: '3px', background: '#F5F5F5' }} />
+                        <div style={{ width: '80px', height: '12px', borderRadius: 'var(--radius-xs)', background: '#EAEAEA' }} />
+                        <div style={{ width: '60px', height: '8px', borderRadius: 'var(--radius-xs)', background: '#F5F5F5' }} />
                     </div>
                 </div>
-                <div style={{ width: '40px', height: '10px', borderRadius: '4px', background: '#F5F5F5' }} />
+                    <div style={{ width: '40px', height: '10px', borderRadius: 'var(--radius-xs)', background: '#F5F5F5' }} />
             </div>
 
             {/* Title lines */}
-            <div style={{ width: '90%', height: '16px', borderRadius: '4px', background: '#EAEAEA', marginTop: '0.25rem' }} />
-            <div style={{ width: '60%', height: '16px', borderRadius: '4px', background: '#EAEAEA' }} />
+            <div style={{ width: '90%', height: '16px', borderRadius: 'var(--radius-xs)', background: '#EAEAEA', marginTop: '0.25rem' }} />
+            <div style={{ width: '60%', height: '16px', borderRadius: 'var(--radius-xs)', background: '#EAEAEA' }} />
 
             {/* Footer: actions */}
             <div style={{ display: 'flex', gap: '1rem', marginTop: '0.25rem' }}>
-                <div style={{ width: '30px', height: '14px', borderRadius: '4px', background: '#F5F5F5' }} />
-                <div style={{ width: '30px', height: '14px', borderRadius: '4px', background: '#F5F5F5' }} />
+                <div style={{ width: '30px', height: '14px', borderRadius: 'var(--radius-xs)', background: '#F5F5F5' }} />
+                <div style={{ width: '30px', height: '14px', borderRadius: 'var(--radius-xs)', background: '#F5F5F5' }} />
             </div>
         </div>
     )
@@ -507,7 +507,7 @@ export default function Community() {
                                 onClick={() => setNewCategory(cat)}
                                 style={{
                                     padding: '0.5rem 1rem',
-                                    borderRadius: '20px',
+                                    borderRadius: 'var(--radius-lg)',
                                     border: newCategory === cat ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
                                     background: newCategory === cat ? 'rgba(255,174,185,0.1)' : 'var(--color-surface)',
                                     color: newCategory === cat ? 'var(--color-primary)' : 'var(--color-text)',
@@ -534,7 +534,7 @@ export default function Community() {
                                 onClick={() => setNewPhaseTag(newPhaseTag === key ? null : key)}
                                 style={{
                                     padding: '0.4rem 0.8rem',
-                                    borderRadius: '16px',
+                                    borderRadius: 'var(--radius-md)',
                                     border: newPhaseTag === key ? `2px solid ${color}` : '1px solid var(--color-border)',
                                     background: newPhaseTag === key ? `${color}20` : 'var(--color-surface)',
                                     color: newPhaseTag === key ? color : 'var(--color-text-muted)',
@@ -558,7 +558,7 @@ export default function Community() {
                         onChange={e => setNewTitle(e.target.value)}
                         maxLength={120}
                         style={{
-                            width: '100%', padding: '0.875rem 1rem', borderRadius: '12px',
+                            width: '100%', padding: '0.875rem 1rem', borderRadius: 'var(--radius-sm)',
                             border: '1px solid var(--color-border)', background: 'var(--color-surface)',
                             color: 'var(--color-text)', fontSize: '1rem', fontWeight: '500'
                         }}
@@ -573,7 +573,7 @@ export default function Community() {
                         onChange={e => setNewBody(e.target.value)}
                         rows={5}
                         style={{
-                            width: '100%', padding: '0.875rem 1rem', borderRadius: '12px',
+                            width: '100%', padding: '0.875rem 1rem', borderRadius: 'var(--radius-sm)',
                             border: '1px solid var(--color-border)', background: 'var(--color-surface)',
                             color: 'var(--color-text)', fontSize: '0.95rem', lineHeight: '1.5',
                             resize: 'vertical', fontFamily: 'inherit'
@@ -584,7 +584,7 @@ export default function Community() {
                 {/* Anonymous toggle */}
                 <div style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '0.875rem 1rem', borderRadius: '12px',
+                    padding: '0.875rem 1rem', borderRadius: 'var(--radius-sm)',
                     background: 'var(--color-surface)', border: '1px solid var(--color-border)',
                     marginBottom: '1.5rem'
                 }}>
@@ -597,14 +597,14 @@ export default function Community() {
                     <button
                         onClick={() => setNewAnonymous(!newAnonymous)}
                         style={{
-                            width: '48px', height: '28px', borderRadius: '14px',
+                            width: '48px', height: '28px', borderRadius: 'var(--radius-md)',
                             background: newAnonymous ? 'var(--color-primary)' : '#E8ECEF',
                             border: 'none', cursor: 'pointer', position: 'relative',
                             transition: 'background 0.2s'
                         }}
                     >
                         <div style={{
-                            width: '22px', height: '22px', borderRadius: '50%', background: 'white',
+                            width: '22px', height: '22px', borderRadius: 'var(--radius-full)', background: 'white',
                             position: 'absolute', top: '3px',
                             left: newAnonymous ? '23px' : '3px',
                             transition: 'left 0.2s',
@@ -618,7 +618,7 @@ export default function Community() {
                     onClick={submitPost}
                     disabled={!newTitle.trim() || !newBody.trim() || isSubmitting}
                     style={{
-                        width: '100%', padding: '1rem', borderRadius: '14px',
+                        width: '100%', padding: '1rem', borderRadius: 'var(--radius-md)',
                         border: 'none', background: 'var(--color-primary)', color: '#333333',
                         fontSize: '1rem', fontWeight: '600', cursor: 'pointer',
                         opacity: (!newTitle.trim() || !newBody.trim() || isSubmitting) ? 0.5 : 1,
@@ -647,12 +647,12 @@ export default function Community() {
                 </button>
 
                 {/* Full Post */}
-                <div style={{ background: 'var(--color-surface)', borderRadius: '16px', padding: '1.25rem', marginBottom: '1rem', border: '1px solid var(--color-border)' }}>
+                <div style={{ background: 'var(--color-surface)', borderRadius: 'var(--radius-lg)', padding: '1.25rem', marginBottom: '1rem', border: '1px solid var(--color-border)' }}>
                     {/* Author */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <span style={{
-                                width: '36px', height: '36px', borderRadius: '50%',
+                                width: '36px', height: '36px', borderRadius: 'var(--radius-full)',
                                 background: selectedPost.is_anonymous ? '#E8ECEF' : 'var(--color-primary)',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 fontSize: '0.85rem', color: '#333333', fontWeight: '600'
@@ -666,7 +666,7 @@ export default function Community() {
                                 {selectedPost.phase_tag && (
                                     <span style={{
                                         marginLeft: '0.5rem', fontSize: '0.7rem', padding: '2px 8px',
-                                        borderRadius: '10px', background: `${PHASE_COLORS[selectedPost.phase_tag]}20`,
+                                        borderRadius: 'var(--radius-sm)', background: `${PHASE_COLORS[selectedPost.phase_tag]}20`,
                                         color: PHASE_COLORS[selectedPost.phase_tag], fontWeight: '500'
                                     }}>
                                         {t(`community.phases.${selectedPost.phase_tag}`)}
@@ -710,7 +710,7 @@ export default function Community() {
                                 style={{
                                     marginLeft: 'auto', background: 'rgba(239,68,68,0.1)', border: 'none',
                                     color: '#ef4444', fontSize: '0.8rem', cursor: 'pointer', padding: '0.3rem 0.6rem',
-                                    borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.25rem'
+                                    borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', gap: '0.25rem'
                                 }}
                             >
                                 {user?.isAdmin && !isOwner && '🛡️ '}{t('community.delete')}
@@ -732,7 +732,7 @@ export default function Community() {
 
                 {comments.map(comment => (
                     <div key={comment.id} style={{
-                        background: 'var(--color-surface)', borderRadius: '12px', padding: '1rem',
+                        background: 'var(--color-surface)', borderRadius: 'var(--radius-lg)', padding: '1rem',
                         marginBottom: '0.5rem', border: '1px solid var(--color-border)'
                     }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
@@ -796,7 +796,7 @@ export default function Community() {
                         placeholder={t('community.write_comment')}
                         onKeyDown={e => e.key === 'Enter' && submitComment()}
                         style={{
-                            flex: 1, padding: '0.7rem 1rem', borderRadius: '24px',
+                            flex: 1, padding: '0.7rem 1rem', borderRadius: 'var(--radius-lg)',
                             border: '1px solid var(--color-border)', background: 'var(--color-bg)',
                             color: 'var(--color-text)', fontSize: '0.9rem'
                         }}
@@ -806,7 +806,7 @@ export default function Community() {
                         disabled={!commentText.trim() || isSubmitting}
                         style={{
                             background: 'var(--color-primary)', color: '#333333', border: 'none',
-                            width: '42px', height: '42px', borderRadius: '50%',
+                            width: '42px', height: '42px', borderRadius: 'var(--radius-full)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             cursor: 'pointer', fontSize: '1.1rem',
                             opacity: (!commentText.trim() || isSubmitting) ? 0.5 : 1
@@ -830,7 +830,7 @@ export default function Community() {
                         <div
                             onClick={e => e.stopPropagation()}
                             style={{
-                                background: 'var(--color-surface)', borderRadius: '16px',
+                                background: 'var(--color-surface)', borderRadius: 'var(--radius-lg)',
                                 padding: '1.5rem', maxWidth: '320px', width: '100%',
                                 boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
                                 textAlign: 'center'
@@ -846,7 +846,7 @@ export default function Community() {
                                 <button
                                     onClick={cancelDelete}
                                     style={{
-                                        flex: 1, padding: '0.7rem', borderRadius: '12px',
+                                        flex: 1, padding: '0.7rem', borderRadius: 'var(--radius-md)',
                                         border: '1px solid var(--color-border)', background: 'var(--color-bg)',
                                         color: 'var(--color-text)', fontSize: '0.9rem', fontWeight: '500',
                                         cursor: 'pointer'
@@ -857,7 +857,7 @@ export default function Community() {
                                 <button
                                     onClick={executeDelete}
                                     style={{
-                                        flex: 1, padding: '0.7rem', borderRadius: '12px',
+                                        flex: 1, padding: '0.7rem', borderRadius: 'var(--radius-md)',
                                         border: 'none', background: '#ef4444',
                                         color: '#333333', fontSize: '0.9rem', fontWeight: '600',
                                         cursor: 'pointer'
@@ -877,7 +877,7 @@ export default function Community() {
     // VIEW: Feed (default)
     // ───────────────────────────────────────────────────────
     return (
-        <div className="container" style={{ paddingBottom: '120px' }}>
+        <div className="container" style={{ paddingBottom: '120px', paddingTop: '1rem' }}>
             {/* Header */}
             <div style={{ marginBottom: '1rem' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.25rem' }}>Community</h2>
@@ -895,7 +895,7 @@ export default function Community() {
                         key={cat}
                         onClick={() => setActiveCategory(cat)}
                         style={{
-                            padding: '0.6rem 1.25rem', borderRadius: '24px', whiteSpace: 'nowrap',
+                            padding: '0.6rem 1.25rem', borderRadius: 'var(--radius-lg)', whiteSpace: 'nowrap',
                             border: activeCategory === cat ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
                             background: activeCategory === cat ? 'rgba(255,174,185,0.1)' : 'var(--color-surface)',
                             color: activeCategory === cat ? 'var(--color-primary)' : 'var(--color-text)',
@@ -924,7 +924,7 @@ export default function Community() {
                                 setActiveFilter(null);
                             }}
                             style={{
-                                padding: '0.3rem 0.7rem', borderRadius: '14px', fontSize: '0.75rem',
+                                padding: '0.3rem 0.7rem', borderRadius: 'var(--radius-md)', fontSize: '0.75rem',
                                 border: 'none', cursor: 'pointer',
                                 background: (sortOrder === opt.key && !activeFilter) ? 'var(--color-primary)' : 'transparent',
                                 color: (sortOrder === opt.key && !activeFilter) ? 'white' : 'var(--color-text-muted)',
@@ -945,7 +945,7 @@ export default function Community() {
                             key={f.key}
                             onClick={() => setActiveFilter(prev => prev === f.key ? null : f.key)}
                             style={{
-                                padding: '0.3rem 0.7rem', borderRadius: '14px', fontSize: '0.75rem',
+                                padding: '0.3rem 0.7rem', borderRadius: 'var(--radius-md)', fontSize: '0.75rem',
                                 border: activeFilter === f.key ? '1.5px solid var(--color-primary)' : 'none',
                                 cursor: 'pointer',
                                 background: activeFilter === f.key ? 'rgba(255,174,185,0.15)' : 'transparent',
@@ -1030,7 +1030,7 @@ export default function Community() {
                 onClick={() => { setView('new'); window.scrollTo(0, 0) }}
                 style={{
                     position: 'fixed', bottom: 'calc(90px + env(safe-area-inset-bottom, 0px))', right: '20px',
-                    width: '60px', height: '60px', borderRadius: '50%',
+                    width: '60px', height: '60px', borderRadius: 'var(--radius-full)',
                     background: 'var(--color-primary)', color: '#333333',
                     border: 'none', fontSize: '2rem', cursor: 'pointer',
                     boxShadow: '0 8px 24px rgba(255,174,185,0.4)',
