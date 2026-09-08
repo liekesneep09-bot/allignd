@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { GOAL_TYPES } from '../logic/nutrition'
 import logo from '../assets/logo-primary.png'
+import { registerPushNotifications } from '../utils/pushNotifications'
+import { isNativePlatform } from '../utils/platform'
 
 export default function Onboarding() {
     const { user, updateUser, completeOnboarding, saveProfileAndCalculate, logout } = useUser()
@@ -131,6 +133,11 @@ export default function Onboarding() {
                 goal: formData.goal
             });
             await completeOnboarding();
+
+            // Register push notifications on native devices
+            if (isNativePlatform()) {
+                await registerPushNotifications();
+            }
         } catch (error) {
             console.error("Onboarding Error:", error);
             alert(t('onboarding.error_generic') + ": " + error.message);

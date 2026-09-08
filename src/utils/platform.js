@@ -1,3 +1,5 @@
+import { Capacitor } from '@capacitor/core';
+
 /**
  * Platform detection utilities for Capacitor native apps.
  * 
@@ -19,6 +21,13 @@ export function isNativePlatform() {
 }
 
 /**
+ * Alias for isNativePlatform for convenience
+ */
+export function isNative() {
+    return isNativePlatform();
+}
+
+/**
  * Get the current platform: 'ios', 'android', or 'web'.
  */
 export function getPlatform() {
@@ -26,6 +35,20 @@ export function getPlatform() {
         return window.Capacitor.getPlatform?.() || 'web';
     }
     return 'web';
+}
+
+/**
+ * Check if running on iOS
+ */
+export function isIOS() {
+    return getPlatform() === 'ios';
+}
+
+/**
+ * Check if running on Android
+ */
+export function isAndroid() {
+    return getPlatform() === 'android';
 }
 
 /**

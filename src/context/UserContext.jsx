@@ -12,6 +12,7 @@ import { api } from '../utils/api'
 import { useAuth } from './AuthContext'
 import { supabase } from '../utils/supabaseClient'
 import { getLocalDateStr } from '../utils/date'
+import { isNativePlatform } from '../utils/platform'
 
 const UserContext = createContext(null)
 
@@ -1637,9 +1638,16 @@ export function UserProvider({ children }) {
   // 8. Context Value
   // LOGOUT (Simple)
   // LOGOUT (Simple)
-  const logout = () => {
+  const logout = async () => {
     setIsOnboarded(false)
     localStorage.removeItem('cyclus_onboarded')
+
+    // Remove push token on native devices
+    if (isNativePlatform()) {
+      const { removePushToken } = await import('../utils/pushNotifications')
+      await removePushToken()
+    }
+
     // Also sign out from Supabase auth
     if (signOut) signOut()
   }
