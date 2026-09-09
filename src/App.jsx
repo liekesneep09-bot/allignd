@@ -22,6 +22,7 @@ import AuthCallback from './components/AuthCallback'
 import LandingPage from './pages/LandingPage'
 import { LanguageProvider, useLanguage } from './context/LanguageContext'
 import BetaUnlockScreen from './components/BetaUnlockScreen'
+import { getApiBaseUrl } from './utils/platform'
 
 import { IconHome, IconActivity, IconRecipe, IconAccount, IconCommunity, IconGuide } from './components/Icons'
 import logo from './assets/logo-primary.png'
@@ -278,23 +279,18 @@ function MainLayout() {
     )
 }
 
-function AuthenticatedApp() {
+function AuthenticatedApp({ hasBetaAccess, onBetaAccessGranted }) {
     const { user, loading } = useAuth()
 
     if (loading) {
         return <SplashScreen />
     }
 
-    let hasAdminOverride = localStorage.getItem('admin_override') === 'true'
-
-    // admin_override is ONLY set via the secret URL (?toegang=liekenelis) or /unlock screen.
-    // Do NOT auto-grant it based on auth session — we are in waitlist mode.
-
     // VOOR-LANCERING BEVEILIGING:
-    // Blokkeer toegang tot de app (en de login). Alleen via het wachtwoord kunnen we de app in.
-    if (!hasAdminOverride) {
+    // Block access until the server grants beta access via an HttpOnly cookie.
+    if (!hasBetaAccess) {
         if (window.location.pathname === '/unlock') {
-            return <BetaUnlockScreen />
+            return <BetaUnlockScreen onUnlocked={onBetaAccessGranted} />
         }
         
         if (window.location.pathname !== '/') {
@@ -325,15 +321,20 @@ function AuthenticatedApp() {
 
 export default function App() {
     const [isOnline, setIsOnline] = useState(navigator.onLine)
+    const [betaAccess, setBetaAccess] = useState(null)
 
-    // GEHEIME ACHTERDEUR LOGICA
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search)
-        if (params.get('toegang') === 'liekenelis') {
-            localStorage.setItem('admin_override', 'true')
-            // Maak de URL weer netjes schoon
-            window.history.replaceState({}, document.title, window.location.pathname)
-        }
+        let cancelled = false
+
+        fetch(`${getApiBaseUrl()}/api/beta-access`, { credentials: 'include' })
+            .then((response) => {
+                if (!cancelled) setBetaAccess(response.ok)
+            })
+            .catch(() => {
+                if (!cancelled) setBetaAccess(false)
+            })
+
+        return () => { cancelled = true }
     }, [])
 
     useEffect(() => {
@@ -376,6 +377,10 @@ export default function App() {
         )
     }
 
+    if (betaAccess === null) {
+        return <SplashScreen />
+    }
+
     // Check if Supabase is configured
     if (supabaseConfigError) {
         return <ConfigErrorScreen />
@@ -386,7 +391,10 @@ export default function App() {
             <LanguageProvider>
                 <AuthProvider>
                     <OfflineBanner isOnline={isOnline} />
-                    <AuthenticatedApp />
+                    <AuthenticatedApp
+                        hasBetaAccess={betaAccess}
+                        onBetaAccessGranted={() => setBetaAccess(true)}
+                    />
                     <DebugPanel />
                 </AuthProvider>
             </LanguageProvider>

@@ -7,11 +7,41 @@
 -- 1. SECURE THE PROFILES TABLE
 -- ------------------------------------------------------------
 -- Currently, profiles can be read by anyone (public). We need to restrict this.
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_admin boolean NOT NULL DEFAULT false;
 DROP POLICY IF EXISTS "Public profiles are viewable by everyone." ON profiles;
 DROP POLICY IF EXISTS "Users can view own profile" ON profiles;
 
 CREATE POLICY "Users can view own profile" ON profiles
   FOR SELECT USING (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users can update own profile." ON profiles;
+DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
+CREATE POLICY "Users can update own profile" ON profiles
+  FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+
+-- Never allow a client to grant or revoke admin privileges.
+CREATE OR REPLACE FUNCTION public.prevent_profile_privilege_escalation()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF (TG_OP = 'INSERT' AND COALESCE(NEW.is_admin, false))
+     OR (TG_OP = 'UPDATE' AND NEW.is_admin IS DISTINCT FROM OLD.is_admin) THEN
+    IF COALESCE(auth.role(), '') <> 'service_role' THEN
+      RAISE EXCEPTION 'is_admin can only be changed by a trusted server';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS prevent_profile_privilege_escalation ON profiles;
+CREATE TRIGGER prevent_profile_privilege_escalation
+  BEFORE INSERT OR UPDATE ON profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION public.prevent_profile_privilege_escalation();
 
 -- ------------------------------------------------------------
 -- 2. CREATE AND SECURE "computed_targets"

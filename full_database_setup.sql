@@ -32,20 +32,44 @@ create table if not exists profiles (
   cycle_stats jsonb default '{}'::jsonb,
   
   -- App State
-  is_onboarded boolean default false
+  is_onboarded boolean default false,
+  is_admin boolean not null default false
 );
 
 -- RLS for Profiles
 alter table profiles enable row level security;
 
-create policy "Public profiles are viewable by everyone." on profiles
-  for select using (true);
+create policy "Users can view own profile." on profiles
+  for select using (auth.uid() = id);
 
 create policy "Users can insert their own profile." on profiles
   for insert with check (auth.uid() = id);
 
 create policy "Users can update own profile." on profiles
-  for update using (auth.uid() = id);
+  for update using (auth.uid() = id) with check (auth.uid() = id);
+
+-- Prevent clients from granting themselves admin privileges.
+create or replace function public.prevent_profile_privilege_escalation()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if (tg_op = 'INSERT' and coalesce(new.is_admin, false))
+     or (tg_op = 'UPDATE' and new.is_admin is distinct from old.is_admin) then
+    if coalesce(auth.role(), '') <> 'service_role' then
+      raise exception 'is_admin can only be changed by a trusted server';
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists prevent_profile_privilege_escalation on profiles;
+create trigger prevent_profile_privilege_escalation
+  before insert or update on profiles
+  for each row execute function public.prevent_profile_privilege_escalation();
 
 
 -- ==========================================

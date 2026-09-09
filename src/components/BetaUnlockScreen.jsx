@@ -1,22 +1,37 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import logo from '../assets/logo-primary.png';
+import { getApiBaseUrl } from '../utils/platform';
 
-export default function BetaUnlockScreen() {
+export default function BetaUnlockScreen({ onUnlocked }) {
     const [password, setPassword] = useState('');
     const [error, setError] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { t } = useLanguage();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Check the strong password
-        if (password === 'LIE207sneNelis18!#') {
-            localStorage.setItem('admin_override', 'true');
-            // Redirect to the main app
-            window.location.href = '/';
-        } else {
+        setIsSubmitting(true);
+        setError(false);
+
+        try {
+            const response = await fetch(`${getApiBaseUrl()}/api/beta-access`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ password })
+            });
+
+            if (!response.ok) throw new Error('Invalid beta access code');
+
+            onUnlocked?.();
+            window.history.replaceState({}, document.title, '/');
+            window.dispatchEvent(new PopStateEvent('popstate'));
+        } catch {
             setError(true);
             setTimeout(() => setError(false), 2000); // Reset error state after 2 seconds
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -96,6 +111,7 @@ export default function BetaUnlockScreen() {
 
                     <button 
                         type="submit"
+                        disabled={password.length === 0 || isSubmitting}
                         style={{
                             width: '100%',
                             background: 'var(--color-primary, #c4506a)',
@@ -110,7 +126,7 @@ export default function BetaUnlockScreen() {
                             opacity: password.length > 0 ? 1 : 0.7
                         }}
                     >
-                        {t('beta.unlock_btn')}
+                        {isSubmitting ? t('common.loading') : t('beta.unlock_btn')}
                     </button>
                 </form>
 

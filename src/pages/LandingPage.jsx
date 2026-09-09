@@ -125,8 +125,7 @@ export default function LandingPage({ onEnterApp }) {
     }
   };
 
-  const hasAdminOverride = localStorage.getItem('admin_override') === 'true';
-  const showLoginButton = hasAdminOverride;
+  const showLoginButton = Boolean(onEnterApp);
 
   return (
     <div className="lp-container">
