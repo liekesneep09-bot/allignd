@@ -67,27 +67,67 @@ CREATE INDEX IF NOT EXISTS idx_profiles_push_token ON profiles(push_token);
 
 ### 6. Notificaties sturen
 
-**Via Supabase Dashboard:**
+**Via Supabase Dashboard (handmatig testen):**
 1. Ga naar Authentication → Users
 2. Klik op een user
 3. Scroll naar "Push Tokens"
 4. Klik "Send Test Push"
 
-**Via Supabase Edge Function (automatisch):**
-- Je kunt een Edge Function maken die notificaties stuurt op basis van events
-- Bijv. dagelijkse herinnering om symptomen te loggen
+**Via de Allignd API (automatisch):**
+Er is een serverless endpoint `api/notifications.js` dat dagelijkse herinneringen en fase-overgangen verstuurt via FCM (Android) en APNs (iOS). Twee cron jobs (gedefinieerd in `vercel.json`) roepen hem elke dag aan:
+
+- `GET /api/notifications/daily` (06:00 UTC) — dagelijkse check-in herinnering, overgeslagen voor gebruikers die al gelogd hebben
+- `GET /api/notifications/phase` (07:00 UTC) — melding zodra een gebruiker in een nieuwe cyclusfase komt
+
+#### Required environment variables (Vercel)
+
+| Variabele | Doel |
+| --- | --- |
+| `CRON_SECRET` | Beschermt de cron endpoints. Vercel stuurt dit automatisch mee als `Authorization: Bearer <CRON_SECRET>` bij cron jobs. |
+| `FCM_SERVICE_ACCOUNT_JSON` | Firebase service account JSON (Firebase Console → Project Settings → Service Accounts → "Generate new private key"). Nodig voor Android. |
+| `APNS_KEY` | De inhoud van je `.p8` bestand (uit stap 2). Nodig voor iOS. |
+| `APNS_KEY_ID` | Key ID van je APNs key (uit stap 2). |
+| `APNS_TEAM_ID` | Team ID van je Apple developer account (uit stap 2). |
+| `APNS_BUNDLE_ID` | Bundle ID van de app (`nl.allignd.app`). Optioneel, heeft een default. |
+
+Optioneel: `NOTIFICATIONS_SECRET` (fallback als `CRON_SECRET` niet is gezet) en `APNS_ENV=sandbox` (voor testen op een development build).
+
+#### Migratie uitvoeren
+
+De API gebruikt twee extra kolommen op `profiles` (staan al in `add_push_token_column.sql`, maar voer gerust opnieuw uit):
+
+```sql
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS push_platform TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS last_notified_phase TEXT;
+```
+
+De app slaat hier automatisch `push_platform` ('ios' of 'android') op bij het registeren van het token. `last_notified_phase` voorkomt dubbele fase-overgang berichten.
+
+#### Handmatig sturen
+
+```bash
+curl -X POST https://<jouw-domain>.vercel.app/api/notifications/send \
+  -H "Authorization: Bearer <CRON_SECRET>" \
+  -H "Content-Type: application/json" \
+  -d '{"userId":"<user-id>","title":"Test","body":"Werkt dit?","view":"today"}'
+```
+
+Let op: een `user_id` in de `profiles` tabel is een UUID. Het endpoint verwacht dat ID, niet het e-mailadres.
 
 ## Bestanden die zijn aangemaakt
 
 - `src/utils/pushNotifications.js` - Push notificatie logic
 - `src/utils/platform.js` - Platform detection (iOS/Android/Web)
 - `add_push_token_column.sql` - Database migration
+- `api/notifications.js` - Serverless endpoint voor dagelijkse + fase notificaties (FCM/APNs)
 
 ## Bestanden die zijn aangepast
 
 - `capacitor.config.ts` - PushNotifications plugin config
 - `src/pages/Onboarding.jsx` - Push registratie na onboarding
 - `src/context/UserContext.jsx` - Push token verwijderen bij logout
+- `vercel.json` - Cron jobs + rewrites voor `/api/notifications`
+- `src/App.jsx` - Navigatie na een push-notificatie tap (`allignd-push-navigate` event)
 
 ## Belangrijke notes
 

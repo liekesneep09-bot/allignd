@@ -10,6 +10,7 @@ export function AuthProvider({ children }) {
     const [session, setSession] = useState(null)
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [isLoggingOut, setIsLoggingOut] = useState(false)
     const { t } = useLanguage()
 
     useEffect(() => {
@@ -108,13 +109,19 @@ export function AuthProvider({ children }) {
     }
 
     const signOut = async () => {
-        if (isSupabaseConfigured()) {
-            await supabase.auth.signOut()
+        setIsLoggingOut(true)
+        try {
+            if (isSupabaseConfigured()) {
+                await supabase.auth.signOut()
+            }
+            localStorage.removeItem('cyclus_onboarded')
+            localStorage.removeItem('cyclus_user_profile')
+            setSession(null)
+            setUser(null)
+        } finally {
+            // Keep isLoggingOut true so the app stays on SplashScreen
+            // until the component tree re-renders with null session.
         }
-        localStorage.removeItem('cyclus_onboarded')
-        localStorage.removeItem('cyclus_user_profile')
-        setSession(null)
-        setUser(null)
     }
 
     const resetPassword = async (email) => {
@@ -147,6 +154,7 @@ export function AuthProvider({ children }) {
         session,
         user,
         loading,
+        isLoggingOut,
         signIn,
         signUp,
         signOut,

@@ -758,12 +758,14 @@ const RECIPE_ADAPTATIONS_NL = {
       title: 'Scrambled tofu met spinazie op volkoren toast',
       ingredients: ['150g stevige tofu (verkruimeld)', 'Handvol verse spinazie', '2 sneetjes volkoren brood', 'Snufje kurkuma & edelgistvlokken', 'Olijfolie'],
       instructions: ['Verhit olie in de pan en slink de spinazie kort.', 'Verkruimel de tofu in de pan en voeg de kurkuma en edelgistvlokken toe.', 'Roerbak 5 minuten tot het goed warm is.', 'Serveer op geroosterd brood.'],
-      explanation: 'Een zachte, voedzame start met wat extra ijzer en plantaardige eiwitten uit tofu.'
+      explanation: 'Een zachte, voedzame start met wat extra ijzer en plantaardige eiwitten uit tofu.',
+      macros: { p: 20, c: 34, f: 12, kcal: 330, fiber: 6.0 }
     }
   },
   'Warme quinoa met geroosterde biet en walnoten': {
     vegan: {
-      ingredients: ['75g quinoa (ongekookt)', '2 bieden', 'Handje walnoten', 'Beetje vegan feta of avocado', '1 el olijfolie', 'Snufje komijn']
+      ingredients: ['75g quinoa (ongekookt)', '2 bieten', 'Handje walnoten', 'Beetje vegan feta of avocado', '1 el olijfolie', 'Snufje komijn'],
+      macros: { p: 15, c: 69, f: 34, kcal: 620, fiber: 8.0 }
     }
   },
   'Langzaam gegaarde runderstoof': {
@@ -808,7 +810,8 @@ const RECIPE_ADAPTATIONS_NL = {
     vegan: {
       title: 'Kokos- of soja-yoghurt met granola en fruit',
       ingredients: ['200g plantaardige yoghurt (bijv. soja of kokos)', '30g granola (laag suiker)', 'Halve banaan', 'Blauwe bessen'],
-      instructions: ['Doe de plantaardige yoghurt in een kom.', 'Snijd banaan in plakjes.', 'Voeg fruit en granola toe.', 'Eventueel toppen met een beetje esdoornsiroop.']
+      instructions: ['Doe de plantaardige yoghurt in een kom.', 'Snijd banaan in plakjes.', 'Voeg fruit en granola toe.', 'Eventueel toppen met een beetje esdoornsiroop.'],
+      macros: { p: 11, c: 47, f: 6, kcal: 310, fiber: 5.0 }
     }
   },
   'Avocado toast met gepocheerd ei': {
@@ -843,19 +846,22 @@ const RECIPE_ADAPTATIONS_NL = {
     vegan: {
       title: 'Frisse couscous salade met vegan feta',
       ingredients: ['75g couscous (droog)', 'Komkommer', 'Tomaat', '50g vegan feta (of olijven & avocado)', 'Verse munt'],
-      instructions: ['Wel de couscous in heet water (5 min).', 'Snijd groenten en vegan feta in blokjes.', 'Meng alles door elkaar met de munt.', 'Breng op smaak met citroensap en olijfolie.']
+      instructions: ['Wel de couscous in heet water (5 min).', 'Snijd groenten en vegan feta in blokjes.', 'Meng alles door elkaar met de munt.', 'Breng op smaak met citroensap en olijfolie.'],
+      macros: { p: 15, c: 67, f: 23, kcal: 530, fiber: 6.0 }
     }
   },
   'Wokgerecht met kip en groenten': {
     vegetarian: {
       title: 'Wokgerecht met tofu en groenten',
       ingredients: ['150g tofu (in blokjes)', 'Wokgroenten (paprika, courgette)', 'Sojasaus', 'Gember', 'Zilvervliesrijst'],
-      instructions: ['Kook de rijst.', 'Bak de tofu goudbruin in wat olie.', 'Voeg groenten, gember en sojasaus toe.', 'Roerbak kort op hoog vuur.']
+      instructions: ['Kook de rijst.', 'Bak de tofu goudbruin in wat olie.', 'Voeg groenten, gember en sojasaus toe.', 'Roerbak kort op hoog vuur.'],
+      macros: { p: 21, c: 74, f: 13, kcal: 510, fiber: 5.0 }
     },
     vegan: {
       title: 'Wokgerecht met tofu en groenten',
       ingredients: ['150g tofu (in blokjes)', 'Wokgroenten (paprika, courgette)', 'Sojasaus', 'Gember', 'Zilvervliesrijst'],
-      instructions: ['Kook de rijst.', 'Bak de tofu goudbruin in wat olie.', 'Voeg groenten, gember en sojasaus toe.', 'Roerbak kort op hoog vuur.']
+      instructions: ['Kook de rijst.', 'Bak de tofu goudbruin in wat olie.', 'Voeg groenten, gember en sojasaus toe.', 'Roerbak kort op hoog vuur.'],
+      macros: { p: 21, c: 74, f: 13, kcal: 510, fiber: 5.0 }
     }
   },
   'Witvis met rijst en broccoli': {
@@ -925,7 +931,8 @@ const RECIPE_ADAPTATIONS_NL = {
   'Pasta salade met mozzarella': {
     vegan: {
       title: 'Pasta salade met vegan mozzarella of olijven',
-      ingredients: ['75g pasta (ongekookt)', '50g vegan mozzarella (of olijven)', 'Cherrytomaten', 'Basilicum', 'Pijnboompitten', 'Olijfolie']
+      ingredients: ['75g pasta (ongekookt)', '50g vegan mozzarella (of olijven)', 'Cherrytomaten', 'Basilicum', 'Pijnboompitten', 'Olijfolie'],
+      macros: { p: 18, c: 64, f: 31, kcal: 585, fiber: 4.0 }
     }
   },
   'Gegrilde kip of biefstuk met groentefriet': {
@@ -996,19 +1003,22 @@ const RECIPE_ADAPTATIONS_NL = {
     vegetarian: {
       title: 'Gele curry met tofu en rijst',
       ingredients: ['75g rijst', '150g stevige tofu (blokjes)', 'Kokosmelk (light)', 'Currypasta', 'Bloemkool'],
-      instructions: ['Bak de tofublokjes in wat olie.', 'Voeg bloemkool en currypasta toe, bak kort mee.', 'Voeg kokosmelk toe en laat 10 min sudderen.', 'Serveer met rijst.']
+      instructions: ['Bak de tofublokjes in wat olie.', 'Voeg bloemkool en currypasta toe, bak kort mee.', 'Voeg kokosmelk toe en laat 10 min sudderen.', 'Serveer met rijst.'],
+      macros: { p: 18, c: 65, f: 14, kcal: 450, fiber: 6.0 }
     },
     vegan: {
       title: 'Gele curry met tofu en rijst',
       ingredients: ['75g rijst', '150g stevige tofu (blokjes)', 'Kokosmelk (light)', 'Currypasta', 'Bloemkool'],
-      instructions: ['Bak de tofublokjes in wat olie.', 'Voeg bloemkool en currypasta toe, bak kort mee.', 'Voeg kokosmelk toe en laat 10 min sudderen.', 'Serveer met rijst.']
+      instructions: ['Bak de tofublokjes in wat olie.', 'Voeg bloemkool en currypasta toe, bak kort mee.', 'Voeg kokosmelk toe en laat 10 min sudderen.', 'Serveer met rijst.'],
+      macros: { p: 18, c: 65, f: 14, kcal: 450, fiber: 6.0 }
     }
   },
   'Volle kwark met zaden': {
     vegan: {
       title: 'Soja- of kokoskwark met zaden',
       ingredients: ['200g plantaardige kwark of dikke yoghurt', '1 el pompoenpitten', 'Esdoornsiroop of druppeltje agave'],
-      instructions: ['Meng alles in een schaaltje.']
+      instructions: ['Meng alles in een schaaltje.'],
+      macros: { p: 12, c: 18, f: 10, kcal: 210, fiber: 2.5 }
     }
   },
   'Blokje kaas en druiven': {
@@ -1210,6 +1220,9 @@ const RECIPE_ADAPTATIONS_NL = {
     }
   }
 };
+
+// English adaptations - uses same data as NL for now (NL file contains mix of NL and EN keys)
+const RECIPE_ADAPTATIONS_EN = RECIPE_ADAPTATIONS_NL;
 
 export function getRecipeContent(language, dietaryPreference = 'everything') {
     const rawRecipes = language === 'en' ? RECIPES_EN : RECIPES_NL;

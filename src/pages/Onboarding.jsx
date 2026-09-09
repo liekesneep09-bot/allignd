@@ -2,14 +2,17 @@ import React, { useState, useEffect } from 'react'
 import { useUser } from '../context/UserContext'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
-import { GOAL_TYPES } from '../logic/nutrition'
+import { GOAL_TYPES, calculateTargetRanges } from '../logic/nutrition'
+import { getCycleDisplayData } from '../logic/cycle'
+import { getPhaseContent } from '../data/phases'
 import logo from '../assets/logo-primary.png'
 import { registerPushNotifications } from '../utils/pushNotifications'
 import { isNativePlatform } from '../utils/platform'
+import { supabase } from '../utils/supabaseClient'
 
 export default function Onboarding() {
     const { user, updateUser, completeOnboarding, saveProfileAndCalculate, logout } = useUser()
-    const { signUp, signInWithGoogle, user: authUser } = useAuth()
+    const { signUp, signInWithGoogle, user: authUser, resendVerificationEmail } = useAuth()
     const { t, language } = useLanguage()
     const [step, setStep] = useState(0)
 
@@ -27,15 +30,28 @@ export default function Onboarding() {
     const [calculatedTargets, setCalculatedTargets] = useState(null)
     const [signupMethod, setSignupMethod] = useState(null) // 'google' | 'email'
 
+    const calculateAge = (birthDate) => {
+        if (!birthDate) return ''
+        const today = new Date()
+        const birth = new Date(birthDate)
+        let age = today.getFullYear() - birth.getFullYear()
+        const m = today.getMonth() - birth.getMonth()
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+        return age > 0 ? age : ''
+    }
+
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         password: '',
         cycleStart: user.cycleStart || '',
+        previousPeriodStart: user.previousPeriodStart || '',
+        previousPeriodEnd: user.previousPeriodEnd || '',
         cycleLength: user.cycleLength || 28,
         periodLength: user.periodLength || 5,
         periodEnded: user.cycleStart ? 'no' : null,
         periodEndDate: user.cycleStart ? user.cycleStart : '',
+        birthDate: user.birthDate || '',
         age: user.age || '',
         height: user.height || '',
         weight: user.weight || '',
@@ -55,10 +71,13 @@ export default function Onboarding() {
             setFormData(prev => ({
                 ...prev,
                 name: prev.name || user.name || '',
-                age: prev.age || user.age || '',
+                birthDate: prev.birthDate || user.birthDate || '',
+                age: prev.age || user.age || (user.birthDate ? calculateAge(user.birthDate) : ''),
                 height: prev.height || user.height || '',
                 weight: prev.weight || user.weight || '',
                 cycleStart: prev.cycleStart || user.cycleStart || '',
+                previousPeriodStart: prev.previousPeriodStart || user.previousPeriodStart || '',
+                previousPeriodEnd: prev.previousPeriodEnd || user.previousPeriodEnd || '',
                 cycleLength: prev.cycleLength || user.cycleLength || 28,
                 periodLength: prev.periodLength || user.periodLength || 5,
                 periodEnded: prev.periodEnded !== null ? prev.periodEnded : (user.cycleStart ? 'no' : null),
@@ -148,17 +167,19 @@ export default function Onboarding() {
 
     const handleNext = async () => {
         if (step === 4) {
-            // Last question step, calculate targets and show results
+            // Last question step: calculate targets LOCALLY only (don't save to Supabase yet)
+            // Saving happens in finalizeOnboarding after account creation
             setIsLoading(true);
             try {
-                const targets = await saveProfileAndCalculate({
+                const cleanProfile = {
                     ...formData,
-                    id: authUser?.id || 'temp',
-                    trainingFrequency: formData.trainingFrequency,
-                    trainingType: formData.trainingType,
-                    resultTempo: formData.resultTempo,
-                    goal: formData.goal
-                });
+                    weight_kg: Number(formData.weight || 0),
+                    target_weight: Number(formData.targetWeight || 0),
+                    height_cm: Number(formData.height || 0),
+                    age: Number(formData.age || 0),
+                    training_days_per_week: Number(formData.trainingFrequency || 0),
+                };
+                const targets = calculateTargetRanges(cleanProfile);
                 setCalculatedTargets(targets);
                 setStep(5);
             } catch (error) {
@@ -181,45 +202,66 @@ export default function Onboarding() {
     // Step 0: Welcome Screen
     if (step === 0) {
         return (
-            <div className="container" style={{
+            <div style={{
                 minHeight: '100vh',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
                 textAlign: 'center',
-                position: 'relative',
-                overflow: 'hidden'
+                padding: '2rem 1.5rem',
+                background: 'linear-gradient(180deg, rgba(255,143,163,0.06) 0%, #FFFFFF 100%)'
             }}>
-                <div style={{ marginBottom: '3rem', position: 'relative', zIndex: 1 }}>
+                <div style={{ marginBottom: '2.5rem' }}>
                     <img
                         src={logo}
                         alt="Allignd Logo"
-                        style={{ height: '160px', width: 'auto', objectFit: 'contain' }}
+                        style={{ height: '120px', width: 'auto', objectFit: 'contain' }}
                     />
                 </div>
 
-                <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#c4506a', position: 'relative', zIndex: 1 }}>
+                <h1 style={{
+                    fontSize: '1.35rem',
+                    fontWeight: 600,
+                    lineHeight: 1.35,
+                    marginBottom: '0.75rem',
+                    color: 'var(--color-text)'
+                }}>
                     {t('onboarding.welcome_title')}
                 </h1>
-                <p className="text-muted" style={{ maxWidth: '300px', margin: '0 auto 3rem auto' }}>
+                <p className="text-muted" style={{
+                    maxWidth: '280px',
+                    margin: '0 auto 2.5rem',
+                    fontSize: '0.95rem',
+                    lineHeight: 1.5
+                }}>
                     {t('onboarding.welcome_subtitle')}
                 </p>
 
-                <button className="btn btn-primary" onClick={() => setStep(1)} style={{ minWidth: '200px', position: 'relative', zIndex: 1 }}>
+                <button
+                    className="btn btn-primary"
+                    onClick={() => setStep(1)}
+                    style={{
+                        width: 'auto',
+                        minWidth: '220px',
+                        padding: 'var(--space-4) var(--space-8)',
+                        borderRadius: '50px',
+                        fontSize: '1rem'
+                    }}
+                >
                     {t('onboarding.start_now')}
                 </button>
 
-                <div style={{ marginTop: '2rem', position: 'relative', zIndex: 1 }}>
+                <div style={{ marginTop: '2rem' }}>
                     <button
                         onClick={logout}
                         style={{
                             background: 'none',
                             border: 'none',
-                            color: 'var(--color-text-muted)',
+                            color: 'var(--color-text-tertiary)',
                             textDecoration: 'underline',
                             cursor: 'pointer',
-                            fontSize: '0.9rem'
+                            fontSize: '0.85rem'
                         }}
                     >
                         {t('onboarding.logout_other')}
@@ -234,7 +276,7 @@ export default function Onboarding() {
     const progressSteps = step <= totalSteps ? step : totalSteps;
 
     return (
-        <div className="container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: '100px', position: 'relative', overflow: 'hidden' }}>
+        <div className="container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', paddingBottom: '100px', position: 'relative', overflow: 'auto' }}>
 
             {/* Progress */}
             <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '6px', background: 'var(--color-surface)', zIndex: 20 }}>
@@ -420,7 +462,18 @@ export default function Onboarding() {
                                             <input
                                                 type="date"
                                                 value={formatDateForInput(formData.periodEndDate)}
-                                                onChange={e => handleChange('periodEndDate', e.target.value)}
+                                                onChange={e => {
+                                                    handleChange('periodEndDate', e.target.value);
+                                                    // Auto-calculate actual period length from dates
+                                                    if (formData.cycleStart && e.target.value) {
+                                                        const start = new Date(formData.cycleStart);
+                                                        const end = new Date(e.target.value);
+                                                        const days = Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1;
+                                                        if (days > 0 && days <= 15) {
+                                                            handleChange('periodLength', days);
+                                                        }
+                                                    }
+                                                }}
                                                 min={formatDateForInput(formData.cycleStart)}
                                                 max={new Date().toISOString().split('T')[0]}
                                                 style={{
@@ -429,6 +482,11 @@ export default function Onboarding() {
                                                     minHeight: '3.5rem'
                                                 }}
                                             />
+                                            {formData.periodEndDate && formData.cycleStart && (
+                                                <p className="text-muted" style={{ fontSize: '0.8rem', marginTop: '0.4rem' }}>
+                                                    {t('onboarding.actual_period_length').replace('{days}', Math.round((new Date(formData.periodEndDate) - new Date(formData.cycleStart)) / (1000 * 60 * 60 * 24)) + 1)}
+                                                </p>
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -467,19 +525,147 @@ export default function Onboarding() {
                                 </div>
                             </div>
 
-                            <div>
-                                <label style={labelStyle}>{t('onboarding.avg_period_length')}</label>
-                                <input
-                                    type="number"
-                                    value={formData.periodLength || ''}
-                                    onChange={e => {
-                                        const val = parseInt(e.target.value);
-                                        handleChange('periodLength', isNaN(val) ? '' : val);
-                                    }}
-                                    placeholder="5"
-                                    style={inputStyle}
-                                />
+                            {!formData.periodEndDate && (
+                                <div>
+                                    <label style={labelStyle}>{t('onboarding.avg_period_length')}</label>
+                                    <input
+                                        type="number"
+                                        value={formData.periodLength || ''}
+                                        onChange={e => {
+                                            const val = parseInt(e.target.value);
+                                            handleChange('periodLength', isNaN(val) ? '' : val);
+                                        }}
+                                        placeholder="5"
+                                        style={inputStyle}
+                                    />
+                                </div>
+                            )}
+
+                            <div style={{
+                                background: 'var(--color-bg)',
+                                borderRadius: 'var(--radius-sm)',
+                                padding: '1rem',
+                                border: '1px solid var(--color-border)'
+                            }}>
+                                <label style={{ ...labelStyle, marginBottom: '0.2rem', display: 'block' }}>
+                                    {t('onboarding.previous_period_optional', { defaultValue: 'Weet je wanneer je vorige menstruatie begon? (optioneel)' })}
+                                </label>
+                                <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: '0.75rem' }}>
+                                    {t('onboarding.previous_period_help', { defaultValue: 'Hoe meer data, hoe sneller we je cyclus leren kennen.' })}
+                                </p>
+                                <div style={{ position: 'relative', marginBottom: '0.75rem' }}>
+                                    <input
+                                        type="date"
+                                        value={formData.previousPeriodStart}
+                                        onChange={e => handleChange('previousPeriodStart', e.target.value)}
+                                        max={formData.cycleStart ? formatDateForInput(formData.cycleStart) : new Date().toISOString().split('T')[0]}
+                                        style={{
+                                            ...inputStyle,
+                                            WebkitAppearance: 'none',
+                                            minHeight: '3.5rem',
+                                            color: formData.previousPeriodStart ? 'var(--color-text)' : 'transparent'
+                                        }}
+                                    />
+                                    {!formData.previousPeriodStart && (
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: '50%',
+                                            left: '1rem',
+                                            transform: 'translateY(-50%)',
+                                            color: 'var(--color-text-muted)',
+                                            pointerEvents: 'none',
+                                            fontSize: '1rem'
+                                        }}>
+                                            {t('onboarding.pick_date')}
+                                        </div>
+                                    )}
+                                </div>
+                                {formData.previousPeriodStart && (
+                                    <div>
+                                        <label style={{ ...labelStyle, marginBottom: '0.2rem', display: 'block' }}>
+                                            {t('onboarding.previous_period_end', { defaultValue: 'Wanneer stopte je vorige menstruatie?' })}
+                                        </label>
+                                        <div style={{ position: 'relative' }}>
+                                            <input
+                                                type="date"
+                                                value={formData.previousPeriodEnd || ''}
+                                                onChange={e => handleChange('previousPeriodEnd', e.target.value)}
+                                                min={formData.previousPeriodStart}
+                                                max={formData.cycleStart ? formatDateForInput(formData.cycleStart) : new Date().toISOString().split('T')[0]}
+                                                style={{
+                                                    ...inputStyle,
+                                                    WebkitAppearance: 'none',
+                                                    minHeight: '3.5rem',
+                                                    color: formData.previousPeriodEnd ? 'var(--color-text)' : 'transparent'
+                                                }}
+                                            />
+                                            {!formData.previousPeriodEnd && (
+                                                <div style={{
+                                                    position: 'absolute',
+                                                    top: '50%',
+                                                    left: '1rem',
+                                                    transform: 'translateY(-50%)',
+                                                    color: 'var(--color-text-muted)',
+                                                    pointerEvents: 'none',
+                                                    fontSize: '1rem'
+                                                }}>
+                                                    {t('onboarding.pick_date')}
+                                                </div>
+                                            )}
+                                        </div>
+                                        {formData.previousPeriodEnd && (
+                                            <p className="text-muted" style={{ fontSize: '0.8rem', marginTop: '0.4rem' }}>
+                                                {t('onboarding.previous_period_duration').replace('{days}', Math.round((new Date(formData.previousPeriodEnd) - new Date(formData.previousPeriodStart)) / (1000 * 60 * 60 * 24)) + 1)}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
                             </div>
+
+                            {(() => {
+                                if (!formData.cycleStart) return null
+                                const len = parseInt(formData.cycleLength) || 28
+                                const perLen = parseInt(formData.periodLength) || 5
+                                const { phase } = getCycleDisplayData(formData.cycleStart, len, perLen)
+                                const content = getPhaseContent(language, phase)
+                                if (!content) return null
+
+                                const phaseColors = {
+                                    menstrual: { bg: 'rgba(196,80,106,0.08)', border: 'rgba(196,80,106,0.28)', text: '#8a2e45', dot: '#c4506a' },
+                                    follicular: { bg: 'rgba(47,181,199,0.08)', border: 'rgba(47,181,199,0.28)', text: '#1a8a96', dot: '#2fb5c7' },
+                                    ovulatory: { bg: 'rgba(232,120,95,0.10)', border: 'rgba(232,120,95,0.28)', text: '#a0422e', dot: '#e8785f' },
+                                    luteal: { bg: 'rgba(106,159,107,0.10)', border: 'rgba(106,159,107,0.28)', text: '#3d6e3e', dot: '#6a9f6b' },
+                                }
+                                const colors = phaseColors[phase] || phaseColors.luteal
+
+                                return (
+                                    <div className="fade-in" style={{
+                                        background: colors.bg,
+                                        border: `1px solid ${colors.border}`,
+                                        borderRadius: 'var(--radius-md)',
+                                        padding: '1rem',
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                            <span style={{ width: '10px', height: '10px', borderRadius: 'var(--radius-full)', background: colors.dot, flexShrink: 0 }} />
+                                            <span style={{
+                                                fontSize: '0.75rem',
+                                                textTransform: 'uppercase',
+                                                letterSpacing: '0.05em',
+                                                color: 'var(--color-text-muted)',
+                                                fontWeight: '700'
+                                            }}>
+                                                {t('onboarding.phase_insight_title')}
+                                            </span>
+                                        </div>
+                                        <div style={{ fontSize: '1rem', fontWeight: '700', color: colors.text, marginBottom: '0.25rem' }}>
+                                            {content.name}
+                                        </div>
+                                        <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text)', lineHeight: 1.5 }}>
+                                            {content.intro}
+                                        </p>
+                                    </div>
+                                )
+                            })()}
                         </div>
                     </div>
                 )}
@@ -497,14 +683,37 @@ export default function Onboarding() {
                         {/* Lichaam */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                             <div>
-                                <label style={labelStyle}>{t('onboarding.age')}</label>
-                                <input
-                                    type="number"
-                                    value={formData.age}
-                                    onChange={e => handleChange('age', e.target.value)}
-                                    placeholder={t('onboarding.placeholder_age')}
-                                    style={inputStyle}
-                                />
+                                <label style={labelStyle}>{t('onboarding.birth_date')}</label>
+                                <div style={{ position: 'relative' }}>
+                                    <input
+                                        type="date"
+                                        value={formData.birthDate}
+                                        onChange={e => {
+                                            handleChange('birthDate', e.target.value);
+                                            handleChange('age', calculateAge(e.target.value));
+                                        }}
+                                        max={new Date().toISOString().split('T')[0]}
+                                        style={{
+                                            ...inputStyle,
+                                            WebkitAppearance: 'none',
+                                            minHeight: '3.5rem',
+                                            color: formData.birthDate ? 'var(--color-text)' : 'transparent'
+                                        }}
+                                    />
+                                    {!formData.birthDate && (
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: '50%',
+                                            left: '1rem',
+                                            transform: 'translateY(-50%)',
+                                            color: 'var(--color-text-muted)',
+                                            pointerEvents: 'none',
+                                            fontSize: '1rem'
+                                        }}>
+                                            {t('onboarding.pick_date')}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                             <div style={{ display: 'flex', gap: '1rem' }}>
                                 <div style={{ flex: 1 }}>
@@ -829,6 +1038,46 @@ export default function Onboarding() {
                             <h2 style={{ fontSize: '1.8rem', color: 'var(--color-primary)', marginBottom: '0.5rem' }}>{t('onboarding_extra.verify_email_title')}</h2>
                             <p className="text-muted">{t('onboarding_extra.verify_email_subtitle')}</p>
                         </div>
+
+                        <button
+                            onClick={async () => {
+                                setIsLoading(true);
+                                try {
+                                    // Refresh session to get updated user data
+                                    const { data: { session } } = await supabase.auth.getSession();
+                                    if (session?.user?.email_confirmed_at) {
+                                        await finalizeOnboarding(session.user.id);
+                                    } else {
+                                        alert(t('onboarding_extra.email_not_verified', { defaultValue: 'Je email is nog niet bevestigd. Check je inbox en klik op de link.' }));
+                                    }
+                                } catch (error) {
+                                    console.error("Verification check error:", error);
+                                    alert(t('onboarding.error_generic') + ": " + error.message);
+                                } finally {
+                                    setIsLoading(false);
+                                }
+                            }}
+                            disabled={isLoading}
+                            className="btn btn-primary"
+                            style={{ padding: '1rem', fontSize: '1rem' }}
+                        >
+                            {isLoading ? t('common.loading') : t('onboarding_extra.email_confirmed_button', { defaultValue: 'Ik heb mijn email bevestigd' })}
+                        </button>
+
+                        <button
+                            onClick={() => resendVerificationEmail(formData.email)}
+                            disabled={isLoading}
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                color: 'var(--color-primary)',
+                                textDecoration: 'underline',
+                                cursor: 'pointer',
+                                fontSize: '0.9rem'
+                            }}
+                        >
+                            {t('onboarding_extra.resend_email', { defaultValue: 'Verificatie-email opnieuw sturen' })}
+                        </button>
                     </div>
                 )}
 
@@ -933,7 +1182,7 @@ function isValid(step, data) {
 
     // Step 2: Lichaam + Doel
     if (step === 2) {
-        if (!data.age || !data.height || !data.weight) return false;
+        if (!data.birthDate || !data.height || !data.weight) return false;
         if (!data.goal) return false;
         return true;
     }

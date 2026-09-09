@@ -198,7 +198,7 @@ app.post('/api/create-checkout-session', requireAuth, async (req, res) => {
       ],
       mode: mode || 'subscription',
       subscription_data: {
-        trial_period_days: 7,
+        trial_period_days: 14,
       },
       success_url: `${req.headers.origin}/?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.origin}/subscription`,

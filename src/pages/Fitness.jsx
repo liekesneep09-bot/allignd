@@ -34,7 +34,8 @@ function getWeekDays(movementLogs, t) {
     monday.setHours(0, 0, 0, 0)
 
     const days = []
-    const dayLabels = t('guide.days_short', { returnObjects: true }) || ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo']
+    const rawDayLabels = t('guide.days_short', { returnObjects: true })
+    const dayLabels = Array.isArray(rawDayLabels) ? rawDayLabels : ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo']
 
     for (let i = 0; i < 7; i++) {
         const d = new Date(monday)
@@ -68,7 +69,7 @@ export default function Fitness() {
 
     // Week stats
     const weekWorkouts = useMemo(() => getThisWeekWorkouts(user.movementLogs || []), [user.movementLogs])
-    const weekTarget = user.trainingFrequency || 3
+    const weekTarget = user.trainingFrequency ?? 3
 
     // Focus bullets for current goal + phase
     const focusBullets = fitnessContent.focusBullets[user.goal]?.[phaseKey] || fitnessContent.focusBullets.maintain[phaseKey]
@@ -105,7 +106,7 @@ export default function Fitness() {
 
         return (
             <div className="container" style={{ paddingBottom: '90px', paddingTop: '1rem' }}>
-                <header style={{ marginBottom: '1.5rem' }}>
+                <header style={{ marginBottom: '1rem' }}>
                     <h1 style={{ fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>{t('fitness.title')}</h1>
                 </header>
 
@@ -114,11 +115,11 @@ export default function Fitness() {
                     background: phaseColors.bg,
                     border: `1px solid ${phaseColors.border}`,
                     borderRadius: 'var(--radius-md)',
-                    padding: '1.25rem',
-                    marginBottom: '1.5rem'
+                    padding: '1rem',
+                    marginBottom: '1rem'
                 }}>
                     {/* Header rij */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                         <span style={{
                             fontSize: '0.7rem',
                             fontWeight: '700',
@@ -142,62 +143,65 @@ export default function Fitness() {
 
                     {/* Beschrijving */}
                     <p style={{
-                        margin: '0 0 1rem 0',
-                        fontSize: '0.95rem',
+                        margin: '0 0 0.75rem 0',
+                        fontSize: '0.88rem',
                         color: 'var(--color-text)',
-                        lineHeight: 1.5,
+                        lineHeight: 1.45,
                         fontWeight: '500'
                     }}>
                         {phaseContent.training.description}
                     </p>
 
-                    {/* Aanbevolen beweging chips */}
-                    <div style={{ marginBottom: '1rem' }}>
-                        <span style={{
+                    {/* Aanbevolen beweging — dot bullets (zelfde structuur als Voeding) */}
+                    <div style={{ marginBottom: '0.75rem' }}>
+                        <div style={{
                             fontSize: '0.7rem',
                             fontWeight: '700',
                             color: 'var(--color-text-muted)',
                             textTransform: 'uppercase',
                             letterSpacing: '0.5px',
-                            display: 'block',
                             marginBottom: '0.4rem'
                         }}>
                             {t('fitness.phase_highlight_types')}
-                        </span>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                             {phaseContent.training.types.map((type, i) => (
-                                <span key={i} style={{
-                                    background: 'var(--color-surface)',
-                                    border: `1px solid ${phaseColors.border}`,
-                                    borderRadius: 'var(--radius-full)',
-                                    padding: '0.3rem 0.7rem',
-                                    fontSize: '0.78rem',
-                                    color: 'var(--color-text)',
-                                    fontWeight: '600'
-                                }}>
-                                    {type}
-                                </span>
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <span style={{
+                                        width: '5px',
+                                        height: '5px',
+                                        borderRadius: '50%',
+                                        background: phaseColors.accent,
+                                        flexShrink: 0
+                                    }} />
+                                    <span style={{
+                                        fontSize: '0.85rem',
+                                        color: 'var(--color-text)',
+                                        fontWeight: '500'
+                                    }}>
+                                        {type}
+                                    </span>
+                                </div>
                             ))}
                         </div>
                     </div>
 
                     {/* Intensiteitsindicator */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.75rem' }}>
                         <span style={{
                             fontSize: '0.7rem',
                             fontWeight: '700',
                             color: 'var(--color-text-muted)',
                             textTransform: 'uppercase',
-                            letterSpacing: '0.5px',
-                            flexShrink: 0
+                            letterSpacing: '0.5px'
                         }}>
-                            {t('fitness.phase_highlight_intensity')}
+                            {t('fitness.phase_highlight_intensity')}:
                         </span>
-                        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
                             {[1,2,3,4,5].map(n => (
                                 <div key={n} style={{
-                                    width: '10px',
-                                    height: '10px',
+                                    width: '8px',
+                                    height: '8px',
                                     borderRadius: 'var(--radius-full)',
                                     background: n <= intensityDots ? phaseColors.dot : 'var(--color-border)',
                                     transition: 'background 0.2s'
@@ -205,11 +209,37 @@ export default function Fitness() {
                             ))}
                         </div>
                         <span style={{
-                            fontSize: '0.78rem',
+                            fontSize: '0.75rem',
                             fontWeight: '600',
                             color: phaseColors.accent
                         }}>
                             {phaseContent.training.intensity}
+                        </span>
+                    </div>
+
+                    {/* Doel deze fase */}
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.4rem',
+                        paddingTop: '0.6rem',
+                        borderTop: `1px solid ${phaseColors.border}`
+                    }}>
+                        <span style={{
+                            fontSize: '0.7rem',
+                            fontWeight: '700',
+                            color: 'var(--color-text-muted)',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px'
+                        }}>
+                            {t('fitness.phase_highlight_goal')}:
+                        </span>
+                        <span style={{
+                            fontSize: '0.85rem',
+                            fontWeight: '600',
+                            color: phaseColors.accent
+                        }}>
+                            {phaseContent.training.goal}
                         </span>
                     </div>
                 </div>
@@ -218,36 +248,24 @@ export default function Fitness() {
                 <div style={{
                     background: 'var(--color-surface)',
                     borderRadius: 'var(--radius-md)',
-                    padding: '1.25rem',
-                    marginBottom: '1.5rem',
+                    padding: '1rem',
+                    marginBottom: '1rem',
                     border: '1px solid var(--color-border)'
                 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <IconActivity size={18} />
-                            <span style={{ fontWeight: '700', fontSize: '1.05rem', color: 'var(--color-text)' }}>
+                            <IconActivity size={16} />
+                            <span style={{ fontWeight: '700', fontSize: '0.95rem', color: 'var(--color-text)' }}>
                                 {t('fitness.this_week')}: {weekWorkouts} {t('fitness.of')} {weekTarget}
                             </span>
                         </div>
-                        <span style={{
-                            fontSize: '0.75rem',
-                            fontWeight: '700',
-                            color: 'var(--color-primary)',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px',
-                            background: 'rgba(255,174,185,0.15)',
-                            padding: '0.2rem 0.6rem',
-                            borderRadius: 'var(--radius-full)'
-                        }}>
-                            {phaseName}
-                        </span>
                     </div>
 
                     {todayStatus ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.75rem' }}>
                             <div style={{
-                                width: '36px',
-                                height: '36px',
+                                width: '30px',
+                                height: '30px',
                                 borderRadius: 'var(--radius-full)',
                                 background: todayStatus === 'moved'
                                     ? 'rgba(76, 175, 80, 0.15)'
@@ -255,12 +273,12 @@ export default function Fitness() {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                fontSize: '1.1rem'
+                                fontSize: '0.95rem'
                             }}>
                                 {todayStatus === 'moved' ? '✓' : '—'}
                             </div>
                             <span style={{
-                                fontSize: '0.95rem',
+                                fontSize: '0.88rem',
                                 color: 'var(--color-text)',
                                 fontWeight: '500'
                             }}>
@@ -272,9 +290,9 @@ export default function Fitness() {
                                     marginLeft: 'auto',
                                     background: 'none',
                                     color: 'var(--color-primary)',
-                                    fontSize: '0.8rem',
+                                    fontSize: '0.78rem',
                                     fontWeight: '600',
-                                    padding: '0.25rem 0.5rem',
+                                    padding: '0.2rem 0.4rem',
                                     cursor: 'pointer'
                                 }}
                             >
@@ -282,25 +300,19 @@ export default function Fitness() {
                             </button>
                         </div>
                     ) : (
-                        <div style={{ marginBottom: '1.25rem' }}>
-                            <p style={{
-                                margin: '0 0 0.75rem 0',
-                                fontSize: '0.95rem',
-                                color: 'var(--color-text)',
-                                fontWeight: '500'
-                            }}>{t('fitness.did_you_move')}</p>
-                            <div style={{ display: 'flex', gap: '0.75rem' }}>
+                        <div style={{ marginBottom: '0.75rem' }}>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
                                 <button
                                     onClick={() => logMovement(todayStr, 'moved')}
                                     style={{
                                         flex: 1,
-                                        padding: '0.75rem',
+                                        padding: '0.5rem',
                                         borderRadius: 'var(--radius-md)',
                                         border: '2px solid rgba(76, 175, 80, 0.3)',
                                         background: 'rgba(76, 175, 80, 0.08)',
                                         color: '#4CAF50',
                                         fontWeight: '600',
-                                        fontSize: '0.95rem',
+                                        fontSize: '0.88rem',
                                         cursor: 'pointer',
                                         transition: 'all 0.15s'
                                     }}
@@ -311,13 +323,13 @@ export default function Fitness() {
                                     onClick={() => logMovement(todayStr, 'rest')}
                                     style={{
                                         flex: 1,
-                                        padding: '0.75rem',
+                                        padding: '0.5rem',
                                         borderRadius: 'var(--radius-md)',
                                         border: '2px solid rgba(158, 158, 158, 0.3)',
                                         background: 'rgba(158, 158, 158, 0.08)',
                                         color: '#9E9E9E',
                                         fontWeight: '600',
-                                        fontSize: '0.95rem',
+                                        fontSize: '0.88rem',
                                         cursor: 'pointer',
                                         transition: 'all 0.15s'
                                     }}
@@ -367,7 +379,7 @@ export default function Fitness() {
 
 
                 {/* Body Part Selection */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', marginBottom: '1rem' }}>
                     {fitnessContent.bodyParts.map(part => (
                         <button
                             key={part.id}
@@ -376,12 +388,12 @@ export default function Fitness() {
                             style={{
                                 margin: 0,
                                 textAlign: 'left',
-                                padding: '1.25rem',
+                                padding: '0.85rem',
                                 transition: 'transform 0.1s',
                                 cursor: 'pointer'
                             }}
                         >
-                            <span style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-text)' }}>
+                            <span style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-text)' }}>
                                 {part.label}
                             </span>
                         </button>
@@ -391,9 +403,9 @@ export default function Fitness() {
                 {/* JOUW FOCUS DEZE FASE */}
                 <section>
                     <h2 style={{
-                        fontSize: '1rem',
+                        fontSize: '0.9rem',
                         fontWeight: '600',
-                        marginBottom: '0.75rem',
+                        marginBottom: '0.5rem',
                         color: 'var(--color-text)',
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px'
@@ -401,25 +413,40 @@ export default function Fitness() {
                         {t('fitness.your_focus')}
                     </h2>
                     <div style={{
-                        background: 'var(--color-surface)',
+                        background: phaseColors.bg,
                         borderRadius: 'var(--radius-md)',
-                        padding: '1rem',
-                        border: '1px solid var(--color-border)'
+                        padding: '1rem 1.1rem',
+                        border: `1px solid ${phaseColors.border}`
                     }}>
                         <ul style={{
                             margin: 0,
-                            paddingLeft: '1.25rem',
+                            padding: 0,
+                            listStyle: 'none',
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '0.5rem'
+                            gap: '0.55rem'
                         }}>
                             {focusBullets.map((bullet, idx) => (
                                 <li key={idx} style={{
-                                    fontSize: '0.9rem',
-                                    color: 'var(--color-text)',
-                                    lineHeight: 1.4
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: '0.55rem'
                                 }}>
-                                    {bullet}
+                                    <span style={{
+                                        width: '5px',
+                                        height: '5px',
+                                        borderRadius: '50%',
+                                        background: phaseColors.accent,
+                                        flexShrink: 0,
+                                        marginTop: '0.45em'
+                                    }} />
+                                    <span style={{
+                                        fontSize: '0.85rem',
+                                        color: 'var(--color-text)',
+                                        lineHeight: 1.45
+                                    }}>
+                                        {bullet}
+                                    </span>
                                 </li>
                             ))}
                         </ul>
@@ -433,11 +460,12 @@ export default function Fitness() {
     // --- VIEW 2: BODY PART DETAIL ---
     const exercises = fitnessContent.exercises[selectedBodyPart.id] || []
     const partAdvice = getBodyPartAdvice(user.goal, currentPhase, language)
+    const bodyPartBullets = fitnessContent.bodyPartFocus?.[selectedBodyPart.id]?.[user.goal]?.[phaseKey] || focusBullets
 
     return (
         <div className="container" style={{ paddingBottom: '90px' }}>
             {/* Header / Back */}
-            <header style={{ marginTop: '0', marginBottom: '1.5rem' }}>
+            <header style={{ marginTop: '0', marginBottom: '1rem' }}>
                 <button
                     onClick={() => { setSelectedBodyPart(null); window.scrollTo(0, 0) }}
                     style={{
@@ -445,19 +473,19 @@ export default function Fitness() {
                         color: 'var(--color-text-muted)',
                         display: 'flex',
                         alignItems: 'center',
-                        fontSize: '0.9rem',
+                        fontSize: '0.85rem',
                         padding: 0,
-                        marginBottom: '1rem'
+                        marginBottom: '0.75rem'
                     }}
                 >
                     ← {t('fitness.back_to_overview')}
                 </button>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <h1 style={{ fontSize: '1.75rem', fontWeight: '700', margin: 0 }}>
+                    <h1 style={{ fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>
                         {selectedBodyPart.label}
                     </h1>
                     <span style={{
-                        fontSize: '0.75rem',
+                        fontSize: '0.7rem',
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px',
                         fontWeight: '600',
@@ -466,39 +494,39 @@ export default function Fitness() {
                 </div>
             </header>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
                 {/* 1. SECTION: AANPAK VANDAAG */}
                 <section>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.5rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.4rem' }}>
                         <h2 style={{
-                            fontSize: '1rem',
+                            fontSize: '0.9rem',
                             fontWeight: '600',
                             margin: 0,
                             color: 'var(--color-text)',
                             textTransform: 'uppercase',
                             letterSpacing: '0.5px'
                         }}>{t('fitness.approach_today')}</h2>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>{partAdvice.label}</span>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>{partAdvice.label}</span>
                     </div>
 
                     <div className="card" style={{ borderLeft: '4px solid var(--color-primary)' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>{t('fitness.intensity')}</label>
-                                <p style={{ fontWeight: 600, margin: 0 }}>{partAdvice.intensity}</p>
+                                <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem' }}>{t('fitness.intensity')}</label>
+                                <p style={{ fontWeight: 600, margin: 0, fontSize: '0.88rem' }}>{partAdvice.intensity}</p>
                             </div>
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>{t('fitness.weight')}</label>
-                                <p style={{ fontWeight: 600, margin: 0 }}>{partAdvice.weight}</p>
+                                <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem' }}>{t('fitness.weight')}</label>
+                                <p style={{ fontWeight: 600, margin: 0, fontSize: '0.88rem' }}>{partAdvice.weight}</p>
                             </div>
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>{t('fitness.reps')}</label>
-                                <p style={{ fontWeight: 600, margin: 0 }}>{partAdvice.reps}</p>
+                                <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem' }}>{t('fitness.reps')}</label>
+                                <p style={{ fontWeight: 600, margin: 0, fontSize: '0.88rem' }}>{partAdvice.reps}</p>
                             </div>
                             <div>
-                                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>{t('fitness.sets')}</label>
-                                <p style={{ fontWeight: 600, margin: 0 }}>{partAdvice.sets}</p>
+                                <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem' }}>{t('fitness.sets')}</label>
+                                <p style={{ fontWeight: 600, margin: 0, fontSize: '0.88rem' }}>{partAdvice.sets}</p>
                             </div>
                         </div>
                     </div>
@@ -507,54 +535,77 @@ export default function Fitness() {
                 {/* 2. SECTION: BASISOEFENINGEN */}
                 <section>
                     <h2 style={{
-                        fontSize: '1rem',
+                        fontSize: '0.9rem',
                         fontWeight: '600',
-                        marginBottom: '0.75rem',
+                        marginBottom: '0.5rem',
                         color: 'var(--color-text)',
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px'
                     }}>{t('fitness.best_exercises')}</h2>
-                    <div className="card">
-                        <ul style={{ paddingLeft: '1.2rem', margin: 0 }}>
-                            {exercises.map((ex, idx) => (
-                                <li key={idx} style={{ marginBottom: '0.5rem', fontSize: '1rem', color: 'var(--color-text)' }}>
-                                    {ex}
-                                </li>
-                            ))}
-                        </ul>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        {exercises.map((ex, idx) => {
+                            const instruction = fitnessContent.exerciseInstructions?.[selectedBodyPart.id]?.[ex]
+                            return (
+                                <div key={idx} className="card" style={{ margin: 0, padding: '0.75rem' }}>
+                                    <p style={{ fontWeight: 600, margin: '0 0 0.25rem 0', fontSize: '0.9rem', color: 'var(--color-text)' }}>
+                                        {ex}
+                                    </p>
+                                    {instruction && (
+                                        <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-text-muted)', lineHeight: 1.45 }}>
+                                            {instruction}
+                                        </p>
+                                    )}
+                                </div>
+                            )
+                        })}
                     </div>
                 </section>
 
                 {/* 3. SECTION: FOCUS DEZE FASE */}
                 <section>
                     <h2 style={{
-                        fontSize: '1rem',
+                        fontSize: '0.9rem',
                         fontWeight: '600',
-                        marginBottom: '0.75rem',
+                        marginBottom: '0.5rem',
                         color: 'var(--color-text)',
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px'
                     }}>{t('fitness.your_focus')} ({fitnessContent.goals[user.goal] || user.goal})</h2>
                     <div style={{
-                        background: 'var(--color-surface)',
-                        padding: '1rem',
+                        background: phaseColors.bg,
+                        padding: '1rem 1.1rem',
                         borderRadius: 'var(--radius-md)',
-                        border: '1px solid var(--color-border)'
+                        border: `1px solid ${phaseColors.border}`
                     }}>
                         <ul style={{
                             margin: 0,
-                            paddingLeft: '1.25rem',
+                            padding: 0,
+                            listStyle: 'none',
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '0.5rem'
+                            gap: '0.55rem'
                         }}>
-                            {focusBullets.map((bullet, idx) => (
+                            {bodyPartBullets.map((bullet, idx) => (
                                 <li key={idx} style={{
-                                    fontSize: '0.9rem',
-                                    color: 'var(--color-text)',
-                                    lineHeight: 1.4
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: '0.55rem'
                                 }}>
-                                    {bullet}
+                                    <span style={{
+                                        width: '5px',
+                                        height: '5px',
+                                        borderRadius: '50%',
+                                        background: phaseColors.accent,
+                                        flexShrink: 0,
+                                        marginTop: '0.45em'
+                                    }} />
+                                    <span style={{
+                                        fontSize: '0.85rem',
+                                        color: 'var(--color-text)',
+                                        lineHeight: 1.45
+                                    }}>
+                                        {bullet}
+                                    </span>
                                 </li>
                             ))}
                         </ul>

@@ -138,6 +138,7 @@
     "logout": "Log out",
     "step1_title": "Your Cycle",
     "step1_subtitle": "This helps us align your nutrition and advice with your cycle phase.",
+    "phase_insight_title": "Your phase today",
     "last_period_start": "Start date of last period",
     "today": "Today",
     "pick_date": "Pick a date (e.g., 2026-03-12)",
@@ -151,8 +152,14 @@
     "step2_title": "Your body & goals",
     "step2_subtitle": "We use this to calculate your personal calorie and macro targets.",
     "age": "Age",
+    "birth_date": "Date of birth",
     "height": "Height (cm)",
     "weight": "Weight (kg)",
+    "previous_period_optional": "Do you know when your previous period started? (optional)",
+    "previous_period_help": "The more data, the faster we learn your cycle.",
+    "previous_period_end": "When did your previous period end?",
+    "previous_period_duration": "Your previous period lasted {days} days.",
+    "actual_period_length": "Your last period lasted {days} days. We use this for your current cycle.",
     "your_goal": "Your Goal",
     "goal_lose_fat": "Lose fat",
     "goal_recomp": "Lose fat & build muscle",
@@ -211,11 +218,11 @@
     "create_account_email": "Create account with email"
   },
   "paywall": {
-    "title": "Start your 7-day free trial",
+    "title": "Start your 14-day free trial",
     "subtitle": "Unlimited access to all features. Cancel anytime.",
-    "feature_1": "Personalized nutrition per phase",
-    "feature_2": "Workout plans per cycle",
-    "feature_3": "Community access",
+    "feature_1": "Track your cycle phases & macros",
+    "feature_2": "Nutrition & movement per phase",
+    "feature_3": "Community: share tips & experiences",
     "cta": "Start free trial"
   },
   "today": {
@@ -255,12 +262,18 @@
     "log_btn": "Log",
     "nutrition_label": "Nutrition",
     "your_insights": "Your Insights",
-    "protein_grams": "{p}g protein"
+    "protein_grams": "{p}g protein",
+    "streak_days": "{n} days in a row",
+    "streak_day": "day",
+    "streak_continue": "Keep your streak going. Log your food, symptoms or habits today.",
+    "daily_topic_title": "Question of the day",
+    "daily_topic_answer": "Answer"
   },
   "guide": {
     "science_title": "What's happening in your body?",
     "symptoms_title": "What you might notice",
     "support_title": "How to support your body",
+    "do_title": "What you can do now",
     "food_focus": "Nutrition",
     "movement_focus": "Movement",
     "nutrients_title": "Key Nutrients",
@@ -273,6 +286,7 @@
     "name": "Name",
     "name_placeholder": "Your name",
     "age": "Age",
+    "birth_date": "Date of birth",
     "height": "Height (cm)",
     "body_goals": "Body & Goals",
     "current_weight": "Current Weight (kg)",
@@ -496,7 +510,7 @@
     "error_save": "Error saving"
   },
   "fitness": {
-    "title": "Fitness",
+    "title": "Movement",
     "this_week": "This week",
     "of": "of",
     "movement_today": "Movement Today",
@@ -516,13 +530,14 @@
     "best_exercises": "Best Base Exercises",
     "phase_highlight_label": "Your phase",
     "phase_highlight_intensity": "Intensity",
+    "phase_highlight_goal": "Goal this phase",
     "phase_highlight_types": "Recommended movement",
     "phase_highlight_why_toggle": "Why?",
     "phase_highlight_why_close": "Close",
     "days_short": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
   },
   "recipes": {
-    "title": "Recipes",
+    "title": "Nutrition",
     "loading": "Loading...",
     "highlight": "Highlight for this phase",
     "focus": "Focus this phase",
@@ -545,8 +560,8 @@
   "nav": {
     "today": "Today",
     "community": "Community",
-    "fitness": "Fitness",
-    "recipes": "Recipes",
+    "fitness": "Movement",
+    "recipes": "Nutrition",
     "profile": "Profile",
     "guide": "Guide",
     "calendar": "Calendar"
@@ -614,7 +629,7 @@
     "flexible": "Cancel anytime.",
     "save_20": "Save 20%",
     "best_value": "BEST VALUE",
-    "start_free": "Start 7-day free trial",
+    "start_free": "Start 14-day free trial",
     "trial_desc": "No charges during trial. Cancel anytime.",
     "failed": "Could not start checkout. Please try again later.",
     "error": "Something went wrong. Please check your connection.",
@@ -624,7 +639,7 @@
     "tagline": "Fitness, nutrition & cycle insights: all in one place.",
     "processing": "Processing payment...",
     "processing_desc": "One moment, we're linking your account. This takes a few seconds at most.",
-    "free_trial": "7-day free trial",
+    "free_trial": "14-day free trial",
     "yearly_price": "€79.99",
     "yearly_desc": "Pay once a year. That's less than",
     "yearly_price_highlight": "€6.67/mo",
@@ -651,7 +666,17 @@
     ],
     "menstruation": "Menstruation",
     "predicted_menstruation": "Expected",
-    "moved": "Movement"
+    "moved": "Movement",
+    "symptoms": "Symptoms",
+    "ovulation_label": "Ovulation",
+    "fertility_estimate_note": "Your ovulation period is an estimate based on your average cycle — not a guarantee.",
+    "checkin_title": "Your check-in",
+    "milestone_next_period": "Next period",
+    "milestone_ovulation": "Ovulation",
+    "log_checkin": "Log how you feel",
+    "setup_title": "Set up your cycle",
+    "setup_desc": "Add your cycle details to see your phases, ovulation and predictions.",
+    "setup_cta": "Go to settings"
   },
   "checkin": {
     "title": "Daily Check-in",
@@ -753,6 +778,7 @@
     "tip_desc": "Tap a day to log or view your period.",
     "period": "Menstruation",
     "expected": "Expected",
+    "ovulation": "Ovulation",
     "moved": "Workout",
     "symptoms": "Symptoms",
     "today": "Today",
@@ -819,7 +845,7 @@
   },
   "onboarding_extra": {
     "current_phase_label": "Current Phase:",
-    "start_free_trial": "Start 7-day free trial",
+    "start_free_trial": "Start 14-day free trial",
     "verify_email_title": "Verify your email",
     "verify_email_subtitle": "We sent a confirmation link to your email address. Click the link to activate your account and you'll automatically return to the app.",
     "no_user_found": "No user found"

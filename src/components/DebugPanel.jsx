@@ -46,6 +46,14 @@ export default function DebugPanel() {
                     console.log('Removed:', key)
                 })
 
+            // Clear app data (including stale local logs)
+            Object.keys(localStorage)
+                .filter(key => key.startsWith('allignd:'))
+                .forEach(key => {
+                    localStorage.removeItem(key)
+                    console.log('Removed:', key)
+                })
+
             // Clear app data
             localStorage.removeItem('cyclus_onboarded')
 

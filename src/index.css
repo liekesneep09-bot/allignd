@@ -24,7 +24,7 @@
   /* Colors — Cycle Phases */
   --phase-menstrual: #E85D75;
   --phase-follicular: #4ECDC4;
-  --phase-ovulatory: #FF6B6B;
+  --phase-ovulatory: #FFB84D;
   --phase-luteal: #95C9A6;
 
   /* Colors — Nutrition */
@@ -35,6 +35,9 @@
 
   /* Colors — Movement */
   --color-movement: #4ECDC4;
+
+  /* Colors — Symptoms */
+  --color-symptoms: #E8785F;
 
   /* Colors — Semantic */
   --color-success: #4CAF50;

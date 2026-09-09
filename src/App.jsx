@@ -68,6 +68,7 @@ function SplashScreen() {
 function MainLayout() {
     const { hasOnboarded, isLoading, currentPhase, user } = useUser()
     const { t } = useLanguage()
+    const { isLoggingOut } = useAuth()
     const [currentView, setCurrentView] = useState('today')
 
     // Wrapper: scroll to top on every view switch
@@ -75,6 +76,17 @@ function MainLayout() {
         setCurrentView(view)
         window.scrollTo(0, 0)
     }, [])
+
+    // Navigate when a push notification is tapped
+    useEffect(() => {
+        const validViews = ['today', 'community', 'fitness', 'recipes', 'guide']
+        const handlePushNavigate = (event) => {
+            const view = event.detail?.view
+            navigateTo(validViews.includes(view) ? view : 'today')
+        }
+        window.addEventListener('allignd-push-navigate', handlePushNavigate)
+        return () => window.removeEventListener('allignd-push-navigate', handlePushNavigate)
+    }, [navigateTo])
     // Track if we've shown the app at least once — prevents flash back to onboarding
     // Initialize from localStorage: if user already onboarded, skip the guard entirely
     const [appReady, setAppReady] = useState(() => localStorage.getItem('cyclus_onboarded') === 'true')
@@ -113,10 +125,9 @@ function MainLayout() {
 
     const phaseStyle = getPhaseColor(currentPhase)
 
-    // Show splash while loading, or until appReady is true.
-    // appReady prevents a flash of the Onboarding screen when hasOnboarded
-    // temporarily reads as false during initial load.
-    if (isLoading || !appReady) return <SplashScreen />
+    // Show splash while loading, logging out, or until appReady is true.
+    // isLoggingOut prevents a flash of the Onboarding screen during logout.
+    if (isLoading || isLoggingOut || !appReady) return <SplashScreen />
 
     const actuallyHasOnboarded = hasOnboarded
     
@@ -195,7 +206,7 @@ function MainLayout() {
                 {currentView === 'community' && <Community />}
                 {currentView === 'fitness' && <Fitness />}
                 {currentView === 'recipes' && <Recipes />}
-                {currentView === 'guide' && <PhaseGuide />}
+                {currentView === 'guide' && <PhaseGuide onNavigate={navigateTo} />}
                 {currentView === 'profile' && <Profile onNavigate={navigateTo} />}
                 {currentView === 'privacy' && <Privacy onNavigate={navigateTo} />}
                 {currentView === 'progress' && <Progress onClose={() => navigateTo('today')} />}

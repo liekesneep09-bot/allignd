@@ -234,9 +234,9 @@ export default function Recipes() {
             </header>
 
             {nutrients.length > 0 && (
-                <div style={{ marginBottom: '1.75rem' }}>
+                <div style={{ marginBottom: '1.5rem' }}>
                     <h2 style={{
-                        fontSize: '0.75rem',
+                        fontSize: '0.7rem',
                         fontWeight: '700',
                         color: 'var(--color-text-muted)',
                         textTransform: 'uppercase',
@@ -246,7 +246,7 @@ export default function Recipes() {
                         {t('recipes.nutrients_title')}
                     </h2>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                         {nutrients.map((nutrient, i) => (
                             <div
                                 key={i}
@@ -256,78 +256,76 @@ export default function Recipes() {
                                     borderRadius: 'var(--radius-md)',
                                     padding: '1rem 1.1rem',
                                     display: 'flex',
-                                    alignItems: 'flex-start',
-                                    gap: '0.9rem'
+                                    flexDirection: 'column',
+                                    gap: '0.6rem'
                                 }}
                             >
-                                <div style={{
-                                    minWidth: '36px',
-                                    height: '36px',
-                                    borderRadius: 'var(--radius-sm)',
-                                    background: phaseColors.icon,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '0.58rem',
-                                    fontWeight: '800',
-                                    color: phaseColors.accent,
-                                    letterSpacing: '0.3px',
-                                    textTransform: 'uppercase',
-                                    flexShrink: 0,
-                                    fontFamily: 'monospace'
-                                }}>
-                                    {nutrient.icon}
-                                </div>
-
-                                <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                     <div style={{
-                                        fontWeight: '700',
-                                        fontSize: '0.9rem',
-                                        color: 'var(--color-text)',
-                                        marginBottom: '0.2rem'
+                                        minWidth: '36px',
+                                        height: '36px',
+                                        borderRadius: 'var(--radius-sm)',
+                                        background: phaseColors.bg,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '0.6rem',
+                                        fontWeight: '800',
+                                        color: phaseColors.accent,
+                                        letterSpacing: '0.3px',
+                                        textTransform: 'uppercase',
+                                        flexShrink: 0,
+                                        fontFamily: 'monospace'
                                     }}>
-                                        {nutrient.name}
+                                        {nutrient.icon}
                                     </div>
-                                    <div style={{
-                                        fontSize: '0.8rem',
-                                        color: 'var(--color-text-muted)',
-                                        lineHeight: 1.45,
-                                        marginBottom: nutrient.sources?.length ? '0.6rem' : 0
-                                    }}>
-                                        {nutrient.description}
-                                    </div>
-
-                                    {nutrient.sources?.length > 0 && (
-                                        <div>
-                                            <span style={{
-                                                fontSize: '0.68rem',
-                                                fontWeight: '700',
-                                                color: phaseColors.accent,
-                                                textTransform: 'uppercase',
-                                                letterSpacing: '0.5px',
-                                                display: 'block',
-                                                marginBottom: '0.35rem'
-                                            }}>
-                                                {t('recipes.nutrients_sources_label')}
-                                            </span>
-                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
-                                                {nutrient.sources.map((src, j) => (
-                                                    <span key={j} style={{
-                                                        background: 'var(--color-surface)',
-                                                        border: `1px solid ${phaseColors.border}`,
-                                                        borderRadius: 'var(--radius-full)',
-                                                        padding: '0.2rem 0.55rem',
-                                                        fontSize: '0.75rem',
-                                                        color: 'var(--color-text)',
-                                                        fontWeight: '500'
-                                                    }}>
-                                                        {src.food}
-                                                    </span>
-                                                ))}
-                                            </div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{
+                                            fontWeight: '700',
+                                            fontSize: '1rem',
+                                            color: 'var(--color-text)',
+                                            marginBottom: '0.15rem'
+                                        }}>
+                                            {nutrient.name}
                                         </div>
-                                    )}
+                                        <div style={{
+                                            fontSize: '0.82rem',
+                                            color: 'var(--color-text-muted)',
+                                            lineHeight: 1.45
+                                        }}>
+                                            {nutrient.description}
+                                        </div>
+                                    </div>
                                 </div>
+
+                                {nutrient.sources?.length > 0 && (
+                                    <div style={{
+                                        display: 'flex',
+                                        flexWrap: 'wrap',
+                                        gap: '0.5rem 1rem',
+                                        paddingLeft: '3.25rem'
+                                    }}>
+                                        {nutrient.sources.map((src, j) => (
+                                            <span key={j} style={{
+                                                fontSize: '0.82rem',
+                                                color: 'var(--color-text)',
+                                                fontWeight: '500',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '0.4rem'
+                                            }}>
+                                                <span style={{
+                                                    width: '4px',
+                                                    height: '4px',
+                                                    borderRadius: '50%',
+                                                    background: phaseColors.accent,
+                                                    flexShrink: 0
+                                                }} />
+                                                {src.food}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>

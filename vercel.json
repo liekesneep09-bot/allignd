@@ -1,4 +1,14 @@
 {
+    "crons": [
+        {
+            "path": "/api/notifications/daily",
+            "schedule": "0 6 * * *"
+        },
+        {
+            "path": "/api/notifications/phase",
+            "schedule": "0 7 * * *"
+        }
+    ],
     "rewrites": [
         {
             "source": "/api/assistant",
@@ -35,6 +45,14 @@
         {
             "source": "/api/food-logs",
             "destination": "/api/meals"
+        },
+        {
+            "source": "/api/notifications/:path*",
+            "destination": "/api/notifications"
+        },
+        {
+            "source": "/api/notifications",
+            "destination": "/api/notifications"
         },
         {
             "source": "/((?!api/).*)",

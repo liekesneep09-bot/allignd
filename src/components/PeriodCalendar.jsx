@@ -3,6 +3,12 @@ import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
 import { SYMPTOMS_LIST } from './CheckInModal'
 import { getFuturePeriodWindows } from '../logic/cycle-learning'
+import {
+    getCalendarCycleInfo,
+    getFertileMarkers,
+    phaseColor,
+    withAlpha
+} from '../logic/calendar-marks'
 
 // Parse "YYYY-MM-DD" in local time
 function parseLocal(dateStr) {
@@ -53,6 +59,15 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
             4
         )
     }, [user?.periodStartDates, user?.cycleStats, user?.cycleLength, user?.periodLength])
+
+    const effectiveCycleLen = user?.cycleStats?.learnedCycleLength || user?.cycleLength || 28
+    const effectivePeriodLen = user?.bleedingLengthDays || user?.periodLength || 5
+
+    // Shared fertile/ovulation markers (same visual language as the PhaseGuide calendar)
+    const fertileMarkers = useMemo(() => {
+        if (!user?.cycleStart) return {}
+        return getFertileMarkers(user.cycleStart, effectiveCycleLen, 4)
+    }, [user?.cycleStart, effectiveCycleLen])
 
     // Scroll to today on mount
     React.useEffect(() => {
@@ -189,6 +204,9 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                         monthDate={monthDate}
                         user={user}
                         predictedWindows={predictedWindows}
+                        fertileMarkers={fertileMarkers}
+                        effectiveCycleLen={effectiveCycleLen}
+                        effectivePeriodLen={effectivePeriodLen}
                         onDayClick={handleDayClick}
                         todayRef={index === 12 ? todayRef : null}
                         isDateInPeriod={isDateInPeriod}
@@ -210,12 +228,18 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                 gap: '0.65rem'
             }}>
                 {/* Legend — "Vandaag" removed */}
-                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
                     <LegendItem color="var(--color-primary)" filled label={t('calendar.period')} />
                     <LegendItem color="var(--color-primary)" dashed label={t('calendar.expected')} />
+                    <LegendItem color={phaseColor('ovulatory')} dot label={t('calendar.ovulation')} />
                     <LegendItem color="#4DB6AC" dot label={t('calendar.moved')} />
-                    <LegendItem color="#e8785f" dot label={t('calendar.symptoms')} />
+                    <LegendItem color="var(--color-symptoms)" dot label={t('calendar.symptoms')} />
                 </div>
+                {user?.cycleStart && (
+                    <div style={{ fontSize: '0.68rem', fontStyle: 'italic', color: 'var(--color-text-muted)', textAlign: 'center' }}>
+                        {t('cycle.fertility_estimate_note')}
+                    </div>
+                )}
                 <button
                     onClick={onClose}
                     style={{
@@ -255,9 +279,9 @@ function LegendItem({ color, filled, dashed, dot, label }) {
             {dot ? (
                 <div style={{ width: 6, height: 6, borderRadius: 'var(--radius-full)', background: color }} />
             ) : dashed ? (
-                <div style={{ width: 10, height: 10, borderRadius: 'var(--radius-full)', border: `2px dashed ${color}`, boxSizing: 'border-box' }} />
+                <div style={{ width: 12, height: 12, borderRadius: 'var(--radius-full)', border: `2px dashed ${color}`, boxSizing: 'border-box' }} />
             ) : (
-                <div style={{ width: 10, height: 10, borderRadius: 'var(--radius-full)', background: color }} />
+                <div style={{ width: 12, height: 12, borderRadius: 'var(--radius-full)', background: color }} />
             )}
             <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>{label}</span>
         </div>
@@ -381,7 +405,7 @@ function SummaryRow({ color, label, active }) {
 }
 
 // ── Month Grid ────────────────────────────────────────────────────────────────
-function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef, isDateInPeriod, todayStr }) {
+function MonthGrid({ monthDate, user, predictedWindows, fertileMarkers, effectiveCycleLen, effectivePeriodLen, onDayClick, todayRef, isDateInPeriod, todayStr }) {
     const { t, language } = useLanguage()
     const year = monthDate.getFullYear()
     const month = monthDate.getMonth()
@@ -405,6 +429,10 @@ function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef, is
         const hasMoved = user.movementLogs?.some(l => l.date === dateStr && l.status === 'moved')
         const hasSymptoms = user.symptomLogs?.some(l => l.date === dateStr && l.symptoms?.length > 0)
 
+        const cycleInfo = getCalendarCycleInfo(dateStr, user?.cycleStart, effectiveCycleLen, effectivePeriodLen)
+        const isOvulation = !!fertileMarkers?.[dateStr]?.isOvulation
+        const tintColor = cycleInfo?.phase ? phaseColor(cycleInfo.phase) : null
+
         // Is future (strictly after today)
         const dDate = parseLocal(dateStr)
         const dToday = parseLocal(todayStr)
@@ -422,7 +450,7 @@ function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef, is
                     justifyContent: 'center',
                     position: 'relative',
                     cursor: isFuture ? 'default' : 'pointer',
-                    opacity: isFuture ? 0.4 : 1
+                    opacity: isFuture ? 0.55 : 1
                 }}
             >
                 <div style={{
@@ -434,8 +462,12 @@ function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef, is
                     justifyContent: 'center',
                     fontSize: '0.88rem',
                     fontWeight: isToday || isPeriod ? '700' : '400',
-                    background: isPeriod ? 'var(--color-primary)' : 'transparent',
-                    color: isPeriod ? '#333333' : (isPredicted ? 'var(--color-primary)' : '#2D3436'),
+                    background: isPeriod
+                        ? 'var(--color-primary)'
+                        : (tintColor ? withAlpha(tintColor, 0.14) : 'transparent'),
+                    color: isPeriod
+                        ? '#333333'
+                        : (isPredicted ? 'var(--color-primary)' : (tintColor ? tintColor : '#2D3436')),
                     border: isToday && !isPeriod && !isPredicted
                         ? '2px solid var(--color-primary)'
                         : isPredicted
@@ -455,6 +487,12 @@ function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef, is
                     justifyContent: 'center',
                     alignItems: 'center'
                 }}>
+                    {isOvulation && (
+                        <div style={{
+                            width: 4, height: 4, borderRadius: 'var(--radius-full)',
+                            background: isPeriod ? 'rgba(255,255,255,0.8)' : (tintColor || phaseColor('ovulatory'))
+                        }} />
+                    )}
                     {hasMoved && (
                         <div style={{
                             width: 4, height: 4, borderRadius: 'var(--radius-full)',
@@ -464,7 +502,7 @@ function MonthGrid({ monthDate, user, predictedWindows, onDayClick, todayRef, is
                     {hasSymptoms && (
                         <div style={{
                             width: 4, height: 4, borderRadius: 'var(--radius-full)',
-                            background: isPeriod ? 'rgba(255,255,255,0.6)' : '#e8785f'
+                            background: isPeriod ? 'rgba(255,255,255,0.6)' : 'var(--color-symptoms)'
                         }} />
                     )}
                 </div>

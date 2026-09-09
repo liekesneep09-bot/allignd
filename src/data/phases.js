@@ -37,56 +37,56 @@ export const PHASE_CONTENT_NL = {
       {
         name: 'IJzer',
         icon: 'Fe',
-        description: 'Kan helpen bij het aanvullen van wat je lichaam verliest tijdens de menstruatie.',
+        description: 'Vult aan wat je verliest.',
         sources: [
-          { food: 'Rood vlees' },
-          { food: 'Spinazie' },
-          { food: 'Linzen' },
-          { food: 'Pompoenpitten' },
-          { food: 'Tofu' },
-          { food: 'Zwarte bonen' },
-          { food: 'Quinoa' }
+          { food: 'Rood vlees', emoji: '' },
+          { food: 'Spinazie', emoji: '🌿' },
+          { food: 'Linzen', emoji: '' },
+          { food: 'Pompoenpitten', emoji: '🎃' },
+          { food: 'Tofu', emoji: '🧈' },
+          { food: 'Zwarte bonen', emoji: '🫘' },
+          { food: 'Quinoa', emoji: '🌾' }
         ]
       },
       {
         name: 'Vitamine C',
         icon: 'C',
-        description: 'Ondersteunt de opname van ijzer in het lichaam.',
+        description: 'Helpt je lichaam ijzer opnemen.',
         sources: [
-          { food: 'Paprika' },
-          { food: 'Sinaasappel' },
-          { food: 'Broccoli' },
-          { food: 'Aardbeien' },
-          { food: 'Kiwi' },
-          { food: 'Spruitjes' }
+          { food: 'Paprika', emoji: '' },
+          { food: 'Sinaasappel', emoji: '🍊' },
+          { food: 'Broccoli', emoji: '🥦' },
+          { food: 'Aardbeien', emoji: '🍓' },
+          { food: 'Kiwi', emoji: '🥝' },
+          { food: 'Spruitjes', emoji: '🥬' }
         ]
       },
       {
         name: 'Magnesium',
         icon: 'Mg',
-        description: 'Wordt vaak gelinkt aan ontspanning van spieren en het zenuwstelsel.',
+        description: 'Kalmeert je zenuwstelsel.',
         sources: [
-          { food: 'Pure chocolade' },
-          { food: 'Amandelen' },
-          { food: 'Avocado' },
-          { food: 'Banaan' },
-          { food: 'Pompoenpitten' },
-          { food: 'Zwarte bonen' }
+          { food: 'Pure chocolade', emoji: '🍫' },
+          { food: 'Amandelen', emoji: '🌰' },
+          { food: 'Avocado', emoji: '' },
+          { food: 'Banaan', emoji: '🍌' },
+          { food: 'Pompoenpitten', emoji: '🎃' },
+          { food: 'Zwarte bonen', emoji: '🫘' }
         ]
       },
       {
-        name: 'Omega-3 vetzuren',
+        name: 'Omega-3',
         icon: 'O3',
-        description: 'Kunnen ondersteunend zijn bij ontstekingsprocessen in het lichaam.',
+        description: 'Verzacht ontstekingen.',
         sources: [
-          { food: 'Zalm' },
-          { food: 'Makreel' },
-          { food: 'Walnoten' },
-          { food: 'Lijnzaad' },
-          { food: 'Chiazaad' },
-          { food: 'Hennepzaad' },
-          { food: 'Edamame' },
-          { food: 'Zeewier' }
+          { food: 'Zalm', emoji: '' },
+          { food: 'Makreel', emoji: '🐟' },
+          { food: 'Walnoten', emoji: '' },
+          { food: 'Lijnzaad', emoji: '🌱' },
+          { food: 'Chiazaad', emoji: '🌱' },
+          { food: 'Hennepzaad', emoji: '🌱' },
+          { food: 'Edamame', emoji: '🫘' },
+          { food: 'Zeewier', emoji: '🌊' }
         ]
       }
     ],
@@ -139,46 +139,46 @@ export const PHASE_CONTENT_NL = {
       {
         name: 'B-vitamines',
         icon: 'B',
-        description: 'Spelen een rol in energieproductie en herstelprocessen in het lichaam.',
+        description: 'Geven je lichaam energie.',
         sources: [
-          { food: 'Eieren' },
-          { food: 'Havermout' },
-          { food: 'Kikkererwten' },
-          { food: 'Zonnebloempitten' },
-          { food: 'Edelgistvlokken' },
-          { food: 'Spinazie' },
-          { food: 'Zwarte bonen' }
+          { food: 'Eieren', emoji: '' },
+          { food: 'Havermout', emoji: '🥣' },
+          { food: 'Kikkererwten', emoji: '🫘' },
+          { food: 'Zonnebloempitten', emoji: '🌻' },
+          { food: 'Edelgistvlokken', emoji: '🧀' },
+          { food: 'Spinazie', emoji: '🌿' },
+          { food: 'Zwarte bonen', emoji: '' }
         ]
       },
       {
         name: 'Zink',
         icon: 'Zn',
-        description: 'Ondersteunt celvernieuwing en herstel na inspanning.',
+        description: 'Helpt je spieren herstellen.',
         sources: [
-          { food: 'Rundvlees' },
-          { food: 'Pompoenpitten' },
-          { food: 'Cashewnoten' },
-          { food: 'Tempeh' },
-          { food: 'Hennepzaad' },
-          { food: 'Linzen' },
-          { food: 'Quinoa' }
+          { food: 'Rundvlees', emoji: '' },
+          { food: 'Pompoenpitten', emoji: '🎃' },
+          { food: 'Cashewnoten', emoji: '🥜' },
+          { food: 'Tempeh', emoji: '🧈' },
+          { food: 'Hennepzaad', emoji: '🌱' },
+          { food: 'Linzen', emoji: '🫘' },
+          { food: 'Quinoa', emoji: '🌾' }
         ]
       },
       {
         name: 'Eiwitten',
         icon: 'P',
-        description: 'Belangrijk voor de opbouw en het herstel van spierweefsel.',
+        description: 'Bouwen je spieren op.',
         sources: [
-          { food: 'Kipfilet' },
-          { food: 'Griekse yoghurt' },
-          { food: 'Eieren' },
-          { food: 'Kwark' },
-          { food: 'Tofu' },
-          { food: 'Linzen' },
-          { food: 'Edamame' },
-          { food: 'Kikkererwten' },
-          { food: 'Seitan' },
-          { food: 'Quinoa' }
+          { food: 'Kipfilet', emoji: '' },
+          { food: 'Griekse yoghurt', emoji: '🥛' },
+          { food: 'Eieren', emoji: '🥚' },
+          { food: 'Kwark', emoji: '🥛' },
+          { food: 'Tofu', emoji: '🧈' },
+          { food: 'Linzen', emoji: '🫘' },
+          { food: 'Edamame', emoji: '🫘' },
+          { food: 'Kikkererwten', emoji: '🫘' },
+          { food: 'Seitan', emoji: '🧈' },
+          { food: 'Quinoa', emoji: '🌾' }
         ]
       }
     ],
@@ -220,7 +220,7 @@ export const PHASE_CONTENT_NL = {
       title: 'Beweging die goed kan werken in deze fase',
       subtitle: 'Meer kracht & energie',
       description: 'Veel vrouwen ervaren in deze fase meer kracht en motivatie. Als je zin hebt om jezelf uit te dagen, kan dat nu makkelijker voelen.',
-      types: ['HIIT', 'Compounds', 'Running'],
+      types: ['HIIT', 'Compound oefeningen', 'Running'],
       goal: 'Kracht & Piek',
       intensity: 'Hoog',
       focus: 'Jezelf uitdagen',
@@ -232,42 +232,42 @@ export const PHASE_CONTENT_NL = {
       {
         name: 'Antioxidanten',
         icon: 'AO',
-        description: 'Ondersteunen het lichaam bij hogere activiteit en dragen bij aan herstel.',
+        description: 'Beschermen bij hoge activiteit.',
         sources: [
-          { food: 'Bosbessen' },
-          { food: 'Paprika' },
-          { food: 'Groene thee' },
-          { food: 'Tomaten' },
-          { food: 'Pecannoten' },
-          { food: 'Pure chocolade' }
+          { food: 'Bosbessen', emoji: '🫐' },
+          { food: 'Paprika', emoji: '' },
+          { food: 'Groene thee', emoji: '🍵' },
+          { food: 'Tomaten', emoji: '🍅' },
+          { food: 'Pecannoten', emoji: '🌰' },
+          { food: 'Pure chocolade', emoji: '🍫' }
         ]
       },
       {
-        name: 'Omega-3 vetzuren',
+        name: 'Omega-3',
         icon: 'O3',
-        description: 'Kunnen bijdragen aan herstel bij intensievere beweging en inspanning.',
+        description: 'Herstellen na intensieve training.',
         sources: [
-          { food: 'Zalm' },
-          { food: 'Makreel' },
-          { food: 'Walnoten' },
-          { food: 'Chiazaad' },
-          { food: 'Lijnzaad' },
-          { food: 'Hennepzaad' },
-          { food: 'Edamame' },
-          { food: 'Zeewier' }
+          { food: 'Zalm', emoji: '' },
+          { food: 'Makreel', emoji: '🐟' },
+          { food: 'Walnoten', emoji: '' },
+          { food: 'Chiazaad', emoji: '🌱' },
+          { food: 'Lijnzaad', emoji: '' },
+          { food: 'Hennepzaad', emoji: '🌱' },
+          { food: 'Edamame', emoji: '🫘' },
+          { food: 'Zeewier', emoji: '🌊' }
         ]
       },
       {
         name: 'Vezels',
         icon: 'VZ',
-        description: 'Dragen bij aan een stabiele spijsvertering en een goede balans in je lichaam.',
+        description: 'Houden je spijsvertering stabiel.',
         sources: [
-          { food: 'Quinoa' },
-          { food: 'Kikkererwten' },
-          { food: 'Broccoli' },
-          { food: 'Appel' },
-          { food: 'Havermout' },
-          { food: 'Chiazaad' }
+          { food: 'Quinoa', emoji: '🌾' },
+          { food: 'Kikkererwten', emoji: '🫘' },
+          { food: 'Broccoli', emoji: '🥦' },
+          { food: 'Appel', emoji: '🍎' },
+          { food: 'Havermout', emoji: '🥣' },
+          { food: 'Chiazaad', emoji: '🌱' }
         ]
       }
     ],
@@ -319,41 +319,41 @@ export const PHASE_CONTENT_NL = {
       {
         name: 'Magnesium',
         icon: 'Mg',
-        description: 'Wordt vaak genoemd in relatie tot ontspanning en prikkelgevoeligheid.',
+        description: 'Kalmeert je zenuwstelsel en vermindert spanning.',
         sources: [
-          { food: 'Pure chocolade' },
-          { food: 'Amandelen' },
-          { food: 'Spinazie' },
-          { food: 'Avocado' },
-          { food: 'Pompoenpitten' },
-          { food: 'Zwarte bonen' }
+          { food: 'Pure chocolade', emoji: '🍫' },
+          { food: 'Amandelen', emoji: '🌰' },
+          { food: 'Spinazie', emoji: '🥬' },
+          { food: 'Avocado', emoji: '🥑' },
+          { food: 'Pompoenpitten', emoji: '🎃' },
+          { food: 'Zwarte bonen', emoji: '' }
         ]
       },
       {
         name: 'Vitamine B6',
         icon: 'B6',
-        description: 'Speelt een rol in hormonale processen en de aanmaak van serotonine in het lichaam.',
+        description: 'Stabiliseert je stemming en ondersteunt serotonine.',
         sources: [
-          { food: 'Kip' },
-          { food: 'Banaan' },
-          { food: 'Aardappel' },
-          { food: 'Zonnebloempitten' },
-          { food: 'Kikkererwten' },
-          { food: 'Walnoten' },
-          { food: 'Spinazie' }
+          { food: 'Kip', emoji: '🍗' },
+          { food: 'Banaan', emoji: '🍌' },
+          { food: 'Aardappel', emoji: '🥔' },
+          { food: 'Zonnebloempitten', emoji: '🌻' },
+          { food: 'Kikkererwten', emoji: '' },
+          { food: 'Walnoten', emoji: '🥜' },
+          { food: 'Spinazie', emoji: '' }
         ]
       },
       {
         name: 'Complexe koolhydraten',
         icon: 'KH',
-        description: 'Kunnen helpen bij stabiele energie en een langer verzadigd gevoel.',
+        description: 'Houden je energie stabiel en stillen cravings.',
         sources: [
-          { food: 'Zoete aardappel' },
-          { food: 'Havermout' },
-          { food: 'Zilvervliesrijst' },
-          { food: 'Linzen' },
-          { food: 'Quinoa' },
-          { food: 'Zwarte bonen' }
+          { food: 'Zoete aardappel', emoji: '🍠' },
+          { food: 'Havermout', emoji: '🥣' },
+          { food: 'Zilvervliesrijst', emoji: '' },
+          { food: 'Linzen', emoji: '🫘' },
+          { food: 'Quinoa', emoji: '🌾' },
+          { food: 'Zwarte bonen', emoji: '🫘' }
         ]
       }
     ],
@@ -406,56 +406,56 @@ export const PHASE_CONTENT_EN = {
       {
         name: 'Iron',
         icon: 'Fe',
-        description: 'Can help replenish what your body loses during menstruation.',
+        description: 'Replenishes what you lose.',
         sources: [
-          { food: 'Red meat' },
-          { food: 'Spinach' },
-          { food: 'Lentils' },
-          { food: 'Pumpkin seeds' },
-          { food: 'Tofu' },
-          { food: 'Black beans' },
-          { food: 'Quinoa' }
+          { food: 'Red meat', emoji: '' },
+          { food: 'Spinach', emoji: '🌿' },
+          { food: 'Lentils', emoji: '' },
+          { food: 'Pumpkin seeds', emoji: '🎃' },
+          { food: 'Tofu', emoji: '🧈' },
+          { food: 'Black beans', emoji: '🫘' },
+          { food: 'Quinoa', emoji: '' }
         ]
       },
       {
         name: 'Vitamin C',
         icon: 'C',
-        description: 'Supports the absorption of iron in the body.',
+        description: 'Helps your body absorb iron.',
         sources: [
-          { food: 'Bell pepper' },
-          { food: 'Orange' },
-          { food: 'Broccoli' },
-          { food: 'Strawberries' },
-          { food: 'Kiwi' },
-          { food: 'Brussels sprouts' }
+          { food: 'Bell pepper', emoji: '' },
+          { food: 'Orange', emoji: '' },
+          { food: 'Broccoli', emoji: '🥦' },
+          { food: 'Strawberries', emoji: '🍓' },
+          { food: 'Kiwi', emoji: '🥝' },
+          { food: 'Brussels sprouts', emoji: '🥬' }
         ]
       },
       {
         name: 'Magnesium',
         icon: 'Mg',
-        description: 'Is often linked to relaxation of muscles and the nervous system.',
+        description: 'Calms your nervous system.',
         sources: [
-          { food: 'Dark chocolate' },
-          { food: 'Almonds' },
-          { food: 'Avocado' },
-          { food: 'Banana' },
-          { food: 'Pumpkin seeds' },
-          { food: 'Black beans' }
+          { food: 'Dark chocolate', emoji: '🍫' },
+          { food: 'Almonds', emoji: '🌰' },
+          { food: 'Avocado', emoji: '' },
+          { food: 'Banana', emoji: '🍌' },
+          { food: 'Pumpkin seeds', emoji: '🎃' },
+          { food: 'Black beans', emoji: '' }
         ]
       },
       {
-        name: 'Omega-3 fatty acids',
+        name: 'Omega-3',
         icon: 'O3',
-        description: 'Can be supportive in inflammatory processes in the body.',
+        description: 'Reduces inflammation.',
         sources: [
-          { food: 'Salmon' },
-          { food: 'Mackerel' },
-          { food: 'Walnuts' },
-          { food: 'Flaxseed' },
-          { food: 'Chia seeds' },
-          { food: 'Hemp seeds' },
-          { food: 'Edamame' },
-          { food: 'Seaweed' }
+          { food: 'Salmon', emoji: '' },
+          { food: 'Mackerel', emoji: '' },
+          { food: 'Walnuts', emoji: '' },
+          { food: 'Flaxseed', emoji: '🌱' },
+          { food: 'Chia seeds', emoji: '🌱' },
+          { food: 'Hemp seeds', emoji: '🌱' },
+          { food: 'Edamame', emoji: '🫘' },
+          { food: 'Seaweed', emoji: '🌊' }
         ]
       }
     ],
@@ -508,46 +508,46 @@ export const PHASE_CONTENT_EN = {
       {
         name: 'B-vitamins',
         icon: 'B',
-        description: 'Play a role in energy production and recovery processes in the body.',
+        description: 'Fuel your energy and recovery.',
         sources: [
-          { food: 'Eggs' },
-          { food: 'Oatmeal' },
-          { food: 'Chickpeas' },
-          { food: 'Sunflower seeds' },
-          { food: 'Nutritional yeast' },
-          { food: 'Spinach' },
-          { food: 'Black beans' }
+          { food: 'Eggs', emoji: '🥚' },
+          { food: 'Oatmeal', emoji: '🥣' },
+          { food: 'Chickpeas', emoji: '🫘' },
+          { food: 'Sunflower seeds', emoji: '🌻' },
+          { food: 'Nutritional yeast', emoji: '' },
+          { food: 'Spinach', emoji: '🌿' },
+          { food: 'Black beans', emoji: '' }
         ]
       },
       {
         name: 'Zinc',
         icon: 'Zn',
-        description: 'Supports cell renewal and recovery after exertion.',
+        description: 'Supports cell renewal and recovery.',
         sources: [
-          { food: 'Beef' },
-          { food: 'Pumpkin seeds' },
-          { food: 'Cashews' },
-          { food: 'Tempeh' },
-          { food: 'Hemp seeds' },
-          { food: 'Lentils' },
-          { food: 'Quinoa' }
+          { food: 'Beef', emoji: '' },
+          { food: 'Pumpkin seeds', emoji: '🎃' },
+          { food: 'Cashews', emoji: '🥜' },
+          { food: 'Tempeh', emoji: '🧈' },
+          { food: 'Hemp seeds', emoji: '🌱' },
+          { food: 'Lentils', emoji: '🫘' },
+          { food: 'Quinoa', emoji: '🌾' }
         ]
       },
       {
         name: 'Proteins',
         icon: 'P',
-        description: 'Important for the building and recovery of muscle tissue.',
+        description: 'Build and repair muscle.',
         sources: [
-          { food: 'Chicken breast' },
-          { food: 'Greek yogurt' },
-          { food: 'Eggs' },
-          { food: 'Cottage cheese' },
-          { food: 'Tofu' },
-          { food: 'Lentils' },
-          { food: 'Edamame' },
-          { food: 'Chickpeas' },
-          { food: 'Seitan' },
-          { food: 'Quinoa' }
+          { food: 'Chicken breast', emoji: '🍗' },
+          { food: 'Greek yogurt', emoji: '🥛' },
+          { food: 'Eggs', emoji: '🥚' },
+          { food: 'Cottage cheese', emoji: '🧀' },
+          { food: 'Tofu', emoji: '🧈' },
+          { food: 'Lentils', emoji: '🫘' },
+          { food: 'Edamame', emoji: '🫘' },
+          { food: 'Chickpeas', emoji: '🫘' },
+          { food: 'Seitan', emoji: '' },
+          { food: 'Quinoa', emoji: '🌾' }
         ]
       }
     ],
@@ -589,7 +589,7 @@ export const PHASE_CONTENT_EN = {
       title: 'Movement that can work well in this phase',
       subtitle: 'More power & energy',
       description: 'Many women experience more power and motivation in this phase. If you feel like challenging yourself, it can feel easier now.',
-      types: ['HIIT', 'Compounds', 'Running'],
+      types: ['HIIT', 'Compound lifts', 'Running'],
       goal: 'Power & Peak',
       intensity: 'High',
       focus: 'Challenging yourself',
@@ -601,42 +601,42 @@ export const PHASE_CONTENT_EN = {
       {
         name: 'Antioxidants',
         icon: 'AO',
-        description: 'Support the body during higher activity and contribute to recovery.',
+        description: 'Protect your body during peak performance.',
         sources: [
-          { food: 'Blueberries' },
-          { food: 'Bell pepper' },
-          { food: 'Green tea' },
-          { food: 'Tomatoes' },
-          { food: 'Pecans' },
-          { food: 'Dark chocolate' }
+          { food: 'Blueberries', emoji: '🫐' },
+          { food: 'Bell pepper', emoji: '' },
+          { food: 'Green tea', emoji: '🍵' },
+          { food: 'Tomatoes', emoji: '🍅' },
+          { food: 'Pecans', emoji: '🥜' },
+          { food: 'Dark chocolate', emoji: '🍫' }
         ]
       },
       {
-        name: 'Omega-3 fatty acids',
+        name: 'Omega-3',
         icon: 'O3',
-        description: 'Can contribute to recovery with more intensive movement and exertion.',
+        description: 'Supports recovery from intense effort.',
         sources: [
-          { food: 'Salmon' },
-          { food: 'Mackerel' },
-          { food: 'Walnuts' },
-          { food: 'Chia seeds' },
-          { food: 'Flaxseed' },
-          { food: 'Hemp seeds' },
-          { food: 'Edamame' },
-          { food: 'Seaweed' }
+          { food: 'Salmon', emoji: '' },
+          { food: 'Mackerel', emoji: '' },
+          { food: 'Walnuts', emoji: '' },
+          { food: 'Chia seeds', emoji: '🌱' },
+          { food: 'Flaxseed', emoji: '🌱' },
+          { food: 'Hemp seeds', emoji: '🌱' },
+          { food: 'Edamame', emoji: '🫘' },
+          { food: 'Seaweed', emoji: '🌊' }
         ]
       },
       {
         name: 'Fiber',
         icon: 'VZ',
-        description: 'Contributes to a stable digestion and a good balance in your body.',
+        description: 'Keeps digestion stable and balanced.',
         sources: [
-          { food: 'Quinoa' },
-          { food: 'Chickpeas' },
-          { food: 'Broccoli' },
-          { food: 'Apple' },
-          { food: 'Oatmeal' },
-          { food: 'Chia seeds' }
+          { food: 'Quinoa', emoji: '🌾' },
+          { food: 'Chickpeas', emoji: '🫘' },
+          { food: 'Broccoli', emoji: '🥦' },
+          { food: 'Apple', emoji: '🍎' },
+          { food: 'Oatmeal', emoji: '🥣' },
+          { food: 'Chia seeds', emoji: '🌱' }
         ]
       }
     ],
@@ -688,41 +688,41 @@ export const PHASE_CONTENT_EN = {
       {
         name: 'Magnesium',
         icon: 'Mg',
-        description: 'Is often mentioned in relation to relaxation and stimulus sensitivity.',
+        description: 'Calms your nervous system and reduces tension.',
         sources: [
-          { food: 'Dark chocolate' },
-          { food: 'Almonds' },
-          { food: 'Spinach' },
-          { food: 'Avocado' },
-          { food: 'Pumpkin seeds' },
-          { food: 'Black beans' }
+          { food: 'Dark chocolate', emoji: '🍫' },
+          { food: 'Almonds', emoji: '🌰' },
+          { food: 'Spinach', emoji: '' },
+          { food: 'Avocado', emoji: '🥑' },
+          { food: 'Pumpkin seeds', emoji: '' },
+          { food: 'Black beans', emoji: '' }
         ]
       },
       {
         name: 'Vitamin B6',
         icon: 'B6',
-        description: 'Plays a role in hormonal processes and the production of serotonin in the body.',
+        description: 'Stabilizes mood and supports serotonin.',
         sources: [
-          { food: 'Chicken' },
-          { food: 'Banana' },
-          { food: 'Potato' },
-          { food: 'Sunflower seeds' },
-          { food: 'Chickpeas' },
-          { food: 'Walnuts' },
-          { food: 'Spinach' }
+          { food: 'Chicken', emoji: '🍗' },
+          { food: 'Banana', emoji: '🍌' },
+          { food: 'Potato', emoji: '' },
+          { food: 'Sunflower seeds', emoji: '🌻' },
+          { food: 'Chickpeas', emoji: '🫘' },
+          { food: 'Walnuts', emoji: '🥜' },
+          { food: 'Spinach', emoji: '' }
         ]
       },
       {
-        name: 'Complex carbohydrates',
+        name: 'Complex carbs',
         icon: 'KH',
-        description: 'Can help with stable energy and a longer feeling of satiety.',
+        description: 'Keep energy stable and curb cravings.',
         sources: [
-          { food: 'Sweet potato' },
-          { food: 'Oatmeal' },
-          { food: 'Brown rice' },
-          { food: 'Lentils' },
-          { food: 'Quinoa' },
-          { food: 'Black beans' }
+          { food: 'Sweet potato', emoji: '' },
+          { food: 'Oatmeal', emoji: '🥣' },
+          { food: 'Brown rice', emoji: '' },
+          { food: 'Lentils', emoji: '🫘' },
+          { food: 'Quinoa', emoji: '🌾' },
+          { food: 'Black beans', emoji: '' }
         ]
       }
     ],

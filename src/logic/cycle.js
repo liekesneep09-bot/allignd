@@ -30,8 +30,8 @@ export function getCycleDisplayData(startDate, cycleLength = 28, periodLength = 
     let transitionTo = null;
     const lutealLength = 14;
     const ovulationDay = cycleLength - lutealLength;
-    const fertileStart = ovulationDay - 5;
-    const fertileEnd = ovulationDay + 1;
+    const fertileStart = ovulationDay - 2;
+    const fertileEnd = ovulationDay + 2;
 
     // A. Explicit Override or Linear Period
     if (isMenstruatingNow || linearDay <= periodLength) {
@@ -136,9 +136,9 @@ export function getPhaseForDay(day, cycleLength = 28, periodLength = 5, isMenstr
     const lutealLength = 14 // Standard average, can be personalized later
     const ovulationDay = cycleLength - lutealLength
 
-    // Define Fertile Window (Bio-definition: 5 days before + ovulation day)
-    const fertileStart = ovulationDay - 5
-    const fertileEnd = ovulationDay + 1 // Ovulation day + 12-24h
+    // Define Ovulatory Phase (A few days around estimated ovulation day)
+    const fertileStart = ovulationDay - 2
+    const fertileEnd = ovulationDay + 2 // Ovulation day + 2
 
     // Phase Determination
     if (day >= fertileStart && day <= fertileEnd) {
@@ -189,9 +189,9 @@ export function calculateStartDateFromPhase(targetPhase, cycleLength = 28, perio
             estimatedDay = 1 // Assume first day of period for simplicity
             break
         case PHASES.FOLLICULAR:
-            // Mid-point between period end and fertile window
-            // If Cycle=28, Period=5. FertileStart=9. Mid = 7.
-            const fertileStart = cycleLength - 14 - 5
+            // Mid-point between period end and ovulatory phase
+            // If Cycle=28, Period=5. FertileStart=12. Mid = 9.
+            const fertileStart = cycleLength - 14 - 2
             estimatedDay = Math.floor((periodLength + 1 + fertileStart) / 2)
             break
         case PHASES.OVULATORY:
@@ -231,8 +231,8 @@ export function getPhaseTransition(day, cycleLength = 28, periodLength = 5, curr
 
     const lutealLength = 14
     const ovulationDay = cycleLength - lutealLength
-    const fertileStart = ovulationDay - 5
-    const fertileEnd = ovulationDay + 1
+    const fertileStart = ovulationDay - 2
+    const fertileEnd = ovulationDay + 2
 
     if (currentPhase === PHASES.MENSTRUAL) {
         const effectivePeriod = periodLength || 5

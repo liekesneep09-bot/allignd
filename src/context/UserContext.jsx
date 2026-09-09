@@ -19,7 +19,7 @@ const UserContext = createContext(null)
 export function UserProvider({ children }) {
   // Auth Context
   // Contexts
-  const { user: authUser, getAccessToken, signOut } = useAuth()
+  const { user: authUser, getAccessToken, signOut, isLoggingOut } = useAuth()
   const { language: currentUiLanguage, setLanguage: setUiLanguage } = useLanguage()
 
   // 1. Loading State
@@ -451,7 +451,7 @@ export function UserProvider({ children }) {
           .eq('user_id', authUser.id)
           .order('date', { ascending: true })
 
-        if (dbWeightLogs && dbWeightLogs.length > 0) {
+        if (dbWeightLogs) {
           setUser(prev => ({
             ...prev,
             weightLogs: dbWeightLogs.map(w => ({ date: w.date, weight: Number(w.weight) }))
@@ -669,13 +669,24 @@ export function UserProvider({ children }) {
 
       // 1. Prepare Profile Object
       // Ensure numbers are numbers
+      const birthDate = profileData.birthDate || user.birthDate;
+      let computedAge = Number(profileData.age || user.age || 0);
+      if (birthDate) {
+        const today = new Date();
+        const birth = new Date(birthDate);
+        computedAge = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) computedAge--;
+      }
+
       const cleanProfile = {
         ...user,
         ...profileData,
+        birthDate: birthDate || undefined,
         weight_kg: Number(profileData.weight || user.weight || 0),
         target_weight: Number(profileData.targetWeight || user.targetWeight || 0), // Fix: use targetWeight
         height_cm: Number(profileData.height || user.height || 0),
-        age: Number(profileData.age || user.age || 0),
+        age: computedAge,
         goal: profileData.goal || user.goal,
         training_days_per_week: Number(profileData.trainingFrequency || user.trainingFrequency || 0),
         lifestyle_level: profileData.lifestyle_level || user.lifestyle_level || 'sedentary',
@@ -711,7 +722,8 @@ export function UserProvider({ children }) {
       await defensiveProfileUpsert({
         id: userId,
         name: profileData.name || user.name || '',
-        age: profileData.age || user.age || 0,
+        birth_date: birthDate || undefined,
+        age: computedAge,
         height: profileData.height || user.height || 0,
         weight: profileData.weight || user.weight || 0,
         target_weight: profileData.targetWeight || user.targetWeight || 0,
@@ -733,36 +745,43 @@ export function UserProvider({ children }) {
         updated_at: new Date().toISOString()
       });
 
-      // AUTO-LOG cycleStart into period_start_dates (so it shows on the calendar legacy views)
-      if (cycleStartDate) {
-        const cycleStartStr = String(cycleStartDate).split('T')[0]; // ensure YYYY-MM-DD
+      // AUTO-LOG cycleStart + previousPeriodStart into period_start_dates
+      const periodDatesToLog = [];
+      if (cycleStartDate) periodDatesToLog.push(String(cycleStartDate).split('T')[0]);
+      if (profileData.previousPeriodStart) periodDatesToLog.push(String(profileData.previousPeriodStart).split('T')[0]);
+
+      // Add menstruation logs for previous period end
+      if (profileData.previousPeriodEnd) {
+        const prevEndStr = String(profileData.previousPeriodEnd).split('T')[0];
+        updatedMenstruationLogs = [...updatedMenstruationLogs.filter(l => l.date !== prevEndStr), { date: prevEndStr, status: 'no' }];
+      }
+
+      if (periodDatesToLog.length > 0) {
         const existingDates = user.periodStartDates || [];
-        if (!existingDates.includes(cycleStartStr)) {
-          const updatedDates = [...existingDates, cycleStartStr].sort();
+        const newDates = periodDatesToLog.filter(d => !existingDates.includes(d));
+        if (newDates.length > 0) {
+          const updatedDates = [...existingDates, ...newDates].sort();
           await supabase.from('profiles').update({
             period_start_dates: updatedDates,
             updated_at: new Date().toISOString()
           }).eq('id', userId);
-          // Update local state too
-          setUser(prev => ({ 
+          setUser(prev => ({
              ...prev,
-             ...cleanProfile, // Zorg dat de UI LOKAAL de naam, leeftijd, etc overneemt!
+             ...cleanProfile,
              periodStartDates: updatedDates,
-             menstruationLogs: updatedMenstruationLogs 
+             menstruationLogs: updatedMenstruationLogs
           }));
         } else {
-          // If existingDates already included it, we still want to make sure menstruationLogs is updated in local state
-          setUser(prev => ({ 
-             ...prev, 
-             ...cleanProfile, // Zorg dat de UI LOKAAL update
-             menstruationLogs: updatedMenstruationLogs 
+          setUser(prev => ({
+             ...prev,
+             ...cleanProfile,
+             menstruationLogs: updatedMenstruationLogs
           }));
         }
       } else {
-          // Als er geen cycleStart was (bijv een man of iemand die niks invult), update dan in ieder geval de rest!
-          setUser(prev => ({ 
-             ...prev, 
-             ...cleanProfile 
+          setUser(prev => ({
+             ...prev,
+             ...cleanProfile
           }));
       }
 
@@ -1637,19 +1656,15 @@ export function UserProvider({ children }) {
 
   // 8. Context Value
   // LOGOUT (Simple)
-  // LOGOUT (Simple)
   const logout = async () => {
-    setIsOnboarded(false)
-    localStorage.removeItem('cyclus_onboarded')
-
     // Remove push token on native devices
     if (isNativePlatform()) {
       const { removePushToken } = await import('../utils/pushNotifications')
       await removePushToken()
     }
-
-    // Also sign out from Supabase auth
-    if (signOut) signOut()
+    // signOut() handles localStorage cleanup, session clearing,
+    // and sets isLoggingOut=true to prevent the Onboarding flash.
+    await signOut()
   }
 
   // 8. Context Value

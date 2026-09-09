@@ -1,6 +1,6 @@
 import { PushNotifications } from '@capacitor/push-notifications';
 import { supabase } from './supabaseClient';
-import { isNativePlatform } from './platform';
+import { isNativePlatform, getPlatform } from './platform';
 
 let isRegistered = false;
 
@@ -38,11 +38,13 @@ export async function registerPushNotifications() {
       // Listen for incoming notifications
       PushNotifications.addListener('pushNotificationReceived', (notification) => {
         console.log('Push notification received:', notification);
+        dispatchNavigationEvent(notification);
       });
 
       // Listen for notification action
       PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
         console.log('Push notification action performed:', notification);
+        dispatchNavigationEvent(notification);
       });
 
       isRegistered = true;
@@ -55,6 +57,16 @@ export async function registerPushNotifications() {
 }
 
 /**
+ * Dispatch a custom event so the app shell can navigate to the right view
+ * when a notification is tapped while the app is open or brought to the foreground.
+ */
+function dispatchNavigationEvent(notification) {
+  const data = notification?.notification?.data || notification?.data || {};
+  const view = typeof data.view === 'string' ? data.view : 'today';
+  window.dispatchEvent(new CustomEvent('allignd-push-navigate', { detail: { view } }));
+}
+
+/**
  * Save push token to Supabase user profile
  */
 async function savePushToken(token) {
@@ -64,7 +76,7 @@ async function savePushToken(token) {
 
     const { error } = await supabase
       .from('profiles')
-      .update({ push_token: token })
+      .update({ push_token: token, push_platform: getPlatform() })
       .eq('id', user.id);
 
     if (error) {
@@ -92,7 +104,7 @@ export async function removePushToken() {
 
     await supabase
       .from('profiles')
-      .update({ push_token: null })
+      .update({ push_token: null, push_platform: null })
       .eq('id', user.id);
 
     await PushNotifications.removeAllListeners();

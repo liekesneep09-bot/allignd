@@ -70,25 +70,29 @@ console.log("\n=== 2. getPhaseForDay (28-day cycle) ===")
 test("Day 1 not menstruating → follicular", getPhaseForDay(1, 28, 5, false), PHASES.FOLLICULAR)
 test("Day 1 menstruating → menstrual", getPhaseForDay(1, 28, 5, true), PHASES.MENSTRUAL)
 test("Day 6 → follicular", getPhaseForDay(6, 28, 5, false), PHASES.FOLLICULAR)
-// Ovulation: 28-14=14, fertile start=14-5=9, fertile end=15
-test("Day 9 → ovulatory (fertile start)", getPhaseForDay(9, 28, 5, false), PHASES.OVULATORY)
+// Ovulation: 28-14=14, ovulatory phase = day 12-16 (a few days, -2..+2)
+test("Day 9 → follicular (before ovulatory phase)", getPhaseForDay(9, 28, 5, false), PHASES.FOLLICULAR)
+test("Day 12 → ovulatory (phase start)", getPhaseForDay(12, 28, 5, false), PHASES.OVULATORY)
 test("Day 14 → ovulatory", getPhaseForDay(14, 28, 5, false), PHASES.OVULATORY)
-test("Day 15 → ovulatory (fertile end)", getPhaseForDay(15, 28, 5, false), PHASES.OVULATORY)
-test("Day 16 → luteal", getPhaseForDay(16, 28, 5, false), PHASES.LUTEAL)
+test("Day 16 → ovulatory (phase end)", getPhaseForDay(16, 28, 5, false), PHASES.OVULATORY)
+test("Day 17 → luteal", getPhaseForDay(17, 28, 5, false), PHASES.LUTEAL)
 test("Day 28 → luteal", getPhaseForDay(28, 28, 5, false), PHASES.LUTEAL)
 test("Day 35 overdue → luteal", getPhaseForDay(35, 28, 5, false), PHASES.LUTEAL)
 
 console.log("\n=== 2b. getPhaseForDay (21-day cycle) ===")
-// Ovulation: 21-14=7, fertile start=7-5=2, fertile end=8
-test("Day 2 short cycle → ovulatory", getPhaseForDay(2, 21, 5, false), PHASES.OVULATORY)
+// Ovulation: 21-14=7, ovulatory phase = day 5-9
+test("Day 2 short cycle → follicular", getPhaseForDay(2, 21, 5, false), PHASES.FOLLICULAR)
+test("Day 7 short cycle → ovulatory", getPhaseForDay(7, 21, 5, false), PHASES.OVULATORY)
 test("Day 8 short cycle → ovulatory", getPhaseForDay(8, 21, 5, false), PHASES.OVULATORY)
-test("Day 9 short cycle → luteal", getPhaseForDay(9, 21, 5, false), PHASES.LUTEAL)
+test("Day 9 short cycle → ovulatory", getPhaseForDay(9, 21, 5, false), PHASES.OVULATORY)
+test("Day 10 short cycle → luteal", getPhaseForDay(10, 21, 5, false), PHASES.LUTEAL)
 
 console.log("\n=== 2c. getPhaseForDay (35-day cycle) ===")
-// Ovulation: 35-14=21, fertile start=21-5=16, fertile end=22
-test("Day 10 long cycle → follicular", getPhaseForDay(10, 35, 5, false), PHASES.FOLLICULAR)
-test("Day 16 long cycle → ovulatory", getPhaseForDay(16, 35, 5, false), PHASES.OVULATORY)
-test("Day 23 long cycle → luteal", getPhaseForDay(23, 35, 5, false), PHASES.LUTEAL)
+// Ovulation: 35-14=21, ovulatory phase = day 19-23
+test("Day 16 long cycle → follicular", getPhaseForDay(16, 35, 5, false), PHASES.FOLLICULAR)
+test("Day 19 long cycle → ovulatory", getPhaseForDay(19, 35, 5, false), PHASES.OVULATORY)
+test("Day 23 long cycle → ovulatory", getPhaseForDay(23, 35, 5, false), PHASES.OVULATORY)
+test("Day 24 long cycle → luteal", getPhaseForDay(24, 35, 5, false), PHASES.LUTEAL)
 
 // ============================================
 // 3. getCycleDisplayData

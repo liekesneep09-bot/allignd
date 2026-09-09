@@ -17,8 +17,8 @@ const PHASE_COLORS = {
 function getPhaseSegments(cycleLength, periodLength) {
   const lutealLength = 14
   const ovulationDay = cycleLength - lutealLength
-  const fertileStart = ovulationDay - 5
-  const fertileEnd = ovulationDay + 1
+  const fertileStart = ovulationDay - 2
+  const fertileEnd = ovulationDay + 2
 
   return [
     { phase: 'menstrual', start: 0, end: periodLength },
@@ -125,7 +125,7 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
     const periodLen = effectivePeriodLen
     const lutealLength = 14
     const ovulationDay = cycleLen - lutealLength
-    const fertileStart = ovulationDay - 5
+    const fertileStart = ovulationDay - 2
     const currentDay = day || 1
     const currentLinearDay = linearDay || currentDay
     const isOverdue = (overdueDays && overdueDays > 0)

@@ -1,9 +1,11 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
+import { useAuth } from '../context/AuthContext'
+import { supabase } from '../utils/supabaseClient'
 import { getCycleDisplayData, getPhaseTransition } from '../logic/cycle'
 import { getPhaseContent } from '../data/phases'
-import { IconMap, IconAccount, IconCalendar } from '../components/Icons'
+import { IconMap, IconAccount, IconCalendar, IconFlame } from '../components/Icons'
 import FoodModal from '../components/FoodModal'
 import PeriodCalendar from '../components/PeriodCalendar'
 import { toNum, calculateProgress } from '../utils/numbers'
@@ -12,6 +14,7 @@ import HabitsCard from '../components/HabitsCard'
 import WeightTracker from '../components/WeightTracker'
 import CheckInModal, { SYMPTOMS_LIST } from '../components/CheckInModal'
 import CycleStatusCard from '../components/CycleStatusCard'
+import { getStreak, hasLoggedToday } from '../logic/streaks'
 
 // --- HELPER COMPONENTS ---
 
@@ -267,9 +270,38 @@ export default function Today({ onNavigate }) {
   const [showCheckInModal, setShowCheckInModal] = useState(false)
   const [showLog, setShowLog] = useState(false)
   const [showCalendar, setShowCalendar] = useState(false)
+  const [dailyTopic, setDailyTopic] = useState(null)
+
+  const { user: authUser } = useAuth()
+
+  useEffect(() => {
+    if (!authUser) return
+    let cancelled = false
+    const fetchTopic = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('community_topics')
+          .select('id, question, date')
+          .order('date', { ascending: false })
+          .limit(5)
+        if (error) throw error
+        if (cancelled) return
+        const todayStr = getLocalDateStr(new Date())
+        const topic = (data || []).find(t => t.date <= todayStr)
+        setDailyTopic(topic || null)
+      } catch (e) {
+        console.error('Failed to fetch daily topic:', e)
+      }
+    }
+    fetchTopic()
+    return () => { cancelled = true }
+  }, [authUser])
 
   const todaysSymptomsLog = user?.symptomLogs?.find(l => l.date === viewDateStr)
   const todaysSymptoms = todaysSymptomsLog?.symptoms || []
+
+  const streak = getStreak(user)
+  const loggedToday = hasLoggedToday(user)
 
   const trainingActions = content.training ? content.training.types : []
 
@@ -619,6 +651,111 @@ export default function Today({ onNavigate }) {
             </div>
           )}
 
+          {/* STREAK CARD */}
+          {streak > 0 && (
+            <div className="card" style={{
+              padding: 'var(--space-4)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-3)',
+              background: 'linear-gradient(135deg, #FFF5F0 0%, #FFFFFF 100%)',
+              border: '1px solid rgba(232,120,95,0.25)'
+            }}>
+              <div style={{
+                width: '44px',
+                height: '44px',
+                borderRadius: 'var(--radius-full)',
+                background: 'rgba(232,120,95,0.12)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.4rem',
+                flexShrink: 0
+              }}>
+                {loggedToday ? <IconFlame size={22} color="#e8785f" /> : '⏳'}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{
+                  fontSize: 'var(--font-size-sm)',
+                  fontWeight: '700',
+                  color: 'var(--color-text)',
+                  lineHeight: '1.3'
+                }}>
+                  {streak} {streak === 1 ? t('today.streak_day') : t('today.streak_days').replace('{n}', streak)}
+                </div>
+                <div style={{
+                  fontSize: 'var(--font-size-xs)',
+                  color: 'var(--color-text-secondary)',
+                  lineHeight: '1.4',
+                  marginTop: '2px'
+                }}>
+                  {t('today.streak_continue')}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* DAILY TOPIC CARD */}
+          {dailyTopic && (
+            <button
+              onClick={() => onNavigate && onNavigate('community')}
+              className="card"
+              style={{
+                padding: 'var(--space-4)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-3)',
+                width: '100%',
+                textAlign: 'left',
+                cursor: 'pointer',
+                border: '1px solid var(--color-border-light)',
+                boxShadow: 'var(--shadow-sm)'
+              }}
+            >
+              <div style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: 'var(--radius-full)',
+                background: 'var(--color-primary-light)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.2rem',
+                flexShrink: 0
+              }}>
+                💬
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{
+                  fontSize: 'var(--font-size-xs)',
+                  fontWeight: '700',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  color: 'var(--color-primary)',
+                  marginBottom: '3px'
+                }}>
+                  {t('today.daily_topic_title')}
+                </div>
+                <div style={{
+                  fontSize: 'var(--font-size-base)',
+                  fontWeight: '600',
+                  color: 'var(--color-text)',
+                  lineHeight: '1.4'
+                }}>
+                  {dailyTopic.question}
+                </div>
+                <div style={{
+                  fontSize: 'var(--font-size-xs)',
+                  fontWeight: '600',
+                  color: 'var(--color-text-secondary)',
+                  marginTop: '6px'
+                }}>
+                  {t('today.daily_topic_answer')} →
+                </div>
+              </div>
+            </button>
+          )}
+
           {(user.tracking !== 'none') && (
             <>
               <div ref={dailyGoalRef} className="card" style={{
@@ -742,30 +879,40 @@ export default function Today({ onNavigate }) {
                         fontWeight: '600' 
                       }}
                   >
-                      {t('today.log_btn')}
+{t('today.log_btn')}
                   </button>
               </section>
 
               {todaysSymptoms.length > 0 && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)', marginTop: 'calc(var(--space-2) * -1)', marginBottom: 'var(--space-4)', paddingLeft: 'calc(40px + var(--space-3) + var(--space-3))' }}>
-                  {todaysSymptoms.map(sympId => {
-                    const sympDef = SYMPTOMS_LIST.find(s => s.id === sympId)
-                    if (!sympDef) return null
-                    return (
-                      <span key={sympId} style={{ 
-                        fontSize: 'var(--font-size-xs)', 
-                        padding: 'var(--space-1) var(--space-3)', 
-                        backgroundColor: 'var(--color-bg)', 
-                        color: 'var(--color-text-secondary)', 
-                        borderRadius: 'var(--radius-full)', 
-                        fontWeight: '500', 
-                        border: '1px solid var(--color-border-light)' 
-                      }}>
-                        {t(`checkin.symptoms.${sympId}`)}
-                      </span>
-                    )
-                  })}
-                </div>
+                <section className="card" style={{ padding: 'var(--space-3) var(--space-4)' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)', alignItems: 'center' }}>
+                    <span style={{
+                      fontSize: 'var(--font-size-xs)',
+                      color: 'var(--color-text-secondary)',
+                      fontWeight: '600',
+                      marginRight: 'var(--space-1)'
+                    }}>
+                      {t('today.how_do_you_feel')}:
+                    </span>
+                    {todaysSymptoms.map(sympId => {
+                      const sympDef = SYMPTOMS_LIST.find(s => s.id === sympId)
+                      if (!sympDef) return null
+                      return (
+                        <span key={sympId} style={{
+                          fontSize: 'var(--font-size-xs)',
+                          padding: 'var(--space-1) var(--space-3)',
+                          backgroundColor: 'var(--color-bg)',
+                          color: 'var(--color-text-secondary)',
+                          borderRadius: 'var(--radius-full)',
+                          fontWeight: '500',
+                          border: '1px solid var(--color-border-light)'
+                        }}>
+                          {t(`checkin.symptoms.${sympId}`)}
+                        </span>
+                      )
+                    })}
+                  </div>
+                </section>
               )}
 
                 {/* Progressie shortcut */}

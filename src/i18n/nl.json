@@ -138,6 +138,7 @@
     "logout": "Log uit",
     "step1_title": "Jouw Cyclus",
     "step1_subtitle": "Hiermee stemmen we je voeding en advies af op je cyclusfase.",
+    "phase_insight_title": "Jouw fase vandaag",
     "last_period_start": "Startdatum laatste menstruatie",
     "today": "Vandaag",
     "pick_date": "Kies een datum (bijv. 12-03-2026)",
@@ -151,8 +152,14 @@
     "step2_title": "Jouw lichaam & doelen",
     "step2_subtitle": "We berekenen hiermee je persoonlijke calorie- en macrodoel.",
     "age": "Leeftijd",
+    "birth_date": "Geboortedatum",
     "height": "Lengte (cm)",
     "weight": "Gewicht (kg)",
+    "previous_period_optional": "Weet je wanneer je vorige menstruatie begon? (optioneel)",
+    "previous_period_help": "Hoe meer data, hoe sneller we je cyclus leren kennen.",
+    "previous_period_end": "Wanneer stopte je vorige menstruatie?",
+    "previous_period_duration": "Je vorige menstruatie duurde {days} dagen.",
+    "actual_period_length": "Je laatste menstruatie duurde {days} dagen. Dit gebruiken we voor je huidige cyclus.",
     "your_goal": "Jouw Doel",
     "goal_lose_fat": "Afvallen",
     "goal_recomp": "Afvallen met spieropbouw",
@@ -211,11 +218,11 @@
     "create_account_email": "Account aanmaken met email"
   },
   "paywall": {
-    "title": "Start je 7 dagen gratis",
+    "title": "Start je 14 dagen gratis",
     "subtitle": "Onbeperkt toegang tot alle functies. Annuleer op elk moment.",
-    "feature_1": "Gepersonaliseerde voeding per fase",
-    "feature_2": "Workout schema's per cyclus",
-    "feature_3": "Community toegang",
+    "feature_1": "Track je cyclus fases & macro's",
+    "feature_2": "Voeding & beweging per fase",
+    "feature_3": "Community: deel tips & ervaringen",
     "cta": "Start gratis proefperiode"
   },
   "today": {
@@ -255,12 +262,18 @@
     "log_btn": "Log",
     "nutrition_label": "Voeding",
     "your_insights": "Jouw Inzichten",
-    "protein_grams": "{p}g eiwit"
+    "protein_grams": "{p}g eiwit",
+    "streak_days": "{n} dagen op rij",
+    "streak_day": "dag",
+    "streak_continue": "Houd je streak vast. Log vandaag je voeding, symptomen of gewoontes.",
+    "daily_topic_title": "Vraag van de dag",
+    "daily_topic_answer": "Beantwoorden"
   },
   "guide": {
     "science_title": "Wat gebeurt er in je lichaam?",
     "symptoms_title": "Wat je kunt merken",
     "support_title": "Hoe je je lichaam ondersteunt",
+    "do_title": "Wat je nu kunt doen",
     "food_focus": "Voeding",
     "movement_focus": "Beweging",
     "nutrients_title": "Belangrijkste Voedingsstoffen",
@@ -273,6 +286,7 @@
     "name": "Naam",
     "name_placeholder": "Je naam",
     "age": "Leeftijd",
+    "birth_date": "Geboortedatum",
     "height": "Lengte (cm)",
     "body_goals": "Lichaam & Doelen",
     "current_weight": "Huidig Gewicht (kg)",
@@ -496,7 +510,7 @@
     "error_save": "Fout bij opslaan"
   },
   "fitness": {
-    "title": "Fitness",
+    "title": "Beweging",
     "this_week": "Deze week",
     "of": "van",
     "movement_today": "Beweging Vandaag",
@@ -516,13 +530,14 @@
     "best_exercises": "Beste Basisoefeningen",
     "phase_highlight_label": "Jouw fase",
     "phase_highlight_intensity": "Intensiteit",
+    "phase_highlight_goal": "Doel deze fase",
     "phase_highlight_types": "Aanbevolen beweging",
     "phase_highlight_why_toggle": "Waarom?",
     "phase_highlight_why_close": "Sluit",
     "days_short": ["Ma", "Di", "Wo", "Do", "Vr", "Za", "Zo"]
   },
   "recipes": {
-    "title": "Recepten",
+    "title": "Voeding",
     "loading": "Laden...",
     "highlight": "Highlight voor deze fase",
     "focus": "Focus deze fase",
@@ -545,8 +560,8 @@
   "nav": {
     "today": "Vandaag",
     "community": "Community",
-    "fitness": "Fitness",
-    "recipes": "Recepten",
+    "fitness": "Beweging",
+    "recipes": "Voeding",
     "profile": "Profiel",
     "guide": "Cyclus",
     "calendar": "Kalender"
@@ -614,7 +629,7 @@
     "flexible": "Flexibel opzegbaar.",
     "save_20": "Bespaar 20%",
     "best_value": "BESTE WAARDE",
-    "start_free": "Start 7 dagen gratis",
+    "start_free": "Start 14 dagen gratis",
     "trial_desc": "Geen kosten tijdens de proefperiode. Je kunt op elk moment annuleren.",
     "failed": "Kon checkout niet starten. Probeer het later opnieuw.",
     "error": "Er ging iets mis. Controleer je verbinding.",
@@ -624,7 +639,7 @@
     "tagline": "Fitness, voeding & cyclusinzichten: alles op één plek.",
     "processing": "Betaling verwerken...",
     "processing_desc": "Een moment geduld, we koppelen je account. Dit duurt maximaal een paar seconden.",
-    "free_trial": "7 dagen gratis proefperiode",
+    "free_trial": "14 dagen gratis proefperiode",
     "yearly_price": "€79,99",
     "yearly_desc": "Betaal één keer per jaar. Dat is minder dan",
     "yearly_price_highlight": "€6,67 p/m",
@@ -643,7 +658,17 @@
     "days": ["ma", "di", "wo", "do", "vr", "za", "zo"],
     "menstruation": "Menstruatie",
     "predicted_menstruation": "Verwacht",
-    "moved": "Gesport"
+    "moved": "Gesport",
+    "symptoms": "Symptomen",
+    "ovulation_label": "Ovulatie",
+    "fertility_estimate_note": "Je ovulatieperiode is een schatting op basis van je gemiddelde cyclus — geen garantie.",
+    "checkin_title": "Jouw check-in",
+    "milestone_next_period": "Volgende menstruatie",
+    "milestone_ovulation": "Ovulatie",
+    "log_checkin": "Log hoe je je voelt",
+    "setup_title": "Stel je cyclus in",
+    "setup_desc": "Vul je cyclusgegevens in om je fases, ovulatie en voorspellingen te zien.",
+    "setup_cta": "Naar instellingen"
   },
   "checkin": {
     "title": "Dagelijkse Check-in",
@@ -737,6 +762,7 @@
     "tip_desc": "Tik op een dag om je menstruatie te loggen of te bekijken.",
     "period": "Menstruatie",
     "expected": "Verwacht",
+    "ovulation": "Ovulatie",
     "moved": "Gesport",
     "symptoms": "Symptomen",
     "today": "Vandaag",
@@ -803,7 +829,7 @@
   },
   "onboarding_extra": {
     "current_phase_label": "Huidige fase:",
-    "start_free_trial": "Start 7 dagen gratis",
+    "start_free_trial": "Start 14 dagen gratis",
     "verify_email_title": "Verifieer je e-mail",
     "verify_email_subtitle": "We hebben een bevestigingslink naar je e-mailadres gestuurd. Klik op de link om je account te activeren en daarna kom je automatisch terug in de app.",
     "no_user_found": "Geen gebruiker gevonden"
