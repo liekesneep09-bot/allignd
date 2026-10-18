@@ -79,6 +79,13 @@ export default function Fitness() {
     const todayLog = user.movementLogs?.find(l => l.date === todayStr)
     const todayStatus = todayLog?.status || null
     const weekDays = useMemo(() => getWeekDays(user.movementLogs || [], t), [user.movementLogs, t])
+    const phaseColorMap = {
+        menstrual:  { bg: 'rgba(196,80,106,0.08)', border: 'rgba(196,80,106,0.22)', accent: '#8a2e45', dot: '#c4506a' },
+        follicular: { bg: 'rgba(47,181,199,0.08)',  border: 'rgba(47,181,199,0.22)',  accent: '#1a8a96', dot: '#2fb5c7' },
+        ovulatory:  { bg: 'rgba(232,120,95,0.10)', border: 'rgba(232,120,95,0.25)', accent: '#a0422e', dot: '#e8785f' },
+        luteal:     { bg: 'rgba(106,159,107,0.10)', border: 'rgba(106,159,107,0.25)', accent: '#3d6e3e', dot: '#6a9f6b' },
+    }
+    const phaseColors = phaseColorMap[phaseKey] || phaseColorMap.luteal
 
     // --- VIEW 1: OVERVIEW ---
     if (!selectedBodyPart) {
@@ -94,15 +101,6 @@ export default function Fitness() {
             'Op gevoel': 3, 'By feel': 3
         }
         const intensityDots = intensityMap[phaseContent.training.intensity] || 3
-
-        // Fase kleur mapping
-        const phaseColorMap = {
-            menstrual:  { bg: 'rgba(196,80,106,0.08)', border: 'rgba(196,80,106,0.22)', accent: '#8a2e45', dot: '#c4506a' },
-            follicular: { bg: 'rgba(47,181,199,0.08)',  border: 'rgba(47,181,199,0.22)',  accent: '#1a8a96', dot: '#2fb5c7' },
-            ovulatory:  { bg: 'rgba(232,120,95,0.10)', border: 'rgba(232,120,95,0.25)', accent: '#a0422e', dot: '#e8785f' },
-            luteal:     { bg: 'rgba(106,159,107,0.10)', border: 'rgba(106,159,107,0.25)', accent: '#3d6e3e', dot: '#6a9f6b' },
-        }
-        const phaseColors = phaseColorMap[phaseKey] || phaseColorMap.luteal
 
         return (
             <div className="container" style={{ paddingBottom: '90px', paddingTop: '1rem' }}>

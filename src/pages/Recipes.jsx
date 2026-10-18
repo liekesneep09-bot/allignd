@@ -103,7 +103,7 @@ export default function Recipes() {
 
                 <div className="card" style={{ marginBottom: '1.5rem' }}>
                     <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--color-text)', lineHeight: 1.5, fontStyle: 'italic' }}>
-                        "{selectedRecipe.explanation}"
+                        “{selectedRecipe.explanation}”
                     </p>
                 </div>
 

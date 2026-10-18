@@ -42,6 +42,7 @@ const day = (offset) => {
   d.setDate(d.getDate() + offset)
   return getLocalDateStr(d)
 }
+const today = new Date('2026-09-09T12:00:00')
 
 // Given: today (offset 0) is logged via food; streak counts down from today.
 const baseUser = {
@@ -55,9 +56,9 @@ const baseUser = {
 }
 
 console.log('Streak: no data')
-test(' null user -> 0', getStreak(null), 0)
-test(' empty logs -> 0', getStreak({ ...baseUser }), 0)
-testFalse(' empty logs -> not logged today', hasLoggedToday({ ...baseUser }))
+test(' null user -> 0', getStreak(null, today), 0)
+test(' empty logs -> 0', getStreak({ ...baseUser }, today), 0)
+testFalse(' empty logs -> not logged today', hasLoggedToday({ ...baseUser }, today))
 
 console.log('Streak: consecutive days ending today')
 {
@@ -66,8 +67,8 @@ console.log('Streak: consecutive days ending today')
     foodLogs: [{ date: day(0) }, { date: day(-1) }, { date: day(-2) }],
     weightLogs: [{ date: day(-3) }, { date: day(-4) }]
   }
-  test(' 5 consecutive (food 0..-2, weight -3..-4) -> 5', getStreak(u), 5)
-  testTrue(' logged today', hasLoggedToday(u))
+  test(' 5 consecutive (food 0..-2, weight -3..-4) -> 5', getStreak(u, today), 5)
+  testTrue(' logged today', hasLoggedToday(u, today))
 }
 
 console.log('Streak: streak continues from yesterday when today not logged yet')
@@ -76,8 +77,8 @@ console.log('Streak: streak continues from yesterday when today not logged yet')
     ...baseUser,
     waterLogs: [{ date: day(-1) }, { date: day(-2) }, { date: day(-3) }]
   }
-  test(' 3 consecutive ending yesterday -> 3', getStreak(u), 3)
-  testFalse(' not logged today', hasLoggedToday(u))
+  test(' 3 consecutive ending yesterday -> 3', getStreak(u, today), 3)
+  testFalse(' not logged today', hasLoggedToday(u, today))
 }
 
 console.log('Streak: broken streak stops at the gap')
@@ -86,23 +87,23 @@ console.log('Streak: broken streak stops at the gap')
     ...baseUser,
     foodLogs: [{ date: day(0) }, { date: day(-1) }, { date: day(-3) }, { date: day(-4) }]
   }
-  test(' gap after -1 -> 2', getStreak(u), 2)
+  test(' gap after -1 -> 2', getStreak(u, today), 2)
 }
 
 console.log('Streak: single day')
 {
   const u = { ...baseUser, symptomLogs: [{ date: day(-1) }] }
-  test(' single yesterday -> 1', getStreak(u), 1)
+  test(' single yesterday -> 1', getStreak(u, today), 1)
 }
 {
   const u = { ...baseUser, stepLogs: [{ date: day(0) }] }
-  test(' single today -> 1', getStreak(u), 1)
+  test(' single today -> 1', getStreak(u, today), 1)
 }
 
 console.log('Streak: menstruation logs count as active days')
 {
   const u = { ...baseUser, menstruationLogs: [{ date: day(0), status: 'yes' }] }
-  testTrue(" menstruation 'yes' today counts", hasLoggedToday(u))
+  testTrue(" menstruation 'yes' today counts", hasLoggedToday(u, today))
 }
 
 console.log(`\nResults: ${passed} passed, ${failed} failed`)

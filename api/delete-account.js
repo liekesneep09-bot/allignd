@@ -1,5 +1,12 @@
 import { supabase, requireAuth, cors } from './_lib/shared.js'
 
+async function deleteRows(table, column, value) {
+    const { error } = await supabase.from(table).delete().eq(column, value)
+    if (error) {
+        throw new Error(`Failed to delete ${table}: ${error.message}`)
+    }
+}
+
 export default async function handler(req, res) {
     cors(res, req)
     if (req.method === 'OPTIONS') return res.status(200).end()
@@ -11,32 +18,40 @@ export default async function handler(req, res) {
     const userId = user.id
 
     try {
-        // 1. Delete all user data in the correct order (to avoid FK conflicts)
-        await supabase.from('community_reports').delete().eq('reporter_user_id', userId)
-        await supabase.from('community_comments').delete().eq('user_id', userId)
-        
+        // Delete user-generated community data before their account.
+        await deleteRows('community_reports', 'reporter_user_id', userId)
+        await deleteRows('community_likes', 'user_id', userId)
+        await deleteRows('community_comments', 'user_id', userId)
+        await deleteRows('community_posts', 'user_id', userId)
+
         // Meals
-        const { data: userMeals } = await supabase.from('meals').select('id').eq('user_id', userId)
+        const { data: userMeals, error: mealsError } = await supabase
+            .from('meals')
+            .select('id')
+            .eq('user_id', userId)
+        if (mealsError) throw new Error(`Failed to find user meals: ${mealsError.message}`)
+
         if (userMeals && userMeals.length > 0) {
             const mealIds = userMeals.map(m => m.id)
-            await supabase.from('meal_items').delete().in('meal_id', mealIds)
-            await supabase.from('meals').delete().in('id', mealIds)
+            const { error: mealItemsError } = await supabase.from('meal_items').delete().in('meal_id', mealIds)
+            if (mealItemsError) throw new Error(`Failed to delete meal items: ${mealItemsError.message}`)
+            const { error: mealsDeleteError } = await supabase.from('meals').delete().in('id', mealIds)
+            if (mealsDeleteError) throw new Error(`Failed to delete meals: ${mealsDeleteError.message}`)
         }
-        await supabase.from('custom_foods').delete().eq('user_id', userId)
+        await deleteRows('custom_foods', 'user_id', userId)
 
         // Logs
-        await supabase.from('food_logs').delete().eq('user_id', userId)
-        await supabase.from('water_logs').delete().eq('user_id', userId)
-        await supabase.from('weight_logs').delete().eq('user_id', userId)
-        await supabase.from('step_logs').delete().eq('user_id', userId)
-        await supabase.from('symptom_logs').delete().eq('user_id', userId)
-        await supabase.from('movement_logs').delete().eq('user_id', userId)
-        await supabase.from('daily_logs').delete().eq('user_id', userId)
-        await supabase.from('logs').delete().eq('user_id', userId)
-        
-        await supabase.from('computed_targets').delete().eq('user_id', userId)
-        await supabase.from('profiles').delete().eq('user_id', userId)
-        await supabase.from('profiles').delete().eq('id', userId)
+        await deleteRows('food_logs', 'user_id', userId)
+        await deleteRows('water_logs', 'user_id', userId)
+        await deleteRows('weight_logs', 'user_id', userId)
+        await deleteRows('step_logs', 'user_id', userId)
+        await deleteRows('symptom_logs', 'user_id', userId)
+        await deleteRows('movement_logs', 'user_id', userId)
+        await deleteRows('daily_logs', 'user_id', userId)
+        await deleteRows('logs', 'user_id', userId)
+
+        await deleteRows('computed_targets', 'user_id', userId)
+        await deleteRows('profiles', 'id', userId)
 
         // 2. Delete the auth user (requires service role key — only available server-side)
         const { error: deleteError } = await supabase.auth.admin.deleteUser(userId)

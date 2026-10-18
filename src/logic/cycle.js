@@ -189,10 +189,12 @@ export function calculateStartDateFromPhase(targetPhase, cycleLength = 28, perio
             estimatedDay = 1 // Assume first day of period for simplicity
             break
         case PHASES.FOLLICULAR:
-            // Mid-point between period end and ovulatory phase
-            // If Cycle=28, Period=5. FertileStart=12. Mid = 9.
-            const fertileStart = cycleLength - 14 - 2
-            estimatedDay = Math.floor((periodLength + 1 + fertileStart) / 2)
+            {
+                // Mid-point between period end and ovulatory phase
+                // If Cycle=28, Period=5. FertileStart=12. Mid = 9.
+                const fertileStart = cycleLength - 14 - 2
+                estimatedDay = Math.floor((periodLength + 1 + fertileStart) / 2)
+            }
             break
         case PHASES.OVULATORY:
             // Day of ovulation (CycleLength - 14)

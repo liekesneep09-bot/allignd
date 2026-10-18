@@ -1,5 +1,4 @@
 import React from 'react'
-import { IconHome } from './Icons'
 import nl from '../i18n/nl.json'
 import en from '../i18n/en.json'
 
@@ -23,8 +22,11 @@ class ErrorBoundary extends React.Component {
         console.error('ErrorBoundary caught an error:', error, errorInfo)
         if (import.meta.env.DEV) {
             try {
-                fetch('http://localhost:9999/log', { method: 'POST', body: error.stack + '\n\n' + JSON.stringify(errorInfo) });
-            } catch(e) {}
+                fetch('http://localhost:9999/log', { method: 'POST', body: error.stack + '\n\n' + JSON.stringify(errorInfo) })
+                    .catch(logError => console.warn('Could not send local debug log:', logError))
+            } catch (logError) {
+                console.warn('Could not send local debug log:', logError)
+            }
         }
         this.setState({ hasError: true, error, errorInfo })
     }
@@ -49,8 +51,6 @@ class ErrorBoundary extends React.Component {
 
     render() {
         if (this.state.hasError) {
-            const isDev = import.meta.env.DEV
-
             return (
                 <div style={{
                     display: 'flex',

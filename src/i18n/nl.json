@@ -721,7 +721,9 @@
     "password_placeholder": "Wachtwoord",
     "wrong_password": "Onjuist wachtwoord. Probeer het opnieuw.",
     "unlock_btn": "Ontgrendel App",
-    "back_to_waitlist": "Terug naar Waitlist"
+    "back_to_waitlist": "Terug naar Waitlist",
+    "owner_only": "Deze vroege toegang is alleen beschikbaar voor de eigenaar van Allignd.",
+    "sign_out": "Uitloggen"
   },
   "error_boundary": {
     "title": "Oeps, er ging iets mis",

@@ -729,7 +729,9 @@
     "password_placeholder": "Password",
     "wrong_password": "Incorrect password. Please try again.",
     "unlock_btn": "Unlock App",
-    "back_to_waitlist": "Back to Waitlist"
+    "back_to_waitlist": "Back to Waitlist",
+    "owner_only": "This early access is only available to the Allignd owner.",
+    "sign_out": "Sign out"
   },
   "error_boundary": {
     "title": "Oops, something went wrong",

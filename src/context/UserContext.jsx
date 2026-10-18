@@ -12,7 +12,7 @@ import { api } from '../utils/api'
 import { useAuth } from './AuthContext'
 import { supabase } from '../utils/supabaseClient'
 import { getLocalDateStr } from '../utils/date'
-import { isNativePlatform } from '../utils/platform'
+import { getApiBaseUrl, isNativePlatform } from '../utils/platform'
 
 const UserContext = createContext(null)
 
@@ -929,7 +929,7 @@ export function UserProvider({ children }) {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) throw new Error('Niet ingelogd')
 
-      const response = await fetch('/api/delete-account', {
+      const response = await fetch(`${getApiBaseUrl()}/api/delete-account`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${session.access_token}`

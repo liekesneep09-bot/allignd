@@ -1,4 +1,5 @@
 import crypto from 'node:crypto'
+import { requireAuth } from './_lib/shared.js'
 
 const COOKIE_NAME = 'allignd_beta_access'
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 30
@@ -74,7 +75,7 @@ function setCorsHeaders(req, res) {
         res.setHeader('Access-Control-Allow-Origin', origin)
         res.setHeader('Access-Control-Allow-Credentials', 'true')
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
         res.setHeader('Vary', 'Origin')
     }
 }
@@ -87,7 +88,28 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
         const authorized = hasValidAccessCookie(req)
-        return res.status(authorized ? 200 : 401).json({ authorized })
+        const origin = req.headers.origin
+        const isNativeApp = origin === 'capacitor://localhost' || origin === 'https://localhost'
+        if (!authorized && !isNativeApp) return res.status(401).json({ authorized: false })
+
+        // The beta cookie lets the owner reach the login flow; it never grants
+        // access to user data by itself. An authenticated session must match
+        // the single owner account before the app is rendered.
+        if (!req.headers.authorization) {
+            return res.status(200).json({ authorized: true, ownerAuthenticated: false })
+        }
+
+        const ownerEmail = process.env.BETA_OWNER_EMAIL?.trim().toLowerCase()
+        if (!ownerEmail) {
+            console.error('BETA_OWNER_EMAIL is not configured')
+            return res.status(503).json({ error: 'Owner access is not configured' })
+        }
+
+        const { user, error: authError } = await requireAuth(req)
+        if (authError) return res.status(authError.status).json({ error: authError.message })
+
+        const isOwner = user.email?.trim().toLowerCase() === ownerEmail
+        return res.status(isOwner ? 200 : 403).json({ authorized: isOwner, ownerAuthenticated: isOwner })
     }
 
     if (req.method !== 'POST') {

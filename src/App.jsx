@@ -280,7 +280,30 @@ function MainLayout() {
 }
 
 function AuthenticatedApp({ hasBetaAccess, onBetaAccessGranted }) {
-    const { user, loading } = useAuth()
+    const { user, session, loading, signOut } = useAuth()
+    const { t } = useLanguage()
+    const [ownerAuthorized, setOwnerAuthorized] = useState(null)
+
+    useEffect(() => {
+        if (!hasBetaAccess || !session?.access_token) {
+            setOwnerAuthorized(null)
+            return
+        }
+
+        let cancelled = false
+        fetch(`${getApiBaseUrl()}/api/beta-access`, {
+            credentials: 'include',
+            headers: { Authorization: `Bearer ${session.access_token}` }
+        })
+            .then(response => {
+                if (!cancelled) setOwnerAuthorized(response.ok)
+            })
+            .catch(() => {
+                if (!cancelled) setOwnerAuthorized(false)
+            })
+
+        return () => { cancelled = true }
+    }, [hasBetaAccess, session?.access_token])
 
     if (loading) {
         return <SplashScreen />
@@ -305,6 +328,17 @@ function AuthenticatedApp({ hasBetaAccess, onBetaAccessGranted }) {
             return <Login />
         }
         return <LandingPage onEnterApp={() => window.history.pushState({}, '', '/login') || window.dispatchEvent(new PopStateEvent('popstate'))} />
+    }
+
+    if (ownerAuthorized === null) return <SplashScreen />
+
+    if (!ownerAuthorized) {
+        return (
+            <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', textAlign: 'center' }}>
+                <p>{t('beta.owner_only')}</p>
+                <button className="btn btn-primary" onClick={() => signOut()}>{t('beta.sign_out')}</button>
+            </div>
+        )
     }
 
     // Force route back to / if they go to /app after logging in, just to keep URL clean (optional)
