@@ -59,7 +59,7 @@ export function isAndroid() {
 export function getApiBaseUrl() {
     if (isNativePlatform()) {
         // In production, this points to the Vercel deployment
-        return import.meta.env.VITE_API_BASE_URL || 'https://allignd.nl';
+        return import.meta.env.VITE_API_BASE_URL || 'https://www.allignd.fit';
     }
     return '';
 }
