@@ -453,6 +453,8 @@ function PeriodRangeSheet({ range, error, isSaving, isEditing, onChange, onClose
             zIndex: 4000,
             display: 'flex',
             flexDirection: 'column',
+            minHeight: 0,
+            overflow: 'hidden',
             background: '#fff'
         }}>
             <div style={{
@@ -469,7 +471,17 @@ function PeriodRangeSheet({ range, error, isSaving, isEditing, onChange, onClose
                 <div style={{ width: '24px' }} />
             </div>
 
-            <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div style={{
+                flex: 1,
+                minHeight: 0,
+                overflowY: 'auto',
+                WebkitOverflowScrolling: 'touch',
+                overscrollBehavior: 'contain',
+                padding: '1.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.25rem'
+            }}>
                 <p style={{ margin: 0, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
                     {t('calendar.range_description')}
                 </p>
@@ -497,7 +509,7 @@ function PeriodRangeSheet({ range, error, isSaving, isEditing, onChange, onClose
                 {error && <p role="alert" style={{ margin: 0, color: '#B3261E', fontSize: '0.9rem' }}>{error}</p>}
             </div>
 
-            <div style={{ marginTop: 'auto', padding: '1rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px))', borderTop: '1px solid #f0f0f0', display: 'flex', gap: '0.75rem' }}>
+            <div style={{ flexShrink: 0, marginTop: 'auto', padding: '1rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px))', borderTop: '1px solid #f0f0f0', display: 'flex', gap: '0.75rem' }}>
                 <button onClick={onClose} className="btn" style={{ flex: 1, minHeight: '48px' }}>
                     {t('calendar.range_cancel')}
                 </button>
