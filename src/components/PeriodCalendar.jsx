@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
 import { SYMPTOMS_LIST } from './CheckInModal'
@@ -133,7 +134,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
         return { isPeriod, hasMoved, waterAmount, symptomLabels, isToday }
     }, [selectedSummaryDateStr, user, isDateInPeriod, todayStr])
 
-    return (
+    return createPortal(
         <div style={{
             position: 'fixed',
             top: 0,
@@ -324,7 +325,8 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                     todayStr={todayStr}
                 />
             )}
-        </div>
+        </div>,
+        document.body
     )
 }
 
