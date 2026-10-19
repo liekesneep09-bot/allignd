@@ -3,6 +3,7 @@ import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
 import { SYMPTOMS_LIST } from './CheckInModal'
 import { getFuturePeriodWindows } from '../logic/cycle-learning'
+import { findPeriodRangeForDate } from '../logic/period-logging'
 import {
     getCalendarCycleInfo,
     getFertileMarkers,
@@ -17,7 +18,7 @@ function parseLocal(dateStr) {
 }
 
 export default function PeriodCalendar({ user, onClose, onSelect }) {
-    const { togglePeriodDate, isDateInPeriod } = useUser()
+    const { isDateInPeriod, savePeriodRange } = useUser()
     const { t, language } = useLanguage()
     const scrollRef = React.useRef(null)
     const todayRef = React.useRef(null)
@@ -25,7 +26,10 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
         () => localStorage.getItem('allignd:calendar-hint-dismissed') === 'true'
     )
     const [selectedSummaryDateStr, setSelectedSummaryDateStr] = useState(null)
-    const [justLogged, setJustLogged] = useState(false) // feedback flash
+    const [periodRange, setPeriodRange] = useState(null)
+    const [periodRangeError, setPeriodRangeError] = useState('')
+    const [isSavingPeriodRange, setIsSavingPeriodRange] = useState(false)
+    const [periodSaved, setPeriodSaved] = useState(false)
 
     const today = useMemo(() => {
         const t = new Date()
@@ -80,18 +84,40 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
     const handleDayClick = (dateStr) => {
         const d = parseLocal(dateStr)
         if (d > today) return // block future only
-        setJustLogged(false)
         setSelectedSummaryDateStr(dateStr)
     }
 
-    const handleTogglePeriod = () => {
-        togglePeriodDate(selectedSummaryDateStr)
-        setJustLogged(true)
-        // After a short moment, close the sheet so the user sees the calendar update
-        setTimeout(() => {
-            setSelectedSummaryDateStr(null)
-            setJustLogged(false)
-        }, 800)
+    const handleOpenPeriodRange = () => {
+        if (!selectedSummaryDateStr) return
+
+        const existingRange = summaryData?.isPeriod
+            ? findPeriodRangeForDate(selectedSummaryDateStr, user?.menstruationLogs || [], effectivePeriodLen)
+            : null
+        const startDate = existingRange?.startDate || selectedSummaryDateStr
+        const suggestedEnd = existingRange?.endDate || addDays(startDate, effectivePeriodLen - 1)
+        const endDate = suggestedEnd > todayStr ? todayStr : suggestedEnd
+
+        setPeriodRange({ startDate, endDate, originalRange: existingRange })
+        setPeriodRangeError('')
+        setSelectedSummaryDateStr(null)
+    }
+
+    const handleSavePeriodRange = async () => {
+        if (!periodRange) return
+        setIsSavingPeriodRange(true)
+        setPeriodRangeError('')
+        try {
+            await savePeriodRange(periodRange)
+            setPeriodRange(null)
+            setPeriodSaved(true)
+            window.setTimeout(() => setPeriodSaved(false), 2500)
+        } catch (error) {
+            if (error.code === 'end-before-start') setPeriodRangeError(t('calendar.range_order_error'))
+            else if (error.code === 'period-too-long') setPeriodRangeError(t('calendar.range_too_long'))
+            else setPeriodRangeError(t('calendar.range_invalid'))
+        } finally {
+            setIsSavingPeriodRange(false)
+        }
     }
 
     // Summary data for selected date
@@ -105,7 +131,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
         const isToday = selectedSummaryDateStr === todayStr
 
         return { isPeriod, hasMoved, waterAmount, symptomLabels, isToday }
-    }, [selectedSummaryDateStr, user, justLogged]) // re-run when justLogged toggles to catch state update
+    }, [selectedSummaryDateStr, user, isDateInPeriod, todayStr])
 
     return (
         <div style={{
@@ -122,6 +148,23 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
             flexDirection: 'column',
             boxShadow: '0 0 20px rgba(0,0,0,0.1)'
         }}>
+
+            {periodSaved && (
+                <div role="status" style={{
+                    position: 'absolute',
+                    top: '5rem',
+                    left: '1rem',
+                    right: '1rem',
+                    zIndex: 2500,
+                    padding: '0.8rem 1rem',
+                    borderRadius: 'var(--radius-md)',
+                    background: '#E8F5E9',
+                    color: '#2E7D32',
+                    textAlign: 'center',
+                    fontWeight: '600',
+                    boxShadow: 'var(--shadow-md)'
+                }}>{t('calendar.range_success')}</div>
+            )}
 
             {/* Header */}
             <div style={{
@@ -263,13 +306,32 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                 <DaySummarySheet
                     dateStr={selectedSummaryDateStr}
                     summaryData={summaryData}
-                    justLogged={justLogged}
                     onClose={() => setSelectedSummaryDateStr(null)}
-                    onToggle={handleTogglePeriod}
+                    onEditPeriod={handleOpenPeriodRange}
+                />
+            )}
+
+            {periodRange && (
+                <PeriodRangeSheet
+                    range={periodRange}
+                    error={periodRangeError}
+                    isSaving={isSavingPeriodRange}
+                    isEditing={Boolean(periodRange.originalRange)}
+                    onChange={updates => setPeriodRange(current => ({ ...current, ...updates }))}
+                    onClose={() => { setPeriodRange(null); setPeriodRangeError('') }}
+                    onSave={handleSavePeriodRange}
+                    t={t}
+                    todayStr={todayStr}
                 />
             )}
         </div>
     )
+}
+
+function addDays(dateStr, days) {
+    const [year, month, day] = dateStr.split('-').map(Number)
+    const date = new Date(Date.UTC(year, month - 1, day + days))
+    return date.toISOString().slice(0, 10)
 }
 
 // ── Legend item ───────────────────────────────────────────────────────────────
@@ -289,7 +351,7 @@ function LegendItem({ color, filled, dashed, dot, label }) {
 }
 
 // ── Day Summary Sheet ─────────────────────────────────────────────────────────
-function DaySummarySheet({ dateStr, summaryData, justLogged, onClose, onToggle }) {
+function DaySummarySheet({ dateStr, summaryData, onClose, onEditPeriod }) {
     const { t, language } = useLanguage()
     const dateObj = parseLocal(dateStr)
     const dateHeader = dateObj.toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { weekday: 'long', day: 'numeric', month: 'long' })
@@ -349,40 +411,101 @@ function DaySummarySheet({ dateStr, summaryData, justLogged, onClose, onToggle }
                     )}
                 </div>
 
-                {/* CTA: Toggle period */}
-                {justLogged ? (
-                    <div style={{
-                        textAlign: 'center',
+                <button
+                    onClick={onEditPeriod}
+                    style={{
+                        width: '100%',
                         padding: '1rem',
-                        background: 'rgba(196,80,106,0.08)',
                         borderRadius: 'var(--radius-md)',
-                        color: '#c4506a',
-                        fontWeight: '600',
-                        fontSize: '0.95rem'
-                    }}>
-                        ✓ {isPeriod ? t('calendar.success_logged') : t('calendar.success_removed')}
-                    </div>
-                ) : (
-                    <button
-                        onClick={onToggle}
-                        style={{
-                            width: '100%',
-                            padding: '1rem',
-                            borderRadius: 'var(--radius-md)',
-                            border: 'none',
-                            background: isPeriod ? 'rgba(255,174,185,0.15)' : 'var(--color-primary)',
-                            color: isPeriod ? 'var(--color-primary)' : '#333333',
-                            fontWeight: '700',
-                            fontSize: '1rem',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        {isPeriod ? t('calendar.remove_period') : t('calendar.add_period')}
-                    </button>
-                )}
+                        border: 'none',
+                        background: isPeriod ? 'rgba(255,174,185,0.15)' : 'var(--color-primary)',
+                        color: isPeriod ? 'var(--color-primary)' : '#333333',
+                        fontWeight: '700',
+                        fontSize: '1rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                    }}
+                >
+                    {isPeriod ? t('calendar.edit_period') : t('calendar.add_period_range')}
+                </button>
             </div>
         </>
+    )
+}
+
+function PeriodRangeSheet({ range, error, isSaving, isEditing, onChange, onClose, onSave, t, todayStr }) {
+    const inputStyle = {
+        width: '100%',
+        minHeight: '48px',
+        padding: '0.75rem',
+        border: '1px solid var(--color-border)',
+        borderRadius: 'var(--radius-sm)',
+        background: '#fff',
+        color: 'var(--color-text)',
+        fontSize: '1rem',
+        boxSizing: 'border-box'
+    }
+
+    return (
+        <div style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 4000,
+            display: 'flex',
+            flexDirection: 'column',
+            background: '#fff'
+        }}>
+            <div style={{
+                padding: '1rem 1.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                borderBottom: '1px solid #f0f0f0'
+            }}>
+                <button onClick={onClose} aria-label={t('common.close')} style={{ background: 'none', border: 'none', fontSize: '1.4rem', color: 'var(--color-text)', cursor: 'pointer', padding: 0 }}>✕</button>
+                <h2 style={{ margin: 0, fontSize: '1.05rem', fontWeight: '700' }}>
+                    {isEditing ? t('calendar.range_edit_title') : t('calendar.range_title')}
+                </h2>
+                <div style={{ width: '24px' }} />
+            </div>
+
+            <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <p style={{ margin: 0, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+                    {t('calendar.range_description')}
+                </p>
+                <label style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontWeight: '600', color: 'var(--color-text)' }}>
+                    {t('calendar.range_start')}
+                    <input
+                        type="date"
+                        value={range.startDate}
+                        max={todayStr}
+                        onChange={event => onChange({ startDate: event.target.value })}
+                        style={inputStyle}
+                    />
+                </label>
+                <label style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontWeight: '600', color: 'var(--color-text)' }}>
+                    {t('calendar.range_end')}
+                    <input
+                        type="date"
+                        value={range.endDate}
+                        min={range.startDate}
+                        max={todayStr}
+                        onChange={event => onChange({ endDate: event.target.value })}
+                        style={inputStyle}
+                    />
+                </label>
+                {error && <p role="alert" style={{ margin: 0, color: '#B3261E', fontSize: '0.9rem' }}>{error}</p>}
+            </div>
+
+            <div style={{ marginTop: 'auto', padding: '1rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px))', borderTop: '1px solid #f0f0f0', display: 'flex', gap: '0.75rem' }}>
+                <button onClick={onClose} className="btn" style={{ flex: 1, minHeight: '48px' }}>
+                    {t('calendar.range_cancel')}
+                </button>
+                <button onClick={onSave} disabled={isSaving} className="btn btn-primary" style={{ flex: 1, minHeight: '48px' }}>
+                    {isSaving ? t('common.saving') : t('calendar.range_save')}
+                </button>
+            </div>
+        </div>
     )
 }
 

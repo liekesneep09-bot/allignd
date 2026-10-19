@@ -777,7 +777,7 @@
       "su"
     ],
     "tip": "Tip:",
-    "tip_desc": "Tap a day to log or view your period.",
+    "tip_desc": "Tap a day and enter the first and last day of your period.",
     "period": "Menstruation",
     "expected": "Expected",
     "ovulation": "Ovulation",
@@ -794,7 +794,20 @@
     "success_logged": "Period logged!",
     "success_removed": "Removed",
     "remove_period": "Remove period",
-    "add_period": "+ Log period"
+    "add_period": "+ Log period",
+    "range_title": "Log period",
+    "range_edit_title": "Edit period",
+    "range_description": "Enter the first and last day. The app will recalculate your cycle and predictions.",
+    "range_start": "First day of your period",
+    "range_end": "Last day of your period",
+    "range_save": "Save period",
+    "range_cancel": "Cancel",
+    "range_order_error": "The last day must be on or after the first day.",
+    "range_too_long": "A period can be at most 14 days long.",
+    "range_invalid": "Check the dates you entered.",
+    "range_success": "Period saved. Your cycle has been recalculated.",
+    "add_period_range": "+ Enter period dates",
+    "edit_period": "Edit period dates"
   },
   "progress": {
     "title": "My Progress",

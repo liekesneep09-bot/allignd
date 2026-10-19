@@ -4,6 +4,7 @@ import { useLanguage } from './LanguageContext'
 import { calculateCycleDay, getPhaseForDay, calculateStartDateFromPhase, getCyclePrediction } from '../logic/cycle'
 import { calculateCycleStats, addPeriodStart as addPeriodStartToHistory, predictNextPeriodStart, getOvulationWindow, calculateAveragePeriodLength } from '../logic/cycle-learning'
 import { calculateTargetRanges } from '../logic/nutrition'
+import { createPeriodRangeLogs } from '../logic/period-logging'
 import { FOOD_DATABASE } from '../data/foods'
 import { scanDayLogs, loadDayLog, saveDayLog, loadUserProfile, saveUserProfile, loadCustomFoods, saveCustomFoods } from '../utils/storage'
 import { toNum } from '../utils/numbers'
@@ -1477,6 +1478,59 @@ export function UserProvider({ children }) {
     }
   }
 
+  const savePeriodRange = async ({ startDate, endDate, originalRange = null }) => {
+    const { logs, periodLength, stopDate } = createPeriodRangeLogs(
+      user.menstruationLogs || [],
+      startDate,
+      endDate,
+      originalRange
+    )
+
+    let startDates = user.periodStartDates || []
+    if (originalRange?.startDate && originalRange.startDate !== startDate) {
+      startDates = startDates.filter(date => date !== originalRange.startDate)
+    }
+    startDates = addPeriodStartToHistory(startDate, startDates).periodStartDates
+
+    const stats = calculateCycleStats(startDates, user.cycleLength)
+    const learnedPeriodLength = calculateAveragePeriodLength(
+      logs,
+      user.bleedingLengthDays || user.periodLength || periodLength
+    )
+    const latestStartDate = startDates.at(-1)
+
+    await updateUser({
+      menstruationLogs: logs,
+      periodStartDates: startDates,
+      cycleLengthHistory: stats.cycleLengthHistory,
+      cycleLength: stats.learnedCycleLength,
+      cycleStats: {
+        learnedCycleLength: stats.learnedCycleLength,
+        variability: stats.variability,
+        confidence: stats.confidence
+      },
+      cycleStart: new Date(latestStartDate).toISOString(),
+      currentPeriodLength: null,
+      bleedingLengthDays: learnedPeriodLength,
+      periodLength: learnedPeriodLength
+    })
+
+    try {
+      if (authUser?.id) {
+        for (const [date, status] of [[startDate, 'yes'], [stopDate, 'no']]) {
+          const dayData = loadDayLog(date, authUser.id)
+          dayData.menstruation = { status, updatedAt: new Date().toISOString() }
+          saveDayLog(date, dayData, authUser.id)
+          syncDayLogToCloud(date, dayData)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to sync period range day logs:', error)
+    }
+
+    return { periodLength }
+  }
+
   // Log Menstruation (Start of new cycle) - legacy, delegates to startPeriod
   const logMenstruation = (dateStr = new Date().toISOString()) => {
     const normalizedDate = dateStr.split('T')[0]
@@ -1684,6 +1738,7 @@ export function UserProvider({ children }) {
     logMovement,
     logMenstruation,
     togglePeriodDate,
+    savePeriodRange,
     startPeriod,
     stopPeriod,
     confirmPeriodToday,
