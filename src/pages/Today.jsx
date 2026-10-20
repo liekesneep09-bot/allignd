@@ -1178,34 +1178,6 @@ export default function Today({ onNavigate }) {
            transform-origin: 50% 50%;
         }
 
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.4);
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            z-index: 1000;
-        }
-        @media(min-width: 480px) {
-            .modal-overlay { align-items: center; }
-        }
-        .modal-content {
-            background: #FFFFFF;
-            width: 100%;
-            max-width: 480px;
-            padding: 2rem;
-            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-            animation: slideUp 0.3s ease-out;
-        }
-        @media(min-width: 480px) {
-            .modal-content { border-radius: var(--radius-lg); width: 90%; }
-        }
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
       `}</style>
     </div >
   )

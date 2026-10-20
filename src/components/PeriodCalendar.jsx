@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react'
+import React, { useState, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
@@ -20,7 +20,7 @@ function parseLocal(dateStr) {
 
 export default function PeriodCalendar({ user, onClose, onSelect }) {
     const { isDateInPeriod, savePeriodRange } = useUser()
-    const { t, language } = useLanguage()
+    const { t } = useLanguage()
     const scrollRef = React.useRef(null)
     const todayRef = React.useRef(null)
     const [hintDismissed, setHintDismissed] = useState(
@@ -147,6 +147,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
             zIndex: 2000,
             display: 'flex',
             flexDirection: 'column',
+            minHeight: 0,
             boxShadow: '0 0 20px rgba(0,0,0,0.1)'
         }}>
 
@@ -169,7 +170,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
 
             {/* Header */}
             <div style={{
-                padding: '1rem 1.5rem',
+                padding: 'calc(1rem + env(safe-area-inset-top, 0px)) 1.5rem 1rem',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
@@ -178,7 +179,8 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
             }}>
                 <button
                     onClick={onClose}
-                    style={{ background: 'none', border: 'none', fontSize: '1.5rem', color: 'var(--color-text)', cursor: 'pointer', padding: 0 }}
+                    aria-label={t('common.close')}
+                    style={{ background: 'none', border: 'none', width: '44px', height: '44px', fontSize: '1.5rem', color: 'var(--color-text)', cursor: 'pointer', padding: 0, display: 'grid', placeItems: 'center' }}
                 >
                     ✕
                 </button>
@@ -240,7 +242,16 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
             {/* Scrollable months */}
             <div
                 ref={scrollRef}
-                style={{ flex: 1, overflowY: 'auto', padding: '0.75rem 1rem', paddingBottom: '130px' }}
+                style={{
+                     flex: '1 1 0%',
+                     minHeight: 0,
+                     overflowY: 'auto',
+                     WebkitOverflowScrolling: 'touch',
+                     overscrollBehavior: 'contain',
+                     touchAction: 'pan-y',
+                     padding: '0.75rem 1rem',
+                     paddingBottom: 'calc(190px + env(safe-area-inset-bottom, 0px))'
+                 }}
             >
                 {months.map((monthDate, index) => (
                     <MonthGrid
@@ -268,12 +279,12 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                padding: '0.75rem 1.25rem 1.5rem',
+                padding: '0.75rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom, 0px))',
                 gap: '0.65rem'
             }}>
                 {/* Legend — "Vandaag" removed */}
                 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
-                    <LegendItem color="var(--color-primary)" filled label={t('calendar.period')} />
+                    <LegendItem color="var(--color-primary)" label={t('calendar.period')} />
                     <LegendItem color="var(--color-primary)" dashed label={t('calendar.expected')} />
                     <LegendItem color={phaseColor('ovulatory')} dot label={t('calendar.ovulation')} />
                     <LegendItem color="#4DB6AC" dot label={t('calendar.moved')} />
@@ -309,6 +320,7 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                     summaryData={summaryData}
                     onClose={() => setSelectedSummaryDateStr(null)}
                     onEditPeriod={handleOpenPeriodRange}
+                    onSelectDate={() => onSelect?.(parseLocal(selectedSummaryDateStr))}
                 />
             )}
 
@@ -337,7 +349,7 @@ function addDays(dateStr, days) {
 }
 
 // ── Legend item ───────────────────────────────────────────────────────────────
-function LegendItem({ color, filled, dashed, dot, label }) {
+function LegendItem({ color, dashed, dot, label }) {
     return (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
             {dot ? (
@@ -353,7 +365,7 @@ function LegendItem({ color, filled, dashed, dot, label }) {
 }
 
 // ── Day Summary Sheet ─────────────────────────────────────────────────────────
-function DaySummarySheet({ dateStr, summaryData, onClose, onEditPeriod }) {
+function DaySummarySheet({ dateStr, summaryData, onClose, onEditPeriod, onSelectDate }) {
     const { t, language } = useLanguage()
     const dateObj = parseLocal(dateStr)
     const dateHeader = dateObj.toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { weekday: 'long', day: 'numeric', month: 'long' })
@@ -375,6 +387,10 @@ function DaySummarySheet({ dateStr, summaryData, onClose, onEditPeriod }) {
                 boxShadow: '0 -4px 30px rgba(0,0,0,0.12)',
                 zIndex: 3000,
                 padding: '1.5rem',
+                paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))',
+                maxHeight: '85dvh',
+                overflowY: 'auto',
+                WebkitOverflowScrolling: 'touch',
                 animation: 'slideUp 0.25s ease-out'
             }}>
                 {/* Handle */}
@@ -429,6 +445,22 @@ function DaySummarySheet({ dateStr, summaryData, onClose, onEditPeriod }) {
                     }}
                 >
                     {isPeriod ? t('calendar.edit_period') : t('calendar.add_period_range')}
+                </button>
+                <button
+                    onClick={onSelectDate}
+                    style={{
+                        width: '100%',
+                        marginTop: '0.75rem',
+                        padding: '0.85rem 1rem',
+                        borderRadius: 'var(--radius-md)',
+                        border: '1px solid var(--color-border)',
+                        background: '#fff',
+                        color: 'var(--color-text)',
+                        fontWeight: '600',
+                        fontSize: '0.95rem'
+                    }}
+                >
+                    {t('calendar.view_day')}
                 </button>
             </div>
         </>
@@ -543,7 +575,7 @@ function SummaryRow({ color, label, active }) {
 
 // ── Month Grid ────────────────────────────────────────────────────────────────
 function MonthGrid({ monthDate, user, predictedWindows, fertileMarkers, effectiveCycleLen, effectivePeriodLen, onDayClick, todayRef, isDateInPeriod, todayStr }) {
-    const { t, language } = useLanguage()
+    const { language } = useLanguage()
     const year = monthDate.getFullYear()
     const month = monthDate.getMonth()
     const daysInMonth = new Date(year, month + 1, 0).getDate()
@@ -576,18 +608,26 @@ function MonthGrid({ monthDate, user, predictedWindows, fertileMarkers, effectiv
         const isFuture = dDate > dToday
 
         grid.push(
-            <div
+            <button
                 key={i}
+                type="button"
+                aria-label={dDate.toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}
+                disabled={isFuture}
                 onClick={() => onDayClick(dateStr)}
                 style={{
                     aspectRatio: '1',
+                    width: '100%',
+                    padding: 0,
+                    border: 0,
+                    background: 'transparent',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
                     position: 'relative',
                     cursor: isFuture ? 'default' : 'pointer',
-                    opacity: isFuture ? 0.55 : 1
+                    opacity: isFuture ? 0.55 : 1,
+                    borderRadius: 'var(--radius-sm)'
                 }}
             >
                 <div style={{
@@ -643,7 +683,7 @@ function MonthGrid({ monthDate, user, predictedWindows, fertileMarkers, effectiv
                         }} />
                     )}
                 </div>
-            </div>
+            </button>
         )
     }
 

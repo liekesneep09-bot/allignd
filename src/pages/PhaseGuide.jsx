@@ -216,17 +216,25 @@ export default function PhaseGuide({ onNavigate }) {
                         const tintColor = cycleInfo?.phase ? phaseColor(cycleInfo.phase) : null
 
                         return (
-                            <div
+                            <button
                                 key={day}
+                                type="button"
+                                aria-label={date.toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                                aria-pressed={isSelected}
                                 onClick={() => selectDay(dateStr)}
                                 style={{
                                     aspectRatio: '1',
+                                    width: '100%',
+                                    padding: 0,
+                                    border: 0,
+                                    background: 'transparent',
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     position: 'relative',
-                                    cursor: 'pointer'
+                                    cursor: 'pointer',
+                                    borderRadius: 'var(--radius-sm)'
                                 }}
                             >
                                 <div style={{
@@ -274,7 +282,7 @@ export default function PhaseGuide({ onNavigate }) {
                                         )}
                                     </div>
                                 )}
-                            </div>
+                            </button>
                         )
                     })}
                 </div>

@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "vite --host",
+    "dev:api": "node server.js",
     "build": "vite build",
     "lint": "eslint src api server.js --ext .js,.jsx",
     "preview": "vite preview",

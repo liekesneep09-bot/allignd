@@ -12,6 +12,7 @@
   --color-text: #1A1A1A;
   --color-text-secondary: #4A4A4A;
   --color-text-tertiary: #7A7A7A;
+  --color-text-muted: var(--color-text-tertiary);
   --color-border: #E8E8E8;
   --color-border-light: #F0F0F0;
 
@@ -58,6 +59,7 @@
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.04);
   --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04);
   --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.06);
+  --shadow-soft: var(--shadow-sm);
 
   /* Typography */
   --font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;

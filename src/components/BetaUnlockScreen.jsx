@@ -5,14 +5,14 @@ import { getApiBaseUrl } from '../utils/platform';
 
 export default function BetaUnlockScreen({ onUnlocked }) {
     const [password, setPassword] = useState('');
-    const [error, setError] = useState(false);
+    const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { t } = useLanguage();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
-        setError(false);
+        setError('');
 
         try {
             const response = await fetch(`${getApiBaseUrl()}/api/beta-access`, {
@@ -22,14 +22,26 @@ export default function BetaUnlockScreen({ onUnlocked }) {
                 body: JSON.stringify({ password })
             });
 
-            if (!response.ok) throw new Error('Invalid beta access code');
+            if (response.status === 401) {
+                setError('wrong_password');
+                return;
+            }
+
+            if (response.status === 503) {
+                setError('configuration');
+                return;
+            }
+
+            if (!response.ok) {
+                setError('server');
+                return;
+            }
 
             onUnlocked?.();
             window.history.replaceState({}, document.title, '/');
             window.dispatchEvent(new PopStateEvent('popstate'));
         } catch {
-            setError(true);
-            setTimeout(() => setError(false), 2000); // Reset error state after 2 seconds
+            setError('connection');
         } finally {
             setIsSubmitting(false);
         }
@@ -87,7 +99,10 @@ export default function BetaUnlockScreen({ onUnlocked }) {
                     <input
                         type="password"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => {
+                            setPassword(e.target.value);
+                            setError('');
+                        }}
                         placeholder={t('beta.password_placeholder')}
                         style={{
                             width: '100%',
@@ -105,7 +120,7 @@ export default function BetaUnlockScreen({ onUnlocked }) {
                     
                     {error && (
                         <p style={{ color: '#FF4D4D', fontSize: '0.8rem', marginTop: '-0.5rem', marginBottom: '1rem', textAlign: 'left' }}>
-                            {t('beta.wrong_password')}
+                            {t(`beta.${error === 'wrong_password' ? 'wrong_password' : `${error}_error`}`)}
                         </p>
                     )}
 

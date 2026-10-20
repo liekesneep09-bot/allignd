@@ -286,9 +286,13 @@ export default function WeightTracker({ date, compact = false }) {
                     borderTopRightRadius: '24px',
                     boxShadow: '0 -4px 24px rgba(0,0,0,0.1)',
                     animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                    width: '100%',
-                    maxWidth: '480px',
-                    paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))'
+                     width: '100%',
+                     maxWidth: '480px',
+                     maxHeight: 'min(90dvh, calc(100dvh - env(safe-area-inset-top, 0px) - 8px))',
+                     overflowY: 'auto',
+                     WebkitOverflowScrolling: 'touch',
+                     overscrollBehavior: 'contain',
+                     paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom, 0px))'
                 }}
                 onClick={e => e.stopPropagation()}
             >
@@ -301,7 +305,6 @@ export default function WeightTracker({ date, compact = false }) {
                         value={tempWeight}
                         onChange={(e) => setTempWeight(e.target.value)}
                         placeholder="65.0"
-                        autoFocus
                         style={{
                             width: '140px',
                             padding: '16px',

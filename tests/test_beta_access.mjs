@@ -41,6 +41,13 @@ const publicWaitlistResponse = await request({
 })
 assert.equal(publicWaitlistResponse.statusCode, 401, 'public waitlist visitor without the beta code stays locked out')
 
+const wrongPasswordResponse = await request({
+  method: 'POST',
+  headers: { origin: 'https://allignd.nl' },
+  body: { password: 'not-the-beta-password' },
+})
+assert.equal(wrongPasswordResponse.statusCode, 401, 'a wrong beta password returns an authentication error')
+
 const nativeLoginResponse = await request({
   method: 'GET',
   headers: { origin: 'capacitor://localhost' },
@@ -72,5 +79,15 @@ const missingOwnerConfigResponse = await request({
   },
 })
 assert.equal(missingOwnerConfigResponse.statusCode, 503, 'app access fails closed until the owner email is configured')
+
+const configuredPassword = process.env.BETA_ACCESS_PASSWORD
+delete process.env.BETA_ACCESS_PASSWORD
+const missingPasswordConfigResponse = await request({
+  method: 'POST',
+  headers: { origin: 'https://allignd.nl' },
+  body: { password: 'any-value' },
+})
+assert.equal(missingPasswordConfigResponse.statusCode, 503, 'missing beta password configuration is distinct from a wrong password')
+process.env.BETA_ACCESS_PASSWORD = configuredPassword
 
 console.log('Beta access tests passed: waitlist stays locked; only authenticated owner access can open the app.')

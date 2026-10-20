@@ -728,9 +728,14 @@
     "description": "Enter the password to unlock the early version of the Allignd app.",
     "password_placeholder": "Password",
     "wrong_password": "Incorrect password. Please try again.",
+    "configuration_error": "Beta access is not configured locally. Set BETA_ACCESS_PASSWORD for the API server.",
+    "server_error": "The local beta server is unavailable. Check that the API route is running.",
+    "connection_error": "Could not connect to the API server.",
     "unlock_btn": "Unlock App",
     "back_to_waitlist": "Back to Waitlist",
     "owner_only": "This early access is only available to the Allignd owner.",
+    "owner_config_error": "Local owner access is not configured. Add BETA_OWNER_EMAIL to .env and restart the API server.",
+    "owner_server_error": "The API server could not verify your access. Check that it is running and reload the app.",
     "sign_out": "Sign out"
   },
   "error_boundary": {
@@ -807,7 +812,8 @@
     "range_invalid": "Check the dates you entered.",
     "range_success": "Period saved. Your cycle has been recalculated.",
     "add_period_range": "+ Enter period dates",
-    "edit_period": "Edit period dates"
+    "edit_period": "Edit period dates",
+    "view_day": "View this day"
   },
   "progress": {
     "title": "My Progress",

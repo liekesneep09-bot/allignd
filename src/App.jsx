@@ -296,10 +296,13 @@ function AuthenticatedApp({ hasBetaAccess, onBetaAccessGranted }) {
             headers: { Authorization: `Bearer ${session.access_token}` }
         })
             .then(response => {
-                if (!cancelled) setOwnerAuthorized(response.ok)
+                if (!cancelled) {
+                    if (response.status === 503) setOwnerAuthorized('configuration')
+                    else setOwnerAuthorized(response.ok)
+                }
             })
             .catch(() => {
-                if (!cancelled) setOwnerAuthorized(false)
+                if (!cancelled) setOwnerAuthorized('server')
             })
 
         return () => { cancelled = true }
@@ -332,11 +335,21 @@ function AuthenticatedApp({ hasBetaAccess, onBetaAccessGranted }) {
 
     if (ownerAuthorized === null) return <SplashScreen />
 
-    if (!ownerAuthorized) {
+    if (ownerAuthorized !== true) {
+        const message = ownerAuthorized === 'configuration'
+            ? t('beta.owner_config_error')
+            : ownerAuthorized === 'server'
+                ? t('beta.owner_server_error')
+                : t('beta.owner_only')
+
         return (
             <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', textAlign: 'center' }}>
-                <p>{t('beta.owner_only')}</p>
-                <button className="btn btn-primary" onClick={() => signOut()}>{t('beta.sign_out')}</button>
+                <p>{message}</p>
+                {ownerAuthorized === false ? (
+                    <button className="btn btn-primary" onClick={() => signOut()}>{t('beta.sign_out')}</button>
+                ) : (
+                    <button className="btn btn-primary" onClick={() => window.location.reload()}>{t('error_boundary.reload_btn')}</button>
+                )}
             </div>
         )
     }

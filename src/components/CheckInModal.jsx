@@ -91,11 +91,14 @@ export default function CheckInModal({ isOpen, onClose, dateStr }) {
                 background: '#ffffff',
                 width: '100%',
                 maxWidth: '600px', // Prevent full width stretch on desktop
-                maxHeight: '90vh',
+                maxHeight: 'min(90dvh, calc(100dvh - env(safe-area-inset-top, 0px) - 8px))',
                 borderTopLeftRadius: '24px',
                 borderTopRightRadius: '24px',
                 padding: '1.5rem',
+                paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom, 0px))',
                 overflowY: 'auto',
+                WebkitOverflowScrolling: 'touch',
+                overscrollBehavior: 'contain',
                 boxShadow: '0 -4px 20px rgba(0,0,0,0.1)'
             }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>

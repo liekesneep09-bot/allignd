@@ -100,6 +100,12 @@ app.post('/api/webhook/stripe', express.raw({ type: 'application/json' }), async
 app.use(cors({ origin: process.env.CLIENT_URL || '*' }));
 app.use(express.json());
 
+// Keep the beta unlock endpoint available through the Vite /api proxy locally.
+app.all('/api/beta-access', async (req, res) => {
+  const { default: betaAccessHandler } = await import('./api/beta-access.js');
+  return betaAccessHandler(req, res);
+});
+
 // Initialize OpenAI
 // Note: This requires OPENAI_API_KEY in .env file
 const openai = new OpenAI({
@@ -1051,4 +1057,3 @@ app.delete('/api/food-logs/:id', requireAuth, async (req, res) => {
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
-

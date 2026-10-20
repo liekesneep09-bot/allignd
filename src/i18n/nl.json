@@ -720,9 +720,14 @@
     "description": "Voer het wachtwoord in om de vroege versie van de Allignd app te openen.",
     "password_placeholder": "Wachtwoord",
     "wrong_password": "Onjuist wachtwoord. Probeer het opnieuw.",
+    "configuration_error": "Beta-toegang is lokaal niet ingesteld. Stel BETA_ACCESS_PASSWORD in voor de API-server.",
+    "server_error": "De lokale beta-server is niet beschikbaar. Controleer of de API-route draait.",
+    "connection_error": "Er kan geen verbinding worden gemaakt met de API-server.",
     "unlock_btn": "Ontgrendel App",
     "back_to_waitlist": "Terug naar Waitlist",
     "owner_only": "Deze vroege toegang is alleen beschikbaar voor de eigenaar van Allignd.",
+    "owner_config_error": "Lokale eigenaarstoegang is niet ingesteld. Voeg BETA_OWNER_EMAIL toe aan .env en herstart de API-server.",
+    "owner_server_error": "De API-server kan je toegang nu niet controleren. Controleer of de API-server draait en herlaad de app.",
     "sign_out": "Uitloggen"
   },
   "error_boundary": {
@@ -791,7 +796,8 @@
     "range_invalid": "Controleer de ingevulde datums.",
     "range_success": "Menstruatie opgeslagen. Je cyclus is opnieuw berekend.",
     "add_period_range": "+ Menstruatieperiode invoeren",
-    "edit_period": "Menstruatieperiode aanpassen"
+    "edit_period": "Menstruatieperiode aanpassen",
+    "view_day": "Bekijk deze dag"
   },
   "progress": {
     "title": "Jouw Inzichten",

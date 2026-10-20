@@ -297,7 +297,11 @@ export default function FoodModal({ onClose, onAdd }) {
     if (showMealEditor) {
         return (
             <div className="modal-overlay" onClick={() => { setShowMealEditor(false); setEditingMeal(null) }}>
-                <div className="modal-content" onClick={e => e.stopPropagation()} style={{ padding: 0 }}>
+                <div
+                    className="modal-content"
+                    onClick={e => e.stopPropagation()}
+                    style={{ padding: 0, overflowY: 'auto', WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}
+                >
                     <MealEditor
                         meal={editingMeal}
                         onSave={handleMealSaved}
@@ -575,6 +579,17 @@ export default function FoodModal({ onClose, onAdd }) {
 
                         {view === 'entry' && selectedFood && (
                             <>
+                                <div
+                                    className="food-entry-scroll"
+                                    style={{
+                                        flex: 1,
+                                        minHeight: 0,
+                                        overflowY: 'auto',
+                                        WebkitOverflowScrolling: 'touch',
+                                        overscrollBehavior: 'contain',
+                                        paddingBottom: '0.75rem'
+                                    }}
+                                >
                                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1.5rem' }}>
                                     <button
                                         onClick={() => setView('list')}
@@ -657,7 +672,6 @@ export default function FoodModal({ onClose, onAdd }) {
                                             value={grams}
                                             onChange={e => setGrams(e.target.value)}
                                             onFocus={e => e.target.select()}
-                                            autoFocus
                                             style={{
                                                 width: '120px',
                                                 border: 'none',
@@ -744,6 +758,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                         ))}
                                     </div>
                                 </div>
+                                </div>
 
                                 <button
                                     className="btn btn-primary"
@@ -751,6 +766,7 @@ export default function FoodModal({ onClose, onAdd }) {
                                     disabled={!grams || parseFloat(String(grams).replace(',', '.')) <= 0}
                                     style={{
                                         width: '100%',
+                                        flexShrink: 0,
                                         padding: '1rem',
                                         borderRadius: 'var(--radius-md)',
                                         background: 'var(--color-primary)',
@@ -988,18 +1004,31 @@ const modalStyles = `
     }
 
     .modal-content {
-        background: var(--color-surface);
-        width: 100%;
-        max-width: 500px;
-        max-height: 90vh;
-        border-radius: 24px 24px 0 0;
-        padding: 1.5rem;
-        padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
-        display: flex;
-        flex-direction: column;
-        box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.1);
-        animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
+         background: var(--color-surface);
+         width: 100%;
+         max-width: 500px;
+         max-height: 90vh;
+         max-height: min(90dvh, calc(100dvh - env(safe-area-inset-top, 0px) - 8px));
+         border-radius: 24px 24px 0 0;
+         padding: 1.5rem;
+         padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+         display: flex;
+         flex-direction: column;
+         min-height: 0;
+         overflow: hidden;
+         box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.1);
+         animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+     }
+
+     @media (min-width: 480px) {
+         .modal-overlay { align-items: center; }
+         .modal-content { border-radius: 24px; width: 90%; }
+     }
+
+     .food-entry-scroll {
+         scrollbar-width: thin;
+         -webkit-overflow-scrolling: touch;
+     }
 
     @keyframes slideUp {
         from { transform: translateY(100%); }
