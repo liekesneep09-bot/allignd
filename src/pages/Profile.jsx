@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
 import { IconAccount, IconCalendar, IconRecipe, IconActivity } from '../components/Icons'
@@ -621,7 +622,7 @@ export default function Profile({ onNavigate }) {
             </div>
 
             {/* Delete Confirm Modal */}
-            {showDeleteConfirm && (
+            {showDeleteConfirm && createPortal(
                 <div
                     onClick={() => setShowDeleteConfirm(false)}
                     style={{
@@ -679,7 +680,8 @@ export default function Profile({ onNavigate }) {
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             {/* Sticky Save Button */}

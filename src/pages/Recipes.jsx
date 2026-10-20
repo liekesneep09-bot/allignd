@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
 import { getRecipeContent } from '../data/recipeContent'
@@ -165,7 +166,7 @@ export default function Recipes() {
                     {t('recipes.add_to_daily_goal')} ({selectedRecipe.macros.kcal} kcal)
                 </button>
 
-                {isConfirming && (
+                {isConfirming && createPortal(
                     <div style={{
                         position: 'fixed',
                         top: 0, left: 0, right: 0, bottom: 0,
@@ -212,7 +213,8 @@ export default function Recipes() {
                                 </>
                             )}
                         </div>
-                    </div>
+                    </div>,
+                    document.body
                 )}
             </div>
         )

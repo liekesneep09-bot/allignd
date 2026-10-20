@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useUser } from '../context/UserContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../utils/supabaseClient'
@@ -295,7 +296,7 @@ export default function FoodModal({ onClose, onAdd }) {
 
     // If showing meal editor, render that instead
     if (showMealEditor) {
-        return (
+        return createPortal(
             <div className="modal-overlay" onClick={() => { setShowMealEditor(false); setEditingMeal(null) }}>
                 <div
                     className="modal-content"
@@ -309,11 +310,12 @@ export default function FoodModal({ onClose, onAdd }) {
                     />
                 </div>
                 <style>{modalStyles}</style>
-            </div>
+            </div>,
+            document.body
         )
     }
 
-    return (
+    return createPortal(
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content" onClick={e => e.stopPropagation()}>
                 {/* TAB SWITCHER */}
@@ -943,7 +945,8 @@ export default function FoodModal({ onClose, onAdd }) {
             </div>
 
             <style>{modalStyles}</style>
-        </div>
+        </div>,
+        document.body
     )
 }
 

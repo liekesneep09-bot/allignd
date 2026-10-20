@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
 
@@ -76,7 +77,7 @@ export default function CheckInModal({ isOpen, onClose, dateStr }) {
         )
     }
 
-    return (
+    return createPortal(
         <div style={{
             position: 'fixed',
             top: 0, left: 0, right: 0, bottom: 0,
@@ -135,7 +136,8 @@ export default function CheckInModal({ isOpen, onClose, dateStr }) {
                     {isSaving ? `✓ ${t('common.saved', { defaultValue: 'Opgeslagen' })}` : t('checkin.save')}
                 </button>
             </div>
-        </div>
+        </div>,
+        document.body
     )
 }
 

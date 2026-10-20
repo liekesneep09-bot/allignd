@@ -1,4 +1,5 @@
 import React, { useState, useRef, useMemo, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
 
@@ -263,7 +264,7 @@ export default function WeightTracker({ date, compact = false }) {
         return `${diff > 0 ? '↑' : '↓'} ${absVal} kg ${diff > 0 ? t('weight.more_than') : t('weight.less_than')} ${dateStr}`
     })()
 
-    const bottomSheet = showSheet && (
+    const bottomSheet = showSheet && createPortal(
         <div
             style={{
                 position: 'fixed',
@@ -336,7 +337,8 @@ export default function WeightTracker({ date, compact = false }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     )
 
     if (compact) {

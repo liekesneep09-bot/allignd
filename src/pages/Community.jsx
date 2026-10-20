@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useUser } from '../context/UserContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../utils/supabaseClient'
@@ -817,7 +818,7 @@ export default function Community() {
                 </div>
 
                 {/* Delete Confirmation Modal */}
-                {deleteConfirmId && (
+                {deleteConfirmId && createPortal(
                     <div
                         onClick={cancelDelete}
                         style={{
@@ -867,7 +868,8 @@ export default function Community() {
                                 </button>
                             </div>
                         </div>
-                    </div>
+                    </div>,
+                    document.body
                 )}
             </div>
         )

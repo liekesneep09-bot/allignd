@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
 
@@ -76,7 +77,7 @@ function Ring({ value, max, size = 100, stroke = 8, color, label, sublabel, show
 
 // Reusable bottom sheet
 function Sheet({ title, onClose, children }) {
-    return (
+    return createPortal(
         <div
             style={{
                 position: 'fixed', inset: 0,
@@ -94,6 +95,10 @@ function Sheet({ title, onClose, children }) {
                     width: '100%', maxWidth: '480px',
                     borderTopLeftRadius: '24px', borderTopRightRadius: '24px',
                     padding: '1.5rem',
+                    maxHeight: 'min(90dvh, calc(100dvh - env(safe-area-inset-top, 0px) - 8px))',
+                    overflowY: 'auto',
+                    WebkitOverflowScrolling: 'touch',
+                    overscrollBehavior: 'contain',
                     paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))',
                     boxShadow: '0 -4px 24px rgba(0,0,0,0.1)',
                     animation: 'slideUp 0.3s cubic-bezier(0.16,1,0.3,1)'
@@ -104,7 +109,8 @@ function Sheet({ title, onClose, children }) {
                 <h3 style={{ margin: '0 0 1.5rem', textAlign: 'center', fontSize: '1.15rem', fontWeight: '700' }}>{title}</h3>
                 {children}
             </div>
-        </div>
+        </div>,
+        document.body
     )
 }
 
