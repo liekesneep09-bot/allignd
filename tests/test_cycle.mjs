@@ -7,6 +7,7 @@ import {
   getPhaseForDay,
   getCycleDisplayData,
   getCyclePrediction,
+  calculateDaysUntilPeriod,
   PHASES
 } from '../src/logic/cycle.js'
 
@@ -21,7 +22,6 @@ import {
   predictNextPeriodStart,
   getPredictionWindow,
   getFuturePeriodWindows,
-  getOvulationWindow,
   markOutliers,
   getMedian
 } from '../src/logic/cycle-learning.js'
@@ -109,6 +109,12 @@ const overdueDisplay = getCycleDisplayData('2026-03-01', 28, 5, false, new Date(
 test("Overdue linear day 35 (tz)", overdueDisplay.linearDay, 35)
 test("Overdue days 7 (tz)", overdueDisplay.overdueDays, 7)
 test("Overdue phase luteal", overdueDisplay.phase, PHASES.LUTEAL)
+
+console.log("\n=== 3b. calculateDaysUntilPeriod ===")
+test("Day 1 → 28 days", calculateDaysUntilPeriod(1, 28), 28)
+test("Day 13 → 16 days", calculateDaysUntilPeriod(13, 28), 16)
+test("Day 28 → 1 day", calculateDaysUntilPeriod(28, 28), 1)
+test("Overdue day 29 → 0 days", calculateDaysUntilPeriod(29, 28), 0)
 
 // ============================================
 // 4. CYCLE LEARNING - daysBetween
@@ -227,17 +233,7 @@ test("Predict next from single", predictNextPeriodStart(['2026-03-01'], 28), '20
 test("Null from empty", predictNextPeriodStart([], 28), null)
 
 // ============================================
-// 13. OVULATION WINDOW
-// ============================================
-console.log("\n=== 13. getOvulationWindow ===")
-
-const ov = getOvulationWindow('2026-03-29', 14)
-test("Ovulation center", ov.center, '2026-03-15')
-test("Ovulation start", ov.start, '2026-03-14')
-test("Ovulation end", ov.end, '2026-03-16')
-
-// ============================================
-// 14. OUTLIER DETECTION
+// 13. OUTLIER DETECTION
 // ============================================
 console.log("\n=== 14. markOutliers ===")
 

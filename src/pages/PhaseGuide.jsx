@@ -7,12 +7,12 @@ import { IconActivity, IconNutrition } from '../components/Icons'
 import { getFuturePeriodWindows } from '../logic/cycle-learning'
 import {
     getCalendarCycleInfo,
-    getFertileMarkers,
-    getNextMilestones,
+    getNextPeriodMilestone,
     phaseColor,
-    phaseCssVar,
+    phaseTextColor,
     withAlpha,
-    parseDateStr
+    parseDateStr,
+    PHASE_ORDER
 } from '../logic/calendar-marks'
 import CheckInModal from '../components/CheckInModal'
 import { PHASES } from '../logic/cycle'
@@ -54,14 +54,9 @@ export default function PhaseGuide({ onNavigate }) {
         )
     }, [user?.periodStartDates, user?.cycleStats, user?.cycleLength, effectivePeriodLen])
 
-    const fertileMarkers = useMemo(() => {
-        if (!user?.cycleStart) return {}
-        return getFertileMarkers(user.cycleStart, effectiveCycleLen, 4)
-    }, [user?.cycleStart, effectiveCycleLen])
-
     const milestones = useMemo(() => {
         if (!user?.cycleStart) return null
-        return getNextMilestones(user.cycleStart, effectiveCycleLen, todayStr)
+        return getNextPeriodMilestone(user.cycleStart, effectiveCycleLen, todayStr)
     }, [user?.cycleStart, effectiveCycleLen, todayStr])
 
     const handlePrev = () => {
@@ -137,16 +132,16 @@ export default function PhaseGuide({ onNavigate }) {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
                     <button
                         onClick={handlePrev}
-                        style={{ background: 'none', border: 'none', fontSize: '1.5rem', color: 'var(--color-text)', opacity: 0.6, cursor: 'pointer', padding: '0.25rem' }}
-                        aria-label="Previous month"
+                        style={{ background: 'none', border: 'none', fontSize: '1.5rem', color: 'var(--color-text)', opacity: 0.6, cursor: 'pointer', padding: '0.25rem', minWidth: '44px', minHeight: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                        aria-label={language === 'en' ? 'Previous month' : 'Vorige maand'}
                     >‹</button>
                     <h2 style={{ fontSize: '1.1rem', fontWeight: '600', margin: 0, textTransform: 'capitalize', color: 'var(--color-text)' }}>
                         {viewDate.toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { month: 'long', year: 'numeric' })}
                     </h2>
                     <button
                         onClick={handleNext}
-                        style={{ background: 'none', border: 'none', fontSize: '1.5rem', color: 'var(--color-text)', opacity: 0.6, cursor: 'pointer', padding: '0.25rem' }}
-                        aria-label="Next month"
+                        style={{ background: 'none', border: 'none', fontSize: '1.5rem', color: 'var(--color-text)', opacity: 0.6, cursor: 'pointer', padding: '0.25rem', minWidth: '44px', minHeight: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                        aria-label={language === 'en' ? 'Next month' : 'Volgende maand'}
                     >›</button>
                 </div>
 
@@ -161,6 +156,7 @@ export default function PhaseGuide({ onNavigate }) {
                                     border: '1px solid var(--color-border)',
                                     borderRadius: 'var(--radius-full)',
                                     padding: '0.2rem 0.6rem',
+                                    minHeight: '44px',
                                     fontSize: '0.7rem',
                                     color: 'var(--color-text-muted)',
                                     cursor: 'pointer',
@@ -181,7 +177,7 @@ export default function PhaseGuide({ onNavigate }) {
                                 padding: '0.2rem 0.7rem',
                                 fontSize: '0.75rem',
                                 fontWeight: '700',
-                                color: phaseColor(guidePhase)
+                                color: phaseTextColor(guidePhase)
                             }}
                         >
                             <span style={{ width: 7, height: 7, borderRadius: 'var(--radius-full)', background: phaseColor(guidePhase), flexShrink: 0 }} />
@@ -209,7 +205,6 @@ export default function PhaseGuide({ onNavigate }) {
                         const isPeriod = isDateInPeriod(dateStr)
                         const isPredicted = !isPeriod && predictedWindows[dateStr]
                         const cycleInfo = getCalendarCycleInfo(dateStr, user?.cycleStart, effectiveCycleLen, effectivePeriodLen)
-                        const isOvulation = !!fertileMarkers[dateStr]?.isOvulation
                         const isSelected = activeDateStr === dateStr
                         const hasMovement = user?.movementLogs?.some(l => l.date === dateStr && l.status === 'moved')
                         const hasSymptoms = user?.symptomLogs?.some(l => l.date === dateStr && l.symptoms?.length > 0)
@@ -221,9 +216,11 @@ export default function PhaseGuide({ onNavigate }) {
                                 type="button"
                                 aria-label={date.toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                                 aria-pressed={isSelected}
+                                aria-current={isToday ? 'date' : undefined}
                                 onClick={() => selectDay(dateStr)}
                                 style={{
                                     aspectRatio: '1',
+                                    minHeight: '44px',
                                     width: '100%',
                                     padding: 0,
                                     border: 0,
@@ -269,11 +266,8 @@ export default function PhaseGuide({ onNavigate }) {
                                 </div>
 
                                 {/* Indicator dots */}
-                                {(hasMovement || hasSymptoms || isOvulation) && (
+                                {(hasMovement || hasSymptoms) && (
                                     <div style={{ position: 'absolute', bottom: '0', left: 0, right: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px', zIndex: 2 }}>
-                                        {isOvulation && (
-                                            <div style={{ width: '6px', height: '6px', borderRadius: 'var(--radius-full)', background: tintColor || phaseColor('ovulatory') }} />
-                                        )}
                                         {hasMovement && (
                                             <div style={{ width: '6px', height: '6px', borderRadius: 'var(--radius-full)', background: 'var(--color-movement)' }} />
                                         )}
@@ -298,14 +292,6 @@ export default function PhaseGuide({ onNavigate }) {
                                 ~{formatDateLabel(milestones.nextPeriod)}
                             </div>
                         </div>
-                        <div style={{ flex: 1, background: withAlpha(phaseColor(guidePhase), 0.06), borderRadius: 'var(--radius-md)', padding: '0.75rem 1rem' }}>
-                            <div style={{ fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-muted)', fontWeight: '600', marginBottom: '0.2rem' }}>
-                                {t('cycle.milestone_ovulation')}
-                            </div>
-                            <div style={{ fontSize: '0.95rem', fontWeight: '700', color: 'var(--color-text)' }}>
-                                ~{formatDateLabel(milestones.ovulation)}
-                            </div>
-                        </div>
                     </div>
                 )}
 
@@ -319,10 +305,12 @@ export default function PhaseGuide({ onNavigate }) {
                         <div style={{ width: '14px', height: '14px', borderRadius: 'var(--radius-full)', border: '2px dashed var(--color-primary)', boxSizing: 'border-box' }}></div>
                         <span>{t('cycle.predicted_menstruation')}</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                        <div style={{ width: '14px', height: '14px', borderRadius: 'var(--radius-full)', border: `2px solid ${phaseColor('ovulatory')}`, boxSizing: 'border-box' }}></div>
-                        <span>{t('cycle.ovulation_label')}</span>
-                    </div>
+                    {PHASE_ORDER.map(phaseId => (
+                        <div key={phaseId} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                            <div style={{ width: '14px', height: '14px', borderRadius: 'var(--radius-full)', background: withAlpha(phaseColor(phaseId), 0.35), boxSizing: 'border-box' }} />
+                            <span>{t(`profile.phases.${phaseId}`)}</span>
+                        </div>
+                    ))}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                         <div style={{ width: '6px', height: '6px', borderRadius: 'var(--radius-full)', background: 'var(--color-movement)' }}></div>
                         <span>{t('cycle.moved')}</span>
@@ -332,13 +320,10 @@ export default function PhaseGuide({ onNavigate }) {
                         <span>{t('cycle.symptoms')}</span>
                     </div>
                 </div>
+                <p style={{ margin: '0.9rem 0 0', textAlign: 'center', fontSize: '0.72rem', color: 'var(--color-text-muted)' }}>
+                    {t('cycle.prediction_note')}
+                </p>
 
-                {/* Estimate line */}
-                {user?.cycleStart && (
-                    <div style={{ marginTop: '0.9rem', textAlign: 'center', fontSize: '0.7rem', fontStyle: 'italic', color: 'var(--color-text-muted)' }}>
-                        {t('cycle.fertility_estimate_note')}
-                    </div>
-                )}
             </div>
 
             {/* 2. GUIDE */}
@@ -357,7 +342,7 @@ export default function PhaseGuide({ onNavigate }) {
                             fontSize: '0.85rem',
                             textTransform: 'uppercase',
                             letterSpacing: '1px',
-                            color: phaseCssVar(guidePhase),
+                            color: phaseTextColor(guidePhase),
                             fontWeight: '700',
                             marginBottom: '0.25rem'
                         }}>
@@ -375,9 +360,10 @@ export default function PhaseGuide({ onNavigate }) {
                                 border: `1px solid ${withAlpha(phaseColor(guidePhase), 0.3)}`,
                                 borderRadius: 'var(--radius-full)',
                                 padding: '0.35rem 0.8rem',
+                                minHeight: '44px',
                                 fontSize: '0.75rem',
                                 fontWeight: '700',
-                                color: phaseColor(guidePhase),
+                                color: phaseTextColor(guidePhase),
                                 cursor: 'pointer',
                                 flexShrink: 0
                             }}
@@ -401,7 +387,7 @@ export default function PhaseGuide({ onNavigate }) {
                         <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
                             {phase.bullets.map((bullet, idx) => (
                                 <li key={idx} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                                    <div style={{ color: phaseCssVar(guidePhase), fontWeight: '700', marginTop: '-2px' }}>✓</div>
+                        <div style={{ color: phaseTextColor(guidePhase), fontWeight: '700', marginTop: '-2px' }}>✓</div>
                                     <div style={{ fontSize: '0.85rem', color: 'var(--color-text)', lineHeight: '1.4' }}>{bullet}</div>
                                 </li>
                             ))}
@@ -416,7 +402,7 @@ export default function PhaseGuide({ onNavigate }) {
                             padding: '0.5rem 1.1rem',
                             fontSize: '0.8rem',
                             fontWeight: '700',
-                            color: phaseColor(guidePhase),
+                            color: phaseTextColor(guidePhase),
                             cursor: 'pointer'
                         }}
                     >
@@ -469,7 +455,7 @@ export default function PhaseGuide({ onNavigate }) {
                                         cursor: 'pointer'
                                     }}
                                 >
-                                    <div style={{ width: '38px', height: '38px', borderRadius: 'var(--radius-sm)', background: withAlpha(phaseColor(guidePhase), 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center', color: phaseColor(guidePhase), flexShrink: 0 }}>
+                                    <div style={{ width: '38px', height: '38px', borderRadius: 'var(--radius-sm)', background: withAlpha(phaseColor(guidePhase), 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center', color: phaseTextColor(guidePhase), flexShrink: 0 }}>
                                         <IconNutrition size={18} />
                                     </div>
                                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -498,7 +484,7 @@ export default function PhaseGuide({ onNavigate }) {
                                         cursor: 'pointer'
                                     }}
                                 >
-                                    <div style={{ width: '38px', height: '38px', borderRadius: 'var(--radius-sm)', background: withAlpha(phaseColor(guidePhase), 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center', color: phaseColor(guidePhase), flexShrink: 0 }}>
+                                    <div style={{ width: '38px', height: '38px', borderRadius: 'var(--radius-sm)', background: withAlpha(phaseColor(guidePhase), 0.1), display: 'flex', alignItems: 'center', justifyContent: 'center', color: phaseTextColor(guidePhase), flexShrink: 0 }}>
                                         <IconActivity size={18} />
                                     </div>
                                     <div style={{ flex: 1, minWidth: 0 }}>

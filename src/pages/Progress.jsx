@@ -4,19 +4,13 @@ import { useLanguage } from '../context/LanguageContext'
 import { getLocalDateStr } from '../utils/date'
 import { toNum } from '../utils/numbers'
 import WeightTracker from '../components/WeightTracker'
+import { PHASE_COLORS, PHASE_SOFT_COLORS, PHASE_TEXT_COLORS, withAlpha } from '../logic/calendar-marks'
 
 // ─── Helpers ─────────────────────────────────────────────
 
 function parseLocalDate(dateStr) {
     const [y, m, d] = dateStr.split('-').map(Number)
     return new Date(y, m - 1, d)
-}
-
-const PHASE_COLORS = {
-    menstrual: '#c4506a',
-    follicular: '#2fb5c7',
-    ovulatory: '#e8785f',
-    luteal: '#6a9f6b'
 }
 
 // ─── Macro Weekly Average Card ────────────────────────────
@@ -216,7 +210,9 @@ function SymptomCompareCard({ t, language }) {
         }
     }, [user.symptomLogs, user.periodStartDates, currentPhase, user.cycleLength, user.periodLength])
 
-    const phaseColor = PHASE_COLORS[currentPhase] || 'var(--color-primary)'
+    const phaseColor = PHASE_TEXT_COLORS[currentPhase] || 'var(--color-primary)'
+    const phaseTint = withAlpha(PHASE_COLORS[currentPhase] || 'var(--color-primary)', 0.12)
+    const phaseBorder = withAlpha(PHASE_COLORS[currentPhase] || 'var(--color-primary)', 0.24)
 
     return (
         <div style={cardStyle}>
@@ -239,8 +235,8 @@ function SymptomCompareCard({ t, language }) {
                                 {comparison.current.map(s => (
                                     <span key={s} style={{
                                         padding: '4px 10px', borderRadius: 'var(--radius-lg)',
-                                        background: `${phaseColor}15`,
-                                        border: `1px solid ${phaseColor}30`,
+                                         background: phaseTint,
+                                         border: `1px solid ${phaseBorder}`,
                                         fontSize: '0.78rem', color: 'var(--color-text)', fontWeight: '500'
                                     }}>
                                         {t(`checkin.symptoms.${s}`)}
@@ -325,7 +321,9 @@ const cardTitleStyle = {
 export default function Progress({ onClose }) {
     const { t, language } = useLanguage()
     const { currentPhase } = useUser()
-    const phaseColor = PHASE_COLORS[currentPhase] || 'var(--color-primary)'
+    const phaseColor = PHASE_TEXT_COLORS[currentPhase] || 'var(--color-primary)'
+    const phaseBaseColor = PHASE_COLORS[currentPhase] || 'var(--color-primary)'
+    const phaseSoftColor = PHASE_SOFT_COLORS[currentPhase] || 'var(--color-primary-light)'
 
     return (
         <div style={{ minHeight: '100vh', background: '#FAFAFA', paddingBottom: '120px' }}>
@@ -363,9 +361,9 @@ export default function Progress({ onClose }) {
                 alignItems: 'center',
                 gap: '6px',
                 padding: '0.6rem 1.5rem',
-                background: `${phaseColor}10`
+                background: phaseSoftColor
             }}>
-                <div style={{ width: '8px', height: '8px', borderRadius: 'var(--radius-full)', background: phaseColor }} />
+                <div style={{ width: '8px', height: '8px', borderRadius: 'var(--radius-full)', background: phaseBaseColor }} />
                 <span style={{ fontSize: '0.78rem', color: phaseColor, fontWeight: '600' }}>
                     {t('progress.current_phase')}: {t(`profile.phases.${currentPhase}`)}
                 </span>

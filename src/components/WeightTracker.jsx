@@ -2,6 +2,8 @@ import React, { useState, useRef, useMemo, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
+import { getLocalDateStr } from '../utils/date'
+import { PHASE_COLORS, PHASE_TEXT_COLORS, withAlpha } from '../logic/calendar-marks'
 
 // Parse "YYYY-MM-DD" strings correctly in local time (avoids UTC timezone shift)
 function parseLocalDate(dateStr) {
@@ -14,23 +16,18 @@ export default function WeightTracker({ date, compact = false }) {
     const { t, language } = useLanguage()
     const [showSheet, setShowSheet] = useState(false)
     const [tempWeight, setTempWeight] = useState('')
+    const [saving, setSaving] = useState(false)
+    const [saveError, setSaveError] = useState(null)
 
     // Scrubbing state
     const svgRef = useRef(null)
     const [scrubIndex, setScrubIndex] = useState(null)
     const hideTimeoutRef = useRef(null)
 
-    // Today's weight
+    // Only today falls back to the profile weight; past dates need an actual log.
     const weightLog = user?.weightLogs?.find(l => l.date === date)
-    const currentWeight = weightLog?.weight || user.weight || 0
-
-    // Cycle Phase Colors
-    const PHASE_COLORS = {
-        menstrual: '#c4506a',
-        follicular: '#2fb5c7',
-        ovulatory: '#e8785f',
-        luteal: '#6a9f6b'
-    }
+    const isToday = date === getLocalDateStr(new Date())
+    const currentWeight = weightLog?.weight ?? (isToday ? (user.weight || 0) : 0)
 
     const getInsight = (phase) => {
         switch (phase) {
@@ -47,14 +44,23 @@ export default function WeightTracker({ date, compact = false }) {
         }
     }
 
-    const handleSaveManual = () => {
-        const strVal = String(tempWeight).replace(',', '.')
-        const val = parseFloat(strVal)
-        if (!isNaN(val) && val > 0) {
-            logWeight(date, val)
+    const handleSaveManual = async () => {
+        const val = parseFloat(String(tempWeight).replace(',', '.'))
+        if (!Number.isFinite(val) || val < 20 || val > 400) {
+            setSaveError(t('weight.invalid'))
+            return
         }
-        setShowSheet(false)
-        setTempWeight('')
+        setSaving(true)
+        setSaveError(null)
+        try {
+            await logWeight(date, val)
+            setShowSheet(false)
+            setTempWeight('')
+        } catch {
+            setSaveError(t('weight.save_error'))
+        } finally {
+            setSaving(false)
+        }
     }
 
     const trends = useMemo(() => {
@@ -187,6 +193,7 @@ export default function WeightTracker({ date, compact = false }) {
             for (let i = 0; i < pointsArray.length; i++) {
                 const { phase } = getPhaseForDate(sorted[i].date)
                 pointsArray[i].phaseColor = PHASE_COLORS[phase] || 'var(--color-primary)'
+                pointsArray[i].phaseTextColor = PHASE_TEXT_COLORS[phase] || 'var(--color-primary)'
                 pointsArray[i].phaseName = phase  // now a string, safe to render
             }
         }
@@ -321,6 +328,7 @@ export default function WeightTracker({ date, compact = false }) {
                     />
                     <span style={{ fontSize: '1.2rem', fontWeight: '600', color: 'var(--color-text-muted)' }}>kg</span>
                 </div>
+                {saveError && <div role="alert" style={{ color: 'var(--color-error)', textAlign: 'center', marginBottom: '1rem', fontSize: '0.85rem' }}>{saveError}</div>}
                 <div style={{ display: 'flex', gap: '1rem' }}>
                     <button
                         onClick={() => setShowSheet(false)}
@@ -329,8 +337,8 @@ export default function WeightTracker({ date, compact = false }) {
                         {t('common.cancel')}
                     </button>
                     <button
-                        onClick={handleSaveManual}
-                        disabled={!tempWeight}
+                        onClick={() => void handleSaveManual()}
+                        disabled={!tempWeight || saving}
                         style={{ flex: 1, padding: '1rem', borderRadius: 'var(--radius-md)', border: 'none', background: 'var(--color-primary)', color: '#333333', fontWeight: '700', fontSize: '1rem', cursor: tempWeight ? 'pointer' : 'not-allowed', opacity: tempWeight ? 1 : 0.5, boxShadow: tempWeight ? '0 4px 12px rgba(255, 174, 185, 0.3)' : 'none' }}
                     >
                         {t('common.save')}
@@ -435,7 +443,7 @@ export default function WeightTracker({ date, compact = false }) {
                                 {parseLocalDate(scrubPoint.date).toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { day: 'numeric', month: 'short' })}
                             </div>
                             {scrubPoint.phaseName && (
-                                <div style={{ fontSize: '0.62rem', color: scrubPoint.phaseColor, textAlign: 'center', marginTop: '2px', fontWeight: 800, filter: 'brightness(1.6)' }}>
+                                <div style={{ fontSize: '0.62rem', color: scrubPoint.phaseTextColor, textAlign: 'center', marginTop: '2px', fontWeight: 800 }}>
                                     {t(`weight.phases.${scrubPoint.phaseName}`)}
                                 </div>
                             )}
@@ -474,7 +482,7 @@ export default function WeightTracker({ date, compact = false }) {
                 </div>
             )}
 
-            <div style={{ padding: '0.85rem 1rem', background: `${phaseColor}15`, borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+            <div style={{ padding: '0.85rem 1rem', background: withAlpha(phaseColor, 0.12), borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                 <div style={{ width: '6px', height: '6px', borderRadius: 'var(--radius-full)', backgroundColor: phaseColor, marginTop: '6px', flexShrink: 0 }} />
                 <span style={{ fontSize: '0.85rem', color: 'var(--color-text)', lineHeight: '1.45', fontWeight: '500' }}>
                     {getInsight(currentPhase)}

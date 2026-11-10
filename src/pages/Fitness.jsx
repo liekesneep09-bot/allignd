@@ -56,6 +56,21 @@ export default function Fitness() {
     const { user, currentPhase, logMovement } = useUser()
     const { language, t } = useLanguage()
     const [selectedBodyPart, setSelectedBodyPart] = useState(null)
+    const [movementPending, setMovementPending] = useState(false)
+    const [movementError, setMovementError] = useState(null)
+
+    const handleMovement = async (status) => {
+        if (movementPending) return
+        setMovementPending(true)
+        setMovementError(null)
+        try {
+            await logMovement(todayStr, status)
+        } catch {
+            setMovementError(t('fitness.save_error'))
+        } finally {
+            setMovementPending(false)
+        }
+    }
 
     // Reset selected body part when component mounts
     useEffect(() => {
@@ -80,10 +95,10 @@ export default function Fitness() {
     const todayStatus = todayLog?.status || null
     const weekDays = useMemo(() => getWeekDays(user.movementLogs || [], t), [user.movementLogs, t])
     const phaseColorMap = {
-        menstrual:  { bg: 'rgba(196,80,106,0.08)', border: 'rgba(196,80,106,0.22)', accent: '#8a2e45', dot: '#c4506a' },
-        follicular: { bg: 'rgba(47,181,199,0.08)',  border: 'rgba(47,181,199,0.22)',  accent: '#1a8a96', dot: '#2fb5c7' },
-        ovulatory:  { bg: 'rgba(232,120,95,0.10)', border: 'rgba(232,120,95,0.25)', accent: '#a0422e', dot: '#e8785f' },
-        luteal:     { bg: 'rgba(106,159,107,0.10)', border: 'rgba(106,159,107,0.25)', accent: '#3d6e3e', dot: '#6a9f6b' },
+        menstrual:  { bg: 'rgba(var(--phase-menstrual-rgb),0.10)', border: 'rgba(var(--phase-menstrual-rgb),0.25)', accent: 'var(--phase-menstrual-text)', dot: 'var(--phase-menstrual)' },
+        follicular: { bg: 'rgba(var(--phase-follicular-rgb),0.10)', border: 'rgba(var(--phase-follicular-rgb),0.25)', accent: 'var(--phase-follicular-text)', dot: 'var(--phase-follicular)' },
+        ovulatory:  { bg: 'rgba(var(--phase-ovulatory-rgb),0.10)', border: 'rgba(var(--phase-ovulatory-rgb),0.25)', accent: 'var(--phase-ovulatory-text)', dot: 'var(--phase-ovulatory)' },
+        luteal:     { bg: 'rgba(var(--phase-luteal-rgb),0.10)', border: 'rgba(var(--phase-luteal-rgb),0.25)', accent: 'var(--phase-luteal-text)', dot: 'var(--phase-luteal)' },
     }
     const phaseColors = phaseColorMap[phaseKey] || phaseColorMap.luteal
 
@@ -283,7 +298,7 @@ export default function Fitness() {
                                 {todayStatus === 'moved' ? t('fitness.moved_success') : t('fitness.rest_day')}
                             </span>
                             <button
-                                onClick={() => logMovement(todayStr, todayStatus === 'moved' ? 'rest' : 'moved')}
+                                onClick={() => void handleMovement(todayStatus === 'moved' ? 'rest' : 'moved')}
                                 style={{
                                     marginLeft: 'auto',
                                     background: 'none',
@@ -301,7 +316,7 @@ export default function Fitness() {
                         <div style={{ marginBottom: '0.75rem' }}>
                             <div style={{ display: 'flex', gap: '0.5rem' }}>
                                 <button
-                                    onClick={() => logMovement(todayStr, 'moved')}
+                                    onClick={() => void handleMovement('moved')}
                                     style={{
                                         flex: 1,
                                         padding: '0.5rem',
@@ -318,7 +333,7 @@ export default function Fitness() {
                                     {t('fitness.yes')}
                                 </button>
                                 <button
-                                    onClick={() => logMovement(todayStr, 'rest')}
+                                    onClick={() => void handleMovement('rest')}
                                     style={{
                                         flex: 1,
                                         padding: '0.5rem',
@@ -337,6 +352,8 @@ export default function Fitness() {
                             </div>
                         </div>
                     )}
+
+                    {movementError && <div role="alert" style={{ color: 'var(--color-error)', marginBottom: '0.75rem', fontSize: '0.8rem' }}>{movementError}</div>}
 
                     {/* WEEK OVERZICHT DOTS */}
                     <div style={{

@@ -191,7 +191,7 @@ export default function DebugPanel() {
                         <button
                             onClick={() => simulateCycleDay(5)}
                             style={{
-                                background: '#4CAF50',
+                                background: 'var(--phase-follicular-text)',
                                 color: 'white',
                                 border: 'none',
                                 padding: '6px 8px',
@@ -205,7 +205,7 @@ export default function DebugPanel() {
                         <button
                             onClick={() => simulateCycleDay(14)}
                             style={{
-                                background: '#e8785f',
+                                background: 'var(--phase-ovulatory-text)',
                                 color: 'white',
                                 border: 'none',
                                 padding: '6px 8px',
@@ -219,7 +219,7 @@ export default function DebugPanel() {
                         <button
                             onClick={() => simulateCycleDay(20)}
                             style={{
-                                background: '#6a9f6b',
+                                background: 'var(--phase-luteal-text)',
                                 color: 'white',
                                 border: 'none',
                                 padding: '6px 8px',
@@ -233,7 +233,7 @@ export default function DebugPanel() {
                         <button
                             onClick={() => simulateCycleDay(26)}
                             style={{
-                                background: '#6a9f6b',
+                                background: 'var(--phase-luteal-text)',
                                 color: 'white',
                                 border: 'none',
                                 padding: '6px 8px',

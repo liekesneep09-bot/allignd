@@ -43,6 +43,8 @@ const ALLOWED_ORIGINS = [
     'https://www.allignd.nl',
     'https://allignd.fit',
     'https://www.allignd.fit',
+    'capacitor://localhost',
+    'https://localhost',
     'http://localhost:5173',
     'http://localhost:3000'
 ]

@@ -1,30 +1,23 @@
 import React, { useMemo } from 'react'
 import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
-import { getCyclePrediction } from '../logic/cycle'
+import { getCyclePrediction, calculateDaysUntilPeriod } from '../logic/cycle'
 import { getLocalDateStr } from '../utils/date'
 import { getPhaseContent } from '../data/phases'
-
-// Phase colors matching the rest of the app
-const PHASE_COLORS = {
-  menstrual: '#c4506a',
-  follicular: '#2fb5c7',
-  ovulatory: '#e8785f',
-  luteal: '#6a9f6b'
-}
+import { PHASE_COLORS, PHASE_TEXT_COLORS, withAlpha } from '../logic/calendar-marks'
 
 // Proportional lengths of each phase in the ring (as fraction of cycle)
 function getPhaseSegments(cycleLength, periodLength) {
   const lutealLength = 14
-  const ovulationDay = cycleLength - lutealLength
-  const fertileStart = ovulationDay - 2
-  const fertileEnd = ovulationDay + 2
+  const estimatedOvulatoryPhaseCenter = cycleLength - lutealLength
+  const ovulatoryPhaseStart = estimatedOvulatoryPhaseCenter - 2
+  const ovulatoryPhaseEnd = estimatedOvulatoryPhaseCenter + 2
 
   return [
     { phase: 'menstrual', start: 0, end: periodLength },
-    { phase: 'follicular', start: periodLength, end: fertileStart - 1 },
-    { phase: 'ovulatory', start: fertileStart - 1, end: fertileEnd },
-    { phase: 'luteal', start: fertileEnd, end: cycleLength }
+    { phase: 'follicular', start: periodLength, end: ovulatoryPhaseStart - 1 },
+    { phase: 'ovulatory', start: ovulatoryPhaseStart - 1, end: ovulatoryPhaseEnd },
+    { phase: 'luteal', start: ovulatoryPhaseEnd, end: cycleLength }
   ]
 }
 
@@ -85,7 +78,7 @@ function CycleRing({ size, strokeWidth, cycleLength, periodLength, currentDay, c
             style={{
               transform: 'rotate(-90deg)',
               transformOrigin: '50% 50%',
-              opacity: seg.phase === currentPhase ? 1 : 0.35,
+              opacity: seg.phase === currentPhase ? 1 : 0.96,
               transition: 'opacity 0.4s ease'
             }}
           />
@@ -123,9 +116,6 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
   const { countdownNumber, countdownLabel, phaseLabel, dayLabel, predictedDate, ringDay, isWithinWindow, isBeyondWindow } = useMemo(() => {
     const cycleLen = effectiveCycleLen
     const periodLen = effectivePeriodLen
-    const lutealLength = 14
-    const ovulationDay = cycleLen - lutealLength
-    const fertileStart = ovulationDay - 2
     const currentDay = day || 1
     const currentLinearDay = linearDay || currentDay
     const isOverdue = (overdueDays && overdueDays > 0)
@@ -173,7 +163,7 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
       countdownLabel = t('cycle_status.day_of_period')
     } else {
       // All other phases: always count down to next period
-      const daysUntilPeriod = Math.max(0, cycleLen - currentDay)
+      const daysUntilPeriod = calculateDaysUntilPeriod(currentDay, cycleLen)
       countdownNumber = daysUntilPeriod
       countdownLabel = daysUntilPeriod === 1 ? t('cycle_status.days_until_period_one') : t('cycle_status.days_until_period_other')
     }
@@ -209,9 +199,12 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
   if (!user?.cycleStart) return null
 
   // Use luteal color for window states, slightly muted for beyond window
-  const phaseColor = (isWithinWindow || isBeyondWindow) 
-    ? (isBeyondWindow ? '#8a9a8b' : PHASE_COLORS.luteal)
-    : (PHASE_COLORS[phase] || '#999')
+  const phaseBaseColor = (isWithinWindow || isBeyondWindow)
+    ? (isBeyondWindow ? 'var(--color-text-tertiary)' : PHASE_COLORS.luteal)
+    : (PHASE_COLORS[phase] || 'var(--color-text-tertiary)')
+  const phaseTextColor = (isWithinWindow || isBeyondWindow)
+    ? (isBeyondWindow ? 'var(--color-text-secondary)' : PHASE_TEXT_COLORS.luteal)
+    : (PHASE_TEXT_COLORS[phase] || 'var(--color-text-secondary)')
 
   // Format predicted date
   const formattedPrediction = predictedDate
@@ -245,7 +238,7 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
           periodLength={effectivePeriodLen}
           currentDay={ringDay}
           currentPhase={phase}
-          ringColor={phaseColor}
+          ringColor={phaseBaseColor}
         />
 
         {/* Center text inside ring */}
@@ -264,7 +257,7 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
           <div style={{
             fontSize: '1.7rem',
             fontWeight: '800',
-            color: phaseColor,
+            color: phaseBaseColor,
             lineHeight: 1,
             letterSpacing: '-0.02em'
           }}>
@@ -297,9 +290,9 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
             width: 8,
             height: 8,
             borderRadius: 'var(--radius-full)',
-            background: phaseColor,
+            background: phaseBaseColor,
             flexShrink: 0,
-            boxShadow: `0 0 6px ${phaseColor}60`
+            boxShadow: `0 0 6px ${withAlpha(phaseBaseColor, 0.35)}`
           }} />
           <span style={{
             fontSize: '0.95rem',
@@ -322,10 +315,13 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
         </div>
 
         {/* Clickable Banner inside the right column */}
-        <div 
+        <button
+          type="button"
           onClick={() => onNavigate && onNavigate('guide')}
           style={{
-            background: `${phaseColor}10`,
+            minHeight: '44px',
+            textAlign: 'left',
+            background: withAlpha(phaseBaseColor, 0.1),
             borderRadius: 'var(--radius-sm)',
             padding: '0.35rem 0.5rem',
             display: 'flex',
@@ -334,16 +330,16 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
             gap: '0.4rem',
             cursor: 'pointer',
             transition: 'all 0.2s ease',
-            border: `1px solid ${phaseColor}15`,
+            border: `1px solid ${withAlpha(phaseBaseColor, 0.15)}`,
             marginTop: '0.1rem',
             maxWidth: '100%'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = `${phaseColor}15`
+            e.currentTarget.style.background = withAlpha(phaseBaseColor, 0.15)
             e.currentTarget.style.transform = 'translateY(-1px)'
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = `${phaseColor}10`
+            e.currentTarget.style.background = withAlpha(phaseBaseColor, 0.1)
             e.currentTarget.style.transform = 'translateY(0)'
           }}
         >
@@ -351,7 +347,7 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
           <div style={{ 
             flex: 1, 
             fontSize: '0.7rem', 
-            color: phaseColor, 
+            color: phaseTextColor,
             lineHeight: 1.2, 
             fontWeight: '600', 
             opacity: 0.9,
@@ -364,7 +360,7 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
 
           {/* Chevron */}
           <div style={{
-            color: phaseColor,
+            color: phaseTextColor,
             flexShrink: 0,
             display: 'flex',
             alignItems: 'center',
@@ -374,7 +370,7 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
               <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
           </div>
-        </div>
+        </button>
 
 
       </div>

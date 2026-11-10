@@ -1,0 +1,9 @@
+{
+  "name": "allignd-test-tools",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Isolated DOM dependencies for preview-flow integration tests",
+  "devDependencies": {
+    "jsdom": "24.1.3"
+  }
+}

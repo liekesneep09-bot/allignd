@@ -609,6 +609,7 @@ export default function Profile({ onNavigate }) {
 
                 {/* Account actions */}
                 <SettingsItem label={t('profile.privacy_policy')} onClick={() => onNavigate && onNavigate('privacy')} />
+                <SettingsItem label={t('terms.title')} onClick={() => onNavigate && onNavigate('terms')} />
                 <SettingsItem
                     label={t('profile_extra.manage_subscription')}
                     onClick={() => {

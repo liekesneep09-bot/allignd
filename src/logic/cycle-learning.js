@@ -202,33 +202,6 @@ export function predictNextPeriodStart(periodStartDates, cycleLength) {
 }
 
 /**
- * Calculates ovulation window estimate
- * @param {string} nextPeriodStart - YYYY-MM-DD
- * @param {number} lutealLength - Default 14 days
- * @returns {{ start: string, end: string, center: string }}
- */
-export function getOvulationWindow(nextPeriodStart, lutealLength = 14) {
-    const nextDate = new Date(nextPeriodStart)
-
-    // Ovulation center = next period - luteal length
-    const center = new Date(nextDate)
-    center.setDate(center.getDate() - lutealLength)
-
-    // Window: center +/- 1 day (3 day window)
-    const start = new Date(center)
-    start.setDate(start.getDate() - 1)
-
-    const end = new Date(center)
-    end.setDate(end.getDate() + 1)
-
-    return {
-        start: start.toISOString().split('T')[0],
-        center: center.toISOString().split('T')[0],
-        end: end.toISOString().split('T')[0]
-    }
-}
-
-/**
  * Gets prediction window for next menstruation
  * @param {string[]} periodStartDates - Array of period start dates
  * @param {number} cycleLength - Learned or onboarding cycle length

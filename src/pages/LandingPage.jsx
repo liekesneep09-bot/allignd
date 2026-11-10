@@ -5,6 +5,8 @@ import './LandingPage.css';
 import logo from '../assets/logo-primary.png';
 import vandaagScherm from '../assets/vandaag-scherm-app.png';
 import phoneMockup from '../assets/telefoon-app-goed-small.webp';
+import heroBanner from '../assets/hero-banner-picture.webp';
+import heroBannerMobile from '../assets/hero-banner-picture-mobile.webp';
 
 // Icon placeholders
 const DropIcon = () => (
@@ -250,7 +252,13 @@ export default function LandingPage({ onEnterApp }) {
           </a>
           <p style={{ color: 'rgba(253, 245, 247, 0.5)', fontSize: '0.9rem', marginLeft: '1rem' }}>{t('landing.coming_soon')}</p>
         </div>
-        <div className="lp-hero-bg" />
+        <div
+          className="lp-hero-bg"
+          style={{
+            '--hero-image-mobile': `url(${heroBannerMobile})`,
+            '--hero-image-desktop': `url(${heroBanner})`
+          }}
+        />
       </section>
 
 
@@ -385,7 +393,7 @@ export default function LandingPage({ onEnterApp }) {
             <h4 style={{ fontSize: '0.75rem', letterSpacing: '1px', color: '#666', textTransform: 'uppercase', marginBottom: '1rem' }}>{t('landing.footer_legal')}</h4>
             <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <li><a href="#privacy" style={{ color: '#999', textDecoration: 'none', fontSize: '0.85rem' }}>{t('landing.footer_privacy')}</a></li>
-              <li><a href="#terms" style={{ color: '#999', textDecoration: 'none', fontSize: '0.85rem' }}>{t('landing.footer_terms')}</a></li>
+              <li><a href="/terms" style={{ color: '#999', textDecoration: 'none', fontSize: '0.85rem' }}>{t('landing.footer_terms')}</a></li>
             </ul>
           </div>
         </div>

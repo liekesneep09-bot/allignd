@@ -452,6 +452,12 @@ async function requireAuth(req, res, next) {
   next()
 }
 
+// Share the production community moderation and authorization routes locally.
+app.all(/^\/api\/community(?:\/.*)?$/, async (req, res) => {
+  const { default: communityApi } = await import('./api/community.js')
+  return communityApi(req, res)
+})
+
 // GET /api/community/today - Get today's topic + comments
 app.get('/api/community/today', requireAuth, async (req, res) => {
   try {

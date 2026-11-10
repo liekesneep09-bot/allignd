@@ -5,10 +5,12 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../utils/supabaseClient'
 import { useLanguage } from '../context/LanguageContext'
 import MealEditor from './MealEditor'
+import { createId } from '../utils/id'
+import { normalizeMealCategory } from '../utils/mealCategory'
 
-export default function FoodModal({ onClose, onAdd }) {
+export default function FoodModal({ onClose, onAdd, onAdded, date }) {
     const { user, updateUser, addCustomFood, logFood } = useUser()
-    const { getAccessToken } = useAuth()
+    const { getAccessToken, isPreview } = useAuth()
     const { language, t } = useLanguage()
 
     // Main tab state: 'producten' or 'gerechten'
@@ -29,6 +31,9 @@ export default function FoodModal({ onClose, onAdd }) {
         return 'snack'
     }
     const [mealCategory, setMealCategory] = useState(getMealCategoryFromTime())
+    const [submitting, setSubmitting] = useState(false)
+    const [submitError, setSubmitError] = useState(null)
+    const [createError, setCreateError] = useState(null)
 
     // Form state for new product
     const [newFood, setNewFood] = useState({
@@ -57,6 +62,11 @@ export default function FoodModal({ onClose, onAdd }) {
     }, [activeTab])
 
     const fetchMeals = async () => {
+        if (isPreview) {
+            setMealsLoading(false)
+            setMealsError('')
+            return
+        }
         setMealsLoading(true)
         setMealsError('')
         try {
@@ -95,6 +105,7 @@ export default function FoodModal({ onClose, onAdd }) {
 
             // Calculate totals for each meal
             const mealsWithTotals = (mealsData || []).map(meal => {
+                const normalizedMeal = { ...meal, category: normalizeMealCategory(meal.category) }
                 const mealItems = itemsMap[meal.id] || []
                 const totals = mealItems.reduce((acc, item) => {
                     const factor = (item.unit === 'g' || item.unit === 'ml')
@@ -110,7 +121,7 @@ export default function FoodModal({ onClose, onAdd }) {
                 }, { kcal: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 })
 
                 return {
-                    ...meal,
+                    ...normalizedMeal,
                     items: mealItems,
                     totals: {
                         kcal: Math.round(totals.kcal),
@@ -138,7 +149,8 @@ export default function FoodModal({ onClose, onAdd }) {
                 configId: 'meal-' + meal.id,
                 quantity: 1,
                 selectedVariants: null,
-                meal_category: meal.category || null,
+                date,
+                meal_category: normalizeMealCategory(meal.category),
                 calculatedMacros: {
                     kcal: meal.totals?.kcal || 0,
                     protein: meal.totals?.protein || 0,
@@ -147,6 +159,7 @@ export default function FoodModal({ onClose, onAdd }) {
                     fiber: meal.totals?.fiber || 0
                 }
             })
+            onAdded?.({ name: meal.name, category: normalizeMealCategory(meal.category) })
             onClose()
         } catch (e) {
             console.error('Log meal error:', e)
@@ -167,12 +180,14 @@ export default function FoodModal({ onClose, onAdd }) {
     const handleDeleteMeal = async (mealId) => {
         if (!confirm(t('food_modal.delete_confirm'))) return
         try {
-            const { error } = await supabase
-                .from('meals')
-                .delete()
-                .eq('id', mealId)
+            if (!isPreview) {
+                const { error } = await supabase
+                    .from('meals')
+                    .delete()
+                    .eq('id', mealId)
 
-            if (error) throw error
+                if (error) throw error
+            }
             setMeals(meals.filter(m => m.id !== mealId))
         } catch (e) {
             console.error('Delete meal error:', e)
@@ -250,19 +265,41 @@ export default function FoodModal({ onClose, onAdd }) {
         setView('entry')
     }
 
-    const handleSubmit = () => {
-        if (!selectedFood || !grams) return
+    const handleSubmit = async () => {
+        if (!selectedFood || !grams || submitting) return
         const parsedValue = parseFloat(String(grams).replace(',', '.')) || 0
         if (parsedValue <= 0) return
-        onAdd(selectedFood.id, parsedValue, null, { unitType, meal_category: mealCategory })
-        onClose()
+        setSubmitting(true)
+        setSubmitError(null)
+        try {
+            await onAdd(selectedFood.id, parsedValue, null, { unitType, meal_category: mealCategory })
+            onAdded?.({ name: selectedFood.name_nl, category: mealCategory })
+            onClose()
+        } catch (error) {
+            console.error('Food submit error:', error)
+            setSubmitError(t('food_modal.add_error'))
+        } finally {
+            setSubmitting(false)
+        }
     }
 
-    const handleCreate = () => {
-        if (!newFood.name_nl || !newFood.kcal_100) return
+    const handleCreate = async () => {
+        if (!newFood.name_nl.trim() || !newFood.kcal_100 || submitting) return
+        const nutritionValues = ['kcal_100', 'protein_100', 'carbs_100', 'fat_100', 'fiber_100']
+        const validNutrition = nutritionValues.every(key => {
+            if (!newFood[key]) return true
+            const value = Number(String(newFood[key]).replace(',', '.'))
+            return Number.isFinite(value) && value >= 0
+        })
+        if (!validNutrition || Number(newFood.kcal_100) <= 0) {
+            setCreateError(t('food_modal.add_error'))
+            return
+        }
 
+        setSubmitting(true)
+        setCreateError(null)
         const createdFood = {
-            id: crypto.randomUUID(), // Valid UUID for DB
+            id: createId(), // Valid UUID for DB
             name_nl: newFood.name_nl,
             name_en: newFood.name_nl, // Assuming custom foods are same in EN unless they edit
             aliases: [],
@@ -277,19 +314,24 @@ export default function FoodModal({ onClose, onAdd }) {
             isCustom: true
         }
 
-        // Save to DB via Context
-        if (addCustomFood) {
-            addCustomFood(createdFood)
-        } else {
-            updateUser({
-                foods: [...user.foods, createdFood]
-            })
-        }
+        try {
+            if (addCustomFood) {
+                await addCustomFood(createdFood)
+            } else {
+                updateUser({
+                    foods: [...user.foods, createdFood]
+                })
+            }
 
-        // Select and proceed
-        setSelectedFood(createdFood)
-        setGrams('100')
-        setView('entry')
+            setSelectedFood(createdFood)
+            setGrams('100')
+            setView('entry')
+        } catch (error) {
+            console.error('Custom food creation error:', error)
+            setCreateError(t('food_modal.add_error'))
+        } finally {
+            setSubmitting(false)
+        }
     }
 
     const preview = calculatePreview()
@@ -305,6 +347,7 @@ export default function FoodModal({ onClose, onAdd }) {
                 >
                     <MealEditor
                         meal={editingMeal}
+                        isPreview={isPreview}
                         onSave={handleMealSaved}
                         onClose={() => { setShowMealEditor(false); setEditingMeal(null) }}
                     />
@@ -564,10 +607,11 @@ export default function FoodModal({ onClose, onAdd }) {
                                     </div>
                                 </div>
 
+                                {createError && <div role="alert" style={{ color: 'var(--color-error)', marginBottom: '0.75rem', fontSize: '0.85rem' }}>{createError}</div>}
                                 <button
                                     className="btn btn-primary"
-                                    onClick={handleCreate}
-                                    disabled={!newFood.name_nl || !newFood.kcal_100}
+                                    onClick={() => void handleCreate()}
+                                    disabled={submitting || !newFood.name_nl || !newFood.kcal_100}
                                     style={{
                                         width: '100%',
                                         marginTop: '1.5rem',
@@ -708,9 +752,9 @@ export default function FoodModal({ onClose, onAdd }) {
                                     border: '1px solid var(--color-border)'
                                 }}>
                                     <PreviewStat label="Kcal" value={preview.kcal} color="var(--color-calories)" />
-                                    <PreviewStat label={t('food_modal.carbs_label')} value={preview.c + 'g'} color="var(--color-carbs)" />
-                                    <PreviewStat label={t('food_modal.fat_label')} value={preview.f + 'g'} color="#e4c464" />
-                                    <PreviewStat label={t('food_modal.protein_label')} value={preview.p + 'g'} color="var(--color-protein)" />
+                                    <PreviewStat label={t('food_modal.carbs_label')} value={preview.c + 'g'} color="#333333" />
+                                    <PreviewStat label={t('food_modal.fat_label')} value={preview.f + 'g'} color="#333333" />
+                                    <PreviewStat label={t('food_modal.protein_label')} value={preview.p + 'g'} color="#333333" />
                                     <PreviewStat label={t('food_modal.fiber_label')} value={preview.fiber + 'g'} color="var(--color-text-muted)" hasBorder={false} />
                                 </div>
 
@@ -762,10 +806,11 @@ export default function FoodModal({ onClose, onAdd }) {
                                 </div>
                                 </div>
 
+                                {submitError && <div role="alert" style={{ color: 'var(--color-error)', marginBottom: '0.75rem', fontSize: '0.85rem' }}>{submitError}</div>}
                                 <button
                                     className="btn btn-primary"
-                                    onClick={handleSubmit}
-                                    disabled={!grams || parseFloat(String(grams).replace(',', '.')) <= 0}
+                                    onClick={() => void handleSubmit()}
+                                    disabled={submitting || !grams || parseFloat(String(grams).replace(',', '.')) <= 0}
                                     style={{
                                         width: '100%',
                                         flexShrink: 0,
@@ -778,11 +823,11 @@ export default function FoodModal({ onClose, onAdd }) {
                                         border: 'none',
                                         boxShadow: 'var(--shadow-soft)',
                                         cursor: 'pointer',
-                                        opacity: (!grams || parseFloat(String(grams).replace(',', '.')) <= 0) ? 0.5 : 1,
+                                        opacity: (submitting || !grams || parseFloat(String(grams).replace(',', '.')) <= 0) ? 0.5 : 1,
                                         transition: 'transform 0.15s, opacity 0.15s'
                                     }}
                                 >
-                                    {t('food_modal.add_to_today')}
+                                    {submitting ? t('food_modal.adding') : t('food_modal.add_to_today')}
                                 </button>
                             </>
                         )}

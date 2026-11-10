@@ -4,15 +4,12 @@ import { useUser } from '../context/UserContext'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../utils/supabaseClient'
 import { useLanguage } from '../context/LanguageContext'
+import { moderateCommunityContent } from '../logic/community-moderation'
+import { requestCommunity } from '../utils/communityApi'
+import CommunityModerationPanel from '../components/CommunityModerationPanel'
+import { PHASE_COLORS, PHASE_SOFT_COLORS, PHASE_TEXT_COLORS } from '../logic/calendar-marks'
 
 const CATEGORIES = ['alles', 'voeding', 'training', 'cyclus', 'algemeen']
-
-const PHASE_COLORS = {
-    menstrual: '#c4506a',
-    follicular: '#2fb5c7',
-    ovulatory: '#e8785f',
-    luteal: '#6a9f6b'
-}
 
 function timeAgo(dateStr, t, language) {
     const now = new Date()
@@ -62,8 +59,8 @@ function PostCard({ post, onOpen, onLike, isLiked, t, language }) {
                                 fontSize: '0.7rem',
                                 padding: '2px 8px',
                                 borderRadius: 'var(--radius-sm)',
-                                background: `${PHASE_COLORS[post.phase_tag]}20`,
-                                color: PHASE_COLORS[post.phase_tag],
+                                 background: PHASE_SOFT_COLORS[post.phase_tag],
+                                 color: PHASE_TEXT_COLORS[post.phase_tag],
                                 fontWeight: '500'
                             }}>
                                 {t(`community.phases.${post.phase_tag}`)}
@@ -156,8 +153,9 @@ function SkeletonPostCard() {
 // ─── Main Community Component ────────────────────────────
 export default function Community() {
     const { user, currentPhase } = useUser()
-    const { user: authUser } = useAuth()
+    const { user: authUser, getAccessToken } = useAuth()
     const { t, language } = useLanguage()
+    const accessToken = getAccessToken()
 
     const [view, setView] = useState('feed')  // 'feed', 'detail', 'new'
     const [posts, setPosts] = useState([])
@@ -180,6 +178,8 @@ export default function Community() {
     const [newAnonymous, setNewAnonymous] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [deleteConfirmId, setDeleteConfirmId] = useState(null) // post ID awaiting delete confirmation
+    const [blockedUserIds, setBlockedUserIds] = useState(new Set())
+    const [blockedUsers, setBlockedUsers] = useState([])
 
     // ─── Fetch Posts ──────────────────────────────────────
     const fetchPosts = useCallback(async () => {
@@ -192,6 +192,7 @@ export default function Community() {
             let query = supabase
                 .from('community_posts')
                 .select('*')
+                .eq('moderation_status', 'approved')
                 .order(orderCol, { ascending })
                 .limit(50)
 
@@ -208,13 +209,24 @@ export default function Community() {
             if (sortOrder === 'populairst') {
                 sorted = [...sorted].sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0))
             }
-            setPosts(sorted)
+            setPosts(sorted.filter(post => !blockedUserIds.has(post.user_id)))
         } catch (e) {
             console.error('Failed to fetch posts:', e)
         } finally {
             setIsLoading(false)
         }
-    }, [activeCategory, sortOrder])
+    }, [activeCategory, sortOrder, blockedUserIds])
+
+    const fetchBlockedUsers = useCallback(async () => {
+        if (!authUser) return
+        try {
+            const { blockedUsers: rows = [] } = await requestCommunity('blocks', { token: accessToken })
+            setBlockedUsers(rows)
+            setBlockedUserIds(new Set(rows.map(row => row.id)))
+        } catch (e) {
+            console.error('Failed to fetch blocked users:', e)
+        }
+    }, [authUser, accessToken])
 
     // ─── Fetch My Likes ──────────────────────────────────
     const fetchMyLikes = useCallback(async () => {
@@ -246,6 +258,7 @@ export default function Community() {
                 .from('community_comments')
                 .select('post_id')
                 .eq('user_id', authUser.id)
+                .eq('moderation_status', 'approved')
             const postIds = new Set((data || []).map(c => c.post_id))
             setMyCommentedPosts(postIds)
         } catch (e) {
@@ -256,6 +269,96 @@ export default function Community() {
     useEffect(() => { fetchPosts() }, [fetchPosts])
     useEffect(() => { fetchMyLikes() }, [fetchMyLikes])
     useEffect(() => { fetchMyCommentedPosts() }, [fetchMyCommentedPosts])
+    useEffect(() => { fetchBlockedUsers() }, [fetchBlockedUsers])
+
+    const moderationDecision = (...parts) => moderateCommunityContent(...parts)
+
+    const showSubmissionError = error => {
+        if (error.code === 'community_guidelines') alert(t('community.content_rejected'))
+        else if (error.code === 'harmful_health_advice') alert(t('community.harmful_content_rejected'))
+        else alert(error.message || t('community.post_failed'))
+    }
+
+    const reportContent = async (contentType, contentId) => {
+        const reason = window.prompt(t('community.report_reason_prompt'))
+        if (reason === null) return
+        try {
+            await requestCommunity('report', {
+                token: accessToken,
+                method: 'POST',
+                body: { contentType, contentId, reason: reason.trim() || null }
+            })
+            alert(t('community.report_success'))
+        } catch (error) {
+            alert(error.message || t('community.report_failed'))
+        }
+    }
+
+    const blockUser = async (targetUserId) => {
+        if (!targetUserId || targetUserId === authUser?.id || blockedUserIds.has(targetUserId)) return
+        if (!window.confirm(t('community.confirm_block'))) return
+        try {
+            await requestCommunity('block', {
+                token: accessToken,
+                method: 'POST',
+                body: { blockedUserId: targetUserId }
+            })
+            setBlockedUserIds(previous => new Set(previous).add(targetUserId))
+            setPosts(previous => previous.filter(post => post.user_id !== targetUserId))
+            setComments(previous => previous.filter(comment => comment.user_id !== targetUserId))
+            setBlockedUsers(previous => previous.some(row => row.id === targetUserId)
+                ? previous
+                : [...previous, { id: targetUserId, name: t('community.blocked_member') }])
+            if (selectedPost?.user_id === targetUserId) {
+                setSelectedPost(null)
+                setComments([])
+                setView('feed')
+            }
+        } catch (error) {
+            alert(error.message || t('community.block_failed'))
+        }
+    }
+
+    const unblockUser = async targetUserId => {
+        try {
+            await requestCommunity(`block/${targetUserId}`, { token: accessToken, method: 'DELETE' })
+            setBlockedUserIds(previous => {
+                const next = new Set(previous)
+                next.delete(targetUserId)
+                return next
+            })
+            setBlockedUsers(previous => previous.filter(row => row.id !== targetUserId))
+        } catch (error) {
+            alert(error.message || t('community.unblock_failed'))
+        }
+    }
+
+    if (view === 'moderation' && user?.isAdmin) {
+        return (
+            <CommunityModerationPanel
+                token={accessToken}
+                onBack={() => { setView('feed'); fetchPosts() }}
+            />
+        )
+    }
+
+    if (view === 'blocked') {
+        return (
+            <div className="container" style={{ paddingBottom: '120px', paddingTop: '1rem' }}>
+                <button onClick={() => setView('feed')} className="btn" style={{ marginBottom: '1rem' }}>
+                    ← {t('community.back')}
+                </button>
+                <h2 style={{ fontSize: '1.25rem' }}>{t('community.blocked_title')}</h2>
+                {blockedUsers.length === 0 && <p style={{ color: 'var(--color-text-muted)' }}>{t('community.blocked_empty')}</p>}
+                {blockedUsers.map(blocked => (
+                    <div key={blocked.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', padding: '0.85rem', borderBottom: '1px solid var(--color-border)' }}>
+                        <span>{blocked.name}</span>
+                        <button className="btn" onClick={() => unblockUser(blocked.id)}>{t('community.unblock')}</button>
+                    </div>
+                ))}
+            </div>
+        )
+    }
 
     // ─── Toggle Like on Post ─────────────────────────────
     const togglePostLike = async (postId) => {
@@ -320,6 +423,7 @@ export default function Community() {
 
     // ─── Open Post Detail ────────────────────────────────
     const openPost = async (post) => {
+        if (blockedUserIds.has(post.user_id)) return
         setSelectedPost(post)
         setView('detail')
         window.scrollTo(0, 0)
@@ -329,8 +433,9 @@ export default function Community() {
                 .from('community_comments')
                 .select('*')
                 .eq('post_id', post.id)
+                .eq('moderation_status', 'approved')
                 .order('created_at', { ascending: true })
-            setComments(data || [])
+            setComments((data || []).filter(comment => !blockedUserIds.has(comment.user_id)))
         } catch (e) {
             console.error('Failed to fetch comments:', e)
         }
@@ -340,30 +445,31 @@ export default function Community() {
     const submitComment = async () => {
         if (!commentText.trim() || !authUser || !selectedPost) return
         const authorName = user?.name || t('community.anonymous')
-
-        const newComment = {
-            post_id: selectedPost.id,
-            user_id: authUser.id,
-            author_name: authorName,
-            body: commentText.trim()
+        const text = commentText.trim()
+        const decision = moderationDecision(text, authorName)
+        if (decision.action === 'reject') {
+            showSubmissionError({ code: decision.reason })
+            return
         }
 
         setIsSubmitting(true)
         try {
-            const { data, error } = await supabase
-                .from('community_comments')
-                .insert(newComment)
-                .select()
-                .single()
-            if (error) throw error
-
-            setComments(prev => [...prev, data])
-            setSelectedPost(prev => ({ ...prev, comments_count: (prev.comments_count || 0) + 1 }))
-            setMyCommentedPosts(prev => new Set(prev).add(selectedPost.id))
+            const result = await requestCommunity(`post/${selectedPost.id}/comment`, {
+                token: accessToken,
+                method: 'POST',
+                body: { body: text, authorName }
+            })
+            if (result.moderationStatus === 'pending_review') {
+                alert(t('community.content_pending_review'))
+            } else {
+                setComments(prev => [...prev, result.comment])
+                setSelectedPost(prev => ({ ...prev, comments_count: (prev.comments_count || 0) + 1 }))
+                setMyCommentedPosts(prev => new Set(prev).add(selectedPost.id))
+            }
             setCommentText('')
         } catch (e) {
             console.error('Failed to post comment:', e)
-            alert(t('community.comment_failed'))
+            showSubmissionError(e)
         } finally {
             setIsSubmitting(false)
         }
@@ -373,19 +479,28 @@ export default function Community() {
     const submitPost = async () => {
         if (!newTitle.trim() || !newBody.trim() || !authUser) return
         const authorName = newAnonymous ? t('community.anonymous') : (user?.name || t('community.anonymous'))
+        const title = newTitle.trim()
+        const body = newBody.trim()
+        const decision = moderationDecision(title, body, authorName)
+        if (decision.action === 'reject') {
+            showSubmissionError({ code: decision.reason })
+            return
+        }
 
         setIsSubmitting(true)
         try {
-            const { error } = await supabase.from('community_posts').insert({
-                user_id: authUser.id,
-                author_name: authorName,
-                is_anonymous: newAnonymous,
-                category: newCategory,
-                phase_tag: newPhaseTag,
-                title: newTitle.trim(),
-                body: newBody.trim()
+            const result = await requestCommunity('post', {
+                token: accessToken,
+                method: 'POST',
+                body: {
+                    authorName,
+                    isAnonymous: newAnonymous,
+                    category: newCategory,
+                    phaseTag: newPhaseTag,
+                    title,
+                    body
+                }
             })
-            if (error) throw error
 
             // Reset form & go back
             setNewTitle('')
@@ -396,9 +511,10 @@ export default function Community() {
             setView('feed')
             window.scrollTo(0, 0)
             fetchPosts()
+            if (result.moderationStatus === 'pending_review') alert(t('community.content_pending_review'))
         } catch (e) {
             console.error('Failed to create post:', e)
-            alert(t('community.post_failed'))
+            showSubmissionError(e)
         } finally {
             setIsSubmitting(false)
         }
@@ -529,16 +645,16 @@ export default function Community() {
                         {t('community.phase_label')} <span style={{ fontWeight: '400' }}>{t('community.optional')}</span>
                     </label>
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                        {Object.entries(PHASE_COLORS).map(([key, color]) => (
-                            <button
+                         {Object.entries(PHASE_COLORS).map(([key, color]) => (
+                             <button
                                 key={key}
                                 onClick={() => setNewPhaseTag(newPhaseTag === key ? null : key)}
                                 style={{
                                     padding: '0.4rem 0.8rem',
                                     borderRadius: 'var(--radius-md)',
                                     border: newPhaseTag === key ? `2px solid ${color}` : '1px solid var(--color-border)',
-                                    background: newPhaseTag === key ? `${color}20` : 'var(--color-surface)',
-                                    color: newPhaseTag === key ? color : 'var(--color-text-muted)',
+                                     background: newPhaseTag === key ? PHASE_SOFT_COLORS[key] : 'var(--color-surface)',
+                                     color: newPhaseTag === key ? PHASE_TEXT_COLORS[key] : 'var(--color-text-muted)',
                                     fontSize: '0.8rem',
                                     fontWeight: newPhaseTag === key ? '600' : '400',
                                     cursor: 'pointer'
@@ -573,6 +689,7 @@ export default function Community() {
                         value={newBody}
                         onChange={e => setNewBody(e.target.value)}
                         rows={5}
+                        maxLength={3000}
                         style={{
                             width: '100%', padding: '0.875rem 1rem', borderRadius: 'var(--radius-sm)',
                             border: '1px solid var(--color-border)', background: 'var(--color-surface)',
@@ -613,6 +730,10 @@ export default function Community() {
                         }} />
                     </button>
                 </div>
+
+                <p style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', lineHeight: 1.45, marginBottom: '1rem' }}>
+                    {t('community.guidelines')}
+                </p>
 
                 {/* Submit */}
                 <button
@@ -667,8 +788,8 @@ export default function Community() {
                                 {selectedPost.phase_tag && (
                                     <span style={{
                                         marginLeft: '0.5rem', fontSize: '0.7rem', padding: '2px 8px',
-                                        borderRadius: 'var(--radius-sm)', background: `${PHASE_COLORS[selectedPost.phase_tag]}20`,
-                                        color: PHASE_COLORS[selectedPost.phase_tag], fontWeight: '500'
+                                         borderRadius: 'var(--radius-sm)', background: PHASE_SOFT_COLORS[selectedPost.phase_tag],
+                                         color: PHASE_TEXT_COLORS[selectedPost.phase_tag], fontWeight: '500'
                                     }}>
                                         {t(`community.phases.${selectedPost.phase_tag}`)}
                                     </span>
@@ -705,6 +826,12 @@ export default function Community() {
                         <span style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
                             💬 {comments.length}
                         </span>
+                        {!isOwner && (
+                            <>
+                                <button className="btn" onClick={() => reportContent('post', selectedPost.id)}>{t('community.report')}</button>
+                                <button className="btn" onClick={() => blockUser(selectedPost.user_id)}>{t('community.block_user')}</button>
+                            </>
+                        )}
                         {(isOwner || user?.isAdmin) && (
                             <button
                                 onClick={() => confirmDeletePost(selectedPost.id)}
@@ -724,6 +851,9 @@ export default function Community() {
                 <h3 style={{ fontSize: '0.95rem', fontWeight: '600', marginBottom: '0.75rem', color: 'var(--color-text)' }}>
                     {t('community.reactions')} ({comments.length})
                 </h3>
+                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', lineHeight: 1.4, marginBottom: '0.75rem' }}>
+                    {t('community.guidelines')}
+                </p>
 
                 {comments.length === 0 && (
                     <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', textAlign: 'center', padding: '1rem 0' }}>
@@ -748,17 +878,25 @@ export default function Community() {
                             {comment.body}
                         </p>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem' }}>
-                            <button
-                                onClick={() => toggleCommentLike(comment.id)}
-                                style={{
-                                    background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                                    display: 'flex', alignItems: 'center', gap: '4px',
-                                    color: myCommentLikes.has(comment.id) ? '#ef4444' : 'var(--color-text-muted)',
-                                    fontSize: '0.8rem'
-                                }}
-                            >
-                                {myCommentLikes.has(comment.id) ? '❤️' : '🤍'} {comment.likes_count || 0}
-                            </button>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                <button
+                                    onClick={() => toggleCommentLike(comment.id)}
+                                    style={{
+                                        background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                                        display: 'flex', alignItems: 'center', gap: '4px',
+                                        color: myCommentLikes.has(comment.id) ? '#ef4444' : 'var(--color-text-muted)',
+                                        fontSize: '0.8rem'
+                                    }}
+                                >
+                                    {myCommentLikes.has(comment.id) ? '❤️' : '🤍'} {comment.likes_count || 0}
+                                </button>
+                                {comment.user_id !== authUser?.id && (
+                                    <>
+                                        <button className="btn" onClick={() => reportContent('comment', comment.id)}>{t('community.report')}</button>
+                                        <button className="btn" onClick={() => blockUser(comment.user_id)}>{t('community.block_user')}</button>
+                                    </>
+                                )}
+                            </div>
 
                             {(comment.user_id === authUser?.id || user?.isAdmin) && (
                                 <button
@@ -795,6 +933,7 @@ export default function Community() {
                         value={commentText}
                         onChange={e => setCommentText(e.target.value)}
                         placeholder={t('community.write_comment')}
+                        maxLength={1000}
                         onKeyDown={e => e.key === 'Enter' && submitComment()}
                         style={{
                             flex: 1, padding: '0.7rem 1rem', borderRadius: 'var(--radius-lg)',
@@ -882,7 +1021,17 @@ export default function Community() {
         <div className="container" style={{ paddingBottom: '120px', paddingTop: '1rem' }}>
             {/* Header */}
             <div style={{ marginBottom: '1rem' }}>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.25rem' }}>Community</h2>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.25rem' }}>Community</h2>
+                    <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                        <button className="btn" onClick={() => setView('blocked')}>{t('community.blocked_title')}</button>
+                        {user?.isAdmin && (
+                            <button className="btn btn-primary" onClick={() => setView('moderation')}>
+                                {t('community.moderation_title')}
+                            </button>
+                        )}
+                    </div>
+                </div>
                 <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>{t('community.subtitle')}</p>
             </div>
 

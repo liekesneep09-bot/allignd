@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../utils/supabaseClient'
 import { getCycleDisplayData, getPhaseTransition } from '../logic/cycle'
 import { getPhaseContent } from '../data/phases'
-import { IconMap, IconAccount, IconCalendar, IconFlame } from '../components/Icons'
+import { IconMap, IconAccount, IconCalendar } from '../components/Icons'
 import FoodModal from '../components/FoodModal'
 import PeriodCalendar from '../components/PeriodCalendar'
 import { toNum, calculateProgress } from '../utils/numbers'
@@ -14,7 +14,8 @@ import HabitsCard from '../components/HabitsCard'
 import WeightTracker from '../components/WeightTracker'
 import CheckInModal, { SYMPTOMS_LIST } from '../components/CheckInModal'
 import CycleStatusCard from '../components/CycleStatusCard'
-import { getStreak, hasLoggedToday } from '../logic/streaks'
+import ActionToast from '../components/ActionToast'
+import { normalizeMealCategory } from '../utils/mealCategory'
 
 // --- HELPER COMPONENTS ---
 
@@ -157,17 +158,22 @@ function DayStrip({ selectedDate, onSelect, accentColor }) {
         const isToday = date.toDateString() === new Date().toDateString()
 
         return (
-          <div
+          <button
             key={i}
+            type="button"
             onClick={() => onSelect(date)}
+            aria-label={date.toLocaleDateString(language === 'nl' ? 'nl-NL' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            aria-pressed={isSelected}
             style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '0.25rem',
               cursor: 'pointer',
-              padding: '0.5rem',
-              minWidth: '36px',
+              padding: '0.5rem 0.25rem',
+              minWidth: '44px',
+              minHeight: '52px',
               borderRadius: 'var(--radius-lg)',
               background: isSelected ? '#FFFFFF' : 'transparent',
               color: isSelected ? (accentColor || 'var(--color-primary)') : 'var(--color-text)',
@@ -200,7 +206,7 @@ function DayStrip({ selectedDate, onSelect, accentColor }) {
                 }} />
               )}
             </span>
-          </div>
+          </button>
         )
       })}
     </div>
@@ -245,7 +251,7 @@ const adaptNutritionTip = (tip, dietaryPreference, language) => {
 // --- MAIN COMPONENT ---
 
 export default function Today({ onNavigate }) {
-  const { user, targets, logFood, getStatsForDate, deleteFoodLog, logPeriodStart, logMovement, resetOnboarding, isLoading, endPeriodToday, getPhaseForDate, isDateInPeriod, togglePeriodDate, startPeriod, stopPeriod, isMenstruatingNow } = useUser()
+  const { user, targets, logFood, getStatsForDate, deleteFoodLog, restoreFoodLog, logPeriodStart, logMovement, resetOnboarding, isLoading, endPeriodToday, getPhaseForDate, isDateInPeriod, togglePeriodDate, startPeriod, stopPeriod, isMenstruatingNow } = useUser()
   const logMenstruation = startPeriod // Alias for legacy call
   const { t, language } = useLanguage()
 
@@ -271,8 +277,15 @@ export default function Today({ onNavigate }) {
   const [showLog, setShowLog] = useState(false)
   const [showCalendar, setShowCalendar] = useState(false)
   const [dailyTopic, setDailyTopic] = useState(null)
+  const [actionFeedback, setActionFeedback] = useState(null)
 
   const { user: authUser } = useAuth()
+
+  useEffect(() => {
+    if (!actionFeedback) return undefined
+    const timeout = setTimeout(() => setActionFeedback(null), actionFeedback.onAction ? 8000 : 5000)
+    return () => clearTimeout(timeout)
+  }, [actionFeedback])
 
   useEffect(() => {
     if (!authUser) return
@@ -300,38 +313,80 @@ export default function Today({ onNavigate }) {
   const todaysSymptomsLog = user?.symptomLogs?.find(l => l.date === viewDateStr)
   const todaysSymptoms = todaysSymptomsLog?.symptoms || []
 
-  const streak = getStreak(user)
-  const loggedToday = hasLoggedToday(user)
-
   const trainingActions = content.training ? content.training.types : []
 
   const getPhaseColor = (p) => {
     switch (p) {
       case 'menstrual': return {
-        bg: 'linear-gradient(to bottom, #c4506a40 0%, rgba(196,80,106,0.2) 60%, rgba(255,255,255,0) 100%)',
-        text: '#c4506a',
-        accent: '#c4506a80'
+        bg: 'linear-gradient(to bottom, rgba(var(--phase-menstrual-rgb), 0.25) 0%, rgba(var(--phase-menstrual-rgb), 0.12) 60%, rgba(255,255,255,0) 100%)',
+        text: 'var(--phase-menstrual)',
+        accent: 'rgba(var(--phase-menstrual-rgb), 0.5)'
       }
       case 'follicular': return {
-        bg: 'linear-gradient(to bottom, #2fb5c760 0%, rgba(47,181,199,0.2) 60%, rgba(255,255,255,0) 100%)',
-        text: '#2fb5c7',
-        accent: '#2fb5c780'
+        bg: 'linear-gradient(to bottom, rgba(var(--phase-follicular-rgb), 0.25) 0%, rgba(var(--phase-follicular-rgb), 0.12) 60%, rgba(255,255,255,0) 100%)',
+        text: 'var(--phase-follicular)',
+        accent: 'rgba(var(--phase-follicular-rgb), 0.5)'
       }
       case 'ovulatory': return {
-        bg: 'linear-gradient(to bottom, #e8785f40 0%, rgba(232,120,95,0.2) 60%, rgba(255,255,255,0) 100%)',
-        text: '#e8785f',
-        accent: '#e8785f80'
+        bg: 'linear-gradient(to bottom, rgba(var(--phase-ovulatory-rgb), 0.25) 0%, rgba(var(--phase-ovulatory-rgb), 0.12) 60%, rgba(255,255,255,0) 100%)',
+        text: 'var(--phase-ovulatory)',
+        accent: 'rgba(var(--phase-ovulatory-rgb), 0.5)'
       }
       case 'luteal': return {
-        bg: 'linear-gradient(to bottom, #6a9f6b40 0%, rgba(106,159,107,0.2) 60%, rgba(255,255,255,0) 100%)',
-        text: '#6a9f6b',
-        accent: '#6a9f6b80'
+        bg: 'linear-gradient(to bottom, rgba(var(--phase-luteal-rgb), 0.25) 0%, rgba(var(--phase-luteal-rgb), 0.12) 60%, rgba(255,255,255,0) 100%)',
+        text: 'var(--phase-luteal)',
+        accent: 'rgba(var(--phase-luteal-rgb), 0.5)'
       }
       default: return { bg: '#F5F5F5', text: '#9E9E9E', accent: '#EEEEEE' }
     }
   }
 
   const phaseStyle = getPhaseColor(viewPhase)
+
+  const mealCategoryLabel = (category) => {
+    const normalized = normalizeMealCategory(category)
+    const labels = {
+      breakfast: t('meal_editor.breakfast'),
+      lunch: t('meal_editor.lunch'),
+      dinner: t('meal_editor.dinner'),
+      snack: t('meal_editor.snack')
+    }
+    return (labels[normalized] || t('today.other')).toLocaleLowerCase()
+  }
+
+  const handleFoodAdded = ({ name, category }) => {
+    setShowLog(true)
+    setActionFeedback({
+      type: 'success',
+      message: t('today.food_added')
+        .replace('{name}', name)
+        .replace('{category}', mealCategoryLabel(category))
+    })
+  }
+
+  const handleDeleteFood = async (log) => {
+    try {
+      const deleted = await deleteFoodLog(log.id)
+      setActionFeedback({
+        type: 'success',
+        message: t('today.food_deleted').replace('{name}', deleted?.name || log.name),
+        actionLabel: t('today.undo'),
+        onAction: async () => {
+          try {
+            await restoreFoodLog(deleted || log)
+            setActionFeedback({
+              type: 'success',
+              message: t('today.food_restored').replace('{name}', deleted?.name || log.name)
+            })
+          } catch {
+            setActionFeedback({ type: 'error', message: t('today.food_restore_error') })
+          }
+        }
+      })
+    } catch {
+      setActionFeedback({ type: 'error', message: t('today.food_delete_error') })
+    }
+  }
 
   if (isLoading) {
     return (
@@ -393,6 +448,10 @@ export default function Today({ onNavigate }) {
                 cursor: 'pointer', 
                 color: 'var(--color-text)', 
                 display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minWidth: '44px',
+                minHeight: '44px',
                 borderRadius: 'var(--radius-md)',
                 boxShadow: 'var(--shadow-sm)'
               }}
@@ -423,6 +482,10 @@ export default function Today({ onNavigate }) {
                 cursor: 'pointer', 
                 color: 'var(--color-text)', 
                 display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minWidth: '44px',
+                minHeight: '44px',
                 borderRadius: 'var(--radius-md)',
                 boxShadow: 'var(--shadow-sm)'
               }}
@@ -651,50 +714,6 @@ export default function Today({ onNavigate }) {
             </div>
           )}
 
-          {/* STREAK CARD */}
-          {streak > 0 && (
-            <div className="card" style={{
-              padding: 'var(--space-4)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-3)',
-              background: 'linear-gradient(135deg, #FFF5F0 0%, #FFFFFF 100%)',
-              border: '1px solid rgba(232,120,95,0.25)'
-            }}>
-              <div style={{
-                width: '44px',
-                height: '44px',
-                borderRadius: 'var(--radius-full)',
-                background: 'rgba(232,120,95,0.12)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.4rem',
-                flexShrink: 0
-              }}>
-                {loggedToday ? <IconFlame size={22} color="#e8785f" /> : '⏳'}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{
-                  fontSize: 'var(--font-size-sm)',
-                  fontWeight: '700',
-                  color: 'var(--color-text)',
-                  lineHeight: '1.3'
-                }}>
-                  {streak} {streak === 1 ? t('today.streak_day') : t('today.streak_days').replace('{n}', streak)}
-                </div>
-                <div style={{
-                  fontSize: 'var(--font-size-xs)',
-                  color: 'var(--color-text-secondary)',
-                  lineHeight: '1.4',
-                  marginTop: '2px'
-                }}>
-                  {t('today.streak_continue')}
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* DAILY TOPIC CARD */}
           {dailyTopic && (
             <button
@@ -802,9 +821,9 @@ export default function Today({ onNavigate }) {
                 {/* BOTTOM SECTION: MACROS & FIBER */}
                 <div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                    <MacroListItem label={t('today.carbs')} current={toNum(stats.c)} target={toNum(targets.carbsMin)} color="var(--color-carbs)" />
-                    <MacroListItem label={t('today.fats')} current={toNum(stats.f)} target={toNum(targets.fatMin)} color="var(--color-fat)" />
-                    <MacroListItem label={t('today.proteins')} current={toNum(stats.p)} target={toNum(targets.proteinMin)} color="var(--color-protein)" />
+                    <MacroListItem label={t('today.carbs')} current={toNum(stats.c)} target={toNum(targets.carbsMin)} color="var(--color-text-secondary)" />
+                    <MacroListItem label={t('today.fats')} current={toNum(stats.f)} target={toNum(targets.fatMin)} color="var(--color-text-secondary)" />
+                    <MacroListItem label={t('today.proteins')} current={toNum(stats.p)} target={toNum(targets.proteinMin)} color="var(--color-text-secondary)" />
                   </div>
 
                   <div style={{ textAlign: 'center', marginTop: 'var(--space-4)' }}>
@@ -946,7 +965,7 @@ export default function Today({ onNavigate }) {
                 const grouped = {}
                 for (const cat of MEAL_ORDER) grouped[String(cat)] = []
                 for (const log of todaysLogs) {
-                  const key = String(log.meal_category ?? null)
+                  const key = String(normalizeMealCategory(log.meal_category))
                   if (!grouped[key]) grouped[key] = []
                   grouped[key].push(log)
                 }
@@ -1047,7 +1066,7 @@ export default function Today({ onNavigate }) {
                                       </div>
                                     </div>
                                     <button
-                                      onClick={() => deleteFoodLog(log.id)}
+                                      onClick={() => void handleDeleteFood(log)}
                                       aria-label={t('common.delete')}
                                       style={{
                                         color: 'var(--color-text-tertiary)',
@@ -1105,20 +1124,11 @@ export default function Today({ onNavigate }) {
                 }, 100)
               })
             }}
-            onAdd={(foodId, grams, _, config) => {
-              logFood(foodId, grams, viewDateStr, config)
-              setShowModal(false)
-              // Scroll to daily goal card
-              requestAnimationFrame(() => {
-                setTimeout(() => {
-                  if (dailyGoalRef.current) {
-                    const yOffset = -20
-                    const y = dailyGoalRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset
-                    window.scrollTo({ top: y, behavior: 'smooth' })
-                  }
-                }, 100)
-              })
+            date={viewDateStr}
+            onAdd={async (foodId, grams, _, config) => {
+              await logFood(foodId, grams, viewDateStr, config)
             }}
+            onAdded={handleFoodAdded}
           />
         )
       }
@@ -1134,6 +1144,12 @@ export default function Today({ onNavigate }) {
         />
       )}
 
+      {actionFeedback && (
+        <ActionToast
+          {...actionFeedback}
+          onClose={() => setActionFeedback(null)}
+        />
+      )}
 
       <style>{`
         .card-minimal {

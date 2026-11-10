@@ -23,6 +23,7 @@ export default function CheckInModal({ isOpen, onClose, dateStr }) {
     const { t } = useLanguage()
     const [selected, setSelected] = useState([])
     const [isSaving, setIsSaving] = useState(false)
+    const [saveError, setSaveError] = useState(null)
 
     // Load existing symptoms when modal opens
     useEffect(() => {
@@ -42,13 +43,17 @@ export default function CheckInModal({ isOpen, onClose, dateStr }) {
         )
     }
 
-    const handleSave = () => {
+    const handleSave = async () => {
         setIsSaving(true)
-        saveSymptoms(dateStr, selected)
-        setTimeout(() => {
-            setIsSaving(false)
+        setSaveError(null)
+        try {
+            await saveSymptoms(dateStr, selected)
             onClose()
-        }, 600)
+        } catch {
+            setSaveError(t('checkin.save_error'))
+        } finally {
+            setIsSaving(false)
+        }
     }
 
     const bodySymptoms = SYMPTOMS_LIST.filter(s => s.category === 'body')
@@ -127,8 +132,9 @@ export default function CheckInModal({ isOpen, onClose, dateStr }) {
                     </div>
                 </div>
 
+                {saveError && <div role="alert" style={{ color: 'var(--color-error)', marginBottom: '1rem', fontSize: '0.85rem' }}>{saveError}</div>}
                 <button
-                    onClick={handleSave}
+                    onClick={() => void handleSave()}
                     className="btn btn-primary"
                     style={{ width: '100%', marginTop: '1rem', transition: 'all 0.2s' }}
                     disabled={isSaving}

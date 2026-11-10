@@ -1,9 +1,10 @@
 
 import { createClient } from '@supabase/supabase-js'
 
-// Read environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+// Read Vite values on web and Expo's public equivalents in the mobile bundle.
+const viteEnv = import.meta.env || {}
+const supabaseUrl = viteEnv.VITE_SUPABASE_URL || (typeof process !== 'undefined' ? process.env.EXPO_PUBLIC_SUPABASE_URL : undefined)
+const supabaseAnonKey = viteEnv.VITE_SUPABASE_ANON_KEY || (typeof process !== 'undefined' ? process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY : undefined)
 
 // Validation function
 function validateSupabaseConfig() {
@@ -35,7 +36,7 @@ function validateSupabaseConfig() {
 }
 
 // 🔒 SECURITY: Ensure service-role key is NEVER in frontend bundle
-if (import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY || import.meta.env.SUPABASE_SERVICE_ROLE_KEY) {
+if (viteEnv.VITE_SUPABASE_SERVICE_ROLE_KEY || viteEnv.SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error('🚨 SECURITY ERROR: Service-role key detected in frontend bundle! This is a critical security vulnerability.')
 }
 

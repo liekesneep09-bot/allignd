@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useMemo, useCall
 import { useLanguage } from './LanguageContext'
 // ... (omitting lines for brevity, targeting the import)
 import { calculateCycleDay, getPhaseForDay, calculateStartDateFromPhase, getCyclePrediction } from '../logic/cycle'
-import { calculateCycleStats, addPeriodStart as addPeriodStartToHistory, predictNextPeriodStart, getOvulationWindow, calculateAveragePeriodLength } from '../logic/cycle-learning'
+import { calculateCycleStats, addPeriodStart as addPeriodStartToHistory, predictNextPeriodStart, calculateAveragePeriodLength } from '../logic/cycle-learning'
 import { calculateTargetRanges } from '../logic/nutrition'
 import { createPeriodRangeLogs } from '../logic/period-logging'
 import { FOOD_DATABASE } from '../data/foods'
@@ -14,21 +14,23 @@ import { useAuth } from './AuthContext'
 import { supabase } from '../utils/supabaseClient'
 import { getLocalDateStr } from '../utils/date'
 import { getApiBaseUrl, isNativePlatform } from '../utils/platform'
+import { createId } from '../utils/id'
+import { normalizeMealCategory } from '../utils/mealCategory'
 
 const UserContext = createContext(null)
 
-export function UserProvider({ children }) {
+export function UserProvider({ children, previewProfile = null, previewOnboarded = null, isExpoApp = false }) {
   // Auth Context
   // Contexts
   const { user: authUser, getAccessToken, signOut, isLoggingOut } = useAuth()
   const { language: currentUiLanguage, setLanguage: setUiLanguage } = useLanguage()
 
   // 1. Loading State
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(!previewProfile)
 
   // 2. Onboarding State
   // Initialize synchronously from localStorage to prevent onboarding flash
-  const [isOnboarded, setIsOnboarded] = useState(() => localStorage.getItem('cyclus_onboarded') === 'true')
+  const [isOnboarded, setIsOnboarded] = useState(() => previewProfile ? (previewOnboarded ?? true) : localStorage.getItem('cyclus_onboarded') === 'true')
 
   // 3. User Data State
   const [user, setUser] = useState(() => ({
@@ -86,7 +88,8 @@ export function UserProvider({ children }) {
     
     // Language Preference
     user_language: localStorage.getItem('app_language') || 'nl',
-    dietary_preference: 'everything'
+    dietary_preference: 'everything',
+    ...(previewProfile || {})
   }))
 
   // 4. Derived State (Prioritize calculations)
@@ -243,6 +246,8 @@ export function UserProvider({ children }) {
 
   // 5. Init & Sync Data
   useEffect(() => {
+    if (previewProfile) return undefined
+
     async function initAndSync() {
       if (!authUser) return
 
@@ -425,7 +430,8 @@ export function UserProvider({ children }) {
             fiber: Number(log.fiber || 0),
             item_type: log.item_type,
             configId: log.config_id,
-            selectedVariants: log.selected_variants
+            selectedVariants: log.selected_variants,
+            meal_category: normalizeMealCategory(log.meal_category)
           }))
           setUser(prev => ({
             ...prev,
@@ -513,18 +519,18 @@ export function UserProvider({ children }) {
     }
 
     initAndSync()
-  }, [authUser?.id])
+  }, [authUser?.id, previewProfile])
 
   // 5. Persist User Data (Profile Only)
   useEffect(() => {
-    if (!isLoading) {
+    if (!isLoading && !previewProfile) {
       // Destructure logs & computed data out to avoid bloating profile
       const { foodLogs, movementLogs, foods, ...profileData } = user
       if (authUser?.id) {
         saveUserProfile(profileData, authUser.id)
       }
     }
-  }, [user, isLoading])
+  }, [user, isLoading, previewProfile])
 
   // Helper: Sync single day log to Cloud
   const syncDayLogToCloud = async (dateStr, dayData) => {
@@ -665,7 +671,7 @@ export function UserProvider({ children }) {
   const saveProfileAndCalculate = async (profileData) => {
     try {
       // Find the user ID: either passed in (for first signup), or from authUser, or from profileData
-      const userId = profileData.id || authUser?.id;
+      const userId = profileData.id || authUser?.id || (previewProfile ? 'preview' : null);
       if (!userId) throw new Error("Gebruiker niet gevonden (niet ingelogd)");
 
       // 1. Prepare Profile Object
@@ -720,7 +726,7 @@ export function UserProvider({ children }) {
         }
       }
 
-      await defensiveProfileUpsert({
+      if (!previewProfile) await defensiveProfileUpsert({
         id: userId,
         name: profileData.name || user.name || '',
         birth_date: birthDate || undefined,
@@ -755,6 +761,37 @@ export function UserProvider({ children }) {
       if (profileData.previousPeriodEnd) {
         const prevEndStr = String(profileData.previousPeriodEnd).split('T')[0];
         updatedMenstruationLogs = [...updatedMenstruationLogs.filter(l => l.date !== prevEndStr), { date: prevEndStr, status: 'no' }];
+      }
+
+      if (previewProfile) {
+        const existingDates = user.periodStartDates || [];
+        const updatedDates = periodDatesToLog.length > 0
+          ? [...new Set([...existingDates, ...periodDatesToLog])].sort()
+          : existingDates;
+        const todayStr = new Date().toISOString().split('T')[0];
+        const previewWeight = cleanProfile.weight_kg;
+
+        setUser(prev => ({
+          ...prev,
+          ...cleanProfile,
+          periodStartDates: updatedDates,
+          menstruationLogs: updatedMenstruationLogs,
+          weightLogs: previewWeight > 0
+            ? [...(prev.weightLogs || []).filter(log => log.date !== todayStr), { date: todayStr, weight: previewWeight }].sort((a, b) => a.date.localeCompare(b.date))
+            : prev.weightLogs,
+          macroTargets: {
+            calories: targets.calorie_target_min,
+            caloriesMax: targets.calorie_target_max,
+            proteinMin: targets.protein_g_min,
+            proteinMax: targets.protein_g_max,
+            fatMin: targets.fat_g_min,
+            fatMax: targets.fat_g_max,
+            carbsMin: targets.carbs_g_min,
+            carbsMax: targets.carbs_g_max
+          },
+          nutritionDebug: { tdee: targets.tdee_estimate }
+        }));
+        return targets;
       }
 
       if (periodDatesToLog.length > 0) {
@@ -802,7 +839,7 @@ export function UserProvider({ children }) {
         if (existingLog) {
           await supabase.from('weight_logs').update({ weight: newWeight }).eq('id', existingLog.id)
         } else {
-          await supabase.from('weight_logs').insert({ id: crypto.randomUUID(), user_id: userId, weight: newWeight, date: todayStr })
+          await supabase.from('weight_logs').insert({ id: createId(), user_id: userId, weight: newWeight, date: todayStr })
         }
                 // Update local weight logs
         setUser(prev => {
@@ -855,21 +892,20 @@ export function UserProvider({ children }) {
   };
 
   const completeOnboarding = async () => {
-    setIsOnboarded(true)
-    localStorage.setItem('cyclus_onboarded', 'true')
-    // Clear the explicit reset flag so the PWA fallback check works again
-    localStorage.removeItem('cyclus_onboarding_reset')
-
-    // Sync to Supabase
     if (authUser) {
-      await supabase.from('profiles').update({
+      const { error } = await supabase.from('profiles').update({
         is_onboarded: true,
         updated_at: new Date().toISOString()
       }).eq('id', authUser.id)
+      if (error) throw error
     }
 
-    // SUBSCRIPTION BYPASSED FOR TESTING - redirect straight to app
-    window.location.href = '/'
+    setIsOnboarded(true)
+    localStorage.setItem('cyclus_onboarded', 'true')
+    localStorage.removeItem('cyclus_onboarding_reset')
+
+    // Expo renders MainLayout again in place; only the webapp needs a URL reset.
+    if (!isExpoApp) window.location.href = '/'
   }
 
   // NEW: Explicitly Reset Onboarding (Keep data, just redo setup)
@@ -967,11 +1003,11 @@ export function UserProvider({ children }) {
     // Handle configurable food (when grams is null and configData is passed)
     if (grams === null && typeof dateStrOrConfigData === 'object') {
       const config = dateStrOrConfigData
-      const targetDate = today
+      const targetDate = config.date || today
 
       const newLog = {
-        id: crypto.randomUUID(), // Use real UUID
-        user_id: authUser.id,
+        id: createId(), // Use real UUID
+        user_id: authUser?.id || 'preview',
         date: targetDate, // YYYY-MM-DD
         foodId: foodId, // 'config-ID'
         name: config.foodName,
@@ -980,7 +1016,7 @@ export function UserProvider({ children }) {
         item_type: 'product', // or 'recipe' if needed
         configId: config.configId,
         selectedVariants: config.selectedVariants,
-        meal_category: config.meal_category || null,
+        meal_category: normalizeMealCategory(config.meal_category),
         kcal: config.calculatedMacros.kcal,
         p: config.calculatedMacros.protein,
         c: config.calculatedMacros.carbs,
@@ -993,6 +1029,8 @@ export function UserProvider({ children }) {
         ...prev,
         foodLogs: [...(prev.foodLogs || []), newLog]
       }))
+
+      if (previewProfile) return
 
       // 2. Persist to DB
       try {
@@ -1016,12 +1054,12 @@ export function UserProvider({ children }) {
         if (error) throw error
       } catch (e) {
         console.error("Failed to log food:", e)
-        alert(`Fout bij opslaan: ${e.message || JSON.stringify(e)}`)
         // Rollback optimistic update
         setUser(prev => ({
           ...prev,
           foodLogs: prev.foodLogs.filter(l => l.id !== newLog.id)
         }))
+        throw e
       }
       return
     }
@@ -1047,13 +1085,13 @@ export function UserProvider({ children }) {
       finalGrams = Math.round(finalQuantity * food.unit_weight)
       finalUnitName = food.unit_name
     } else {
-      finalGrams = parseInt(grams)
+      finalGrams = parseFloat(grams)
     }
 
     const factor = finalGrams / 100
     const newLog = {
-      id: crypto.randomUUID(),
-      user_id: authUser.id,
+      id: createId(),
+      user_id: authUser?.id || 'preview',
       date: targetDate,
       foodId: food.id,
       name: food.name_nl,
@@ -1061,7 +1099,7 @@ export function UserProvider({ children }) {
       quantity: finalQuantity,
       unitName: finalUnitName,
       item_type: 'product',
-      meal_category: configData?.meal_category || null,
+      meal_category: normalizeMealCategory(configData?.meal_category),
       kcal: Math.round(food.kcal_100 * factor),
       p: parseFloat((food.protein_100 * factor).toFixed(1)),
       c: parseFloat((food.carbs_100 * factor).toFixed(1)),
@@ -1074,6 +1112,8 @@ export function UserProvider({ children }) {
       ...prev,
       foodLogs: [...(prev.foodLogs || []), newLog]
     }))
+
+    if (previewProfile) return
 
     // 2. Persist to DB
     try {
@@ -1097,31 +1137,82 @@ export function UserProvider({ children }) {
       if (error) throw error
     } catch (e) {
       console.error("Failed to log food:", e)
-      alert(`Fout bij opslaan: ${e.message || JSON.stringify(e)}`)
       // Rollback optimistic update
       setUser(prev => ({
         ...prev,
         foodLogs: prev.foodLogs.filter(l => l.id !== newLog.id)
       }))
+      throw e
     }
   }
 
   // NEW: Delete Log
   const deleteFoodLog = async (logId) => {
-    // 1. Update State
+    const deletedLog = user.foodLogs.find(log => log.id === logId)
+    if (!deletedLog) throw new Error('food-log-not-found')
+
     setUser(prev => ({
       ...prev,
       foodLogs: prev.foodLogs.filter(log => log.id !== logId)
     }))
 
-    // 2. Persist
+    if (previewProfile) return deletedLog
+
     try {
       const { error } = await supabase.from('food_logs').delete().eq('id', logId)
       if (error) throw error
+      return deletedLog
     } catch (e) {
       console.error("Failed to delete log", e)
-      alert("Kon item niet verwijderen: " + e.message)
-      // No easy rollback for delete yet without refetch
+      setUser(prev => ({
+        ...prev,
+        foodLogs: prev.foodLogs.some(log => log.id === deletedLog.id)
+          ? prev.foodLogs
+          : [...prev.foodLogs, deletedLog]
+      }))
+      throw e
+    }
+  }
+
+  const restoreFoodLog = async (log) => {
+    setUser(prev => ({
+      ...prev,
+      foodLogs: prev.foodLogs.some(item => item.id === log.id)
+        ? prev.foodLogs
+        : [...prev.foodLogs, log]
+    }))
+
+    if (previewProfile) return log
+
+    try {
+      const { error } = await supabase.from('food_logs').upsert({
+        id: log.id,
+        user_id: authUser?.id || log.user_id,
+        date: log.date,
+        food_id: log.foodId,
+        name: log.name,
+        grams: log.grams,
+        quantity: log.quantity,
+        unit_name: log.unitName,
+        item_type: log.item_type || 'product',
+        config_id: log.configId,
+        selected_variants: log.selectedVariants,
+        meal_category: normalizeMealCategory(log.meal_category),
+        kcal: log.kcal,
+        protein: log.p,
+        carbs: log.c,
+        fat: log.f,
+        fiber: log.fiber
+      })
+      if (error) throw error
+      return log
+    } catch (e) {
+      console.error("Failed to restore log", e)
+      setUser(prev => ({
+        ...prev,
+        foodLogs: prev.foodLogs.filter(item => item.id !== log.id)
+      }))
+      throw e
     }
   }
 
@@ -1133,9 +1224,11 @@ export function UserProvider({ children }) {
       foods: [...prev.foods, food]
     }))
 
+    if (previewProfile) return
+
     // 2. Persist
     try {
-      await supabase.from('custom_foods').insert({
+      const { error } = await supabase.from('custom_foods').insert({
         id: food.id,
         user_id: authUser.id,
         name_nl: food.name_nl,
@@ -1148,79 +1241,77 @@ export function UserProvider({ children }) {
         unit_name: food.unit_name,
         unit_weight: food.unit_weight
       })
+      if (error) throw error
+      return food
     } catch (e) {
       console.error("Failed to add custom food", e)
+      setUser(prev => ({ ...prev, foods: prev.foods.filter(item => item.id !== food.id) }))
+      throw e
     }
   }
 
   // NEW: Log Movement
   const logMovement = async (dateStr, status) => {
-    if (!authUser) return
+    if (!authUser && !previewProfile) return
+    const previousLog = user.movementLogs.find(log => log.date === dateStr) || null
 
     const newLog = {
-      id: crypto.randomUUID(),
+      id: createId(),
       date: dateStr,
       status: status,
-      user_id: authUser.id,
+      user_id: authUser?.id || 'preview',
       updated_at: new Date().toISOString()
     }
 
-    // 1. Optimistic UI Update
-    setUser(prev => {
-      // Remove any existing log for this date and add the new one
-      const others = prev.movementLogs.filter(l => l.date !== dateStr) || []
-      return {
-        ...prev,
-        movementLogs: [...others, { date: dateStr, status: status, id: newLog.id }]
-      }
-    })
+    setUser(prev => ({
+      ...prev,
+      movementLogs: [...prev.movementLogs.filter(log => log.date !== dateStr), { date: dateStr, status, id: newLog.id }]
+    }))
 
-    // 2. Persist to DB
+    if (previewProfile) return newLog
+
     try {
       const { error } = await supabase.from('movement_logs').upsert({
-        id: newLog.id, // Use the generated ID for upsert
+        id: newLog.id,
         user_id: newLog.user_id,
         date: newLog.date,
         status: newLog.status,
         updated_at: newLog.updated_at
-      }, { onConflict: 'user_id,date' }) // Conflict on user_id and date to update existing entry
-
+      }, { onConflict: 'user_id,date' })
       if (error) throw error
+      return newLog
     } catch (e) {
       console.error("Failed to log movement to Supabase", e)
-      alert(`Fout bij opslaan van beweging: ${e.message || JSON.stringify(e)}`)
-      // Rollback optimistic update if DB fails
       setUser(prev => ({
         ...prev,
-        movementLogs: prev.movementLogs.filter(l => l.id !== newLog.id)
+        movementLogs: previousLog
+          ? [...prev.movementLogs.filter(log => log.date !== dateStr), previousLog]
+          : prev.movementLogs.filter(log => log.id !== newLog.id)
       }))
+      throw e
     }
   }
 
   // NEW: Log Water
   const logWater = async (dateStr, amount_ml) => {
-    if (!authUser) return
+    if (!authUser && !previewProfile) return
+    if (!Number.isFinite(amount_ml)) throw new Error('invalid-water-amount')
+    const previousLog = user.waterLogs.find(log => log.date === dateStr) || null
+    const newAmount = Math.max(0, (previousLog?.amount_ml || 0) + amount_ml)
 
-    // 1. Optimistic UI Update
-    setUser(prev => {
-      const existingLogs = prev.waterLogs || []
-      const currentAmount = existingLogs.find(l => l.date === dateStr)?.amount_ml || 0
-      const newAmount = currentAmount + amount_ml
+    setUser(prev => ({
+      ...prev,
+      waterLogs: [...prev.waterLogs.filter(log => log.date !== dateStr), { date: dateStr, amount_ml: newAmount }]
+    }))
 
-      const others = existingLogs.filter(l => l.date !== dateStr)
-      return {
-        ...prev,
-        waterLogs: [...others, { date: dateStr, amount_ml: newAmount }]
-      }
-    })
+    if (previewProfile) return { date: dateStr, amount_ml: newAmount }
 
-    // 2. Persist DB
     try {
-      const { data: current } = await supabase.from('water_logs')
+      const { data: current, error: readError } = await supabase.from('water_logs')
         .select('amount_ml').eq('user_id', authUser.id).eq('date', dateStr).maybeSingle()
+      if (readError) throw readError
 
-      const newTotal = (current?.amount_ml || 0) + amount_ml
-
+      const newTotal = Math.max(0, (current?.amount_ml || 0) + amount_ml)
       const { error } = await supabase.from('water_logs').upsert({
         user_id: authUser.id,
         date: dateStr,
@@ -1228,25 +1319,33 @@ export function UserProvider({ children }) {
         updated_at: new Date().toISOString()
       }, { onConflict: 'user_id,date' })
       if (error) throw error
-    } catch (e) { console.error("Failed to log water", e) }
+      return { date: dateStr, amount_ml: newTotal }
+    } catch (e) {
+      console.error("Failed to log water", e)
+      setUser(prev => ({
+        ...prev,
+        waterLogs: previousLog
+          ? [...prev.waterLogs.filter(log => log.date !== dateStr), previousLog]
+          : prev.waterLogs.filter(log => log.date !== dateStr)
+      }))
+      throw e
+    }
   }
 
   // NEW: Log Steps
   const logSteps = async (dateStr, steps) => {
-    if (!authUser) return
-    const newSteps = parseInt(steps) || 0
+    if (!authUser && !previewProfile) return
+    const newSteps = Number(steps)
+    if (!Number.isInteger(newSteps) || newSteps < 0) throw new Error('invalid-step-count')
+    const previousLog = user.stepLogs.find(log => log.date === dateStr) || null
 
-    // 1. Optimistic UI Update
-    setUser(prev => {
-      const existingLogs = prev.stepLogs || []
-      const others = existingLogs.filter(l => l.date !== dateStr)
-      return {
-        ...prev,
-        stepLogs: [...others, { date: dateStr, steps: newSteps }]
-      }
-    })
+    setUser(prev => ({
+      ...prev,
+      stepLogs: [...prev.stepLogs.filter(log => log.date !== dateStr), { date: dateStr, steps: newSteps }]
+    }))
 
-    // 2. Persist DB
+    if (previewProfile) return { date: dateStr, steps: newSteps }
+
     try {
       const { error } = await supabase.from('step_logs').upsert({
         user_id: authUser.id,
@@ -1255,74 +1354,79 @@ export function UserProvider({ children }) {
         updated_at: new Date().toISOString()
       }, { onConflict: 'user_id,date' })
       if (error) throw error
-    } catch (e) { console.error("Failed to log steps", e) }
+      return { date: dateStr, steps: newSteps }
+    } catch (e) {
+      console.error("Failed to log steps", e)
+      setUser(prev => ({
+        ...prev,
+        stepLogs: previousLog
+          ? [...prev.stepLogs.filter(log => log.date !== dateStr), previousLog]
+          : prev.stepLogs.filter(log => log.date !== dateStr)
+      }))
+      throw e
+    }
   }
 
   // NEW: Log Weight
   const logWeight = async (dateStr, weight) => {
-    if (!authUser) return
-    const newWeight = parseFloat(weight)
-    if (isNaN(newWeight)) return
+    if (!authUser && !previewProfile) return
+    const newWeight = Number(weight)
+    if (!Number.isFinite(newWeight) || newWeight < 20 || newWeight > 400) throw new Error('invalid-weight')
+    const previousWeight = user.weight
+    const previousLog = user.weightLogs.find(log => log.date === dateStr) || null
 
-    // 1. Optimistic UI Update
-    setUser(prev => {
-      const existingLogs = prev.weightLogs || []
-      const others = existingLogs.filter(l => l.date !== dateStr)
-      return {
-        ...prev,
-        weight: dateStr === getLocalDateStr(new Date()) ? newWeight : prev.weight,
-        weightLogs: [...others, { date: dateStr, weight: newWeight }].sort((a, b) => a.date.localeCompare(b.date))
-      }
-    })
+    setUser(prev => ({
+      ...prev,
+      weight: dateStr === getLocalDateStr(new Date()) ? newWeight : prev.weight,
+      weightLogs: [...prev.weightLogs.filter(log => log.date !== dateStr), { date: dateStr, weight: newWeight }].sort((a, b) => a.date.localeCompare(b.date))
+    }))
 
-    // 2. Persist DB safely without relying on a potentially missing unique constraint
+    if (previewProfile) return { date: dateStr, weight: newWeight }
+
     try {
-      // First check if it exists
-      const { data: existing } = await supabase
+      const { data: existing, error: readError } = await supabase
         .from('weight_logs')
         .select('id')
         .eq('user_id', authUser.id)
         .eq('date', dateStr)
         .maybeSingle()
+      if (readError) throw readError
 
-      let dbError = null
-      if (existing) {
-        const { error } = await supabase.from('weight_logs')
-          .update({ weight: newWeight })
-          .eq('id', existing.id)
-        dbError = error
-      } else {
-        const { error } = await supabase.from('weight_logs')
-          .insert({ id: crypto.randomUUID(), user_id: authUser.id, date: dateStr, weight: newWeight })
-        dbError = error
-      }
-      
-      if (dbError) throw dbError
+      const { error } = existing
+        ? await supabase.from('weight_logs').update({ weight: newWeight }).eq('id', existing.id)
+        : await supabase.from('weight_logs').insert({ id: createId(), user_id: authUser.id, date: dateStr, weight: newWeight })
+      if (error) throw error
 
-      // Also update profile if it's today's weight
       if (dateStr === getLocalDateStr(new Date())) {
-        await supabase.from('profiles').update({ weight: newWeight }).eq('id', authUser.id)
+        const { error: profileError } = await supabase.from('profiles').update({ weight: newWeight }).eq('id', authUser.id)
+        if (profileError) throw profileError
       }
+      return { date: dateStr, weight: newWeight }
     } catch (e) {
-      console.error("Failed to log weight", e) 
-      alert("Kon gewicht niet opslaan in database: " + (e.message || JSON.stringify(e)))
+      console.error("Failed to log weight", e)
+      setUser(prev => ({
+        ...prev,
+        weight: previousWeight,
+        weightLogs: previousLog
+          ? [...prev.weightLogs.filter(log => log.date !== dateStr), previousLog].sort((a, b) => a.date.localeCompare(b.date))
+          : prev.weightLogs.filter(log => log.date !== dateStr)
+      }))
+      throw e
     }
   }
 
   // NEW: Save Symptoms
   const saveSymptoms = async (dateStr, symptomsArray) => {
-    if (!authUser) return
+    if (!authUser && !previewProfile) return
+    const previousLog = user.symptomLogs.find(log => log.date === dateStr) || null
 
-    // 1. Optimistic UI Update
-    setUser(prev => {
-      const others = (prev.symptomLogs || []).filter(l => l.date !== dateStr)
-      return {
-        ...prev,
-        symptomLogs: [...others, { date: dateStr, symptoms: symptomsArray }]
-      }
-    })
+    setUser(prev => ({
+      ...prev,
+      symptomLogs: [...prev.symptomLogs.filter(log => log.date !== dateStr), { date: dateStr, symptoms: symptomsArray }]
+    }))
 
-    // 2. Persist
+    if (previewProfile) return { date: dateStr, symptoms: symptomsArray }
+
     try {
       const { error } = await supabase.from('symptom_logs').upsert({
         user_id: authUser.id,
@@ -1331,7 +1435,17 @@ export function UserProvider({ children }) {
         updated_at: new Date().toISOString()
       }, { onConflict: 'user_id,date' })
       if (error) throw error
-    } catch (e) { console.error("Failed to save symptoms", e) }
+      return { date: dateStr, symptoms: symptomsArray }
+    } catch (e) {
+      console.error("Failed to save symptoms", e)
+      setUser(prev => ({
+        ...prev,
+        symptomLogs: previousLog
+          ? [...prev.symptomLogs.filter(log => log.date !== dateStr), previousLog]
+          : prev.symptomLogs.filter(log => log.date !== dateStr)
+      }))
+      throw e
+    }
   }
 
   // NEW: Helper function to determine if a day is a period day (explicit or auto-filled)
@@ -1446,6 +1560,7 @@ export function UserProvider({ children }) {
       cycleStats: { learnedCycleLength: stats.learnedCycleLength, variability: stats.variability, confidence: stats.confidence },
     }
     if (newStartDates.length > 0) updates.cycleStart = new Date(newStartDates[newStartDates.length - 1]).toISOString()
+    else updates.cycleStart = null
     updateUser(updates)
 
     try {
@@ -1661,21 +1776,12 @@ export function UserProvider({ children }) {
       daysUntilNext = effectiveCycleLength - currentDay + 1
     }
 
-    // Get ovulation window (estimated)
-    let ovulationWindow = null
-    if (nextPeriodDate) {
-      ovulationWindow = getOvulationWindow(nextPeriodDate, 14) // 14 day luteal
-    }
-
     return {
       nextPeriodIn: Math.max(0, daysUntilNext || 0),
       nextPeriodDate,
-      ovulationWindow,
-      isFertile: currentPhase === 'ovulatory',
       confidence,
       cycleLength: effectiveCycleLength,
-      bleedingDays,
-      isEstimated: true // Always mark ovulation as estimated
+      bleedingDays
     }
   }
 
@@ -1734,6 +1840,7 @@ export function UserProvider({ children }) {
     resetData,
     logFood,
     deleteFoodLog,
+    restoreFoodLog,
     addCustomFood,
     logMovement,
     logMenstruation,

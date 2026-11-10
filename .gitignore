@@ -1,4 +1,6 @@
 node_modules
+.test-tools/node_modules
+test-results/
 .env
 dist
 .DS_Store

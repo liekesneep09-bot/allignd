@@ -4,19 +4,21 @@ import { supabase } from '../utils/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
+import { createId } from '../utils/id'
+import { normalizeMealCategory } from '../utils/mealCategory'
 
 /**
  * MealEditor Component
  * Create or edit a meal with ingredients
  */
-export default function MealEditor({ meal, onSave, onClose }) {
+export default function MealEditor({ meal, onSave, onClose, isPreview = false }) {
     const { getAccessToken } = useAuth()
     const { user } = useUser()
     const { language, t } = useLanguage()
 
     // Form state
     const [name, setName] = useState(meal?.name || '')
-    const [category, setCategory] = useState(meal?.category || '')
+    const [category, setCategory] = useState(normalizeMealCategory(meal?.category) || '')
     const [items, setItems] = useState(meal?.items || [])
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState('')
@@ -96,8 +98,10 @@ export default function MealEditor({ meal, onSave, onClose }) {
         setError('')
 
         try {
-            // Get user ID
-            const { data: { user: authUser } } = await supabase.auth.getUser()
+            // Preview meals stay local and never touch the account database.
+            const authUser = isPreview
+                ? { id: 'preview' }
+                : (await supabase.auth.getUser()).data.user
             if (!authUser) throw new Error(t('meal_editor.error_auth'))
 
             // Clean items and ensure numbers
@@ -116,13 +120,19 @@ export default function MealEditor({ meal, onSave, onClose }) {
 
             let savedMeal
 
-            if (meal?.id) {
+            if (isPreview) {
+                savedMeal = {
+                    id: meal?.id || createId(),
+                    name: name.trim(),
+                    category: normalizeMealCategory(category)
+                }
+            } else if (meal?.id) {
                 // ── UPDATE existing meal ──
                 const { error: updateError } = await supabase
                     .from('meals')
                     .update({
                         name: name.trim(),
-                        category: category || null
+                        category: normalizeMealCategory(category)
                     })
                     .eq('id', meal.id)
                     .eq('user_id', authUser.id)
@@ -169,7 +179,7 @@ export default function MealEditor({ meal, onSave, onClose }) {
                     .insert({
                         user_id: authUser.id,
                         name: name.trim(),
-                        category: category || null
+                        category: normalizeMealCategory(category)
                     })
                     .select()
                     .single()
@@ -238,9 +248,9 @@ export default function MealEditor({ meal, onSave, onClose }) {
 
     const categories = [
         { value: '', label: t('meal_editor.no_category') },
-        { value: 'ontbijt', label: t('meal_editor.breakfast') },
+        { value: 'breakfast', label: t('meal_editor.breakfast') },
         { value: 'lunch', label: t('meal_editor.lunch') },
-        { value: 'diner', label: t('meal_editor.dinner') },
+        { value: 'dinner', label: t('meal_editor.dinner') },
         { value: 'snack', label: t('meal_editor.snack') }
     ]
 

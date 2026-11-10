@@ -6,14 +6,16 @@ import { useLanguage } from './LanguageContext'
 // Force Reload
 const AuthContext = createContext(null)
 
-export function AuthProvider({ children }) {
+export function AuthProvider({ children, preview = false, onPreviewSignOut }) {
     const [session, setSession] = useState(null)
     const [user, setUser] = useState(null)
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(!preview)
     const [isLoggingOut, setIsLoggingOut] = useState(false)
     const { t } = useLanguage()
 
     useEffect(() => {
+        if (preview) return undefined
+
         // If Supabase is not configured, skip auth entirely
         if (!isSupabaseConfigured()) {
             console.warn('Supabase not configured. Running without auth.')
@@ -42,7 +44,7 @@ export function AuthProvider({ children }) {
             subscription.unsubscribe()
             clearTimeout(timeout)
         }
-    }, [])
+    }, [preview])
 
     const signIn = async (email, password) => {
         if (!isSupabaseConfigured()) {
@@ -69,6 +71,7 @@ export function AuthProvider({ children }) {
     }
 
     const signUp = async (email, password) => {
+        if (preview) throw new Error('Account aanmaken is niet beschikbaar in deze demo.')
         if (!isSupabaseConfigured()) {
             throw new Error(t('auth.error_not_configured'))
         }
@@ -95,6 +98,7 @@ export function AuthProvider({ children }) {
     }
 
     const resendVerificationEmail = async (email) => {
+        if (preview) return
         if (!isSupabaseConfigured()) return
 
         const { error } = await supabase.auth.resend({
@@ -109,6 +113,10 @@ export function AuthProvider({ children }) {
     }
 
     const signOut = async () => {
+        if (preview) {
+            await onPreviewSignOut?.()
+            return
+        }
         setIsLoggingOut(true)
         try {
             if (isSupabaseConfigured()) {
@@ -135,6 +143,7 @@ export function AuthProvider({ children }) {
     }
 
     const signInWithGoogle = async () => {
+        if (preview) throw new Error('Inloggen met Google is niet beschikbaar in deze demo.')
         if (!isSupabaseConfigured()) {
             throw new Error(t('auth.error_not_configured'))
         }
@@ -161,8 +170,9 @@ export function AuthProvider({ children }) {
         resetPassword,
         resendVerificationEmail,
         signInWithGoogle,
-        getAccessToken: () => session?.access_token,
-        isConfigured: isSupabaseConfigured()
+        getAccessToken: () => preview ? null : session?.access_token,
+        isConfigured: preview || isSupabaseConfigured(),
+        isPreview: preview
     }
 
     return (

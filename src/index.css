@@ -23,10 +23,22 @@
   --color-primary-light-hover: rgba(255, 143, 163, 0.12);
 
   /* Colors — Cycle Phases */
-  --phase-menstrual: #E85D75;
-  --phase-follicular: #4ECDC4;
-  --phase-ovulatory: #FFB84D;
-  --phase-luteal: #95C9A6;
+  --phase-menstrual: #FF5C8A;
+  --phase-menstrual-rgb: 255, 92, 138;
+  --phase-menstrual-text: #A93660;
+  --phase-menstrual-soft: rgba(255, 92, 138, 0.14);
+  --phase-follicular: #7FB4D9;
+  --phase-follicular-rgb: 127, 180, 217;
+  --phase-follicular-text: #396789;
+  --phase-follicular-soft: rgba(127, 180, 217, 0.14);
+  --phase-ovulatory: #C58AC6;
+  --phase-ovulatory-rgb: 197, 138, 198;
+  --phase-ovulatory-text: #80457F;
+  --phase-ovulatory-soft: rgba(197, 138, 198, 0.14);
+  --phase-luteal: #9D92D4;
+  --phase-luteal-rgb: 157, 146, 212;
+  --phase-luteal-text: #5C4F90;
+  --phase-luteal-soft: rgba(157, 146, 212, 0.14);
 
   /* Colors — Nutrition */
   --color-calories: #FF8FA3;

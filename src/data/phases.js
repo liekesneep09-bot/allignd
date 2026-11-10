@@ -194,8 +194,8 @@ export const PHASE_CONTENT_NL = {
   },
 
   [PHASES.OVULATORY]: {
-    name: 'Ovulatie',
-    label: 'Ovulatie',
+    name: 'Ovulatiefase',
+    label: 'Ovulatiefase',
     colorVar: '--phase-ovulatory',
 
     validation: 'Dit is een fase waarin veel vrouwen zich krachtig en zelfverzekerd voelen.',
@@ -563,8 +563,8 @@ export const PHASE_CONTENT_EN = {
   },
 
   [PHASES.OVULATORY]: {
-    name: 'Ovulation',
-    label: 'Ovulation',
+    name: 'Ovulatory phase',
+    label: 'Ovulatory phase',
     colorVar: '--phase-ovulatory',
 
     validation: 'This is a phase in which many women feel powerful and confident.',
@@ -801,4 +801,3 @@ function adaptPhaseContent(content, dietaryPreference) {
 
 // Keep a default for backward compatibility where needed (will use NL as default if not updated yet)
 export const PHASE_CONTENT = PHASE_CONTENT_NL;
-

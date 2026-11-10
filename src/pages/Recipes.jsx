@@ -221,10 +221,10 @@ export default function Recipes() {
     }
 
     const phaseColorMap = {
-        menstrual:  { bg: 'rgba(196,80,106,0.08)', border: 'rgba(196,80,106,0.22)', accent: '#8a2e45', dot: '#c4506a' },
-        follicular: { bg: 'rgba(47,181,199,0.08)',  border: 'rgba(47,181,199,0.22)',  accent: '#1a8a96', dot: '#2fb5c7' },
-        ovulatory:  { bg: 'rgba(232,120,95,0.10)', border: 'rgba(232,120,95,0.25)', accent: '#a0422e', dot: '#e8785f' },
-        luteal:     { bg: 'rgba(106,159,107,0.10)', border: 'rgba(106,159,107,0.25)', accent: '#3d6e3e', dot: '#6a9f6b' },
+        menstrual:  { bg: 'rgba(var(--phase-menstrual-rgb),0.10)', border: 'rgba(var(--phase-menstrual-rgb),0.25)', accent: 'var(--phase-menstrual-text)', dot: 'var(--phase-menstrual)' },
+        follicular: { bg: 'rgba(var(--phase-follicular-rgb),0.10)', border: 'rgba(var(--phase-follicular-rgb),0.25)', accent: 'var(--phase-follicular-text)', dot: 'var(--phase-follicular)' },
+        ovulatory:  { bg: 'rgba(var(--phase-ovulatory-rgb),0.10)', border: 'rgba(var(--phase-ovulatory-rgb),0.25)', accent: 'var(--phase-ovulatory-text)', dot: 'var(--phase-ovulatory)' },
+        luteal:     { bg: 'rgba(var(--phase-luteal-rgb),0.10)', border: 'rgba(var(--phase-luteal-rgb),0.25)', accent: 'var(--phase-luteal-text)', dot: 'var(--phase-luteal)' },
     }
     const phaseColors = phaseColorMap[currentPhase] || phaseColorMap.luteal
     const nutrients = phaseInfo?.nutrients || []

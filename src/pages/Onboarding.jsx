@@ -10,7 +10,7 @@ import { registerPushNotifications } from '../utils/pushNotifications'
 import { isNativePlatform } from '../utils/platform'
 import { supabase } from '../utils/supabaseClient'
 
-export default function Onboarding() {
+export default function Onboarding({ skipPaywall = false }) {
     const { user, updateUser, completeOnboarding, saveProfileAndCalculate, logout } = useUser()
     const { signUp, signInWithGoogle, user: authUser, resendVerificationEmail } = useAuth()
     const { t, language } = useLanguage()
@@ -49,8 +49,8 @@ export default function Onboarding() {
         previousPeriodEnd: user.previousPeriodEnd || '',
         cycleLength: user.cycleLength || 28,
         periodLength: user.periodLength || 5,
-        periodEnded: user.cycleStart ? 'no' : null,
-        periodEndDate: user.cycleStart ? user.cycleStart : '',
+        periodEnded: user.periodEnded || (user.cycleStart ? 'no' : null),
+        periodEndDate: user.periodEndDate || (user.cycleStart ? user.cycleStart : ''),
         birthDate: user.birthDate || '',
         age: user.age || '',
         height: user.height || '',
@@ -80,8 +80,8 @@ export default function Onboarding() {
                 previousPeriodEnd: prev.previousPeriodEnd || user.previousPeriodEnd || '',
                 cycleLength: prev.cycleLength || user.cycleLength || 28,
                 periodLength: prev.periodLength || user.periodLength || 5,
-                periodEnded: prev.periodEnded !== null ? prev.periodEnded : (user.cycleStart ? 'no' : null),
-                periodEndDate: prev.periodEndDate || (user.cycleStart ? user.cycleStart : ''),
+                periodEnded: prev.periodEnded !== null ? prev.periodEnded : (user.periodEnded || (user.cycleStart ? 'no' : null)),
+                periodEndDate: prev.periodEndDate || user.periodEndDate || (user.cycleStart ? user.cycleStart : ''),
                 goal: prev.goal || user.goal || GOAL_TYPES.MAINTAIN,
                 lifestyle_level: prev.lifestyle_level || user.lifestyle_level || 'sedentary',
                 steps_range: prev.steps_range || user.steps_range || 'lt4k',
@@ -180,6 +180,7 @@ export default function Onboarding() {
                     training_days_per_week: Number(formData.trainingFrequency || 0),
                 };
                 const targets = calculateTargetRanges(cleanProfile);
+                if (!targets) throw new Error(t('onboarding.error_calculation'));
                 setCalculatedTargets(targets);
                 setStep(5);
             } catch (error) {
@@ -198,6 +199,13 @@ export default function Onboarding() {
             setStep(step - 1);
         }
     };
+
+    const resultCycle = getCycleDisplayData(
+        formData.cycleStart,
+        Number(formData.cycleLength) || 28,
+        formData.periodEnded === 'no' ? 0 : (Number(formData.periodLength) || 5),
+        formData.periodEnded === 'yes'
+    )
 
     // Step 0: Welcome Screen
     if (step === 0) {
@@ -631,10 +639,10 @@ export default function Onboarding() {
                                 if (!content) return null
 
                                 const phaseColors = {
-                                    menstrual: { bg: 'rgba(196,80,106,0.08)', border: 'rgba(196,80,106,0.28)', text: '#8a2e45', dot: '#c4506a' },
-                                    follicular: { bg: 'rgba(47,181,199,0.08)', border: 'rgba(47,181,199,0.28)', text: '#1a8a96', dot: '#2fb5c7' },
-                                    ovulatory: { bg: 'rgba(232,120,95,0.10)', border: 'rgba(232,120,95,0.28)', text: '#a0422e', dot: '#e8785f' },
-                                    luteal: { bg: 'rgba(106,159,107,0.10)', border: 'rgba(106,159,107,0.28)', text: '#3d6e3e', dot: '#6a9f6b' },
+                                    menstrual: { bg: 'rgba(var(--phase-menstrual-rgb),0.10)', border: 'rgba(var(--phase-menstrual-rgb),0.28)', text: 'var(--phase-menstrual-text)', dot: 'var(--phase-menstrual)' },
+                                    follicular: { bg: 'rgba(var(--phase-follicular-rgb),0.10)', border: 'rgba(var(--phase-follicular-rgb),0.28)', text: 'var(--phase-follicular-text)', dot: 'var(--phase-follicular)' },
+                                    ovulatory: { bg: 'rgba(var(--phase-ovulatory-rgb),0.10)', border: 'rgba(var(--phase-ovulatory-rgb),0.28)', text: 'var(--phase-ovulatory-text)', dot: 'var(--phase-ovulatory)' },
+                                    luteal: { bg: 'rgba(var(--phase-luteal-rgb),0.10)', border: 'rgba(var(--phase-luteal-rgb),0.28)', text: 'var(--phase-luteal-text)', dot: 'var(--phase-luteal)' },
                                 }
                                 const colors = phaseColors[phase] || phaseColors.luteal
 
@@ -903,11 +911,12 @@ export default function Onboarding() {
                                 {t('onboarding_extra.current_phase_label')}
                             </div>
                             <div style={{ fontSize: '1.2rem', fontWeight: '700', color: 'var(--color-text)', textTransform: 'capitalize' }}>
-                                {t(`profile.phases.${user?.currentPhase || 'follicular'}`)}
+                                {t(`profile.phases.${resultCycle.phase}`)}
                             </div>
                         </div>
 
-                        {/* PAYWALL */}
+                        {/* PAYWALL — only the web onboarding uses this step. */}
+                        {!skipPaywall && (
                         <div style={{
                             background: 'linear-gradient(135deg, var(--color-primary-light) 0%, rgba(255,174,185,0.05) 100%)',
                             borderRadius: 'var(--radius-md)',
@@ -930,13 +939,19 @@ export default function Onboarding() {
                                 ))}
                             </div>
                         </div>
+                        )}
 
                         <button
-                            onClick={() => setStep(6)}
+                            onClick={skipPaywall ? () => void finalizeOnboarding(authUser?.id) : () => setStep(6)}
+                            disabled={isLoading}
                             className="btn btn-primary"
                             style={{ marginTop: '0.5rem', padding: '1rem', fontSize: '1.1rem' }}
                         >
-                            {t('paywall.cta', { defaultValue: 'Start gratis proefperiode' })}
+                            {isLoading
+                                ? t('onboarding.saving')
+                                : skipPaywall
+                                    ? t('onboarding.go_to_dashboard')
+                                    : t('paywall.cta', { defaultValue: 'Start gratis proefperiode' })}
                         </button>
                     </div>
                 )}
@@ -1182,8 +1197,16 @@ function isValid(step, data) {
 
     // Step 2: Lichaam + Doel
     if (step === 2) {
-        if (!data.birthDate || !data.height || !data.weight) return false;
-        if (!data.goal) return false;
+        if (!data.birthDate || !data.height || !data.weight || !data.goal) return false;
+        const birthDate = new Date(data.birthDate);
+        if (Number.isNaN(birthDate.getTime()) || birthDate > new Date()) return false;
+        const adultDate = new Date(birthDate);
+        adultDate.setFullYear(adultDate.getFullYear() + 18);
+        if (adultDate > new Date()) return false;
+        const height = Number(data.height);
+        const weight = Number(data.weight);
+        if (!Number.isFinite(height) || height < 80 || height > 250) return false;
+        if (!Number.isFinite(weight) || weight < 20 || weight > 400) return false;
         return true;
     }
 
@@ -1191,6 +1214,8 @@ function isValid(step, data) {
     if (step === 3) {
         if (!data.lifestyle_level || !data.steps_range) return false;
         if (data.trainingFrequency === undefined || data.trainingFrequency === null || data.trainingFrequency === '') return false;
+        const trainingDays = Number(data.trainingFrequency);
+        if (!Number.isInteger(trainingDays) || trainingDays < 0 || trainingDays > 7) return false;
         if (!data.experienceLevel) return false;
         return true;
     }

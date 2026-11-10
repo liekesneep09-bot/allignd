@@ -9,6 +9,7 @@ import Recipes from './pages/Recipes'
 import Fitness from './pages/Fitness'
 import Profile from './pages/Profile'
 import Privacy from './pages/Privacy'
+import Terms from './pages/Terms'
 import Community from './pages/Community'
 import Progress from './pages/Progress'
 import Login from './pages/Login'
@@ -27,7 +28,7 @@ import { getApiBaseUrl } from './utils/platform'
 import { IconHome, IconActivity, IconRecipe, IconAccount, IconCommunity, IconGuide } from './components/Icons'
 import logo from './assets/logo-primary.png'
 
-function SplashScreen() {
+export function SplashScreen() {
     return (
         <div style={{
             minHeight: '100vh',
@@ -66,11 +67,11 @@ function SplashScreen() {
     )
 }
 
-function MainLayout() {
+export function MainLayout({ initialView = 'today', isExpoApp = false }) {
     const { hasOnboarded, isLoading, currentPhase, user } = useUser()
     const { t } = useLanguage()
     const { isLoggingOut } = useAuth()
-    const [currentView, setCurrentView] = useState('today')
+    const [currentView, setCurrentView] = useState(initialView)
 
     // Wrapper: scroll to top on every view switch
     const navigateTo = useCallback((view) => {
@@ -102,20 +103,20 @@ function MainLayout() {
     const getPhaseColor = (phase) => {
         switch (phase) {
             case 'menstrual': return {
-                bg: 'linear-gradient(to bottom, #c4506a20 0%, rgba(196,80,106,0.05) 40%, #FFFFFF 100%)',
-                text: '#c4506a'
+                bg: 'linear-gradient(to bottom, rgba(var(--phase-menstrual-rgb), 0.13) 0%, rgba(var(--phase-menstrual-rgb), 0.05) 40%, #FFFFFF 100%)',
+                text: 'var(--phase-menstrual-text)'
             }
             case 'follicular': return {
-                bg: 'linear-gradient(to bottom, #2fb5c740 0%, rgba(47,181,199,0.1) 40%, #FFFFFF 100%)',
-                text: '#2fb5c7'
+                bg: 'linear-gradient(to bottom, rgba(var(--phase-follicular-rgb), 0.13) 0%, rgba(var(--phase-follicular-rgb), 0.05) 40%, #FFFFFF 100%)',
+                text: 'var(--phase-follicular-text)'
             }
             case 'ovulatory': return {
-                bg: 'linear-gradient(to bottom, #e8785f20 0%, rgba(232,120,95,0.05) 40%, #FFFFFF 100%)',
-                text: '#e8785f'
+                bg: 'linear-gradient(to bottom, rgba(var(--phase-ovulatory-rgb), 0.13) 0%, rgba(var(--phase-ovulatory-rgb), 0.05) 40%, #FFFFFF 100%)',
+                text: 'var(--phase-ovulatory-text)'
             }
             case 'luteal': return {
-                bg: 'linear-gradient(to bottom, #6a9f6b20 0%, rgba(106,159,107,0.05) 40%, #FFFFFF 100%)',
-                text: '#6a9f6b'
+                bg: 'linear-gradient(to bottom, rgba(var(--phase-luteal-rgb), 0.13) 0%, rgba(var(--phase-luteal-rgb), 0.05) 40%, #FFFFFF 100%)',
+                text: 'var(--phase-luteal-text)'
             }
             default: return {
                 bg: 'linear-gradient(to bottom, #F5F5F5 0%, #FFFFFF 100%)',
@@ -154,7 +155,7 @@ function MainLayout() {
                 </div>
             )
         }
-        return <Onboarding />
+        return <Onboarding skipPaywall={isExpoApp} />
     }
 
     // ABONNEMENTEN-MUUR (PAYWALL) — TIJDELIJK UITGESCHAKELD VOOR TESTEN
@@ -210,6 +211,7 @@ function MainLayout() {
                 {currentView === 'guide' && <PhaseGuide onNavigate={navigateTo} />}
                 {currentView === 'profile' && <Profile onNavigate={navigateTo} />}
                 {currentView === 'privacy' && <Privacy onNavigate={navigateTo} />}
+                {currentView === 'terms' && <Terms onNavigate={navigateTo} />}
                 {currentView === 'progress' && <Progress onClose={() => navigateTo('today')} />}
             </main>
 
@@ -410,6 +412,17 @@ export default function App() {
 
     // Simple Route Handling for Callback
     const isCallback = window.location.pathname === '/auth/callback'
+    const isTermsPage = window.location.pathname === '/terms'
+
+    if (isTermsPage) {
+        return (
+            <ErrorBoundary>
+                <LanguageProvider>
+                    <Terms />
+                </LanguageProvider>
+            </ErrorBoundary>
+        )
+    }
 
     if (isCallback) {
         // If we are on callback but we ALREADY have a session (e.g. from localStorage), just go to home

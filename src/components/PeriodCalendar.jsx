@@ -7,8 +7,8 @@ import { getFuturePeriodWindows } from '../logic/cycle-learning'
 import { findPeriodRangeForDate } from '../logic/period-logging'
 import {
     getCalendarCycleInfo,
-    getFertileMarkers,
     phaseColor,
+    PHASE_ORDER,
     withAlpha
 } from '../logic/calendar-marks'
 
@@ -67,12 +67,6 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
 
     const effectiveCycleLen = user?.cycleStats?.learnedCycleLength || user?.cycleLength || 28
     const effectivePeriodLen = user?.bleedingLengthDays || user?.periodLength || 5
-
-    // Shared fertile/ovulation markers (same visual language as the PhaseGuide calendar)
-    const fertileMarkers = useMemo(() => {
-        if (!user?.cycleStart) return {}
-        return getFertileMarkers(user.cycleStart, effectiveCycleLen, 4)
-    }, [user?.cycleStart, effectiveCycleLen])
 
     // Scroll to today on mount
     React.useEffect(() => {
@@ -234,7 +228,8 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                             setHintDismissed(true)
                             localStorage.setItem('allignd:calendar-hint-dismissed', 'true')
                         }}
-                        style={{ background: 'none', border: 'none', color: '#9E9E9E', fontSize: '1rem', cursor: 'pointer', padding: 0, flexShrink: 0 }}
+                        aria-label={t('common.close')}
+                        style={{ background: 'none', border: 'none', color: '#9E9E9E', fontSize: '1rem', cursor: 'pointer', padding: 0, flexShrink: 0, minWidth: '44px', minHeight: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
                     >✕</button>
                 </div>
             )}
@@ -259,7 +254,6 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                         monthDate={monthDate}
                         user={user}
                         predictedWindows={predictedWindows}
-                        fertileMarkers={fertileMarkers}
                         effectiveCycleLen={effectiveCycleLen}
                         effectivePeriodLen={effectivePeriodLen}
                         onDayClick={handleDayClick}
@@ -286,15 +280,15 @@ export default function PeriodCalendar({ user, onClose, onSelect }) {
                 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
                     <LegendItem color="var(--color-primary)" label={t('calendar.period')} />
                     <LegendItem color="var(--color-primary)" dashed label={t('calendar.expected')} />
-                    <LegendItem color={phaseColor('ovulatory')} dot label={t('calendar.ovulation')} />
+                    {PHASE_ORDER.map(phaseId => (
+                        <LegendItem key={phaseId} color={phaseColor(phaseId)} dot label={t(`profile.phases.${phaseId}`)} />
+                    ))}
                     <LegendItem color="#4DB6AC" dot label={t('calendar.moved')} />
                     <LegendItem color="var(--color-symptoms)" dot label={t('calendar.symptoms')} />
                 </div>
-                {user?.cycleStart && (
-                    <div style={{ fontSize: '0.68rem', fontStyle: 'italic', color: 'var(--color-text-muted)', textAlign: 'center' }}>
-                        {t('cycle.fertility_estimate_note')}
-                    </div>
-                )}
+                <p style={{ margin: 0, textAlign: 'center', fontSize: '0.68rem', lineHeight: 1.35, color: 'var(--color-text-muted)' }}>
+                    {t('cycle.prediction_note')}
+                </p>
                 <button
                     onClick={onClose}
                     style={{
@@ -400,7 +394,7 @@ function DaySummarySheet({ dateStr, summaryData, onClose, onEditPeriod, onSelect
                     <h3 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--color-text)', textTransform: 'capitalize' }}>
                         {isToday ? t('calendar.today') : dateHeader}
                     </h3>
-                    <button onClick={onClose} aria-label={t('common.close')} style={{ background: 'none', border: 'none', fontSize: '1.4rem', padding: 0, cursor: 'pointer', color: 'var(--color-text-muted)' }}>✕</button>
+                    <button onClick={onClose} aria-label={t('common.close')} style={{ background: 'none', border: 'none', fontSize: '1.4rem', padding: 0, cursor: 'pointer', color: 'var(--color-text-muted)', minWidth: '44px', minHeight: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.25rem' }}>
@@ -498,7 +492,7 @@ function PeriodRangeSheet({ range, error, isSaving, isEditing, onChange, onClose
                 justifyContent: 'space-between',
                 borderBottom: '1px solid #f0f0f0'
             }}>
-                <button onClick={onClose} aria-label={t('common.close')} style={{ background: 'none', border: 'none', fontSize: '1.4rem', color: 'var(--color-text)', cursor: 'pointer', padding: 0 }}>✕</button>
+                <button onClick={onClose} aria-label={t('common.close')} style={{ background: 'none', border: 'none', fontSize: '1.4rem', color: 'var(--color-text)', cursor: 'pointer', padding: 0, minWidth: '44px', minHeight: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
                 <h2 style={{ margin: 0, fontSize: '1.05rem', fontWeight: '700' }}>
                     {isEditing ? t('calendar.range_edit_title') : t('calendar.range_title')}
                 </h2>
@@ -574,7 +568,7 @@ function SummaryRow({ color, label, active }) {
 }
 
 // ── Month Grid ────────────────────────────────────────────────────────────────
-function MonthGrid({ monthDate, user, predictedWindows, fertileMarkers, effectiveCycleLen, effectivePeriodLen, onDayClick, todayRef, isDateInPeriod, todayStr }) {
+function MonthGrid({ monthDate, user, predictedWindows, effectiveCycleLen, effectivePeriodLen, onDayClick, todayRef, isDateInPeriod, todayStr }) {
     const { language } = useLanguage()
     const year = monthDate.getFullYear()
     const month = monthDate.getMonth()
@@ -599,7 +593,6 @@ function MonthGrid({ monthDate, user, predictedWindows, fertileMarkers, effectiv
         const hasSymptoms = user.symptomLogs?.some(l => l.date === dateStr && l.symptoms?.length > 0)
 
         const cycleInfo = getCalendarCycleInfo(dateStr, user?.cycleStart, effectiveCycleLen, effectivePeriodLen)
-        const isOvulation = !!fertileMarkers?.[dateStr]?.isOvulation
         const tintColor = cycleInfo?.phase ? phaseColor(cycleInfo.phase) : null
 
         // Is future (strictly after today)
@@ -612,10 +605,12 @@ function MonthGrid({ monthDate, user, predictedWindows, fertileMarkers, effectiv
                 key={i}
                 type="button"
                 aria-label={dDate.toLocaleDateString(language === 'en' ? 'en-US' : 'nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })}
+                aria-current={isToday ? 'date' : undefined}
                 disabled={isFuture}
                 onClick={() => onDayClick(dateStr)}
                 style={{
                     aspectRatio: '1',
+                    minHeight: '44px',
                     width: '100%',
                     padding: 0,
                     border: 0,
@@ -664,12 +659,6 @@ function MonthGrid({ monthDate, user, predictedWindows, fertileMarkers, effectiv
                     justifyContent: 'center',
                     alignItems: 'center'
                 }}>
-                    {isOvulation && (
-                        <div style={{
-                            width: 4, height: 4, borderRadius: 'var(--radius-full)',
-                            background: isPeriod ? 'rgba(255,255,255,0.8)' : (tintColor || phaseColor('ovulatory'))
-                        }} />
-                    )}
                     {hasMoved && (
                         <div style={{
                             width: 4, height: 4, borderRadius: 'var(--radius-full)',

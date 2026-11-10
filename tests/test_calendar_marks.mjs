@@ -2,12 +2,10 @@
  * Unit Tests for Shared Calendar Marking Logic (calendar-marks.js)
  */
 import {
-  getFertileRange,
-  getPredictedCycleStarts,
+  getOvulatoryPhaseRange,
   getCalendarCycleInfo,
   getPhaseForDayNumber,
-  getFertileMarkers,
-  getNextMilestones,
+  getNextPeriodMilestone,
   PHASE_COLORS,
   withAlpha
 } from '../src/logic/calendar-marks.js'
@@ -48,11 +46,11 @@ function testNull(desc, actual) {
 
 console.log('\n📅 calendar-marks.js\n')
 
-// ── getFertileRange ─────────────────────────────────────────────────────────
-test('fertile range default 28-day cycle: ovulationDay = 14', getFertileRange(28).ovulationDay, 14)
-test('fertile range default 28-day cycle: fertileStart = 12', getFertileRange(28).fertileStart, 12)
-test('fertile range default 28-day cycle: fertileEnd = 16', getFertileRange(28).fertileEnd, 16)
-test('fertile range short cycle: ovulationDay = 10 (24 days)', getFertileRange(24).ovulationDay, 10)
+// ── Estimated phase bounds (not fertility dates) ─────────────────────────────
+test('28-day cycle: estimated phase starts on day 12', getOvulatoryPhaseRange(28).start, 12)
+test('28-day cycle: estimated phase ends on day 16', getOvulatoryPhaseRange(28).end, 16)
+test('24-day cycle: estimated phase starts on day 8', getOvulatoryPhaseRange(24).start, 8)
+testTrue('phase range exposes no fertile-day dates', !('fertileStart' in getOvulatoryPhaseRange(28)) && !('fertileEnd' in getOvulatoryPhaseRange(28)))
 
 // ── getPhaseForDayNumber — a few days ovulatory phase (ovulationDay -2..+2) ─
 test('day 1 = menstrual', getPhaseForDayNumber(1, 28, 5), PHASES.MENSTRUAL)
@@ -60,7 +58,7 @@ test('day 5 = menstrual (last period day)', getPhaseForDayNumber(5, 28, 5), PHAS
 test('day 6 = follicular', getPhaseForDayNumber(6, 28, 5), PHASES.FOLLICULAR)
 test('day 11 = follicular (day before ovulatory phase)', getPhaseForDayNumber(11, 28, 5), PHASES.FOLLICULAR)
 test('day 12 = ovulatory (phase start)', getPhaseForDayNumber(12, 28, 5), PHASES.OVULATORY)
-test('day 14 = ovulatory (ovulation day)', getPhaseForDayNumber(14, 28, 5), PHASES.OVULATORY)
+test('day 14 = ovulatory (phase midpoint)', getPhaseForDayNumber(14, 28, 5), PHASES.OVULATORY)
 test('day 16 = ovulatory (phase end)', getPhaseForDayNumber(16, 28, 5), PHASES.OVULATORY)
 test('day 17 = luteal (day after ovulatory phase)', getPhaseForDayNumber(17, 28, 5), PHASES.LUTEAL)
 test('day 28 = luteal', getPhaseForDayNumber(28, 28, 5), PHASES.LUTEAL)
@@ -78,46 +76,19 @@ test('future cycle wraps: day 17 of next cycle → luteal', getCalendarCycleInfo
 testNull('before cycleStart → null (no tinting of past)', getCalendarCycleInfo('2026-08-31', '2026-09-01', 28, 5))
 testNull('no cycleStart → null', getCalendarCycleInfo('2026-09-01', null, 28, 5))
 
-// ── getPredictedCycleStarts ─────────────────────────────────────────────────
+// ── getNextPeriodMilestone ──────────────────────────────────────────────────
 {
-  const starts = getPredictedCycleStarts('2026-09-01', 28, 2)
-  test('predicted starts count = 3 (current + 2)', starts.length, 3)
-  test('predicted start 1 = 2026-09-01', starts[0], '2026-09-01')
-  test('predicted start 2 = 2026-09-29', starts[1], '2026-09-29')
-  test('predicted start 3 = 2026-10-27', starts[2], '2026-10-27')
-}
-
-// ── getFertileMarkers — a few days of ovulatory phase ───────────────────────
-{
-  const markers = getFertileMarkers('2026-09-01', 28, 1)
-  testTrue('not marked before ovulatory phase', !markers['2026-09-11'])
-  testTrue('ovulatory phase start marked', markers['2026-09-12'])
-  testTrue('ovulation day marked', markers['2026-09-14'])
-  testTrue('ovulatory phase end marked', markers['2026-09-16'])
-  testTrue('not marked after ovulatory phase', !markers['2026-09-17'])
-  // future cycle (starts 2026-09-29)
-  testTrue('next cycle phase start marked', markers['2026-10-10'])
-  testTrue('next cycle ovulation day marked', markers['2026-10-12'])
-  testTrue('next cycle phase end marked', markers['2026-10-14'])
-  testTrue('ovulation flag set', markers['2026-09-14'].isOvulation)
-  testTrue('no fertile-window field on marker', !('isFertile' in markers['2026-09-14']))
-}
-
-// ── getNextMilestones ───────────────────────────────────────────────────────
-{
-  // cycleStart 2026-09-01, 28-day cycle. Today = 2026-09-20 (luteal, ovulation passed)
-  const m = getNextMilestones('2026-09-01', 28, '2026-09-20')
+  const m = getNextPeriodMilestone('2026-09-01', 28, '2026-09-20')
   test('next period = cycleStart + 28', m.nextPeriod, '2026-09-29')
-  test('ovulation already passed → next cycle ovulation', m.ovulation, '2026-10-12')
+  testTrue('period milestone contains no ovulation date', !('ovulation' in m))
 
-  // Today = 2026-09-05 (menstrual, before ovulation)
-  const m2 = getNextMilestones('2026-09-01', 28, '2026-09-05')
-  test('ovulation not yet passed → current cycle ovulation', m2.ovulation, '2026-09-14')
+  const m2 = getNextPeriodMilestone('2026-09-01', 28, '2026-09-05')
   test('next period = cycleStart + 28', m2.nextPeriod, '2026-09-29')
 }
 
 // ── withAlpha / PHASE_COLORS ─────────────────────────────────────────────────
 test('withAlpha converts hex to rgba', withAlpha('#4ECDC4', 0.12), 'rgba(78, 205, 196, 0.12)')
+test('withAlpha tints a phase CSS variable', withAlpha('var(--phase-menstrual)', 0.12), 'color-mix(in srgb, var(--phase-menstrual) 12%, transparent)')
 test('PHASE_COLORS has all four phases', Object.keys(PHASE_COLORS).length, 4)
 
 console.log(`\n${passed} passed, ${failed} failed\n`)

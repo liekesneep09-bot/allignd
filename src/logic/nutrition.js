@@ -57,17 +57,20 @@ const PROTEIN_FACTORS = {
  * - Remaining calories → Carbs
  */
 export function calculateTargetRanges(profile) {
+    if (!profile || typeof profile !== 'object') return null;
+
     // 1. Inputs (with safe defaults)
     const weight = Number(profile.weight_kg);
     const height = Number(profile.height_cm);
     const age = Number(profile.age);
-    const trainingDays = Math.min(Number(profile.training_days_per_week || 0), 7);
+    const rawTrainingDays = Number(profile.training_days_per_week || 0);
+    const trainingDays = Number.isFinite(rawTrainingDays) ? Math.min(Math.max(rawTrainingDays, 0), 7) : 0;
     const lifestyle = profile.lifestyle_level || LIFESTYLE_LEVELS.SEDENTARY;
     const steps = profile.steps_range || STEPS_RANGES.LT4K;
     const goal = profile.goal || GOAL_TYPES.MAINTAIN;
     const tempo = profile.resultTempo || 'average';
 
-    if (!weight || !height || !age) return null;
+    if (!Number.isFinite(weight) || weight <= 0 || !Number.isFinite(height) || height <= 0 || !Number.isFinite(age) || age <= 0) return null;
 
     // 2. BMR (Mifflin-St Jeor for Women)
     const bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;

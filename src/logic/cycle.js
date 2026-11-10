@@ -9,6 +9,11 @@ export const PHASES = {
     LUTEAL: 'luteal',
 }
 
+/** Days until the next expected cycle start, including the transition day. */
+export function calculateDaysUntilPeriod(currentDay, cycleLength = 28) {
+    return Math.max(0, cycleLength - currentDay + 1)
+}
+
 /**
  * Determines the current phase and display analytics
  * @returns {Object} { phase, linearDay, displayDay, overdueDays }
@@ -29,9 +34,9 @@ export function getCycleDisplayData(startDate, cycleLength = 28, periodLength = 
 
     let transitionTo = null;
     const lutealLength = 14;
-    const ovulationDay = cycleLength - lutealLength;
-    const fertileStart = ovulationDay - 2;
-    const fertileEnd = ovulationDay + 2;
+    const estimatedOvulatoryPhaseCenter = cycleLength - lutealLength;
+    const ovulatoryPhaseStart = estimatedOvulatoryPhaseCenter - 2;
+    const ovulatoryPhaseEnd = estimatedOvulatoryPhaseCenter + 2;
 
     // A. Explicit Override or Linear Period
     if (isMenstruatingNow || linearDay <= periodLength) {
@@ -47,19 +52,19 @@ export function getCycleDisplayData(startDate, cycleLength = 28, periodLength = 
     }
     // C. Normal Cycle Logic (Day 1 to cycleLength)
     else {
-        if (linearDay >= fertileStart && linearDay <= fertileEnd) {
+        if (linearDay >= ovulatoryPhaseStart && linearDay <= ovulatoryPhaseEnd) {
             phase = PHASES.OVULATORY
-            if (linearDay >= fertileEnd - 1) {
+            if (linearDay >= ovulatoryPhaseEnd - 1) {
                 transitionTo = PHASES.LUTEAL;
             }
-        } else if (linearDay > fertileEnd) {
+        } else if (linearDay > ovulatoryPhaseEnd) {
             phase = PHASES.LUTEAL
             if (linearDay >= cycleLength - 2) {
                 transitionTo = PHASES.MENSTRUAL;
             }
         } else {
             phase = PHASES.FOLLICULAR
-            if (linearDay >= fertileStart - 2) {
+            if (linearDay >= ovulatoryPhaseStart - 2) {
                 transitionTo = PHASES.OVULATORY;
             }
         }
@@ -131,26 +136,24 @@ export function getPhaseForDay(day, cycleLength = 28, periodLength = 5, isMenstr
     }
 
     // 5. Normal Phase Logic (within cycleLength)
-    // Calculate Ovulation Day (Estimated)
-    // Scientific method: Ovulation is typically 14 days before the END of the cycle.
+    // Estimate the ovulatory phase from cycle length. This is a phase label only,
+    // not a prediction of ovulation or fertility.
     const lutealLength = 14 // Standard average, can be personalized later
-    const ovulationDay = cycleLength - lutealLength
+    const estimatedOvulatoryPhaseCenter = cycleLength - lutealLength
 
-    // Define Ovulatory Phase (A few days around estimated ovulation day)
-    const fertileStart = ovulationDay - 2
-    const fertileEnd = ovulationDay + 2 // Ovulation day + 2
+    const ovulatoryPhaseStart = estimatedOvulatoryPhaseCenter - 2
+    const ovulatoryPhaseEnd = estimatedOvulatoryPhaseCenter + 2
 
     // Phase Determination
-    if (day >= fertileStart && day <= fertileEnd) {
+    if (day >= ovulatoryPhaseStart && day <= ovulatoryPhaseEnd) {
         return PHASES.OVULATORY
     }
 
-    if (day > fertileEnd) {
+    if (day > ovulatoryPhaseEnd) {
         return PHASES.LUTEAL
     }
 
-    // If not Menstrual (<= periodLength), not Ovulatory, not Luteal...
-    // Then it is Follicular (The gap between Period End and Fertile Window)
+    // Remaining days between menstruation and the ovulatory phase are follicular.
     return PHASES.FOLLICULAR
 }
 
@@ -190,14 +193,13 @@ export function calculateStartDateFromPhase(targetPhase, cycleLength = 28, perio
             break
         case PHASES.FOLLICULAR:
             {
-                // Mid-point between period end and ovulatory phase
-                // If Cycle=28, Period=5. FertileStart=12. Mid = 9.
-                const fertileStart = cycleLength - 14 - 2
-                estimatedDay = Math.floor((periodLength + 1 + fertileStart) / 2)
+                // Mid-point between period end and the estimated ovulatory phase.
+                const ovulatoryPhaseStart = cycleLength - 14 - 2
+                estimatedDay = Math.floor((periodLength + 1 + ovulatoryPhaseStart) / 2)
             }
             break
         case PHASES.OVULATORY:
-            // Day of ovulation (CycleLength - 14)
+            // Center of the estimated ovulatory phase.
             estimatedDay = cycleLength - 14
             break
         case PHASES.LUTEAL:
@@ -232,9 +234,9 @@ export function getPhaseTransition(day, cycleLength = 28, periodLength = 5, curr
     if (!day || day < 1 || day > cycleLength) return null
 
     const lutealLength = 14
-    const ovulationDay = cycleLength - lutealLength
-    const fertileStart = ovulationDay - 2
-    const fertileEnd = ovulationDay + 2
+    const estimatedOvulatoryPhaseCenter = cycleLength - lutealLength
+    const ovulatoryPhaseStart = estimatedOvulatoryPhaseCenter - 2
+    const ovulatoryPhaseEnd = estimatedOvulatoryPhaseCenter + 2
 
     if (currentPhase === PHASES.MENSTRUAL) {
         const effectivePeriod = periodLength || 5
@@ -242,11 +244,11 @@ export function getPhaseTransition(day, cycleLength = 28, periodLength = 5, curr
             return { isTransition: true, nextPhase: PHASES.FOLLICULAR, daysLeft: effectivePeriod - day }
         }
     } else if (currentPhase === PHASES.FOLLICULAR) {
-        if (day >= fertileStart - 2 && day < fertileStart) {
-            return { isTransition: true, nextPhase: PHASES.OVULATORY, daysLeft: fertileStart - day }
+        if (day >= ovulatoryPhaseStart - 2 && day < ovulatoryPhaseStart) {
+            return { isTransition: true, nextPhase: PHASES.OVULATORY, daysLeft: ovulatoryPhaseStart - day }
         }
     } else if (currentPhase === PHASES.OVULATORY) {
-        if (day === fertileEnd) {
+        if (day === ovulatoryPhaseEnd) {
             return { isTransition: true, nextPhase: PHASES.LUTEAL, daysLeft: 0 }
         }
     } else if (currentPhase === PHASES.LUTEAL) {

@@ -76,7 +76,7 @@ function Ring({ value, max, size = 100, stroke = 8, color, label, sublabel, show
 }
 
 // Reusable bottom sheet
-function Sheet({ title, onClose, children }) {
+function Sheet({ title, onClose, children, error }) {
     return createPortal(
         <div
             style={{
@@ -107,6 +107,7 @@ function Sheet({ title, onClose, children }) {
             >
                 <div style={{ width: '40px', height: '4px', background: 'var(--color-border)', borderRadius: 'var(--radius-xs)', margin: '0 auto 1.25rem' }} />
                 <h3 style={{ margin: '0 0 1.5rem', textAlign: 'center', fontSize: '1.15rem', fontWeight: '700' }}>{title}</h3>
+                {error && <div role="alert" style={{ color: 'var(--color-error)', textAlign: 'center', marginBottom: '1rem', fontSize: '0.85rem' }}>{error}</div>}
                 {children}
             </div>
         </div>,
@@ -122,6 +123,22 @@ export default function HabitsCard({ date }) {
 
     const [sheet, setSheet] = useState(null) // 'water' | 'steps' | null
     const [showMenu, setShowMenu] = useState(false)
+    const [pendingAction, setPendingAction] = useState(false)
+    const [actionError, setActionError] = useState(null)
+
+    const runAction = async (action) => {
+        if (pendingAction) return
+        setPendingAction(true)
+        setActionError(null)
+        try {
+            await action()
+            setSheet(null)
+        } catch {
+            setActionError(t('habits.save_error'))
+        } finally {
+            setPendingAction(false)
+        }
+    }
 
     // ── Water ────────────────────────────────────────────────────────────────
     const waterLog = user?.waterLogs?.find(l => l.date === date)
@@ -131,16 +148,15 @@ export default function HabitsCard({ date }) {
     const [tempWater, setTempWater] = useState('')
     const waterLiters = (amountMl / 1000).toFixed(1)
 
-    const handleAddWater = (ml) => logWater(date, ml)
+    const handleAddWater = (ml) => runAction(() => logWater(date, ml))
     const handleSaveWater = () => {
-        const v = parseInt(String(tempWater).replace(',', '.'))
-        if (!isNaN(v) && v > 0) logWater(date, v) // Additive
-        
-        if (document.activeElement && document.activeElement.blur) {
-            document.activeElement.blur()
-        }
-        setTimeout(() => setSheet(null), 50)
-        setTempWater('')
+        const value = parseInt(String(tempWater).replace(',', '.'))
+        if (isNaN(value) || value <= 0) return
+        if (document.activeElement?.blur) document.activeElement.blur()
+        void runAction(async () => {
+            await logWater(date, value)
+            setTempWater('')
+        })
     }
 
     // ── Steps ────────────────────────────────────────────────────────────────
@@ -153,16 +169,15 @@ export default function HabitsCard({ date }) {
 
     const [tempSteps, setTempSteps] = useState('')
 
-    const handleAddSteps = (n) => logSteps(date, steps + n)
+    const handleAddSteps = (amount) => runAction(() => logSteps(date, steps + amount))
     const handleSaveSteps = () => {
-        const v = parseInt(tempSteps)
-        if (!isNaN(v) && v > 0) logSteps(date, steps + v) // Additive
-        
-        if (document.activeElement && document.activeElement.blur) {
-            document.activeElement.blur()
-        }
-        setTimeout(() => setSheet(null), 50)
-        setTempSteps('')
+        const value = parseInt(tempSteps)
+        if (isNaN(value) || value <= 0) return
+        if (document.activeElement?.blur) document.activeElement.blur()
+        void runAction(async () => {
+            await logSteps(date, steps + value)
+            setTempSteps('')
+        })
     }
 
     // ── Open sheet helpers ───────────────────────────────────────────────────
@@ -317,7 +332,7 @@ export default function HabitsCard({ date }) {
                         <Ring
                             value={amountMl}
                             max={WATER_GOAL}
-                            color="#89C4F4"
+                            color="var(--color-text-secondary)"
                             label={`${waterLiters}L`}
                             sublabel={`/ ${(WATER_GOAL / 1000).toFixed(1)}L`}
                             showPlus={true}
@@ -349,7 +364,7 @@ export default function HabitsCard({ date }) {
                         <Ring
                             value={steps}
                             max={STEP_GOAL}
-                            color="#F5D98B"
+                            color="var(--color-text-secondary)"
                             label={stepsLabel}
                             sublabel="/ 10k"
                             showPlus={true}
@@ -366,11 +381,11 @@ export default function HabitsCard({ date }) {
 
             {/* ── Water Bottom Sheet ─────────────────────────────────────────── */}
             {sheet === 'water' && (
-                <Sheet title={t('habits.water_title')} onClose={() => setSheet(null)}>
+                <Sheet title={t('habits.water_title')} onClose={() => setSheet(null)} error={actionError}>
 
                     {/* Big current number */}
                     <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                        <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#89C4F4', lineHeight: 1 }}>
+                        <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#333333', lineHeight: 1 }}>
                             {waterLiters} <span style={{ fontSize: '1.2rem', fontWeight: '500', color: 'var(--color-text-muted)' }}>L</span>
                         </div>
                         <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
@@ -387,17 +402,17 @@ export default function HabitsCard({ date }) {
                         ].map(opt => (
                             <button
                                 key={opt.ml}
-                                onClick={() => { handleAddWater(opt.ml); setSheet(null) }}
+                                onClick={() => void handleAddWater(opt.ml)}
                                 style={{
                                     padding: '0.9rem 0.5rem',
                                     borderRadius: 'var(--radius-md)',
-                                    border: '1.5px solid #89C4F420',
-                                    background: '#89C4F410',
+                                    border: '1.5px solid rgba(51, 51, 51, 0.18)',
+                                    background: 'rgba(51, 51, 51, 0.06)',
                                     cursor: 'pointer',
                                     textAlign: 'center'
                                 }}
                             >
-                                <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#89C4F4' }}>+ {opt.label}</div>
+                                <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#333333' }}>+ {opt.label}</div>
                                 <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>{opt.sub}</div>
                             </button>
                         ))}
@@ -422,7 +437,7 @@ export default function HabitsCard({ date }) {
                                 flex: 1,
                                 padding: '14px 16px',
                                 borderRadius: 'var(--radius-md)',
-                                border: '2px solid #89C4F4',
+                                border: '2px solid #333333',
                                 fontSize: '1.15rem',
                                 fontWeight: '700',
                                 textAlign: 'center',
@@ -443,7 +458,7 @@ export default function HabitsCard({ date }) {
                         <button
                             onClick={handleSaveWater}
                             className="btn btn-primary"
-                            style={{ flex: 2, padding: '1rem', borderRadius: 'var(--radius-md)', fontWeight: '600', fontSize: '1rem', background: '#89C4F4' }}
+                            style={{ flex: 2, padding: '1rem', borderRadius: 'var(--radius-md)', fontWeight: '600', fontSize: '1rem' }}
                         >
                             {t('common.save')}
                         </button>
@@ -453,10 +468,7 @@ export default function HabitsCard({ date }) {
                     {amountMl > 0 && (
                         <div style={{ textAlign: 'center', marginTop: '0.75rem' }}>
                             <button
-                                onClick={() => { 
-                                    logWater(date, -amountMl) // adds negative total = resets to 0
-                                    setSheet(null) 
-                                }}
+                                onClick={() => void handleAddWater(-amountMl)}
                                 style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.82rem', textDecoration: 'underline', cursor: 'pointer' }}
                             >
                                 {t('habits.reset_water')}
@@ -468,11 +480,11 @@ export default function HabitsCard({ date }) {
 
             {/* ── Steps Bottom Sheet ─────────────────────────────────────────── */}
             {sheet === 'steps' && (
-                <Sheet title={t('habits.steps_title')} onClose={() => setSheet(null)}>
+                <Sheet title={t('habits.steps_title')} onClose={() => setSheet(null)} error={actionError}>
 
                     {/* Big current number */}
                     <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                        <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#F5D98B', lineHeight: 1 }}>
+                        <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#333333', lineHeight: 1 }}>
                             {steps.toLocaleString(language === 'en' ? 'en-US' : 'nl-NL')}
                         </div>
                         <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
@@ -490,17 +502,17 @@ export default function HabitsCard({ date }) {
                         ].map(opt => (
                             <button
                                 key={opt.n}
-                                onClick={() => { handleAddSteps(opt.n); setSheet(null) }}
+                                onClick={() => void handleAddSteps(opt.n)}
                                 style={{
                                     padding: '0.9rem 0.5rem',
                                     borderRadius: 'var(--radius-md)',
-                                    border: '1.5px solid rgba(245,217,139,0.5)',
-                                    background: 'rgba(245,217,139,0.18)',
+                                    border: '1.5px solid rgba(51, 51, 51, 0.18)',
+                                    background: 'rgba(51, 51, 51, 0.06)',
                                     cursor: 'pointer',
                                     textAlign: 'center'
                                 }}
                             >
-                                <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#F5D98B' }}>{opt.label}</div>
+                                <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#333333' }}>{opt.label}</div>
                             </button>
                         ))}
                     </div>
@@ -524,7 +536,7 @@ export default function HabitsCard({ date }) {
                                 flex: 1,
                                 padding: '14px 16px',
                                 borderRadius: 'var(--radius-md)',
-                                border: '2px solid #F5D98B',
+                                border: '2px solid #333333',
                                 fontSize: '1.15rem',
                                 fontWeight: '700',
                                 textAlign: 'center',
@@ -545,7 +557,7 @@ export default function HabitsCard({ date }) {
                         <button
                             onClick={handleSaveSteps}
                             className="btn btn-primary"
-                            style={{ flex: 2, padding: '1rem', borderRadius: 'var(--radius-md)', fontWeight: '600', fontSize: '1rem', background: '#F5D98B', color: '#333' }}
+                            style={{ flex: 2, padding: '1rem', borderRadius: 'var(--radius-md)', fontWeight: '600', fontSize: '1rem' }}
                         >
                             {t('common.save')}
                         </button>
@@ -555,10 +567,7 @@ export default function HabitsCard({ date }) {
                     {steps > 0 && (
                         <div style={{ textAlign: 'center', marginTop: '0.75rem' }}>
                             <button
-                                onClick={() => { 
-                                    logSteps(date, 0)
-                                    setSheet(null) 
-                                }}
+                                onClick={() => void runAction(() => logSteps(date, 0))}
                                 style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.82rem', textDecoration: 'underline', cursor: 'pointer' }}
                             >
                                 {t('habits.reset_steps')}
