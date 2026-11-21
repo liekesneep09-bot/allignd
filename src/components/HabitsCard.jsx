@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
@@ -117,12 +117,11 @@ function Sheet({ title, onClose, children, error }) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function HabitsCard({ date }) {
+export default function HabitsCard({ date, requestedSheet = null, onSheetRequestHandled }) {
     const { user, logWater, logSteps } = useUser()
     const { t, language } = useLanguage()
 
     const [sheet, setSheet] = useState(null) // 'water' | 'steps' | null
-    const [showMenu, setShowMenu] = useState(false)
     const [pendingAction, setPendingAction] = useState(false)
     const [actionError, setActionError] = useState(null)
 
@@ -190,6 +189,15 @@ export default function HabitsCard({ date }) {
         setSheet('steps')
     }
 
+    // Let the Today quick actions open the water or steps sheet
+    useEffect(() => {
+        if (requestedSheet === 'water') openWater()
+        else if (requestedSheet === 'steps') openSteps()
+        else return
+        if (onSheetRequestHandled) onSheetRequestHandled()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [requestedSheet])
+
     // ── Formatted labels ─────────────────────────────────────────────────────
     const stepsLabel = steps >= 1000
         ? `${(steps / 1000).toFixed(1)}k`
@@ -217,100 +225,6 @@ export default function HabitsCard({ date }) {
                             {t('habits.subtitle')}
                         </div>
                     </div>
-                    {/* Top right plus button */}
-                    <div style={{ position: 'relative' }}>
-                        <button
-                            onClick={() => setShowMenu(!showMenu)}
-                            style={{
-                                width: '32px',
-                                height: '32px',
-                                borderRadius: 'var(--radius-full)',
-                                backgroundColor: 'var(--color-primary)', // #ffaeb9
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                boxShadow: '0 2px 8px rgba(255, 174, 185, 0.3)',
-                                cursor: 'pointer',
-                                color: '#ffffff',
-                                fontSize: '1.2rem',
-                                fontWeight: '700',
-                                transition: 'transform 0.2s ease',
-                                flexShrink: 0
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.08)'}
-                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                        >
-                            +
-                        </button>
-                        {showMenu && (
-                            <>
-                                {/* Overlay to close on tap outside */}
-                                <div 
-                                    onClick={() => setShowMenu(false)} 
-                                    style={{ position: 'fixed', inset: 0, zIndex: 100 }} 
-                                />
-                                <div style={{
-                                    position: 'absolute',
-                                    right: 0,
-                                    top: '38px',
-                                    backgroundColor: '#ffffff',
-                                    borderRadius: 'var(--radius-md)',
-                                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-                                    border: '1px solid var(--color-border)',
-                                    padding: '6px',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    gap: '4px',
-                                    minWidth: '160px',
-                                    zIndex: 101,
-                                    animation: 'fadeIn 0.15s ease-out'
-                                }}>
-                                    <button
-                                        onClick={() => { openWater(); setShowMenu(false) }}
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '8px',
-                                            padding: '10px 12px',
-                                            borderRadius: 'var(--radius-sm)',
-                                            background: 'none',
-                                            width: '100%',
-                                            textAlign: 'left',
-                                            fontSize: '0.85rem',
-                                            fontWeight: '600',
-                                            color: 'var(--color-text)',
-                                            cursor: 'pointer'
-                                        }}
-                                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 174, 185, 0.08)'}
-                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                                    >
-                                        <span style={{ fontSize: '1.1rem' }}>💧</span> {t('habits.water')}
-                                    </button>
-                                    <button
-                                        onClick={() => { openSteps(); setShowMenu(false) }}
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '8px',
-                                            padding: '10px 12px',
-                                            borderRadius: 'var(--radius-sm)',
-                                            background: 'none',
-                                            width: '100%',
-                                            textAlign: 'left',
-                                            fontSize: '0.85rem',
-                                            fontWeight: '600',
-                                            color: 'var(--color-text)',
-                                            cursor: 'pointer'
-                                        }}
-                                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 174, 185, 0.08)'}
-                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                                    >
-                                        <span style={{ fontSize: '1.1rem' }}>👟</span> {t('habits.steps')}
-                                    </button>
-                                </div>
-                            </>
-                        )}
-                    </div>
                 </div>
 
                 {/* Two rings side by side */}
@@ -332,7 +246,7 @@ export default function HabitsCard({ date }) {
                         <Ring
                             value={amountMl}
                             max={WATER_GOAL}
-                            color="var(--color-text-secondary)"
+                            color="var(--color-primary)"
                             label={`${waterLiters}L`}
                             sublabel={`/ ${(WATER_GOAL / 1000).toFixed(1)}L`}
                             showPlus={true}
@@ -364,7 +278,7 @@ export default function HabitsCard({ date }) {
                         <Ring
                             value={steps}
                             max={STEP_GOAL}
-                            color="var(--color-text-secondary)"
+                            color="var(--color-primary)"
                             label={stepsLabel}
                             sublabel="/ 10k"
                             showPlus={true}

@@ -102,7 +102,7 @@ function CycleRing({ size, strokeWidth, cycleLength, periodLength, currentDay, c
   )
 }
 
-export default function CycleStatusCard({ date, phase, day, linearDay, overdueDays, onNavigate }) {
+export default function CycleStatusCard({ date, phase, day, linearDay, overdueDays, onNavigate, variant = 'card' }) {
   const { user } = useUser()
   const { t, language } = useLanguage()
 
@@ -213,6 +213,81 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
         month: 'long'
       })
     : null
+
+  // Hero variant: large centered ring at the top of Today, phase name and day underneath.
+  if (variant === 'hero') {
+    const heroSize = 196
+    const heroStroke = 12
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-2)' }}>
+        <div style={{ position: 'relative', width: heroSize, height: heroSize }}>
+          <CycleRing
+            size={heroSize}
+            strokeWidth={heroStroke}
+            cycleLength={effectiveCycleLen}
+            periodLength={effectivePeriodLen}
+            currentDay={ringDay}
+            currentPhase={phase}
+            ringColor={phaseBaseColor}
+          />
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+            pointerEvents: 'none',
+            padding: '0 44px'
+          }}>
+            <div style={{
+              fontSize: '2.6rem',
+              fontWeight: '800',
+              color: phaseTextColor,
+              lineHeight: 1,
+              letterSpacing: '-0.03em'
+            }}>
+              {countdownNumber}
+            </div>
+            <div style={{
+              fontSize: 'var(--font-size-xs)',
+              color: 'var(--color-text-muted)',
+              fontWeight: '600',
+              lineHeight: 1.3,
+              marginTop: '4px',
+              whiteSpace: 'pre-line'
+            }}>
+              {countdownLabel}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+            <span style={{
+              width: 9,
+              height: 9,
+              borderRadius: 'var(--radius-full)',
+              background: phaseBaseColor,
+              boxShadow: `0 0 6px ${withAlpha(phaseBaseColor, 0.35)}`
+            }} />
+            <span style={{
+              fontSize: 'var(--font-size-xl)',
+              fontWeight: '800',
+              color: phaseTextColor,
+              letterSpacing: '-0.02em'
+            }}>
+              {phaseLabel}
+            </span>
+          </div>
+          <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)', fontWeight: '500' }}>
+            {dayLabel}
+          </span>
+        </div>
+      </div>
+    )
+  }
 
   const ringSize = 120 // slightly smaller to reduce height
   const strokeW = 9

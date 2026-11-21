@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../utils/supabaseClient'
 import { getCycleDisplayData, getPhaseTransition } from '../logic/cycle'
 import { getPhaseContent } from '../data/phases'
-import { IconMap, IconAccount, IconCalendar } from '../components/Icons'
+import { IconMap, IconAccount, IconCalendar, IconGuide, IconNutrition, IconActivity } from '../components/Icons'
 import FoodModal from '../components/FoodModal'
 import PeriodCalendar from '../components/PeriodCalendar'
 import { toNum, calculateProgress } from '../utils/numbers'
@@ -19,11 +19,30 @@ import { normalizeMealCategory } from '../utils/mealCategory'
 
 // --- HELPER COMPONENTS ---
 
+// Small stroke icons for the Today quick actions (same style as components/Icons.jsx)
+const quickIconProps = { width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true }
+const IconInsights = ({ size = 20 }) => (
+  <svg {...quickIconProps} width={size} height={size}><path d="M5 20V11M12 20V4M19 20v-6" /></svg>
+)
+const IconFeeling = () => (
+  <svg {...quickIconProps}><circle cx="12" cy="12" r="9" /><path d="M8.5 14s1.3 2 3.5 2 3.5-2 3.5-2" /><path d="M9 9.5h.01M15 9.5h.01" /></svg>
+)
+const IconFork = () => (
+  <svg {...quickIconProps}><path d="M7 3v8M4 3v5a3 3 0 0 0 6 0V3M7 11v10M17 3c-2.2 2-3.2 5-3.2 8.5H17V21" /></svg>
+)
+const IconDrop = () => (
+  <svg {...quickIconProps}><path d="M12 2.8C9.2 6.6 6 10 6 13.8a6 6 0 0 0 12 0C18 10 14.8 6.6 12 2.8z" /></svg>
+)
+const IconSteps = () => (
+  <svg {...quickIconProps}><path d="M8 16.5c-1.7 0-3-1.6-3-4.2C5 9.6 6.2 7 8 7s2.6 2.3 2.4 4.6c-.2 2.4-.7 4.9-2.4 4.9zM5.6 19.5c.4 1 1.4 1.5 2.4 1.5s1.8-.6 2-1.6M16 12.5c1.7 0 3-1.6 3-4.2C19 5.6 17.8 3 16 3s-2.6 2.3-2.4 4.6c.2 2.4.7 4.9 2.4 4.9zM18.4 15.5c-.4 1-1.4 1.5-2.4 1.5s-1.8-.6-2-1.6" /></svg>
+)
+
 function CircularProgress({ current, target, size, strokeWidth, color = 'var(--color-calories)', trackColor = 'var(--color-border)', showText = false }) {
   const safeCurrent = toNum(current)
   const safeTarget = toNum(target)
   const radius = size / 2
-  const normalizedRadius = radius - strokeWidth * 2
+  // Same geometry as the water and steps rings in HabitsCard: the ring fills its box
+  const normalizedRadius = (size - strokeWidth) / 2
   const circumference = normalizedRadius * 2 * Math.PI
   const progressFn = calculateProgress(safeCurrent, safeTarget)
   const percentage = Math.round(progressFn * 100)
@@ -274,6 +293,7 @@ export default function Today({ onNavigate }) {
   const [showModal, setShowModal] = useState(false)
   const dailyGoalRef = useRef(null)
   const [showCheckInModal, setShowCheckInModal] = useState(false)
+  const [habitSheet, setHabitSheet] = useState(null) // 'water' | 'steps' | null, opened from the quick actions
   const [showLog, setShowLog] = useState(false)
   const [showCalendar, setShowCalendar] = useState(false)
   const [dailyTopic, setDailyTopic] = useState(null)
@@ -516,26 +536,28 @@ export default function Today({ onNavigate }) {
                 alignItems: 'center',
                 gap: 'var(--space-2)'
               }}>
-                {currentText.prefix && (
-                  <div style={{
-                    fontSize: 'var(--font-size-sm)',
-                    color: 'var(--color-text-secondary)',
-                    fontWeight: '500'
+                {user?.cycleStart ? (
+                  <CycleStatusCard
+                    variant="hero"
+                    date={viewDateStr}
+                    phase={viewPhase}
+                    day={viewDay}
+                    linearDay={viewLinearDay}
+                    overdueDays={overdueDays}
+                    onNavigate={onNavigate}
+                  />
+                ) : (
+                  <h2 style={{
+                    fontSize: 'var(--font-size-4xl)',
+                    color: phaseStyle.text,
+                    fontWeight: '800',
+                    letterSpacing: '-0.03em',
+                    lineHeight: '1.05',
+                    margin: 0
                   }}>
-                    {currentText.prefix}
-                  </div>
+                    {currentText.title}
+                  </h2>
                 )}
-
-                <h2 style={{
-                  fontSize: 'var(--font-size-4xl)',
-                  color: phaseStyle.text,
-                  fontWeight: '800',
-                  letterSpacing: '-0.03em',
-                  lineHeight: '1.05',
-                  margin: 0
-                }}>
-                  {currentText.title}
-                </h2>
 
                 {phaseTransition && phaseTransition.isTransition && viewPhase !== 'menstrual' && (
                   <div style={{
@@ -550,15 +572,142 @@ export default function Today({ onNavigate }) {
                 )}
 
                 <p style={{
-                  fontSize: 'var(--font-size-base)',
+                  fontSize: 'var(--font-size-sm)',
                   color: 'var(--color-text-secondary)',
                   lineHeight: '1.5',
                   margin: '0',
-                  maxWidth: '320px',
+                  maxWidth: '300px',
                   fontWeight: '400'
                 }}>
                   {currentText.normal}
                 </p>
+
+                {/* Row 1 — read more: this phase, nutrition, movement, insights */}
+                <div style={{
+                  marginTop: 'var(--space-3)',
+                  width: '100%',
+                  maxWidth: '380px',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+                  gap: 'var(--space-2)'
+                }}>
+                  {[
+                    { view: 'guide', Icon: IconGuide, label: t('today.hero_phase', { defaultValue: 'Deze fase' }) },
+                    { view: 'recipes', Icon: IconNutrition, label: t('today.hero_nutrition', { defaultValue: 'Voeding' }) },
+                    { view: 'fitness', Icon: IconActivity, label: t('today.hero_movement', { defaultValue: 'Beweging' }) },
+                    { view: 'progress', Icon: IconInsights, label: t('today.hero_insights', { defaultValue: 'Inzichten' }) }
+                  ].map(({ view, Icon, label }) => (
+                    <button
+                      key={view}
+                      type="button"
+                      onClick={() => onNavigate && onNavigate(view)}
+                      style={{
+                        minHeight: '72px',
+                        background: 'var(--color-surface)',
+                        border: '1px solid var(--color-border-light)',
+                        borderRadius: 'var(--radius-md)',
+                        boxShadow: 'var(--shadow-sm)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        padding: 'var(--space-2)',
+                        cursor: 'pointer',
+                        color: 'var(--color-text)',
+                        fontFamily: 'inherit',
+                        fontSize: 'var(--font-size-xs)',
+                        fontWeight: '600'
+                      }}
+                    >
+                      <span style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: 'var(--radius-full)',
+                        background: viewPhase ? `var(--phase-${viewPhase}-soft)` : 'var(--color-bg)',
+                        color: viewPhase ? `var(--phase-${viewPhase}-text)` : 'var(--color-text)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <Icon size={18} />
+                      </span>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Row 2 — log right away: feeling, food, water, steps */}
+                <div style={{
+                  marginTop: 'var(--space-3)',
+                  width: '100%',
+                  maxWidth: '380px',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+                  gap: 'var(--space-2)'
+                }}>
+                  {[
+                    { key: 'feeling', Icon: IconFeeling, label: t('today.quick_feeling', { defaultValue: 'Gevoel' }), onClick: () => setShowCheckInModal(true) },
+                    { key: 'food', Icon: IconFork, label: t('today.quick_food', { defaultValue: 'Eten' }), onClick: () => setShowModal(true) },
+                    { key: 'water', Icon: IconDrop, label: t('today.quick_water', { defaultValue: 'Water' }), onClick: () => setHabitSheet('water') },
+                    { key: 'steps', Icon: IconSteps, label: t('today.quick_steps', { defaultValue: 'Stappen' }), onClick: () => setHabitSheet('steps') }
+                  ].map(({ key, Icon, label, onClick }) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={onClick}
+                      aria-label={`${label} ${t('today.quick_log_suffix', { defaultValue: 'loggen' })}`}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '6px',
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                        fontSize: 'var(--font-size-xs)',
+                        fontWeight: '600',
+                        color: 'var(--color-text-secondary)'
+                      }}
+                    >
+                      <span style={{
+                        position: 'relative',
+                        width: '48px',
+                        height: '48px',
+                        borderRadius: 'var(--radius-full)',
+                        background: 'var(--color-surface)',
+                        border: '1px solid var(--color-border-light)',
+                        boxShadow: 'var(--shadow-sm)',
+                        color: 'var(--color-text)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <Icon />
+                        <span style={{
+                          position: 'absolute',
+                          right: '-2px',
+                          bottom: '-2px',
+                          width: '18px',
+                          height: '18px',
+                          borderRadius: 'var(--radius-full)',
+                          background: 'var(--color-primary)',
+                          color: '#FFFFFF',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '13px',
+                          fontWeight: '700',
+                          lineHeight: 1,
+                          border: '2px solid var(--color-surface)'
+                        }}>+</span>
+                      </span>
+                      {label}
+                    </button>
+                  ))}
+                </div>
 
                 {/* Menstruatie gestopt / Log menstruatie link (Under description text, above nutrition card) */}
                 {(() => {
@@ -620,72 +769,6 @@ export default function Today({ onNavigate }) {
                   );
                 })()}
 
-                {/* Nutrition Card — Compact */}
-                <button
-                  onClick={() => onNavigate && onNavigate('recipes')}
-                  style={{
-                    marginTop: 'var(--space-2)',
-                    width: '100%',
-                    maxWidth: '320px',
-                    background: 'var(--color-surface)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: 'var(--space-3)',
-                    textAlign: 'left',
-                    display: 'flex',
-                    gap: 'var(--space-3)',
-                    alignItems: 'center',
-                    boxSizing: 'border-box',
-                    boxShadow: 'var(--shadow-sm)',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'all var(--transition-base)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                  }}
-                >
-                  <div style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: 'var(--radius-sm)',
-                    background: 'var(--color-primary-light)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
-                  }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22 0-2.25-1.94-4.22-4.14-4.22-2.19 0-3.69 1.62-5.86 1.62-2.16 0-3.65-1.62-5.84-1.62C3.97 5.56 2 7.72 2 10.41c0 4.19 3 11.59 6 11.59 1.25 0 2.5-1.06 4-1.06Z" />
-                      <path d="M10 2c1 0 3.5 1.5 3.5 3.5" />
-                    </svg>
-                  </div>
-
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{
-                      fontSize: 'var(--font-size-sm)',
-                      fontWeight: '600',
-                      color: 'var(--color-text)',
-                      lineHeight: '1.2'
-                    }}>
-                      {t('today.nutrition_label')}
-                    </div>
-                  </div>
-
-                  <div style={{
-                    flexShrink: 0,
-                    color: 'var(--color-primary)',
-                    fontSize: 'var(--font-size-lg)',
-                    lineHeight: 1
-                  }}>
-                    →
-                  </div>
-                </button>
-
               </div>
             )
           })()}
@@ -697,22 +780,6 @@ export default function Today({ onNavigate }) {
       <div className="container" style={{ paddingTop: 'var(--space-2)' }}>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-
-          {/* CYCLE STATUS CARD & PERIOD BUTTON */}
-          {user?.cycleStart && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <CycleStatusCard
-                date={viewDateStr}
-                phase={viewPhase}
-                day={viewDay}
-                linearDay={viewLinearDay}
-                overdueDays={overdueDays}
-                onNavigate={onNavigate}
-              />
-
-
-            </div>
-          )}
 
           {/* DAILY TOPIC CARD */}
           {dailyTopic && (
@@ -804,17 +871,56 @@ export default function Today({ onNavigate }) {
                     </div>
                   </div>
 
-                  <div style={{ marginRight: '-8px' }}>
+                  {/* Tap the ring to add food — same plus badge as the water and steps rings */}
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(true)}
+                    aria-label={t('today.add_food')}
+                    style={{
+                      position: 'relative',
+                      flexShrink: 0,
+                      width: '100px',
+                      height: '100px',
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer'
+                    }}
+                  >
                     <CircularProgress
                       current={toNum(stats.kcal)}
                       target={toNum(targets.calories)}
-                      size={110}
+                      size={100}
                       strokeWidth={8}
                       color="var(--color-calories)"
                       trackColor="rgba(0,0,0,0.05)"
                       showText={true}
                     />
-                  </div>
+                    <span
+                      className="ring-plus-badge"
+                      aria-hidden="true"
+                      style={{
+                        position: 'absolute',
+                        bottom: '-2px',
+                        right: '-2px',
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: 'var(--radius-full)',
+                        backgroundColor: 'var(--color-primary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 2px 6px rgba(255, 174, 185, 0.4)',
+                        border: '2px solid #ffffff',
+                        color: '#ffffff',
+                        fontSize: '1.15rem',
+                        fontWeight: '700',
+                        lineHeight: 1
+                      }}
+                    >
+                      +
+                    </span>
+                  </button>
                 </div>
 
 
@@ -824,40 +930,19 @@ export default function Today({ onNavigate }) {
                     <MacroListItem label={t('today.carbs')} current={toNum(stats.c)} target={toNum(targets.carbsMin)} color="var(--color-text-secondary)" />
                     <MacroListItem label={t('today.fats')} current={toNum(stats.f)} target={toNum(targets.fatMin)} color="var(--color-text-secondary)" />
                     <MacroListItem label={t('today.proteins')} current={toNum(stats.p)} target={toNum(targets.proteinMin)} color="var(--color-text-secondary)" />
-                  </div>
-
-                  <div style={{ textAlign: 'center', marginTop: 'var(--space-4)' }}>
-                    <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)' }}>
-                      🌿 {t('today.fiber')}: {Math.round(toNum(stats.fiber))}g <span style={{ color: 'var(--color-text-tertiary)' }}>/ 25g ({t('today.fiber_recommended')})</span>
-                    </span>
+                    <MacroListItem label={t('today.fiber')} current={toNum(stats.fiber)} target={25} color="var(--color-text-secondary)" />
                   </div>
                 </div>
               </div>
-
-              <button
-                onClick={() => {
-                  setShowModal(true)
-                }}
-                className="btn btn-primary"
-                style={{
-                  width: 'fit-content',
-                  alignSelf: 'center',
-                  padding: 'var(--space-3) var(--space-6)',
-                  borderRadius: 'var(--radius-full)',
-                  boxShadow: 'var(--shadow-md)',
-                  fontSize: 'var(--font-size-sm)',
-                  fontWeight: '600',
-                  marginTop: 'var(--space-5)',
-                  marginBottom: 'var(--space-5)'
-                }}
-              >
-                {t('today.add_food')}
-              </button>
             </>
           )}
 
               {/* HABITS, WEIGHT & SYMPTOMS WIDGETS */}
-              <HabitsCard date={viewDateStr} />
+              <HabitsCard
+                date={viewDateStr}
+                requestedSheet={habitSheet}
+                onSheetRequestHandled={() => setHabitSheet(null)}
+              />
               <WeightTracker date={viewDateStr} compact={true} />
 
               {/* DAILY CHECK-IN WIDGET */}
@@ -934,23 +1019,6 @@ export default function Today({ onNavigate }) {
                 </section>
               )}
 
-                {/* Progressie shortcut */}
-                <button
-                  onClick={() => onNavigate && onNavigate('progress')}
-                  className="btn btn-secondary"
-                  style={{
-                    justifyContent: 'space-between',
-                    padding: 'var(--space-4)',
-                    borderRadius: 'var(--radius-md)'
-                  }}
-                >
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                    {t('today.your_insights')}
-                  </span>
-                  <span style={{ color: 'var(--color-primary)', fontSize: 'var(--font-size-lg)', lineHeight: 1 }}>→</span>
-                </button>
-
-
               {todaysLogs.length > 0 && (() => {
                 const MEAL_ORDER = ['breakfast', 'lunch', 'dinner', 'snack', null]
                 const MEAL_LABELS = {
@@ -974,22 +1042,31 @@ export default function Today({ onNavigate }) {
                 const activeCats = MEAL_ORDER.filter(cat => grouped[String(cat)].length > 0)
 
                 return (
-                  <div style={{ marginTop: 'var(--space-6)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
-                      <h3 style={{ fontSize: 'var(--font-size-lg)', fontWeight: '700', color: 'var(--color-text)', margin: 0 }}>
-                        {t('today.logged_today')}
-                      </h3>
-                      <button
-                        onClick={() => setShowLog(!showLog)}
-                        className="btn btn-ghost"
-                        style={{ width: 'auto', padding: 'var(--space-2) var(--space-3)', fontSize: 'var(--font-size-xs)' }}
-                      >
-                        {showLog ? t('today.hide_items') : t('today.show_items')}
-                      </button>
-                    </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-3)' }}>
+                    <button
+                      type="button"
+                      onClick={() => setShowLog(!showLog)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        padding: 'var(--space-2) var(--space-3)',
+                        minHeight: '44px',
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                        fontSize: 'var(--font-size-sm)',
+                        fontWeight: '600',
+                        color: 'var(--color-text-secondary)',
+                        textDecoration: 'underline',
+                        textUnderlineOffset: '3px'
+                      }}
+                    >
+                      {showLog
+                        ? t('today.hide_logged_meals', { defaultValue: 'Gelogde maaltijden verbergen' })
+                        : t('today.show_logged_meals', { defaultValue: 'Gelogde maaltijden bekijken ({n})' }).replace('{n}', todaysLogs.length)}
+                    </button>
 
                     {showLog && (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
                         {activeCats.map(cat => {
                           const catLogs = grouped[String(cat)]
                           const catKcal = catLogs.reduce((sum, l) => sum + (l.kcal || 0), 0)
