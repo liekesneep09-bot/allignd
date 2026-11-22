@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../utils/supabaseClient'
 import { getCycleDisplayData, getPhaseTransition } from '../logic/cycle'
 import { getPhaseContent } from '../data/phases'
-import { IconMap, IconAccount, IconCalendar, IconGuide, IconNutrition, IconActivity } from '../components/Icons'
+import { IconMap, IconAccount, IconCalendar, IconGuide, IconNutrition, IconActivity, IconCommunity } from '../components/Icons'
 import FoodModal from '../components/FoodModal'
 import PeriodCalendar from '../components/PeriodCalendar'
 import { toNum, calculateProgress } from '../utils/numbers'
@@ -445,7 +445,15 @@ export default function Today({ onNavigate }) {
   }
 
   return (
-    <div style={{ paddingBottom: '120px', maxWidth: '100%', overflowX: 'hidden', background: 'var(--color-bg)' }}>
+    <div style={{
+      paddingBottom: '120px',
+      maxWidth: '100%',
+      overflowX: 'hidden',
+      minHeight: '100vh',
+      // Background moves with the phase of the selected day
+      background: viewPhase ? `var(--phase-${viewPhase}-bg, var(--color-bg))` : 'var(--color-bg)',
+      transition: 'background 0.5s ease'
+    }}>
 
       {/* HEADER SECTION */}
       <div style={{
@@ -573,10 +581,10 @@ export default function Today({ onNavigate }) {
 
                 <p style={{
                   fontSize: 'var(--font-size-sm)',
-                  color: 'var(--color-text-secondary)',
+                  color: '#333333',
                   lineHeight: '1.5',
                   margin: '0',
-                  maxWidth: '300px',
+                  maxWidth: '360px',
                   fontWeight: '400'
                 }}>
                   {currentText.normal}
@@ -781,67 +789,6 @@ export default function Today({ onNavigate }) {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
 
-          {/* DAILY TOPIC CARD */}
-          {dailyTopic && (
-            <button
-              onClick={() => onNavigate && onNavigate('community')}
-              className="card"
-              style={{
-                padding: 'var(--space-4)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-3)',
-                width: '100%',
-                textAlign: 'left',
-                cursor: 'pointer',
-                border: '1px solid var(--color-border-light)',
-                boxShadow: 'var(--shadow-sm)'
-              }}
-            >
-              <div style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: 'var(--radius-full)',
-                background: 'var(--color-primary-light)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.2rem',
-                flexShrink: 0
-              }}>
-                💬
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{
-                  fontSize: 'var(--font-size-xs)',
-                  fontWeight: '700',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  color: 'var(--color-primary)',
-                  marginBottom: '3px'
-                }}>
-                  {t('today.daily_topic_title')}
-                </div>
-                <div style={{
-                  fontSize: 'var(--font-size-base)',
-                  fontWeight: '600',
-                  color: 'var(--color-text)',
-                  lineHeight: '1.4'
-                }}>
-                  {dailyTopic.question}
-                </div>
-                <div style={{
-                  fontSize: 'var(--font-size-xs)',
-                  fontWeight: '600',
-                  color: 'var(--color-text-secondary)',
-                  marginTop: '6px'
-                }}>
-                  {t('today.daily_topic_answer')} →
-                </div>
-              </div>
-            </button>
-          )}
-
           {(user.tracking !== 'none') && (
             <>
               <div ref={dailyGoalRef} className="card" style={{
@@ -945,50 +892,14 @@ export default function Today({ onNavigate }) {
               />
               <WeightTracker date={viewDateStr} compact={true} />
 
-              {/* DAILY CHECK-IN WIDGET */}
-              <section className="card" style={{ padding: 'var(--space-4)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-                      <div style={{ 
-                        width: '40px', 
-                        height: '40px', 
-                        borderRadius: 'var(--radius-md)', 
-                        background: 'var(--color-primary-light)', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        color: 'var(--color-primary)' 
-                      }}>
-                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                            <line x1="9" y1="9" x2="9.01" y2="9"></line>
-                            <line x1="15" y1="9" x2="15.01" y2="9"></line>
-                          </svg>
-                      </div>
-                      <div>
-                          <h2 style={{ fontSize: 'var(--font-size-base)', margin: '0 0 2px 0', color: 'var(--color-text)', fontWeight: '600' }}>{t('checkin.title', { defaultValue: 'Symptomen' })}</h2>
-                          <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)', fontWeight: '500' }}>
-                              {todaysSymptoms.length > 0 ? t('today.symptoms_count').replace('{n}', todaysSymptoms.length) : t('today.how_do_you_feel')}
-                          </div>
-                      </div>
-                  </div>
-                  <button
-                      onClick={() => setShowCheckInModal(true)}
-                      className="btn btn-primary"
-                      style={{ 
-                        width: 'auto',
-                        padding: 'var(--space-2) var(--space-4)', 
-                        borderRadius: 'var(--radius-full)', 
-                        fontSize: 'var(--font-size-xs)', 
-                        fontWeight: '600' 
-                      }}
-                  >
-{t('today.log_btn')}
-                  </button>
-              </section>
-
+              {/* Logged feelings: small labels; tap to change them (same window as the Gevoel button) */}
               {todaysSymptoms.length > 0 && (
-                <section className="card" style={{ padding: 'var(--space-3) var(--space-4)' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowCheckInModal(true)}
+                  className="card"
+                  style={{ padding: 'var(--space-3) var(--space-4)', width: '100%', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit' }}
+                >
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)', alignItems: 'center' }}>
                     <span style={{
                       fontSize: 'var(--font-size-xs)',
@@ -1016,7 +927,7 @@ export default function Today({ onNavigate }) {
                       )
                     })}
                   </div>
-                </section>
+                </button>
               )}
 
               {todaysLogs.length > 0 && (() => {
@@ -1171,9 +1082,67 @@ export default function Today({ onNavigate }) {
                 )
               })()}
 
-          <section>
-            {/* Movement Section Removed */}
-          </section>
+          {/* Question of the day — belongs to Community, so it sits at the bottom */}
+          {dailyTopic && (
+            <button
+              type="button"
+              onClick={() => onNavigate && onNavigate('community')}
+              className="card"
+              style={{
+                marginTop: 'var(--space-3)',
+                padding: 'var(--space-4)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-3)',
+                width: '100%',
+                textAlign: 'left',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                border: '1px solid var(--color-border-light)',
+                boxShadow: 'var(--shadow-sm)'
+              }}
+            >
+              <span style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: 'var(--radius-full)',
+                background: 'var(--color-primary-light)',
+                color: 'var(--color-primary)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                <IconCommunity size={20} />
+              </span>
+              <span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                <span style={{
+                  fontSize: 'var(--font-size-xs)',
+                  fontWeight: '700',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  color: 'var(--color-text-secondary)'
+                }}>
+                  {t('today.daily_topic_title')}
+                </span>
+                <span style={{
+                  fontSize: 'var(--font-size-base)',
+                  fontWeight: '600',
+                  color: 'var(--color-text)',
+                  lineHeight: '1.4'
+                }}>
+                  {dailyTopic.question}
+                </span>
+                <span style={{
+                  fontSize: 'var(--font-size-xs)',
+                  fontWeight: '600',
+                  color: 'var(--color-primary)'
+                }}>
+                  {t('today.daily_topic_answer')} →
+                </span>
+              </span>
+            </button>
+          )}
 
         </div>
       </div> {/* CLOSE CONTAINER */}

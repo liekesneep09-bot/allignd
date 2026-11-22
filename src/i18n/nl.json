@@ -381,19 +381,19 @@
       {
         "title": "Menstruatie fase",
         "prefix": "",
-        "normal": "Krampen of moe? Wees mild voor jezelf, maar blijf goed voor je lichaam zorgen. Houd jezelf warm en neem rust wanneer dat nodig is.",
+        "normal": "Krampen of moe? Warmte, rust en zacht bewegen helpen je lichaam nu het meest.",
         "nutrition": "IJzerrijke voeding, magnesium en omega-3 ondersteunen je van binnenuit."
       },
       {
         "title": "Menstruatie fase",
         "prefix": "",
-        "normal": "Je lichaam werkt hard achter de schermen. Zachte beweging, warmte en rust zijn nu je beste vrienden: geen verplichtingen, gewoon goed voor jezelf zorgen.",
+        "normal": "Je lichaam werkt hard. Kies voor wandelen of yoga en eet iets warms en voedzaams.",
         "nutrition": "Soepen, warme maaltijden en ijzerrijke producten zoals spinazie of peulvruchten helpen je lichaam herstellen."
       },
       {
         "title": "Menstruatie fase",
         "prefix": "",
-        "normal": "Lagere energie is geen falen, het is je lichaam dat reset. Luister naar wat je nodig hebt en geef jezelf daar toestemming voor.",
+        "normal": "Minder energie is geen falen, je lichaam reset. Geef het de rust die het vraagt.",
         "nutrition": "Magnesium en omega-3 kunnen helpen bij krampen. Vermijd te veel cafeïne als je er gevoelig voor bent."
       }
     ],
@@ -401,19 +401,19 @@
       {
         "title": "Folliculaire fase",
         "prefix": "Je zit waarschijnlijk in je",
-        "normal": "Je energie bouwt zich weer op. Een fase waarin je vooruit wilt en dingen in beweging brengt.",
+        "normal": "Je energie bouwt op. Een sterk moment om zwaarder te trainen.",
         "nutrition": "Koolhydraten geven je energie, terwijl eiwitten bijdragen aan opbouw en herstel."
       },
       {
         "title": "Folliculaire fase",
         "prefix": "Je zit waarschijnlijk in je",
-        "normal": "Dit is een mooie fase om nieuwe dingen op te pakken of gewoontes weer aan te scherpen. Je hoofd is helder en je herstel gaat sneller.",
+        "normal": "Je hoofd is helder en je herstelt sneller. Ideaal om nieuwe doelen op te pakken.",
         "nutrition": "B-vitamines en zink ondersteunen je energieproductie en herstel: denk aan eieren, noten en volle granen."
       },
       {
         "title": "Folliculaire fase",
         "prefix": "Je zit waarschijnlijk in je",
-        "normal": "Je oestrogeen stijgt en dat merk je: meer motivatie, betere focus en een lichtere stemming. Benut dit, maar houd ook ruimte voor wat rust.",
+        "normal": "Je oestrogeen stijgt: meer motivatie en focus. Benut het, en plan ook rust in.",
         "nutrition": "Voldoende eiwitten en koolhydraten geven je lichaam de brandstof om op te bouwen."
       }
     ],
@@ -421,19 +421,19 @@
       {
         "title": "Ovulatiefase",
         "prefix": "Je zit waarschijnlijk in je",
-        "normal": "Je zit vaak op je sterkst: energiek, helder en krachtig. Vertrouw op je lichaam en benut deze fase op een manier die bij je past.",
+        "normal": "Je zit vaak op je sterkst. Een goed moment voor je zwaarste training.",
         "nutrition": "Lichte, voedzame maaltijden en antioxidanten ondersteunen je energie en vitaliteit."
       },
       {
         "title": "Ovulatiefase",
         "prefix": "Je zit waarschijnlijk in je",
-        "normal": "Dit is je energiepiek. Je voelt je socialer, sterker en meer in flow. Een goede tijd om dingen aan te pakken waar je anders tegenop ziet.",
+        "normal": "Dit is je energiepiek: sterker, socialer en meer in flow.",
         "nutrition": "Omega-3 vetzuren en antioxidanten, zoals in vette vis, bessen en noten, ondersteunen je bij hogere activiteit."
       },
       {
         "title": "Ovulatiefase",
         "prefix": "Je zit waarschijnlijk in je",
-        "normal": "Hormonen pieken nu en dat geeft je een natuurlijk voordeel. Geniet ervan, maar overdrijf het niet: herstel blijft ook in deze fase belangrijk.",
+        "normal": "Je hormonen pieken en dat geeft je een voordeel. Vergeet je herstel niet.",
         "nutrition": "Vezels helpen je hormoonhuishouding in balans te houden. Denk aan groenten, fruit en peulvruchten."
       }
     ],
@@ -441,19 +441,19 @@
       {
         "title": "Luteale fase",
         "prefix": "Je zit waarschijnlijk in je",
-        "normal": "Je lichaam schakelt langzaam over naar meer rust. Meer trek, minder energie of wat extra vocht vasthouden is helemaal normaal in deze fase.",
+        "normal": "Meer trek en minder energie zijn nu normaal. Eiwit en vezels helpen je verzadigd te blijven.",
         "nutrition": "Magnesium, complexe koolhydraten, calcium en vitamine B6 ondersteunen je verzadiging en energiebalans. Denk aan havermout, banaan, yoghurt, zoete aardappel en noten."
       },
       {
         "title": "Luteale fase",
         "prefix": "Je zit waarschijnlijk in je",
-        "normal": "Dit is vaak een fase waarin je lichaam meer behoefte heeft aan stabiliteit en herstel. Wat zachter voor jezelf zijn mag juist nu.",
+        "normal": "Je lichaam vraagt om stabiliteit. Train iets lichter en wees mild voor jezelf.",
         "nutrition": "Magnesium, complexe koolhydraten, calcium en vitamine B6 ondersteunen je verzadiging en energiebalans. Kies bijvoorbeeld voor quinoa, pure chocolade, avocado, spinazie en eieren."
       },
       {
         "title": "Luteale fase",
         "prefix": "Je zit waarschijnlijk in je",
-        "normal": "Je energie kan deze dagen wat meer schommelen. Dat is normaal en hoort bij de veranderingen die in je lichaam plaatsvinden.",
+        "normal": "Je energie kan schommelen. Dat hoort bij deze fase, je doet niets fout.",
         "nutrition": "Magnesium, complexe koolhydraten, calcium en vitamine B6 ondersteunen je verzadiging en energiebalans. Denk aan volkoren pasta, amandelen, zalm, pompoenpitten en yoghurt."
       }
     ]

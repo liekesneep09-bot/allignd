@@ -381,19 +381,19 @@
       {
         "title": "Menstrual phase",
         "prefix": "",
-        "normal": "Cramps or tired? Be gentle with yourself, but keep taking good care of your body. Keep warm and rest when needed.",
+        "normal": "Cramps or tired? Warmth, rest and gentle movement help your body most right now.",
         "nutrition": "Iron-rich food, magnesium, and omega-3 support you from the inside out."
       },
       {
         "title": "Menstrual phase",
         "prefix": "",
-        "normal": "Your body is working hard behind the scenes. Gentle movement, warmth, and rest are your best friends right now: no obligations, just taking good care of yourself.",
+        "normal": "Your body is working hard. Choose walking or yoga and eat something warm and nourishing.",
         "nutrition": "Soups, warm meals, and iron-rich products like spinach or legumes help your body recover."
       },
       {
         "title": "Menstrual phase",
         "prefix": "",
-        "normal": "Lower energy is not a failure, it is your body resetting. Listen to what you need and give yourself permission for it.",
+        "normal": "Lower energy isn't failing, your body is resetting. Give it the rest it asks for.",
         "nutrition": "Magnesium and omega-3 can help with cramps. Avoid too much caffeine if you are sensitive to it."
       }
     ],
@@ -401,19 +401,19 @@
       {
         "title": "Follicular phase",
         "prefix": "You are likely in your",
-        "normal": "Your energy is building up again. A phase where you want to move forward and put things in motion.",
+        "normal": "Your energy is building. A strong moment to train heavier.",
         "nutrition": "Carbohydrates give you energy, while proteins contribute to muscle building and recovery."
       },
       {
         "title": "Follicular phase",
         "prefix": "You are likely in your",
-        "normal": "This is a great phase to pick up new things or sharpen habits again. Your head is clear and your recovery is faster.",
+        "normal": "Your mind is clear and you recover faster. Ideal for picking up new goals.",
         "nutrition": "B-vitamins and zinc support your energy production and recovery: think of eggs, nuts, and whole grains."
       },
       {
         "title": "Follicular phase",
         "prefix": "You are likely in your",
-        "normal": "Your estrogen is rising and you notice it: more motivation, better focus, and a lighter mood. Use this, but also keep space for some rest.",
+        "normal": "Your estrogen is rising: more motivation and focus. Use it, and plan in rest too.",
         "nutrition": "Sufficient proteins and carbohydrates give your body the fuel to build."
       }
     ],
@@ -421,19 +421,19 @@
       {
         "title": "Ovulatory phase",
         "prefix": "You are likely in your",
-        "normal": "You are often at your strongest: energetic, clear, and powerful. Trust your body and use this phase in a way that suits you.",
+        "normal": "You're often at your strongest. A good moment for your hardest workout.",
         "nutrition": "Light, nutritious meals and antioxidants support your energy and vitality."
       },
       {
         "title": "Ovulatory phase",
         "prefix": "You are likely in your",
-        "normal": "This is your energy peak. You feel more social, stronger, and more in flow. A good time to tackle things you otherwise dread.",
+        "normal": "This is your energy peak: stronger, more social and more in flow.",
         "nutrition": "Omega-3 fatty acids and antioxidants, such as in fatty fish, berries, and nuts, support you during higher activity."
       },
       {
         "title": "Ovulatory phase",
         "prefix": "You are likely in your",
-        "normal": "Hormones are peaking now and that gives you a natural advantage. Enjoy it, but don't overdo it: recovery remains important in this phase too.",
+        "normal": "Your hormones peak and that gives you an edge. Don't forget your recovery.",
         "nutrition": "Fiber helps keep your hormones in balance. Think of vegetables, fruits, and legumes."
       }
     ],
@@ -441,19 +441,19 @@
       {
         "title": "Luteal phase",
         "prefix": "You are likely in your",
-        "normal": "Your body slowly switches to more rest. More appetite, less energy, or retaining some extra water is completely normal in this phase.",
+        "normal": "More cravings and less energy are normal now. Protein and fiber help you stay full.",
         "nutrition": "Magnesium, complex carbohydrates, calcium, and vitamin B6 support your satiety and energy balance. Think of oatmeal, banana, yogurt, sweet potato, and nuts."
       },
       {
         "title": "Luteal phase",
         "prefix": "You are likely in your",
-        "normal": "This is often a phase where your body needs more stability and recovery. Being a little softer on yourself is allowed right now.",
+        "normal": "Your body asks for stability. Train a bit lighter and be kind to yourself.",
         "nutrition": "Magnesium, complex carbohydrates, calcium, and vitamin B6 support your satiety and energy balance. For example, choose quinoa, dark chocolate, avocado, spinach, and eggs."
       },
       {
         "title": "Luteal phase",
         "prefix": "You are likely in your",
-        "normal": "Your energy can fluctuate a bit more these days. That is normal and part of the changes taking place in your body.",
+        "normal": "Your energy may fluctuate. That's part of this phase, you're doing nothing wrong.",
         "nutrition": "Magnesium, complex carbohydrates, calcium, and vitamin B6 support your satiety and energy balance. Think of whole wheat pasta, almonds, salmon, pumpkin seeds, and yogurt."
       }
     ]

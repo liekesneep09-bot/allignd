@@ -326,7 +326,7 @@ export default function Progress({ onClose }) {
     const phaseSoftColor = PHASE_SOFT_COLORS[currentPhase] || 'var(--color-primary-light)'
 
     return (
-        <div style={{ minHeight: '100vh', background: '#FAFAFA', paddingBottom: '120px' }}>
+        <div style={{ minHeight: '100vh', background: 'var(--color-bg)', paddingBottom: '120px' }}>
 
             {/* Header */}
             <div style={{

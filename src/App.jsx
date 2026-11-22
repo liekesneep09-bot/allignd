@@ -99,6 +99,14 @@ export function MainLayout({ initialView = 'today', isExpoApp = false }) {
         }
     }, [isLoading])
 
+    // The page background on every screen moves with the current cycle phase
+    useEffect(() => {
+        const root = document.documentElement
+        if (currentPhase) root.style.setProperty('--color-bg', `var(--phase-${currentPhase}-bg)`)
+        else root.style.removeProperty('--color-bg')
+        return () => root.style.removeProperty('--color-bg')
+    }, [currentPhase])
+
     // Phase colors for background gradient
     const getPhaseColor = (phase) => {
         switch (phase) {

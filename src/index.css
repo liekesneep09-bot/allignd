@@ -40,6 +40,12 @@
   --phase-luteal-text: #5C4F90;
   --phase-luteal-soft: rgba(157, 146, 212, 0.14);
 
+  /* Page backgrounds that move with the cycle (very light tint of each phase color) */
+  --phase-menstrual-bg: #FFF4F7;
+  --phase-follicular-bg: #F3F8FC;
+  --phase-ovulatory-bg: #FAF4FB;
+  --phase-luteal-bg: #F6F4FC;
+
   /* Colors — Nutrition */
   --color-calories: #FF8FA3;
   --color-protein: #6BCB77;

@@ -214,54 +214,51 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
       })
     : null
 
-  // Hero variant: large centered ring at the top of Today, phase name and day underneath.
+  // Hero variant: large centered ring of day dots at the top of Today, phase name and day underneath.
   if (variant === 'hero') {
-    const heroSize = 196
-    const heroStroke = 12
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-2)' }}>
-        <div style={{ position: 'relative', width: heroSize, height: heroSize }}>
-          <CycleRing
-            size={heroSize}
-            strokeWidth={heroStroke}
-            cycleLength={effectiveCycleLen}
-            periodLength={effectivePeriodLen}
-            currentDay={ringDay}
-            currentPhase={phase}
-            ringColor={phaseBaseColor}
-          />
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            textAlign: 'center',
-            pointerEvents: 'none',
-            padding: '0 44px'
-          }}>
-            <div style={{
-              fontSize: '2.6rem',
-              fontWeight: '800',
-              color: phaseTextColor,
-              lineHeight: 1,
-              letterSpacing: '-0.03em'
-            }}>
-              {countdownNumber}
-            </div>
-            <div style={{
-              fontSize: 'var(--font-size-xs)',
-              color: 'var(--color-text-muted)',
-              fontWeight: '600',
-              lineHeight: 1.3,
-              marginTop: '4px',
-              whiteSpace: 'pre-line'
-            }}>
-              {countdownLabel}
-            </div>
+    // Short cycle day next to the phase name, e.g. 'Folliculaire fase · dag 9'
+    const heroDayLabel = t('cycle_status.day_x').replace('{current}', linearDay || day || 1).toLocaleLowerCase(language === 'nl' ? 'nl-NL' : 'en-US')
+
+    // A ring of small dots, one per cycle day; past days full color, today the big dot
+    const segments = getPhaseSegments(effectiveCycleLen, effectivePeriodLen)
+    const phaseOfIndex = (i) => (segments.find(s => i >= s.start && i < s.end) || segments[segments.length - 1]).phase
+    const days = Array.from({ length: effectiveCycleLen }, (_, i) => ({
+      i,
+      phase: phaseOfIndex(i),
+      isToday: i + 1 === ringDay,
+      isPast: i + 1 < ringDay
+    }))
+    const dotsSize = 200
+    const dotsRadius = 86
+    const center = dotsSize / 2
+
+    const visual = (
+      <div style={{ position: 'relative', width: dotsSize, height: dotsSize }}>
+        <svg width={dotsSize} height={dotsSize} viewBox={`0 0 ${dotsSize} ${dotsSize}`} aria-hidden="true">
+          {days.map((d) => {
+            const angle = ((d.i + 0.5) / effectiveCycleLen) * 2 * Math.PI - Math.PI / 2
+            const x = center + dotsRadius * Math.cos(angle)
+            const y = center + dotsRadius * Math.sin(angle)
+            const color = PHASE_COLORS[d.phase]
+            return d.isToday
+              ? <circle key={d.i} cx={x} cy={y} r={9} fill="#FFFFFF" stroke={color} strokeWidth={4} />
+              : <circle key={d.i} cx={x} cy={y} r={5} fill={color} opacity={d.isPast ? 1 : 0.35} />
+          })}
+        </svg>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', pointerEvents: 'none', padding: '0 44px' }}>
+          <div style={{ fontSize: '2.6rem', fontWeight: '800', color: phaseTextColor, lineHeight: 1, letterSpacing: '-0.03em' }}>
+            {countdownNumber}
+          </div>
+          <div style={{ fontSize: 'var(--font-size-xs)', color: '#333333', fontWeight: '600', lineHeight: 1.3, marginTop: '4px', whiteSpace: 'pre-line' }}>
+            {countdownLabel}
           </div>
         </div>
+      </div>
+    )
+
+    return (
+      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-2)' }}>
+        {visual}
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
@@ -280,10 +277,10 @@ export default function CycleStatusCard({ date, phase, day, linearDay, overdueDa
             }}>
               {phaseLabel}
             </span>
+            <span style={{ fontSize: 'var(--font-size-base)', color: '#333333', fontWeight: '500' }}>
+              · {heroDayLabel}
+            </span>
           </div>
-          <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)', fontWeight: '500' }}>
-            {dayLabel}
-          </span>
         </div>
       </div>
     )
