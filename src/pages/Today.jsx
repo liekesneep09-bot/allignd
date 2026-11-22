@@ -12,7 +12,7 @@ import { toNum, calculateProgress } from '../utils/numbers'
 import { getLocalDateStr } from '../utils/date'
 import HabitsCard from '../components/HabitsCard'
 import WeightTracker from '../components/WeightTracker'
-import CheckInModal, { SYMPTOMS_LIST } from '../components/CheckInModal'
+import CheckInModal, { SYMPTOMS_LIST, SYMPTOM_GROUPS, SymptomIcon } from '../components/CheckInModal'
 import CycleStatusCard from '../components/CycleStatusCard'
 import ActionToast from '../components/ActionToast'
 import { normalizeMealCategory } from '../utils/mealCategory'
@@ -892,42 +892,66 @@ export default function Today({ onNavigate }) {
               />
               <WeightTracker date={viewDateStr} compact={true} />
 
-              {/* Logged feelings: small labels; tap to change them (same window as the Gevoel button) */}
+              {/* Logged feelings: icon chips in the same style as the check-in window */}
               {todaysSymptoms.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setShowCheckInModal(true)}
-                  className="card"
-                  style={{ padding: 'var(--space-3) var(--space-4)', width: '100%', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit' }}
-                >
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)', alignItems: 'center' }}>
-                    <span style={{
-                      fontSize: 'var(--font-size-xs)',
-                      color: 'var(--color-text-secondary)',
-                      fontWeight: '600',
-                      marginRight: 'var(--space-1)'
-                    }}>
-                      {t('today.how_do_you_feel')}:
-                    </span>
+                <section className="card" style={{ padding: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 'var(--space-3)' }}>
+                    <h2 style={{ margin: 0, fontSize: 'var(--font-size-base)', fontWeight: '700', color: '#333333' }}>
+                      {t('today.your_feeling_today', { defaultValue: 'Jouw gevoel vandaag' })}
+                    </h2>
+                    <button
+                      type="button"
+                      onClick={() => setShowCheckInModal(true)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        padding: 'var(--space-2) 0 var(--space-2) var(--space-2)',
+                        minHeight: '44px',
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                        fontSize: 'var(--font-size-sm)',
+                        fontWeight: '700',
+                        color: 'var(--color-primary)'
+                      }}
+                    >
+                      {t('today.edit_feeling', { defaultValue: 'Aanpassen' })}
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
                     {todaysSymptoms.map(sympId => {
                       const sympDef = SYMPTOMS_LIST.find(s => s.id === sympId)
                       if (!sympDef) return null
+                      const tint = SYMPTOM_GROUPS.find(g => g.id === sympDef.category)?.tint || 'var(--color-bg)'
                       return (
                         <span key={sympId} style={{
-                          fontSize: 'var(--font-size-xs)',
-                          padding: 'var(--space-1) var(--space-3)',
-                          backgroundColor: 'var(--color-bg)',
-                          color: 'var(--color-text-secondary)',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '4px 12px 4px 4px',
+                          background: tint,
+                          color: '#333333',
                           borderRadius: 'var(--radius-full)',
-                          fontWeight: '500',
-                          border: '1px solid var(--color-border-light)'
+                          fontSize: 'var(--font-size-sm)',
+                          fontWeight: '600'
                         }}>
+                          <span style={{
+                            width: '28px',
+                            height: '28px',
+                            borderRadius: 'var(--radius-full)',
+                            background: 'rgba(255,255,255,0.7)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transform: 'scale(0.85)'
+                          }}>
+                            <SymptomIcon id={sympId} />
+                          </span>
                           {t(`checkin.symptoms.${sympId}`)}
                         </span>
                       )
                     })}
                   </div>
-                </button>
+                </section>
               )}
 
               {todaysLogs.length > 0 && (() => {

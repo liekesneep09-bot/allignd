@@ -282,7 +282,9 @@
     "undo": "Undo",
     "protein_grams": "{p}g protein",
     "daily_topic_title": "Question of the day",
-    "daily_topic_answer": "Answer"
+    "daily_topic_answer": "Answer",
+    "your_feeling_today": "How you feel today",
+    "edit_feeling": "Edit"
   },
   "guide": {
     "science_title": "What's happening in your body?",

@@ -394,4 +394,4 @@ export default function CheckInModal({ isOpen, onClose, dateStr }) {
     )
 }
 
-export { SYMPTOMS_LIST }
+export { SYMPTOMS_LIST, GROUPS as SYMPTOM_GROUPS, OptionIcon as SymptomIcon }

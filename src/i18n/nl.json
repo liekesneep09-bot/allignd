@@ -282,7 +282,9 @@
     "undo": "Ongedaan maken",
     "protein_grams": "{p}g eiwit",
     "daily_topic_title": "Vraag van de dag",
-    "daily_topic_answer": "Beantwoorden"
+    "daily_topic_answer": "Beantwoorden",
+    "your_feeling_today": "Jouw gevoel vandaag",
+    "edit_feeling": "Aanpassen"
   },
   "guide": {
     "science_title": "Wat gebeurt er in je lichaam?",
