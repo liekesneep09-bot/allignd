@@ -1,66 +1,61 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
-import { getFitnessAdvice, getFitnessContent, getBodyPartAdvice } from '../data/fitnessContent'
+import { getFitnessContent } from '../data/fitnessContent'
 import { getPhaseContent } from '../data/phases'
-import { IconActivity } from '../components/Icons'
 import { getLocalDateStr } from '../utils/date'
 
-// Helper to get this week's logged workouts
-function getThisWeekWorkouts(movementLogs) {
-    if (!movementLogs || !Array.isArray(movementLogs) || movementLogs.length === 0) return 0
-
-    const now = new Date()
-    const dayOfWeek = now.getDay() // 0 = Sunday
-    const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1
-    const monday = new Date(now)
-    monday.setDate(now.getDate() - mondayOffset)
-    monday.setHours(0, 0, 0, 0)
-
-    const mondayStr = monday.toISOString().split('T')[0]
-
-    return movementLogs.filter(log =>
-        log.status === 'moved' && log.date >= mondayStr
-    ).length
-}
-
-// Helper to get this week's days (Mon-Sun) with movement status
 function getWeekDays(movementLogs, t) {
     const now = new Date()
-    const dayOfWeek = now.getDay()
-    const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1
     const monday = new Date(now)
+    const mondayOffset = now.getDay() === 0 ? 6 : now.getDay() - 1
     monday.setDate(now.getDate() - mondayOffset)
     monday.setHours(0, 0, 0, 0)
 
-    const days = []
     const rawDayLabels = t('guide.days_short', { returnObjects: true })
     const dayLabels = Array.isArray(rawDayLabels) ? rawDayLabels : ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo']
 
-    for (let i = 0; i < 7; i++) {
-        const d = new Date(monday)
-        d.setDate(monday.getDate() + i)
-        const dateStr = getLocalDateStr(d)
-        const log = movementLogs?.find(l => l.date === dateStr)
-        days.push({
-            label: dayLabels[i],
+    return Array.from({ length: 7 }, (_, index) => {
+        const date = new Date(monday)
+        date.setDate(monday.getDate() + index)
+        const dateStr = getLocalDateStr(date)
+        const log = movementLogs?.find(item => item.date === dateStr)
+        return {
+            label: dayLabels[index],
             dateStr,
-            status: log?.status || null, // 'moved', 'rest', or null
-            isToday: dateStr === getLocalDateStr(new Date())
-        })
-    }
-    return days
+            status: log?.status || null,
+            isToday: dateStr === getLocalDateStr(now)
+        }
+    })
+}
+
+const phaseColors = {
+    menstrual: 'var(--phase-menstrual-text)',
+    follicular: 'var(--phase-follicular-text)',
+    ovulatory: 'var(--phase-ovulatory-text)',
+    luteal: 'var(--phase-luteal-text)'
 }
 
 export default function Fitness() {
     const { user, currentPhase, logMovement } = useUser()
     const { language, t } = useLanguage()
-    const [selectedBodyPart, setSelectedBodyPart] = useState(null)
+    const [approach, setApproach] = useState('plan')
+    const [showWhy, setShowWhy] = useState(false)
     const [movementPending, setMovementPending] = useState(false)
     const [movementError, setMovementError] = useState(null)
 
+    const todayStr = getLocalDateStr(new Date())
+    const todayStatus = user.movementLogs?.find(log => log.date === todayStr)?.status || null
+    const weekDays = useMemo(() => getWeekDays(user.movementLogs || [], t), [user.movementLogs, t])
+    const weekWorkouts = weekDays.filter(day => day.status === 'moved').length
+    const weekTarget = user.trainingFrequency ?? 3
+    const fitnessContent = getFitnessContent(language)
+    const goalLabel = fitnessContent.goals[user.goal] || user.goal || t('fitness.any_goal')
+    const phaseName = getPhaseContent(language, currentPhase).name
+    const accent = phaseColors[currentPhase] || phaseColors.luteal
+
     const handleMovement = async (status) => {
-        if (movementPending) return
+        if (movementPending || todayStatus === status) return
         setMovementPending(true)
         setMovementError(null)
         try {
@@ -72,562 +67,169 @@ export default function Fitness() {
         }
     }
 
-    // Reset selected body part when component mounts
-    useEffect(() => {
-        setSelectedBodyPart(null)
-    }, [])
+    const approaches = [
+        { id: 'plan', label: t('fitness.approach_plan'), text: t('fitness.approach_plan_text') },
+        { id: 'lighter', label: t('fitness.approach_lighter'), text: t('fitness.approach_lighter_text') },
+        { id: 'rest', label: t('fitness.approach_rest'), text: t('fitness.approach_rest_text') }
+    ]
+    const selectedApproach = approaches.find(item => item.id === approach) || approaches[0]
 
-    const fitnessContent = getFitnessContent(language)
-    const phaseContent = getPhaseContent(language, currentPhase)
-    const phaseName = phaseContent.name
-    const phaseKey = currentPhase // menstrual, follicular, ovulatory, luteal
+    return (
+        <div className="container" style={{ paddingTop: '1rem', paddingBottom: '100px' }}>
+            <header style={{ marginBottom: '1.25rem' }}>
+                <h1 style={{ fontSize: 'var(--font-size-3xl)', fontWeight: 700, margin: '0 0 0.35rem' }}>
+                    {t('fitness.title')}
+                </h1>
+                <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.95rem', lineHeight: 1.5 }}>
+                    {t('fitness.subtitle')}
+                </p>
+            </header>
 
-    // Week stats
-    const weekWorkouts = useMemo(() => getThisWeekWorkouts(user.movementLogs || []), [user.movementLogs])
-    const weekTarget = user.trainingFrequency ?? 3
-
-    // Focus bullets for current goal + phase
-    const focusBullets = fitnessContent.focusBullets[user.goal]?.[phaseKey] || fitnessContent.focusBullets.maintain[phaseKey]
-
-    // Movement log for today
-    const todayStr = getLocalDateStr(new Date())
-    const todayLog = user.movementLogs?.find(l => l.date === todayStr)
-    const todayStatus = todayLog?.status || null
-    const weekDays = useMemo(() => getWeekDays(user.movementLogs || [], t), [user.movementLogs, t])
-    const phaseColorMap = {
-        menstrual:  { bg: 'rgba(var(--phase-menstrual-rgb),0.10)', border: 'rgba(var(--phase-menstrual-rgb),0.25)', accent: 'var(--phase-menstrual-text)', dot: 'var(--phase-menstrual)' },
-        follicular: { bg: 'rgba(var(--phase-follicular-rgb),0.10)', border: 'rgba(var(--phase-follicular-rgb),0.25)', accent: 'var(--phase-follicular-text)', dot: 'var(--phase-follicular)' },
-        ovulatory:  { bg: 'rgba(var(--phase-ovulatory-rgb),0.10)', border: 'rgba(var(--phase-ovulatory-rgb),0.25)', accent: 'var(--phase-ovulatory-text)', dot: 'var(--phase-ovulatory)' },
-        luteal:     { bg: 'rgba(var(--phase-luteal-rgb),0.10)', border: 'rgba(var(--phase-luteal-rgb),0.25)', accent: 'var(--phase-luteal-text)', dot: 'var(--phase-luteal)' },
-    }
-    const phaseColors = phaseColorMap[phaseKey] || phaseColorMap.luteal
-
-    // --- VIEW 1: OVERVIEW ---
-    if (!selectedBodyPart) {
-
-        // Intensiteit naar visuele dots (1-5)
-        const intensityMap = {
-            'Laag': 1, 'Low': 1,
-            'Laag - Gemiddeld': 2, 'Low - Medium': 2,
-            'Gemiddeld': 3, 'Medium': 3,
-            'Gemiddeld - Hoog': 4, 'Medium - High': 4,
-            'Hoog': 5, 'High': 5,
-            'Maximaal (PR Poging)': 5, 'Maximum (PR Attempt)': 5,
-            'Op gevoel': 3, 'By feel': 3
-        }
-        const intensityDots = intensityMap[phaseContent.training.intensity] || 3
-
-        return (
-            <div className="container" style={{ paddingBottom: '90px', paddingTop: '1rem' }}>
-                <header style={{ marginBottom: '1rem' }}>
-                    <h1 style={{ fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>{t('fitness.title')}</h1>
-                </header>
-
-                {/* FASE HIGHLIGHT HERO CARD */}
-                <div style={{
-                    background: phaseColors.bg,
-                    border: `1px solid ${phaseColors.border}`,
-                    borderRadius: 'var(--radius-md)',
-                    padding: '1rem',
-                    marginBottom: '1rem'
-                }}>
-                    {/* Header rij */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                        <span style={{
-                            fontSize: '0.7rem',
-                            fontWeight: '700',
-                            color: phaseColors.accent,
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.6px'
-                        }}>
-                            {t('fitness.phase_highlight_label')}
-                        </span>
-                        <span style={{
-                            fontSize: '0.75rem',
-                            fontWeight: '600',
-                            color: phaseColors.accent,
-                            background: `${phaseColors.border}`,
-                            padding: '0.2rem 0.6rem',
-                            borderRadius: 'var(--radius-full)'
-                        }}>
-                            {phaseName}
-                        </span>
-                    </div>
-
-                    {/* Beschrijving */}
-                    <p style={{
-                        margin: '0 0 0.75rem 0',
-                        fontSize: '0.88rem',
-                        color: 'var(--color-text)',
-                        lineHeight: 1.45,
-                        fontWeight: '500'
-                    }}>
-                        {phaseContent.training.description}
-                    </p>
-
-                    {/* Aanbevolen beweging — dot bullets (zelfde structuur als Voeding) */}
-                    <div style={{ marginBottom: '0.75rem' }}>
-                        <div style={{
-                            fontSize: '0.7rem',
-                            fontWeight: '700',
-                            color: 'var(--color-text-muted)',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px',
-                            marginBottom: '0.4rem'
-                        }}>
-                            {t('fitness.phase_highlight_types')}
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                            {phaseContent.training.types.map((type, i) => (
-                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <span style={{
-                                        width: '5px',
-                                        height: '5px',
-                                        borderRadius: '50%',
-                                        background: phaseColors.accent,
-                                        flexShrink: 0
-                                    }} />
-                                    <span style={{
-                                        fontSize: '0.85rem',
-                                        color: 'var(--color-text)',
-                                        fontWeight: '500'
-                                    }}>
-                                        {type}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Intensiteitsindicator */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.75rem' }}>
-                        <span style={{
-                            fontSize: '0.7rem',
-                            fontWeight: '700',
-                            color: 'var(--color-text-muted)',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px'
-                        }}>
-                            {t('fitness.phase_highlight_intensity')}:
-                        </span>
-                        <div style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
-                            {[1,2,3,4,5].map(n => (
-                                <div key={n} style={{
-                                    width: '8px',
-                                    height: '8px',
-                                    borderRadius: 'var(--radius-full)',
-                                    background: n <= intensityDots ? phaseColors.dot : 'var(--color-border)',
-                                    transition: 'background 0.2s'
-                                }} />
-                            ))}
-                        </div>
-                        <span style={{
-                            fontSize: '0.75rem',
-                            fontWeight: '600',
-                            color: phaseColors.accent
-                        }}>
-                            {phaseContent.training.intensity}
-                        </span>
-                    </div>
-
-                    {/* Doel deze fase */}
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.4rem',
-                        paddingTop: '0.6rem',
-                        borderTop: `1px solid ${phaseColors.border}`
-                    }}>
-                        <span style={{
-                            fontSize: '0.7rem',
-                            fontWeight: '700',
-                            color: 'var(--color-text-muted)',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px'
-                        }}>
-                            {t('fitness.phase_highlight_goal')}:
-                        </span>
-                        <span style={{
-                            fontSize: '0.85rem',
-                            fontWeight: '600',
-                            color: phaseColors.accent
-                        }}>
-                            {phaseContent.training.goal}
-                        </span>
-                    </div>
+            <section
+                aria-labelledby="movement-today-title"
+                style={{
+                    background: 'var(--color-surface)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: '24px',
+                    padding: '1.2rem',
+                    marginBottom: '1rem',
+                    boxShadow: 'var(--shadow-sm)'
+                }}
+            >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.75rem' }}>
+                    <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: accent }} />
+                    <span style={{ color: 'var(--color-text-muted)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                        {phaseName}
+                    </span>
                 </div>
 
-                {/* WEEK STATUS & BEWEGING VANDAAG CONSOLIDATED */}
-                <div style={{
-                    background: 'var(--color-surface)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '1rem',
-                    marginBottom: '1rem',
-                    border: '1px solid var(--color-border)'
-                }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <IconActivity size={16} />
-                            <span style={{ fontWeight: '700', fontSize: '0.95rem', color: 'var(--color-text)' }}>
-                                {t('fitness.this_week')}: {weekWorkouts} {t('fitness.of')} {weekTarget}
-                            </span>
-                        </div>
-                    </div>
+                <h2 id="movement-today-title" style={{ fontSize: '1.45rem', lineHeight: 1.2, margin: '0 0 0.5rem', color: 'var(--color-text)' }}>
+                    {t('fitness.today_question')}
+                </h2>
+                <p style={{ margin: '0 0 1rem', color: 'var(--color-text-muted)', fontSize: '0.9rem', lineHeight: 1.5 }}>
+                    {t(`fitness.phase_context_${currentPhase}`, { defaultValue: t('fitness.phase_context_default') })}
+                </p>
 
-                    {todayStatus ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.75rem' }}>
-                            <div style={{
-                                width: '30px',
-                                height: '30px',
-                                borderRadius: 'var(--radius-full)',
-                                background: todayStatus === 'moved'
-                                    ? 'rgba(76, 175, 80, 0.15)'
-                                    : 'rgba(158, 158, 158, 0.15)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '0.95rem'
-                            }}>
-                                {todayStatus === 'moved' ? '✓' : '—'}
-                            </div>
-                            <span style={{
-                                fontSize: '0.88rem',
-                                color: 'var(--color-text)',
-                                fontWeight: '500'
-                            }}>
-                                {todayStatus === 'moved' ? t('fitness.moved_success') : t('fitness.rest_day')}
-                            </span>
+                <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '0.55rem' }}>
+                    {t('fitness.your_goal')}: <strong style={{ color: 'var(--color-text)', fontWeight: 600 }}>{goalLabel}</strong>
+                </div>
+
+                <div role="group" aria-label={t('fitness.choose_approach')} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '0.45rem', marginBottom: '0.75rem' }}>
+                    {approaches.map(item => {
+                        const isSelected = approach === item.id
+                        return (
                             <button
-                                onClick={() => void handleMovement(todayStatus === 'moved' ? 'rest' : 'moved')}
+                                key={item.id}
+                                type="button"
+                                aria-pressed={isSelected}
+                                onClick={() => setApproach(item.id)}
                                 style={{
-                                    marginLeft: 'auto',
-                                    background: 'none',
-                                    color: 'var(--color-primary)',
+                                    minHeight: 42,
+                                    padding: '0.55rem 0.35rem',
+                                    borderRadius: '14px',
+                                    border: isSelected ? '1.5px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                    background: isSelected ? 'rgba(255, 92, 138, 0.08)' : 'var(--color-surface)',
+                                    color: isSelected ? 'var(--color-primary)' : 'var(--color-text)',
                                     fontSize: '0.78rem',
-                                    fontWeight: '600',
-                                    padding: '0.2rem 0.4rem',
+                                    lineHeight: 1.25,
+                                    fontWeight: isSelected ? 700 : 500,
                                     cursor: 'pointer'
                                 }}
                             >
-                                {t('fitness.change')}
+                                {item.label}
                             </button>
-                        </div>
-                    ) : (
-                        <div style={{ marginBottom: '0.75rem' }}>
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                <button
-                                    onClick={() => void handleMovement('moved')}
-                                    style={{
-                                        flex: 1,
-                                        padding: '0.5rem',
-                                        borderRadius: 'var(--radius-md)',
-                                        border: '2px solid rgba(76, 175, 80, 0.3)',
-                                        background: 'rgba(76, 175, 80, 0.08)',
-                                        color: '#4CAF50',
-                                        fontWeight: '600',
-                                        fontSize: '0.88rem',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.15s'
-                                    }}
-                                >
-                                    {t('fitness.yes')}
-                                </button>
-                                <button
-                                    onClick={() => void handleMovement('rest')}
-                                    style={{
-                                        flex: 1,
-                                        padding: '0.5rem',
-                                        borderRadius: 'var(--radius-md)',
-                                        border: '2px solid rgba(158, 158, 158, 0.3)',
-                                        background: 'rgba(158, 158, 158, 0.08)',
-                                        color: '#9E9E9E',
-                                        fontWeight: '600',
-                                        fontSize: '0.88rem',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.15s'
-                                    }}
-                                >
-                                    {t('fitness.no')}
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {movementError && <div role="alert" style={{ color: 'var(--color-error)', marginBottom: '0.75rem', fontSize: '0.8rem' }}>{movementError}</div>}
-
-                    {/* WEEK OVERZICHT DOTS */}
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        paddingTop: '1rem',
-                        borderTop: '1px solid var(--color-border)'
-                    }}>
-                        {weekDays.map(day => (
-                            <div key={day.dateStr} style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                gap: '0.4rem'
-                            }}>
-                                <span style={{
-                                    fontSize: '0.65rem',
-                                    color: day.isToday ? 'var(--color-primary)' : 'var(--color-text-muted)',
-                                    fontWeight: day.isToday ? '700' : '500',
-                                    textTransform: 'uppercase'
-                                }}>{day.label}</span>
-                                <div style={{
-                                    width: '12px',
-                                    height: '12px',
-                                    borderRadius: 'var(--radius-full)',
-                                    background: day.status === 'moved'
-                                        ? '#4CAF50'
-                                        : day.status === 'rest'
-                                            ? 'rgba(158, 158, 158, 0.3)'
-                                            : 'rgba(0, 0, 0, 0.06)',
-                                    border: day.isToday && !day.status ? '2px solid var(--color-primary)' : 'none',
-                                    boxSizing: 'border-box'
-                                }} />
-                            </div>
-                        ))}
-                    </div>
+                        )
+                    })}
                 </div>
 
+                <div aria-live="polite" style={{ background: 'var(--color-background)', borderRadius: '16px', padding: '0.85rem 0.95rem' }}>
+                    <p style={{ margin: 0, color: 'var(--color-text)', fontSize: '0.9rem', lineHeight: 1.5 }}>
+                        {selectedApproach.text}
+                    </p>
+                </div>
 
-                {/* Body Part Selection */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', marginBottom: '1rem' }}>
-                    {fitnessContent.bodyParts.map(part => (
-                        <button
-                            key={part.id}
-                            onClick={() => { setSelectedBodyPart(part); window.scrollTo(0, 0) }}
-                            className="card"
-                            style={{
-                                margin: 0,
-                                textAlign: 'left',
-                                padding: '0.85rem',
-                                transition: 'transform 0.1s',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            <span style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--color-text)' }}>
-                                {part.label}
+                <button
+                    type="button"
+                    aria-expanded={showWhy}
+                    onClick={() => setShowWhy(value => !value)}
+                    style={{ background: 'none', border: 0, padding: '0.8rem 0 0', color: 'var(--color-primary)', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer' }}
+                >
+                    {showWhy ? t('fitness.why_less') : t('fitness.why_this')}
+                </button>
+                {showWhy && (
+                    <p style={{ margin: '0.55rem 0 0', color: 'var(--color-text-muted)', fontSize: '0.82rem', lineHeight: 1.55 }}>
+                        {t('fitness.why_text', { goal: goalLabel })}
+                    </p>
+                )}
+            </section>
+
+            <section
+                aria-labelledby="movement-week-title"
+                style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '20px', padding: '1rem 1.1rem', boxShadow: 'var(--shadow-sm)' }}
+            >
+                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.85rem' }}>
+                    <h2 id="movement-week-title" style={{ margin: 0, fontSize: '1rem', color: 'var(--color-text)' }}>{t('fitness.week_title')}</h2>
+                    <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>
+                        <strong style={{ color: 'var(--color-text)' }}>{weekWorkouts}</strong> {t('fitness.of')} {weekTarget} {t('fitness.movement_days')}
+                    </span>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.3rem', marginBottom: '1rem' }}>
+                    {weekDays.map(day => (
+                        <div key={day.dateStr} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', minWidth: 24 }}>
+                            <span style={{ fontSize: '0.68rem', fontWeight: day.isToday ? 700 : 500, color: day.isToday ? 'var(--color-primary)' : 'var(--color-text-muted)' }}>
+                                {day.label}
                             </span>
-                        </button>
+                            <span
+                                aria-label={day.status === 'moved' ? t('fitness.moved_success') : day.status === 'rest' ? t('fitness.rest_day') : t('fitness.not_logged')}
+                                style={{
+                                    width: 10,
+                                    height: 10,
+                                    borderRadius: '50%',
+                                    background: day.status === 'moved' ? 'var(--color-primary)' : day.status === 'rest' ? 'var(--color-border)' : 'transparent',
+                                    border: day.isToday && !day.status ? '1.5px solid var(--color-primary)' : day.status ? 'none' : '1px solid var(--color-border)',
+                                    boxSizing: 'border-box'
+                                }}
+                            />
+                        </div>
                     ))}
                 </div>
 
-                {/* JOUW FOCUS DEZE FASE */}
-                <section>
-                    <h2 style={{
-                        fontSize: '0.9rem',
-                        fontWeight: '600',
-                        marginBottom: '0.5rem',
-                        color: 'var(--color-text)',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                    }}>
-                        {t('fitness.your_focus')}
-                    </h2>
-                    <div style={{
-                        background: phaseColors.bg,
-                        borderRadius: 'var(--radius-md)',
-                        padding: '1rem 1.1rem',
-                        border: `1px solid ${phaseColors.border}`
-                    }}>
-                        <ul style={{
-                            margin: 0,
-                            padding: 0,
-                            listStyle: 'none',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '0.55rem'
-                        }}>
-                            {focusBullets.map((bullet, idx) => (
-                                <li key={idx} style={{
-                                    display: 'flex',
-                                    alignItems: 'flex-start',
-                                    gap: '0.55rem'
-                                }}>
-                                    <span style={{
-                                        width: '5px',
-                                        height: '5px',
-                                        borderRadius: '50%',
-                                        background: phaseColors.accent,
-                                        flexShrink: 0,
-                                        marginTop: '0.45em'
-                                    }} />
-                                    <span style={{
-                                        fontSize: '0.85rem',
-                                        color: 'var(--color-text)',
-                                        lineHeight: 1.45
-                                    }}>
-                                        {bullet}
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </section>
-
-            </div>
-        )
-    }
-
-    // --- VIEW 2: BODY PART DETAIL ---
-    const exercises = fitnessContent.exercises[selectedBodyPart.id] || []
-    const partAdvice = getBodyPartAdvice(user.goal, currentPhase, language)
-    const bodyPartBullets = fitnessContent.bodyPartFocus?.[selectedBodyPart.id]?.[user.goal]?.[phaseKey] || focusBullets
-
-    return (
-        <div className="container" style={{ paddingBottom: '90px' }}>
-            {/* Header / Back */}
-            <header style={{ marginTop: '0', marginBottom: '1rem' }}>
-                <button
-                    onClick={() => { setSelectedBodyPart(null); window.scrollTo(0, 0) }}
-                    style={{
-                        background: 'none',
-                        color: 'var(--color-text-muted)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        fontSize: '0.85rem',
-                        padding: 0,
-                        marginBottom: '0.75rem'
-                    }}
-                >
-                    ← {t('fitness.back_to_overview')}
-                </button>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <h1 style={{ fontSize: '1.5rem', fontWeight: '700', margin: 0 }}>
-                        {selectedBodyPart.label}
-                    </h1>
-                    <span style={{
-                        fontSize: '0.7rem',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px',
-                        fontWeight: '600',
-                        color: 'var(--color-primary)'
-                    }}>{phaseName}</span>
-                </div>
-            </header>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-
-                {/* 1. SECTION: AANPAK VANDAAG */}
-                <section>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.4rem' }}>
-                        <h2 style={{
-                            fontSize: '0.9rem',
-                            fontWeight: '600',
-                            margin: 0,
-                            color: 'var(--color-text)',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px'
-                        }}>{t('fitness.approach_today')}</h2>
-                        <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>{partAdvice.label}</span>
-                    </div>
-
-                    <div className="card" style={{ borderLeft: '4px solid var(--color-primary)' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                            <div>
-                                <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem' }}>{t('fitness.intensity')}</label>
-                                <p style={{ fontWeight: 600, margin: 0, fontSize: '0.88rem' }}>{partAdvice.intensity}</p>
-                            </div>
-                            <div>
-                                <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem' }}>{t('fitness.weight')}</label>
-                                <p style={{ fontWeight: 600, margin: 0, fontSize: '0.88rem' }}>{partAdvice.weight}</p>
-                            </div>
-                            <div>
-                                <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem' }}>{t('fitness.reps')}</label>
-                                <p style={{ fontWeight: 600, margin: 0, fontSize: '0.88rem' }}>{partAdvice.reps}</p>
-                            </div>
-                            <div>
-                                <label style={{ display: 'block', fontSize: '0.7rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem' }}>{t('fitness.sets')}</label>
-                                <p style={{ fontWeight: 600, margin: 0, fontSize: '0.88rem' }}>{partAdvice.sets}</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* 2. SECTION: BASISOEFENINGEN */}
-                <section>
-                    <h2 style={{
-                        fontSize: '0.9rem',
-                        fontWeight: '600',
-                        marginBottom: '0.5rem',
-                        color: 'var(--color-text)',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                    }}>{t('fitness.best_exercises')}</h2>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                        {exercises.map((ex, idx) => {
-                            const instruction = fitnessContent.exerciseInstructions?.[selectedBodyPart.id]?.[ex]
+                <div style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: '0.8rem' }}>
+                    <p style={{ margin: '0 0 0.6rem', color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>{t('fitness.log_prompt')}</p>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                        {[
+                            { status: 'moved', label: t('fitness.log_moved') },
+                            { status: 'rest', label: t('fitness.log_rest') }
+                        ].map(option => {
+                            const isSelected = todayStatus === option.status
                             return (
-                                <div key={idx} className="card" style={{ margin: 0, padding: '0.75rem' }}>
-                                    <p style={{ fontWeight: 600, margin: '0 0 0.25rem 0', fontSize: '0.9rem', color: 'var(--color-text)' }}>
-                                        {ex}
-                                    </p>
-                                    {instruction && (
-                                        <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--color-text-muted)', lineHeight: 1.45 }}>
-                                            {instruction}
-                                        </p>
-                                    )}
-                                </div>
+                                <button
+                                    key={option.status}
+                                    type="button"
+                                    aria-pressed={isSelected}
+                                    disabled={movementPending}
+                                    onClick={() => void handleMovement(option.status)}
+                                    style={{
+                                        minHeight: 42,
+                                        borderRadius: '13px',
+                                        border: isSelected ? '1.5px solid var(--color-primary)' : '1px solid var(--color-border)',
+                                        background: isSelected ? 'rgba(255, 92, 138, 0.08)' : 'transparent',
+                                        color: isSelected ? 'var(--color-primary)' : 'var(--color-text)',
+                                        fontSize: '0.82rem',
+                                        fontWeight: isSelected ? 700 : 500,
+                                        cursor: movementPending ? 'wait' : 'pointer',
+                                        opacity: movementPending ? 0.65 : 1
+                                    }}
+                                >
+                                    {option.label}
+                                </button>
                             )
                         })}
                     </div>
-                </section>
-
-                {/* 3. SECTION: FOCUS DEZE FASE */}
-                <section>
-                    <h2 style={{
-                        fontSize: '0.9rem',
-                        fontWeight: '600',
-                        marginBottom: '0.5rem',
-                        color: 'var(--color-text)',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                    }}>{t('fitness.your_focus')} ({fitnessContent.goals[user.goal] || user.goal})</h2>
-                    <div style={{
-                        background: phaseColors.bg,
-                        padding: '1rem 1.1rem',
-                        borderRadius: 'var(--radius-md)',
-                        border: `1px solid ${phaseColors.border}`
-                    }}>
-                        <ul style={{
-                            margin: 0,
-                            padding: 0,
-                            listStyle: 'none',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '0.55rem'
-                        }}>
-                            {bodyPartBullets.map((bullet, idx) => (
-                                <li key={idx} style={{
-                                    display: 'flex',
-                                    alignItems: 'flex-start',
-                                    gap: '0.55rem'
-                                }}>
-                                    <span style={{
-                                        width: '5px',
-                                        height: '5px',
-                                        borderRadius: '50%',
-                                        background: phaseColors.accent,
-                                        flexShrink: 0,
-                                        marginTop: '0.45em'
-                                    }} />
-                                    <span style={{
-                                        fontSize: '0.85rem',
-                                        color: 'var(--color-text)',
-                                        lineHeight: 1.45
-                                    }}>
-                                        {bullet}
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </section>
-
-            </div>
+                    {movementError && <p role="alert" style={{ color: 'var(--color-error)', margin: '0.55rem 0 0', fontSize: '0.8rem' }}>{movementError}</p>}
+                </div>
+            </section>
         </div>
     )
 }

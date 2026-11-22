@@ -162,7 +162,7 @@ function PreviewApp() {
     <LanguageProvider>
       <AuthProvider preview onPreviewSignOut={() => window.location.reload()}>
         <UserProvider previewProfile={previewProfile}>
-          <MainLayout initialView={window.location.hash.includes('inzichten') ? 'progress' : 'today'} />
+          <MainLayout initialView={window.location.hash.includes('inzichten') ? 'progress' : window.location.hash.includes('beweging') ? 'fitness' : (window.location.hash.includes('eten') || window.location.hash.includes('voeding')) ? 'recipes' : 'today'} />
         </UserProvider>
       </AuthProvider>
     </LanguageProvider>
