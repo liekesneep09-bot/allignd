@@ -26,12 +26,50 @@ function cycleDayFromUrl() {
   return Number.isInteger(raw) && raw >= 1 && raw <= 28 ? raw : 13
 }
 
+// Deterministic demo history so Insights has something to show. Not used by the real app.
+function buildHistory(starts, todayOffset) {
+  const foodLogs = []
+  const symptomLogs = []
+  const wobble = (n) => Math.round(Math.sin(n * 12.9898) * 43758.5453 % 1 * 80)
+  for (let offset = starts[0]; offset < todayOffset + 0; offset++) {
+    if (offset >= 0) break
+    let c = 0
+    while (c + 1 < starts.length && starts[c + 1] <= offset) c++
+    const dayIndex = offset - starts[c]
+    const cycleLength = c + 1 < starts.length ? starts[c + 1] - starts[c] : 28
+    const phase = dayIndex < 5 ? 'menstrual' : dayIndex < cycleLength - 17 ? 'follicular' : dayIndex < cycleLength - 12 ? 'ovulatory' : 'luteal'
+    const date = localDate(offset)
+    if (Math.abs(offset) % 6 !== 0) {
+      const extra = { menstrual: 40, follicular: -40, ovulatory: 0, luteal: 190 }[phase]
+      const kcal = 1850 + extra + wobble(offset)
+      foodLogs.push({ id: `demo-food-${offset}`, date, foodId: null, name: 'Dagtotaal (demo)', grams: null, kcal, p: Math.round(kcal * 0.055), c: Math.round(kcal * 0.11), f: Math.round(kcal * 0.033), fiber: 22 })
+    }
+    if (Math.abs(offset) % 2 === 0) {
+      const options = {
+        menstrual: dayIndex < 3 ? ['cramps', 'fatigue'] : ['fatigue'],
+        follicular: ['energetic', 'motivated'],
+        ovulatory: ['happy', 'workout_strong'],
+        luteal: dayIndex >= cycleLength - 7 ? ['cravings_sweet', 'bloated', 'irritable'] : ['cravings_sweet']
+      }[phase]
+      symptomLogs.push({ date, symptoms: options })
+    }
+  }
+  return { foodLogs, symptomLogs }
+}
+
 function createPreviewProfile() {
   const today = localDate()
   const cycleDay = cycleDayFromUrl()
   const startOffset = -(cycleDay - 1)
   const cycleStart = localDate(startOffset)
   const isMenstruatingNow = cycleDay <= 5
+
+  // Demo history: five earlier cycles with some variation, plus food and feelings for each day
+  const previousLengths = [27, 29, 28, 30, 28] // most recent first
+  const starts = [startOffset]
+  for (const len of previousLengths) starts.unshift(starts[0] - len)
+  const history = buildHistory(starts, startOffset)
+
   return {
     name: 'Demo',
     cycleStart,
@@ -44,7 +82,7 @@ function createPreviewProfile() {
     periodEndDate: isMenstruatingNow ? null : localDate(startOffset + 5),
     previousPeriodStart: localDate(startOffset - 28),
     previousPeriodEnd: localDate(startOffset - 23),
-    periodStartDates: [localDate(startOffset - 28), cycleStart],
+    periodStartDates: starts.map(offset => localDate(offset)),
     cycleLengthHistory: [],
     cycleStats: { learnedCycleLength: null, variability: 0, confidence: 'medium' },
     // A 'no' log marks the end of the period, otherwise the app assumes it is still going
@@ -80,6 +118,7 @@ function createPreviewProfile() {
       { id: 'preview-oats', date: today, foodId: null, name: 'Havermout', grams: 60, kcal: 228, p: 7.8, c: 36, f: 4.2, fiber: 6 },
       { id: 'preview-banana', date: today, foodId: null, name: 'Banaan', grams: 120, kcal: 105, p: 1.3, c: 27.6, f: 0.4, fiber: 3.1 },
       { id: 'preview-chicken', date: today, foodId: null, name: 'Kipfilet', grams: 150, kcal: 248, p: 46.5, c: 0, f: 4.5, fiber: 0 },
+      ...history.foodLogs,
     ],
     movementLogs: [{ id: 'preview-movement', date: localDate(-1), status: 'moved' }],
     weightLogs: [
@@ -89,7 +128,7 @@ function createPreviewProfile() {
     ],
     waterLogs: [{ date: today, amount_ml: 1250 }],
     stepLogs: [{ date: today, steps: 6400 }],
-    symptomLogs: [{ date: today, symptoms: ['energetic'] }],
+    symptomLogs: [{ date: today, symptoms: ['energetic'] }, ...history.symptomLogs],
     logs: {},
     cycleHistory: [],
   }
@@ -123,7 +162,7 @@ function PreviewApp() {
     <LanguageProvider>
       <AuthProvider preview onPreviewSignOut={() => window.location.reload()}>
         <UserProvider previewProfile={previewProfile}>
-          <MainLayout initialView="today" />
+          <MainLayout initialView={window.location.hash.includes('inzichten') ? 'progress' : 'today'} />
         </UserProvider>
       </AuthProvider>
     </LanguageProvider>
