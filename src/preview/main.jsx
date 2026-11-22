@@ -21,7 +21,7 @@ function localDate(offset = 0) {
 }
 
 function cycleDayFromUrl() {
-  const fromHash = window.location.hash.match(/^#dag-(\d+)$/)
+  const fromHash = window.location.hash.match(/dag-(\d+)/)
   const raw = Number(fromHash ? fromHash[1] : new URLSearchParams(window.location.search).get('dag'))
   return Number.isInteger(raw) && raw >= 1 && raw <= 28 ? raw : 13
 }
@@ -47,7 +47,10 @@ function createPreviewProfile() {
     periodStartDates: [localDate(startOffset - 28), cycleStart],
     cycleLengthHistory: [],
     cycleStats: { learnedCycleLength: null, variability: 0, confidence: 'medium' },
-    menstruationLogs: [{ date: cycleStart, status: 'yes' }],
+    // A 'no' log marks the end of the period, otherwise the app assumes it is still going
+    menstruationLogs: isMenstruatingNow
+      ? [{ date: cycleStart, status: 'yes' }]
+      : [{ date: cycleStart, status: 'yes' }, { date: localDate(startOffset + 5), status: 'no' }],
     macroTargets: {
       calories: 2000,
       caloriesMax: 2100,
@@ -91,6 +94,28 @@ function createPreviewProfile() {
     cycleHistory: [],
   }
 }
+
+// Design exploration: try a font with #font-<naam> (or ?font=). Only affects this preview.
+const FONT_OPTIONS = {
+  jakarta: { family: 'Plus Jakarta Sans', css: 'Plus+Jakarta+Sans:wght@400;500;600;700;800' },
+  manrope: { family: 'Manrope', css: 'Manrope:wght@400;500;600;700;800' },
+  outfit: { family: 'Outfit', css: 'Outfit:wght@300;400;500;600;700;800' },
+  figtree: { family: 'Figtree', css: 'Figtree:wght@400;500;600;700;800' }
+}
+function applyFontFromUrl() {
+  const fromHash = window.location.hash.match(/font-([a-z]+)/)
+  const option = FONT_OPTIONS[fromHash ? fromHash[1] : new URLSearchParams(window.location.search).get('font')]
+  if (!option) return
+  const link = document.createElement('link')
+  link.rel = 'stylesheet'
+  link.href = `https://fonts.googleapis.com/css2?family=${option.css}&display=swap`
+  document.head.appendChild(link)
+  document.documentElement.style.setProperty('--font-family', `'${option.family}', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`)
+}
+applyFontFromUrl()
+
+// The demo reads the cycle day once at start, so reload when the link changes
+window.addEventListener('hashchange', () => window.location.reload())
 
 function PreviewApp() {
   const [previewProfile] = React.useState(createPreviewProfile)
