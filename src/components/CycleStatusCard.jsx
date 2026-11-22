@@ -5,21 +5,7 @@ import { getCyclePrediction, calculateDaysUntilPeriod } from '../logic/cycle'
 import { getLocalDateStr } from '../utils/date'
 import { getPhaseContent } from '../data/phases'
 import { PHASE_COLORS, PHASE_TEXT_COLORS, withAlpha } from '../logic/calendar-marks'
-
-// Proportional lengths of each phase in the ring (as fraction of cycle)
-function getPhaseSegments(cycleLength, periodLength) {
-  const lutealLength = 14
-  const estimatedOvulatoryPhaseCenter = cycleLength - lutealLength
-  const ovulatoryPhaseStart = estimatedOvulatoryPhaseCenter - 2
-  const ovulatoryPhaseEnd = estimatedOvulatoryPhaseCenter + 2
-
-  return [
-    { phase: 'menstrual', start: 0, end: periodLength },
-    { phase: 'follicular', start: periodLength, end: ovulatoryPhaseStart - 1 },
-    { phase: 'ovulatory', start: ovulatoryPhaseStart - 1, end: ovulatoryPhaseEnd },
-    { phase: 'luteal', start: ovulatoryPhaseEnd, end: cycleLength }
-  ]
-}
+import { getPhaseSegments } from '../logic/insights'
 
 // SVG Segmented Cycle Ring
 function CycleRing({ size, strokeWidth, cycleLength, periodLength, currentDay, currentPhase, ringColor }) {
