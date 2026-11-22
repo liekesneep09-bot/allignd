@@ -552,7 +552,15 @@
     "phase_highlight_types": "Aanbevolen beweging",
     "phase_highlight_why_toggle": "Waarom?",
     "phase_highlight_why_close": "Sluit",
-    "days_short": ["Ma", "Di", "Wo", "Do", "Vr", "Za", "Zo"]
+    "days_short": [
+      "Ma",
+      "Di",
+      "Wo",
+      "Do",
+      "Vr",
+      "Za",
+      "Zo"
+    ]
   },
   "recipes": {
     "title": "Voeding",
@@ -703,7 +711,15 @@
   },
   "cycle": {
     "title": "Jouw cyclus",
-    "days": ["ma", "di", "wo", "do", "vr", "za", "zo"],
+    "days": [
+      "ma",
+      "di",
+      "wo",
+      "do",
+      "vr",
+      "za",
+      "zo"
+    ],
     "menstruation": "Menstruatie",
     "predicted_menstruation": "Verwachte menstruatie",
     "prediction_note": "Dit is een schatting van je menstruatie, geen voorspelling van vruchtbare dagen.",
@@ -726,14 +742,50 @@
       "cramps": "Krampen",
       "bloated": "Opgeblazen",
       "headache": "Hoofdpijn",
-      "tender_breasts": "Gevoelige Borsten",
+      "tender_breasts": "Gevoelige borsten",
       "cravings": "Cravings",
       "fatigue": "Vermoeid",
       "energetic": "Energiek",
       "relaxed": "Ontspannen",
       "anxious": "Onrustig",
       "irritable": "Prikkelbaar",
-      "sad": "Somber"
+      "sad": "Somber",
+      "happy": "Blij",
+      "motivated": "Gemotiveerd",
+      "stressed": "Gestrest",
+      "emotional": "Emotioneel",
+      "energy_normal": "Normaal",
+      "exhausted": "Uitgeput",
+      "back_pain": "Rugpijn",
+      "muscle_soreness": "Spierpijn",
+      "skin": "Puistjes",
+      "water_retention": "Vocht vasthouden",
+      "cravings_sweet": "Trek in zoet",
+      "cravings_salty": "Trek in zout",
+      "hungry": "Meer honger",
+      "low_appetite": "Weinig trek",
+      "slept_well": "Goed geslapen",
+      "slept_badly": "Slecht geslapen",
+      "insomnia": "Moeilijk inslapen",
+      "workout_strong": "Sterk",
+      "workout_heavy": "Zwaar",
+      "rest_day": "Rustdag",
+      "workout_skipped": "Overgeslagen",
+      "constipation": "Obstipatie",
+      "diarrhea": "Diarree",
+      "nausea": "Misselijk"
+    },
+    "title_question": "Hoe voel je je?",
+    "search_placeholder": "Zoek, bijvoorbeeld hoofdpijn",
+    "no_results": "Niets gevonden. Probeer een ander woord.",
+    "groups": {
+      "mood": "Stemming",
+      "energy": "Energie",
+      "body": "Lichaam",
+      "appetite": "Eetlust",
+      "sleep": "Slaap",
+      "training": "Training",
+      "digestion": "Spijsvertering"
     }
   },
   "habits": {
@@ -812,7 +864,15 @@
   },
   "calendar": {
     "title": "Kalender",
-    "days": ["ma", "di", "wo", "do", "vr", "za", "zo"],
+    "days": [
+      "ma",
+      "di",
+      "wo",
+      "do",
+      "vr",
+      "za",
+      "zo"
+    ],
     "tip": "Tip:",
     "tip_desc": "Tik op een dag en vul de eerste en laatste dag van je menstruatie in.",
     "period": "Menstruatie",
