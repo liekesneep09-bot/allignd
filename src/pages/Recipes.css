@@ -1,0 +1,49 @@
+.phase-food .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 21px; }
+.phase-food .date { font-size: 11px; font-weight: 650; color: #777078; letter-spacing: .02em; }
+.phase-food .round-button { display: grid; place-items: center; width: 38px; height: 38px; border: 0; border-radius: 13px; background: rgba(255,255,255,.82); color: var(--color-text); box-shadow: 0 2px 8px rgba(45,30,46,.05); }
+.phase-food .round-button svg { width: 18px; height: 18px; }
+.phase-food .eyebrow { font-size: 10px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+.phase-food .phase-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 99px; font-size: 10px; font-weight: 750; }
+.phase-food .phase-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.phase-food .food-dot { display: grid; place-items: center; flex: 0 0 auto; border-radius: 15px; }
+.phase-food { background: var(--phase-bg); --muted: var(--color-text-muted); --line: var(--color-border-light); }
+.phase-food .screen { background: linear-gradient(180deg, var(--phase-soft), transparent 300px); }
+.phase-food h1 { max-width: 290px; font-size: 32px; line-height: 1.06; letter-spacing: -.055em; }
+.phase-food h1 em { color: var(--phase-dark); font-style: normal; }
+.phase-food .intro { max-width: 290px; margin-top: 10px; color: #6f6571; font-size: 12px; line-height: 1.5; }
+.phase-food .phase-pill { margin-bottom: 12px; background: rgba(255,255,255,.65); color: var(--phase-dark); }
+.phase-food .focus-card { position: relative; min-height: 132px; margin-top: 20px; padding: 20px; overflow: hidden; border-radius: 26px; background: var(--phase-deep); color: #fff; }
+.phase-food .focus-card .eyebrow { color: #dec9df; }
+.phase-food .focus-card h2 { position: relative; z-index: 1; max-width: 210px; margin-top: 8px; color: #fff; font-size: 20px; line-height: 1.18; letter-spacing: -.03em; }
+.phase-food .focus-card p { position: relative; z-index: 1; max-width: 210px; margin-top: 7px; color: #e9dcea; font-size: 11px; line-height: 1.45; }
+.phase-food .focus-orbit { position: absolute; right: -25px; top: -28px; width: 160px; height: 160px; border: 1px solid rgba(255,255,255,.17); border-radius: 50%; }
+.phase-food .focus-orbit::before, .focus-orbit::after { content: ""; position: absolute; border-radius: 50%; }
+.phase-food .focus-orbit::before { inset: 21px; border: 1px solid rgba(255,255,255,.15); }
+.phase-food .focus-orbit::after { width: 65px; height: 65px; left: 20px; bottom: 4px; background: #d9b6db; box-shadow: 52px 38px 0 #9fd0b0, 20px 83px 0 #f0c661; }
+.phase-food .section-head { display: flex; align-items: end; justify-content: space-between; margin: 24px 1px 11px; }
+.phase-food .section-head h2 { font-size: 17px; letter-spacing: -.025em; }
+.phase-food .section-head small { color: var(--muted); font-size: 9px; }
+.phase-food .nutrient-list { overflow: hidden; border: 1px solid rgba(89,58,91,.06); border-radius: 23px; background: rgba(255,255,255,.88); }
+.phase-food .nutrient-row { display: flex; align-items: center; gap: 12px; padding: 14px 15px; }
+.phase-food .nutrient-row + .nutrient-row { border-top: 1px solid var(--line); }
+.phase-food .nutrient-icon { display: grid; place-items: center; flex: 0 0 43px; height: 43px; border-radius: 50%; background: var(--phase-soft); color: var(--phase-dark); font-size: 11px; font-weight: 850; }
+.phase-food .nutrient-copy { min-width: 0; flex: 1; }
+.phase-food .nutrient-copy h3 { font-size: 12px; }
+.phase-food .nutrient-copy p { margin-top: 2px; color: var(--muted); font-size: 9.5px; line-height: 1.35; }
+.phase-food .nutrient-copy .sources { margin-top: 5px; color: var(--phase-dark); font-size: 9.5px; font-weight: 650; }
+.phase-food .quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.phase-food .quick-item { padding: 12px 9px; border-radius: 19px; background: rgba(255,255,255,.82); text-align: center; }
+.phase-food .quick-item .food-dot { width: 42px; height: 42px; margin: 0 auto 8px; background: #f7f0f7; }
+.phase-food .quick-item h3 { font-size: 9.5px; line-height: 1.3; }
+.phase-food .quick-item p { margin-top: 4px; color: var(--muted); font-size: 8px; }
+.phase-food .screen { max-width: 560px; margin: auto; padding: 18px 20px 100px; }
+.phase-food :is(h1,h2,h3,p) { margin-bottom: 0; }
+.phase-food :is(h1,h3,.section-head h2) { margin-top: 0; }
+.phase-food .quick-item { border: 0; color: inherit; font: inherit; cursor: pointer; }
+.phase-food .quick-item strong, .phase-food .quick-item small { display: block; }
+.phase-food .quick-item strong { font-size: .78rem; line-height: 1.35; }
+.phase-food .quick-item small { color: var(--muted); margin-top: 4px; font-size: .7rem; }
+.phase-food .quick-item .food-dot { font-size: 1.5rem; }
+.phase-food .nutrient-copy p, .phase-food .nutrient-copy .sources { font-size: .78rem; }
+.phase-food .nutrient-copy h3 { font-size: .9rem; }
+.phase-food .round-button { cursor: pointer; font-size: 20px; }

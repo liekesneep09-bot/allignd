@@ -215,7 +215,7 @@ export function MainLayout({ initialView = 'today', isExpoApp = false }) {
                 {currentView === 'today' && <Today onNavigate={navigateTo} />}
                 {currentView === 'community' && <Community />}
                 {currentView === 'fitness' && <Fitness />}
-                {currentView === 'recipes' && <Recipes />}
+                {currentView === 'recipes' && <Recipes onNavigate={navigateTo} />}
                 {currentView === 'guide' && <PhaseGuide onNavigate={navigateTo} />}
                 {currentView === 'profile' && <Profile onNavigate={navigateTo} />}
                 {currentView === 'privacy' && <Privacy onNavigate={navigateTo} />}

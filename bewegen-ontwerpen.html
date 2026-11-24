@@ -1,0 +1,147 @@
+<!doctype html><html lang="nl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bewegen · drie ontwerpen</title>
+<style>
+*{box-sizing:border-box}body{margin:0;color:#2d2530;font:15px/1.45 system-ui,sans-serif}main{width:min(100%,415px);margin:auto}.switch{display:flex;gap:4px;margin:8px 0 12px}.switch button{flex:1;padding:10px 4px;background:#f0edf1;border-radius:12px;font-size:13px}.switch [aria-pressed=true]{background:#473449;color:white}button,summary{font:inherit;cursor:pointer;color:inherit}button{border:0;font-weight:650}button:focus-visible,summary:focus-visible{outline:3px solid #975a95;outline-offset:2px}.page{border-radius:25px;padding:21px;background:#faf4fb;min-height:610px}.bar,.row,.week,.actions{display:flex;align-items:center;justify-content:space-between;gap:7px}.bar{font-size:12px;color:#635768;margin-bottom:25px}.pill{background:white;border-radius:30px;padding:6px 10px;color:#69446b;font-weight:650}h1,h2,h3,p{margin:0}h1{font-size:35px;line-height:1.04;letter-spacing:-1.8px;margin:10px 0}h1 em{font-style:normal;color:#855283}h2{font-size:19px;letter-spacing:-.5px;margin:22px 0 10px}h3{font-size:16px}.muted,summary,small{color:#665f68}.hero{margin-top:22px;padding:20px;border-radius:24px;background:#503653;color:white;position:relative;overflow:hidden}.hero svg{position:absolute;right:-10px;bottom:0;width:45%;height:100%}.hero h2{font-size:25px;line-height:1.1;max-width:60%;margin:10px 0}.hero small{color:#efe1ed}.label{font-size:10px;font-weight:750;letter-spacing:.13em;text-transform:uppercase}.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:17px 0}.choices button,.actions button,.day{padding:10px 4px;border-radius:13px;background:white;font-size:13px}.choices [aria-pressed=true],.day[aria-pressed=true]{background:#624563;color:white}.detail,.status{padding:14px;background:#ffffffba;border-radius:17px;margin:12px 0}.detail p{margin-top:8px}.week{margin:14px 0}.week span,.day{flex:1;text-align:center}.week span b,.day b{display:block;margin:5px auto;font-size:16px}.week span{font-size:12px;color:#645768}.actions button{flex:1;background:#efe6ee}.actions [aria-pressed=true]{background:#594059;color:white}.two{background:#f4f8f4}.two h1 em{color:#4f735c}.energy{padding:19px 12px 10px;border-radius:24px;background:#e1ece2;text-align:center;margin-top:17px}.dial{width:160px;height:80px;position:relative;margin:0 auto 12px;overflow:hidden}.dial:before{content:"";position:absolute;inset:0 0 -80px;border-radius:100%;background:conic-gradient(from 270deg,#aac5ae 0deg 59deg,#e1eae0 59deg 61deg,#e8c17e 61deg 119deg,#e1eae0 119deg 121deg,#c18eab 121deg 180deg,transparent 180deg);mask:radial-gradient(circle,transparent 53%,black 54%)}.dial i{position:absolute;width:57px;height:4px;bottom:0;left:23px;background:#334c3c;transform-origin:right;border-radius:5px;transform:rotate(90deg);transition:transform .25s}.two .choices [aria-pressed=true]{background:#47634f}.activity{background:white;border-radius:20px;padding:18px;margin:10px 0}.activity h3{font-size:23px;margin:4px 0}.three{background:#fbf7ef}.three h1 em{color:#886538}.day{padding:9px 2px;background:#fffcf6}.day[aria-pressed=true]{background:#614e38}.timeline{border-left:2px solid #dacdbb;margin:20px 6px 14px;padding-left:22px}.stop{position:relative;padding-bottom:19px}.stop:last-child{padding-bottom:0}.stop:before{content:"";position:absolute;left:-29px;top:5px;width:11px;height:11px;background:#a78862;border:2px solid #fbf7ef;border-radius:50%}.stop small{display:block}.entry{min-height:130px}.actions button,.choices button,.day{min-height:44px}
+.two[data-phase="menstrual"]{--tint:#FFF4F7;--accent:#A93660;--soft:rgba(255, 92, 138, 0.14);}
+.two[data-phase="follicular"]{--tint:#F3F8FC;--accent:#396789;--soft:rgba(127, 180, 217, 0.14);}
+.two[data-phase="ovulatory"]{--tint:#FAF4FB;--accent:#80457F;--soft:rgba(197, 138, 198, 0.14);}
+.two[data-phase="luteal"]{--tint:#F6F4FC;--accent:#5C4F90;--soft:rgba(157, 146, 212, 0.14);}
+.page.two{background:var(--tint)}.two h1 em,.two .pill{color:var(--accent)}.two .energy{background:var(--soft)}.two .choices [aria-pressed=true]{background:var(--accent)}.two select{font:inherit;max-width:60%;border:0}.two .bar label{margin-left:auto;font-size:12px}.two details a{color:var(--accent)}
+.two #sessions .detail{border-radius:14px;margin:7px 0}.two #sessions summary{color:var(--accent);font-weight:650}.two #energyLog{margin:12px 0 8px}.two #energyLog [aria-pressed=true]{background:var(--accent)}.two #logNote{display:block}</style>
+<main><div class="switch" role="group" aria-label="Kies een ontwerp"><button aria-pressed="true">Fase-focus</button><button aria-pressed="false">Energiecheck</button><button aria-pressed="false">Weekritme</button></div>
+<section class="page"><div class="bar"><b>Bewegen</b><span class="pill">Ovulatiefase · dag 14</span></div><h1>Beweeg op <em>jouw ritme.</em></h1><p class="muted">Waar heb je vandaag zin in?</p>
+<div class="choices" id="pace"><button aria-pressed="true">Actief</button><button aria-pressed="false">Lichter</button><button aria-pressed="false">Rust</button></div>
+<div class="hero"><svg viewBox="0 0 125 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M-12 148Q26 134 65 104T59 69Q4 63 28 40T136 18" fill="none" stroke="#d6b5d6" stroke-width="18"/><circle cx="28" cy="40" r="9" fill="#f0c761"/><circle cx="65" cy="104" r="9" fill="#9fd0b0"/></svg><div class="label">Jouw beweging vandaag</div><h2 id="move">Stevig wandelen</h2><small id="duration">20 min · buiten</small></div>
+<details class="detail"><summary>Waarom deze beweging?</summary><p id="reason">Een stevig rondje is makkelijk aan te passen. Kies een tempo waarin je nog kunt praten.</p></details>
+<h2>Deze week</h2><div class="week" aria-label="Maandag en woensdag bewogen"><span>Ma<b>✓</b></span><span>Di<b>·</b></span><span>Wo<b>✓</b></span><span>Do<b id="todayMark">○</b></span><span>Vr<b>·</b></span><span>Za<b>·</b></span><span>Zo<b>·</b></span></div><div class="actions" id="log"><button aria-pressed="false">Bewogen</button><button aria-pressed="false">Rustdag</button></div></section>
+<section class="page two" data-phase="ovulatory" hidden><div class="bar"><b>Bewegen</b><label for="phase">Bekijk fase</label><select class="pill" id="phase"><option value="menstrual">Menstruatie</option><option value="follicular">Folliculaire fase</option><option value="ovulatory" selected>Ovulatiefase</option><option value="luteal">Luteale fase</option></select></div>
+<h1>Hoeveel energie <em>heb je vandaag?</em></h1><p class="muted" id="phaseLesson" aria-live="polite"></p><div class="energy"><div class="dial" aria-hidden="true"><i></i></div><div class="choices" id="energy"><button aria-pressed="false">Weinig</button><button aria-pressed="true">Gemiddeld</button><button aria-pressed="false">Veel</button></div></div>
+<h2>Een idee voor vandaag</h2><div class="activity" aria-live="polite"><small id="meta">Bijvoorbeeld 15 min · buiten</small><h3 id="activity">Even naar buiten</h3><p id="cue">Wandel een rondje op een tempo dat prettig voelt. Een korter rondje telt ook mee.</p></div>
+<h2>Meer om te proberen</h2><p id="phaseMore" class="muted"></p><div id="sessions"></div>
+<section class="activity"><h3>Jouw kalender</h3><p class="muted">Hoe wil je vandaag onthouden?</p><div class="actions" id="energyLog"><button aria-pressed="false">Vandaag bewogen</button><button aria-pressed="false">Rustdag</button></div><small id="logNote" role="status"></small></section>
+<details class="detail"><summary>Bronnen bij deze fase</summary><p><a id="phaseSource" target="_blank" rel="noopener"></a></p><p><a href="https://doi.org/10.1007/s40279-020-01319-3" target="_blank" rel="noopener">Overzichtsstudie · Cyclus en sportprestatie</a></p></details></section>
+<section class="page three" hidden><div class="bar"><b>Bewegen</b><span class="pill">Ovulatiefase · dag 14</span></div><h1>Jouw week <em>in beweging.</em></h1><p class="muted">Tik op een dag voor je beweegmoment.</p><div class="week" id="days"></div><div class="activity entry" aria-live="polite"><small id="when">Vandaag · donderdag 12</small><h3 id="session">Een ommetje na de lunch</h3><p id="sessionMeta">15 minuten wandelen</p></div><h2>Zo pak je het aan</h2><div class="timeline" id="steps"></div></section></main>
+<script>
+const pages=[...document.querySelectorAll('.page')];
+function choose(group,action){group.querySelectorAll('button').forEach((btn,i)=>btn.onclick=()=>{group.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));action(i)})}
+const el=id=>document.getElementById(id);
+choose(document.querySelector('.switch'),i=>pages.forEach((p,j)=>p.hidden=i!==j));
+const movements=[['Stevig wandelen','20 min · buiten','Een stevig rondje is makkelijk aan te passen. Kies een tempo waarin je nog kunt praten.'],['Rustig losmaken','8 min · thuis','Met rustige schouderrollen en kleine bewegingen geef je jezelf ruimte om te voelen wat prettig is.'],['Een rustmoment','Op jouw tempo','Een rustdag past ook in je week. Neem de ruimte om bij te komen.']];
+choose(el('pace'),i=>['move','duration','reason'].forEach((key,j)=>el(key).textContent=movements[i][j]));
+choose(el('log'),i=>el('todayMark').textContent=['✓','☾'][i]);
+const phaseIdeas = {
+  menstrual: {
+    lesson: 'Tijdens je menstruatie kun je last hebben van kramp. Misschien doet een ommetje je goed, misschien heb je juist zin in je gewone training.',
+    more: 'Probeer de eerste minuten rustig uit wat lekker voelt. Je kunt altijd een stukje toevoegen of eerder afronden.',
+    source: ['Cochrane · Bewegen bij menstruatiepijn', 'https://doi.org/10.1002/14651858.CD004142.pub4'],
+    ideas: [
+      ['5 min · thuis', 'Even loslopen', 'Loop rustig door de kamer. Voelt rust fijner, dan mag je het hierbij laten.'],
+      ['15 min · buiten', 'Een rondje dichtbij', 'Kies een korte route dicht bij huis, zodat je bij kramp makkelijk kunt omkeren.'],
+      ['20 min · op je eigen plek', 'Je vertrouwde training', 'Begin met je gebruikelijke warming-up. Voelt die goed, ga dan door op je gewone tempo.']
+    ]
+  },
+  follicular: {
+    lesson: 'Na je menstruatie stijgt je oestrogeenspiegel meestal richting de eisprong. Heb je zin om je training weer op te pakken, begin dan met iets bekends.',
+    more: 'Een bekende route of oefening geeft houvast. Voelt die vandaag makkelijk, dan kun je spelen met tempo of gewicht.',
+    source: ['NHS · Hoe werkt de menstruatiecyclus?', 'https://www.nhs.uk/conditions/periods/fertility-in-the-menstrual-cycle/'],
+    ideas: [
+      ['5 min · buiten', 'Een frisse start', 'Wandel tot het einde van de straat en terug. Voel onderweg of je nog wat verder wilt.'],
+      ['15 min · op de fiets', 'Pak je fiets weer eens', 'Kies een bekende route. Zo kun je rustig uitproberen welk tempo vandaag lekker rijdt.'],
+      ['20 min · thuis of in de gym', 'Pak je krachtroutine op', 'Begin met een bekende oefening. Kies je gewicht op basis van hoe de eerste set voelt.']
+    ]
+  },
+  ovulatory: {
+    lesson: 'Veel vrouwen merken weinig van hun eisprong. Sommige voelen kort een steek aan één kant van de onderbuik. Wat zou vandaag fijn zijn voor jou?',
+    more: 'Zin in een uitdaging? Kies iets waar je plezier in hebt. Met een rustige warming-up voel je welk tempo vandaag past.',
+    source: ['NHS · Pijn rond de eisprong', 'https://www.nhs.uk/symptoms/ovulation-pain/'],
+    ideas: [
+      ['5 min · thuis', 'Rustig in beweging', 'Loop even rond op je eigen tempo. Voelt bewegen onprettig, neem dan rust.'],
+      ['15 min · buiten', 'Wandelen op gevoel', 'Begin op je gemak en versnel als dat lekker voelt.'],
+      ['20 min · thuis', 'Dans op je favorieten', 'Zet een paar fijne nummers op. Kies zelf hoe groot en snel je beweegt.']
+    ]
+  },
+  luteal: {
+    lesson: 'In de dagen voor je menstruatie kun je wat sneller moe zijn. Op zo’n dag kan het fijn zijn om je ritme vast te houden met een training die je al kent.',
+    more: 'Een rondje op gelijkmatig tempo of een vertrouwde pilatesles kan fijn zijn als je zin hebt in regelmaat. Voel je je sterk, dan past je gebruikelijke krachttraining hier ook.',
+    source: ['NHS · Premenstruele klachten', 'https://www.nhs.uk/conditions/pre-menstrual-syndrome/'],
+    ideas: [
+      ['5 min · thuis', 'Een korte beweegpauze', 'Sta even op en maak een rondje door het huis. Ook een klein moment past in je dag.'],
+      ['15 min · buiten', 'Wandelen na de lunch', 'Koppel je rondje aan de lunch. Kies een afstand die ook op een drukkere dag haalbaar voelt.'],
+      ['20 min · buiten', 'Een vlotte fietstocht', 'Voel je je energiek? Kies een route waar je graag fietst en rijd in je vertrouwde tempo.']
+    ]
+  }
+};
+const sessions = {
+  menstrual: [
+    ['Rustige mobiliteit', 'Begin zittend met schouderrollen. Kom rustig staan en draai je heupen in kleine cirkels. Kies de beweging die het prettigst voelt.'],
+    ['Wandeling met een korte lus', 'Loop vijf minuten van huis en keer om. Heb je nog zin, voeg dan een tweede lus toe.'],
+    ['Je gewone krachttraining', 'Warm op met een lichte set van een bekende oefening. Kies daarna het gewicht dat vandaag prettig aanvoelt.']
+  ],
+  follicular: [
+    ['Kracht opbouwen', 'Kies twee oefeningen die je kent, zoals een squat en een roeibeweging. Begin licht en probeer een extra herhaling als je techniek goed blijft.'],
+    ['Fietsen met tempowissels', 'Fiets eerst rustig in. Kies onderweg een kort stukje om te versnellen en trap daarna ontspannen uit.'],
+    ['Een nieuwe danspas', 'Kies één nummer. Oefen een pas langzaam en voeg de muziek toe zodra de beweging vertrouwd voelt.']
+  ],
+  ovulatory: [
+    ['Dans op muziek', 'Begin met een rustig nummer. Kies daarna een favoriet waarop je vanzelf wat groter wilt bewegen.'],
+    ['Kracht met aandacht', 'Kies een vertrouwde oefening en warm op met een lichte set. Neem tussen de sets genoeg tijd om weer op adem te komen.'],
+    ['Een rondje hardlopen', 'Wandel eerst een paar minuten. Wissel daarna rustig joggen en wandelen af, of loop door als je al gewend bent om te rennen.']
+  ],
+  luteal: [
+    ['Pilates op de mat', 'Begin op handen en knieën. Strek rustig één been naar achteren en wissel van kant. Als dat goed voelt, voeg je de tegenovergestelde arm toe.'],
+    ['Cardio op gelijkmatig tempo', 'Kies wandelen, fietsen of de crosstrainer. Zoek een tempo waarop je nog kunt praten en houd dat aan zolang het prettig voelt.'],
+    ['Een vertrouwde krachtsessie', 'Kies twee favoriete oefeningen. Heb je minder energie, houd het bij één set van elk. Voel je je sterk, volg dan je gewone schema.']
+  ]
+};
+function showSessions(phase) {
+  el('sessions').replaceChildren(...sessions[phase].map(([name, instructions]) => {
+    const card = document.createElement('details');
+    card.className = 'detail';
+    const title = document.createElement('summary');
+    title.textContent = name;
+    const text = document.createElement('p');
+    text.textContent = instructions;
+    card.append(title, text);
+    return card;
+  }));
+}
+function dayKey() {
+  return 'bewegen-preview-' + new Date().toLocaleDateString('sv-SE');
+}
+function showLog(status) {
+  [...el('energyLog').children].forEach((button, index) => {
+    button.setAttribute('aria-pressed', String(status === ['moved','rest'][index]));
+  });
+  const date = new Date().toLocaleDateString('nl-NL', {day:'numeric',month:'long'});
+  el('logNote').textContent = status ? date + ' · ' + (status === 'moved' ? 'Bewogen ✓' : 'Rustdag ✓') : '';
+}
+choose(el('energyLog'), index => {
+  const status = ['moved','rest'][index];
+  showLog(status);
+  try { localStorage.setItem(dayKey(), status); } catch {}
+});
+try { showLog(localStorage.getItem(dayKey())); } catch {}
+let energyLevel = 1;
+function updateEnergyCheck() {
+  const phase = el('phase').value;
+  const data = phaseIdeas[phase];
+  document.querySelector('.two').dataset.phase = phase;
+  el('phaseLesson').textContent = data.lesson;
+  el('phaseMore').textContent = data.more;
+  el('phaseSource').textContent = data.source[0];
+  el('phaseSource').href = data.source[1];
+  const [duration, title, cue] = data.ideas[energyLevel];
+  el('meta').textContent = 'Bijvoorbeeld ' + duration;
+  el('activity').textContent = title;
+  el('cue').textContent = cue;
+  document.querySelector('.dial i').style.transform = 'rotate(' + [25,90,155][energyLevel] + 'deg)';
+}
+el('phase').onchange = () => { showSessions(el('phase').value); updateEnergyCheck(); };
+showSessions(el('phase').value);
+choose(el('energy'), index => { energyLevel = index; updateEnergyCheck(); });
+updateEnergyCheck();
+if(location.hash==='#energiecheck')document.querySelectorAll('.switch button')[1].click();
+const days=['Maandag','Dinsdag','Woensdag','Donderdag','Vrijdag','Zaterdag','Zondag'];
+const plans=[['Rustig losmaken','8 minuten mobiliteit','Rol je schouders','Maak kleine heupcirkels','Rek je rustig uit'],['Een rustmoment','Rustdag','Zoek een fijne plek','Neem even pauze','Ga verder op je eigen tempo'],['Danspauze','10 minuten dansen','Kies twee fijne nummers','Beweeg mee op de maat','Sluit rustig af'],['Een ommetje na de lunch','15 minuten wandelen','Loop rustig de straat uit','Zoek een prettig wandeltempo','Wandel ontspannen terug']];
+days.forEach((day,i)=>{const b=document.createElement('button');b.className='day';b.setAttribute('aria-label',day+' '+(9+i));b.innerHTML=day.slice(0,2)+'<b>'+(9+i)+'</b>';el('days').append(b)});
+choose(el('days'),i=>{const p=plans[[0,1,2,3,1,3,0][i]];el('when').textContent=(i===3?'Vandaag · ':'')+days[i]+' '+(9+i);el('session').textContent=p[0];el('sessionMeta').textContent=p[1];el('steps').innerHTML=p.slice(2).map((s,j)=>'<div class="stop"><small>'+['Begin','Daarna','Afronding'][j]+'</small><h3>'+s+'</h3></div>').join('')});el('days').children[3].click();
+</script></html>

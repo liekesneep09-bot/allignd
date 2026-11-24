@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Drie ontwerpen voor Voeding</title>
+  <style>
+    :root {
+      --ink: #1a1a1a;
+      --muted: #747076;
+      --line: #ece8ed;
+      --white: #ffffff;
+      --pink: #ff8fa3;
+      --phase: #c58ac6;
+      --phase-dark: #704471;
+      --phase-deep: #4f3453;
+      --phase-soft: #f2e7f3;
+      --phase-bg: #faf4fb;
+      --green: #698c78;
+      --green-soft: #e6efe7;
+      --cream: #fbf8f3;
+      --yellow-soft: #f8edc9;
+      --shadow: 0 18px 50px rgba(61, 42, 63, .10), 0 2px 8px rgba(61, 42, 63, .05);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: transparent; }
+    body { color: var(--foreground, var(--ink)); font-family: var(--font-sans, "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif); }
+    button { font: inherit; }
+    button:focus-visible { outline: 3px solid var(--ring, var(--phase)); outline-offset: 3px; }
+    .comparison { width: 100%; }
+    .switcher { display: flex; justify-content: center; gap: 7px; margin: 2px auto 18px; width: 100%; }
+    .switcher button { flex: 1; max-width: 218px; min-height: 46px; padding: 8px 10px; border: 1px solid var(--border, #e6e2e7); border-radius: 15px; background: var(--card, #fff); color: var(--muted-foreground, #68636b); cursor: pointer; line-height: 1.15; transition: .18s ease; }
+    .switcher button span { display: block; margin-bottom: 3px; font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; opacity: .65; }
+    .switcher button strong { font-size: 12px; font-weight: 700; }
+    .switcher button[aria-selected="true"] { border-color: var(--phase); background: var(--phase-deep); color: #fff; box-shadow: 0 5px 15px rgba(79, 52, 83, .16); }
+    .design { display: none; }
+    .design.active { display: block; animation: enter .22s ease; }
+    @keyframes enter { from { opacity: .3; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    .phone { position: relative; width: min(100%, 390px); margin: 0 auto; overflow: hidden; border: 1px solid rgba(91, 65, 94, .07); border-radius: 32px; box-shadow: var(--shadow); color: var(--ink); }
+    .screen { min-height: 860px; padding: 17px 19px 94px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 21px; }
+    .date { font-size: 11px; font-weight: 650; color: #777078; letter-spacing: .02em; }
+    .round-button { display: grid; place-items: center; width: 38px; height: 38px; border: 0; border-radius: 13px; background: rgba(255,255,255,.82); color: var(--ink); box-shadow: 0 2px 8px rgba(45,30,46,.05); }
+    .round-button svg { width: 18px; height: 18px; }
+    h1, h2, h3, p { margin: 0; }
+    .eyebrow { font-size: 10px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    .phase-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 99px; font-size: 10px; font-weight: 750; }
+    .phase-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .bottom-nav { position: absolute; right: 12px; bottom: 12px; left: 12px; display: grid; grid-template-columns: repeat(5, 1fr); padding: 9px 5px 8px; border: 1px solid rgba(80,55,80,.06); border-radius: 22px; background: rgba(255,255,255,.94); box-shadow: 0 8px 24px rgba(60,42,61,.10); backdrop-filter: blur(14px); }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; color: #99929a; font-size: 8px; font-weight: 600; }
+    .nav-item svg { width: 19px; height: 19px; }
+    .nav-item.selected { color: var(--pink); }
+    .nav-item.selected svg { stroke-width: 2.4; }
+    .arrow { margin-left: auto; color: #9b8e9d; font-size: 18px; line-height: 1; }
+    .food-dot { display: grid; place-items: center; flex: 0 0 auto; border-radius: 15px; }
+    .food-svg { display: block; width: 31px; height: 31px; }
+    .big-food .food-svg { width: 52px; height: 52px; }
+    .ingredient-card:first-child .big-food .food-svg { width: 76px; height: 76px; }
+
+    /* 01 — editorial, calm and airy */
+    .one { background: var(--phase-bg); }
+    .one .screen { background: linear-gradient(180deg, rgba(197,138,198,.15), transparent 300px); }
+    .one h1 { max-width: 290px; font-size: 32px; line-height: 1.06; letter-spacing: -.055em; }
+    .one h1 em { color: var(--phase-dark); font-style: normal; }
+    .one .intro { max-width: 290px; margin-top: 10px; color: #6f6571; font-size: 12px; line-height: 1.5; }
+    .one .phase-pill { margin-bottom: 12px; background: rgba(255,255,255,.65); color: var(--phase-dark); }
+    .focus-card { position: relative; min-height: 132px; margin-top: 20px; padding: 20px; overflow: hidden; border-radius: 26px; background: var(--phase-deep); color: #fff; }
+    .focus-card .eyebrow { color: #dec9df; }
+    .focus-card h2 { position: relative; z-index: 1; max-width: 210px; margin-top: 8px; color: #fff; font-size: 20px; line-height: 1.18; letter-spacing: -.03em; }
+    .focus-card p { position: relative; z-index: 1; max-width: 210px; margin-top: 7px; color: #e9dcea; font-size: 11px; line-height: 1.45; }
+    .focus-orbit { position: absolute; right: -25px; top: -28px; width: 160px; height: 160px; border: 1px solid rgba(255,255,255,.17); border-radius: 50%; }
+    .focus-orbit::before, .focus-orbit::after { content: ""; position: absolute; border-radius: 50%; }
+    .focus-orbit::before { inset: 21px; border: 1px solid rgba(255,255,255,.15); }
+    .focus-orbit::after { width: 65px; height: 65px; left: 20px; bottom: 4px; background: #d9b6db; box-shadow: 52px 38px 0 #9fd0b0, 20px 83px 0 #f0c661; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; margin: 24px 1px 11px; }
+    .section-head h2 { font-size: 17px; letter-spacing: -.025em; }
+    .section-head small { color: var(--muted); font-size: 9px; }
+    .nutrient-list { overflow: hidden; border: 1px solid rgba(89,58,91,.06); border-radius: 23px; background: rgba(255,255,255,.88); }
+    .nutrient-row { display: flex; align-items: center; gap: 12px; padding: 14px 15px; }
+    .nutrient-row + .nutrient-row { border-top: 1px solid var(--line); }
+    .nutrient-icon { display: grid; place-items: center; flex: 0 0 43px; height: 43px; border-radius: 50%; background: var(--phase-soft); color: var(--phase-dark); font-size: 11px; font-weight: 850; }
+    .nutrient-copy { min-width: 0; flex: 1; }
+    .nutrient-copy h3 { font-size: 12px; }
+    .nutrient-copy p { margin-top: 2px; color: var(--muted); font-size: 9.5px; line-height: 1.35; }
+    .nutrient-copy .sources { margin-top: 5px; color: var(--phase-dark); font-size: 9.5px; font-weight: 650; }
+    .quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .quick-item { padding: 12px 9px; border-radius: 19px; background: rgba(255,255,255,.82); text-align: center; }
+    .quick-item .food-dot { width: 42px; height: 42px; margin: 0 auto 8px; background: #f7f0f7; }
+    .quick-item h3 { font-size: 9.5px; line-height: 1.3; }
+    .quick-item p { margin-top: 4px; color: var(--muted); font-size: 8px; }
+
+    /* 02 — visual ingredient atlas */
+    .two { background: var(--cream); }
+    .two .screen { padding-right: 17px; padding-left: 17px; }
+    .two .title-line { display: flex; align-items: start; justify-content: space-between; gap: 8px; }
+    .two h1 { font-size: 29px; line-height: 1.05; letter-spacing: -.05em; }
+    .two h1 span { display: block; color: var(--green); }
+    .two .phase-pill { flex: 0 0 auto; margin-top: 3px; background: var(--green-soft); color: #4f735d; }
+    .atlas-hero { position: relative; height: 262px; margin-top: 13px; }
+    .bowl { position: absolute; left: 50%; top: 20px; width: 220px; height: 220px; transform: translateX(-50%); border-radius: 50%; background: #f0e8dc; box-shadow: inset 0 0 0 11px #fff, 0 15px 25px rgba(85,71,49,.10); }
+    .bowl::after { content: ""; position: absolute; left: 34px; right: 34px; bottom: -17px; height: 25px; border-radius: 50%; background: rgba(70,57,43,.08); filter: blur(9px); }
+    .bowl svg { position: relative; z-index: 1; width: 100%; height: 100%; }
+    .orbit-label { position: absolute; display: flex; align-items: center; gap: 5px; padding: 7px 10px; border: 1px solid rgba(90,80,64,.06); border-radius: 99px; background: #fff; box-shadow: 0 4px 14px rgba(75,62,44,.06); color: #58524b; font-size: 9px; font-weight: 700; }
+    .orbit-label::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+    .orbit-label.a { left: 0; top: 45px; }
+    .orbit-label.b { right: -1px; top: 93px; }
+    .orbit-label.c { left: 9px; bottom: 20px; }
+    .atlas-caption { position: absolute; right: 16px; bottom: 5px; left: 16px; color: #746e65; font-size: 10px; line-height: 1.45; text-align: center; }
+    .atlas-tabs { display: flex; gap: 6px; margin: 12px 0 17px; overflow: hidden; }
+    .atlas-tabs span { flex: 1; padding: 8px 4px; border-radius: 99px; color: #8a837a; font-size: 8.5px; font-weight: 650; text-align: center; white-space: nowrap; }
+    .atlas-tabs span.active { background: var(--phase-deep); color: #fff; }
+    .atlas-heading { display: flex; align-items: center; justify-content: space-between; margin: 0 2px 9px; }
+    .atlas-heading h2 { font-size: 16px; }
+    .atlas-heading span { color: var(--green); font-size: 9px; font-weight: 750; }
+    .ingredient-cards { display: grid; grid-template-columns: 1.12fr .88fr; grid-template-rows: 94px 94px; gap: 8px; }
+    .ingredient-card { position: relative; padding: 13px; overflow: hidden; border-radius: 21px; }
+    .ingredient-card:first-child { grid-row: 1 / 3; background: #e6eee4; }
+    .ingredient-card:nth-child(2) { background: #f2e4ee; }
+    .ingredient-card:nth-child(3) { background: #f4e9cc; }
+    .ingredient-number { color: rgba(40,50,40,.43); font-size: 9px; font-weight: 800; }
+    .ingredient-card h3 { margin-top: 7px; font-size: 13px; }
+    .ingredient-card p { max-width: 120px; margin-top: 4px; color: #6d7169; font-size: 9px; line-height: 1.35; }
+    .ingredient-card .big-food { position: absolute; right: 7px; bottom: 4px; font-size: 46px; transform: rotate(-8deg); }
+    .ingredient-card:first-child .big-food { right: 16px; bottom: 17px; font-size: 65px; }
+    .ingredient-card small { position: absolute; bottom: 12px; left: 13px; font-size: 8.5px; font-weight: 750; }
+    .ingredient-card:first-child small { right: 13px; bottom: 12px; padding-top: 8px; border-top: 1px solid rgba(60,90,65,.13); }
+    .recipe-strip { display: flex; align-items: center; gap: 12px; margin-top: 17px; padding: 10px 12px; border: 1px solid #ebe5da; border-radius: 20px; background: rgba(255,255,255,.7); }
+    .recipe-strip .food-dot { width: 47px; height: 47px; background: #f4e8ef; }
+    .recipe-strip .eyebrow { color: var(--green); font-size: 8px; }
+    .recipe-strip h3 { margin-top: 3px; font-size: 11px; }
+    .recipe-strip p { margin-top: 3px; color: var(--muted); font-size: 8.5px; }
+
+    /* 03 — bite-sized learning and meal builder */
+    .three { background: #f7f4f8; }
+    .three .screen { padding: 0 0 94px; }
+    .three .topbar { margin: 0; padding: 17px 19px 0; }
+    .lesson-hero { margin-top: 16px; padding: 22px 20px 25px; border-radius: 0 0 31px 31px; background: var(--phase-deep); color: #fff; }
+    .lesson-hero .phase-pill { background: rgba(255,255,255,.12); color: #ead8ec; }
+    .lesson-hero h1 { max-width: 315px; margin-top: 15px; color: #fff; font-size: 29px; line-height: 1.07; letter-spacing: -.045em; }
+    .lesson-hero h1 span { color: #e3b9e2; }
+    .lesson-hero p { max-width: 300px; margin-top: 10px; color: #dbcddd; font-size: 11px; line-height: 1.5; }
+    .lesson-progress { display: flex; align-items: center; gap: 8px; margin-top: 17px; }
+    .lesson-progress i { display: block; width: 30px; height: 3px; border-radius: 9px; background: rgba(255,255,255,.2); }
+    .lesson-progress i:first-child { width: 53px; background: #e1b5e0; }
+    .lesson-progress small { margin-left: auto; color: #d8c7da; font-size: 8px; }
+    .three-content { padding: 0 17px; }
+    .builder { margin-top: -1px; padding-top: 22px; }
+    .builder-head { display: flex; align-items: end; justify-content: space-between; margin: 0 2px 11px; }
+    .builder-head h2 { font-size: 17px; }
+    .builder-head span { color: var(--phase-dark); font-size: 9px; font-weight: 700; }
+    .builder-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .builder-part { display: flex; align-items: center; gap: 9px; min-height: 70px; padding: 11px; border: 1px solid #eae4eb; border-radius: 19px; background: #fff; }
+    .builder-part .food-dot { width: 38px; height: 38px; border-radius: 13px; background: #f5eff6; font-size: 20px; }
+    .builder-part h3 { font-size: 10px; }
+    .builder-part p { margin-top: 3px; color: var(--muted); font-size: 8px; line-height: 1.25; }
+    .learn-head { margin: 23px 2px 9px; }
+    .learn-head h2 { font-size: 17px; }
+    .learn-head p { margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .lesson-card { display: flex; align-items: center; gap: 12px; padding: 13px 14px; border-radius: 20px; background: #fff; }
+    .lesson-card + .lesson-card { margin-top: 7px; }
+    .lesson-card:nth-child(2) { background: #efe5f0; }
+    .lesson-index { display: grid; place-items: center; flex: 0 0 31px; height: 31px; border: 1px solid #ded4df; border-radius: 50%; color: var(--phase-dark); font-size: 9px; font-weight: 800; }
+    .lesson-card h3 { font-size: 11px; }
+    .lesson-card p { margin-top: 3px; color: #766b78; font-size: 9px; line-height: 1.35; }
+    .lesson-card .plus { display: grid; place-items: center; flex: 0 0 25px; height: 25px; margin-left: auto; border-radius: 50%; background: rgba(112,68,113,.08); color: var(--phase-dark); font-size: 16px; }
+    .tiny-tip { margin: 13px 2px 0; color: #8c828e; font-size: 8.5px; line-height: 1.4; text-align: center; }
+
+    @media (max-width: 430px) {
+      .switcher { gap: 5px; margin-bottom: 13px; }
+      .switcher button { min-height: 44px; padding: 7px 4px; border-radius: 13px; }
+      .switcher button strong { font-size: 10px; }
+      .switcher button span { font-size: 8px; }
+      .phone { border-radius: 27px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .design.active { animation: none; } }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 20c.6-4 3-6 6.5-6s5.9 2 6.5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v6M12 7.5h.01" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20h-6v-5h-4v5H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+      <symbol id="i-people" viewBox="0 0 24 24"><circle cx="9" cy="9" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 19c.4-3.4 2.3-5 5.5-5s5.1 1.6 5.5 5M16 6.5a3 3 0 0 1 0 5.8M16.5 14c2.5.2 3.8 1.8 4 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+      <symbol id="i-move" viewBox="0 0 24 24"><path d="M8 17c-2 0-3-2-3-5s1-5 3-5 2 2 2 5-1 5-2 5ZM16 12c-2 0-3-2-3-5s1-4 3-4 2 1 2 4-1 5-2 5ZM5 20h5M17 15l3 3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-food" viewBox="0 0 24 24"><path d="M7 3v8M4 3v5a3 3 0 0 0 6 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-guide" viewBox="0 0 24 24"><path d="M12 6c-2-2-5-2-8-1v14c3-1 6-1 8 1 2-2 5-2 8-1V5c-3-1-6-1-8 1Zm0 0v14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+      <symbol id="food-smoothie" viewBox="0 0 48 48"><path d="M8 23h32c-2 13-8 18-16 18S10 36 8 23Z" fill="#c5a4c6"/><path d="M11 23c4-9 22-9 26 0-7 5-19 5-26 0Z" fill="#86a986"/><path d="M20 17c-5-3-5-8-2-11 5 2 7 6 5 11M26 17c0-6 4-9 8-9 1 5-2 9-7 11" fill="#6e9773"/><circle cx="18" cy="23" r="3" fill="#f1d388"/><circle cx="28" cy="22" r="3" fill="#75577f"/></symbol>
+      <symbol id="food-salad" viewBox="0 0 48 48"><path d="M7 23h34c-2 12-8 18-17 18S9 35 7 23Z" fill="#d8b3d5"/><path d="M10 23c2-8 8-13 14-13s12 5 14 13" fill="#e9efe1"/><path d="M14 21c-1-7 3-11 8-12 3 5 1 10-4 14M25 21c0-7 5-10 10-9 0 6-3 10-9 12" fill="#7da77f"/><circle cx="20" cy="20" r="4" fill="#e9bd6b"/><circle cx="30" cy="22" r="4" fill="#df8d7d"/></symbol>
+      <symbol id="food-peas" viewBox="0 0 48 48"><path d="M8 33C12 14 25 6 40 9c1 15-9 28-27 30Z" fill="#86ad7e"/><path d="M11 34c8-9 17-16 27-22" fill="none" stroke="#557d59" stroke-width="2" stroke-linecap="round"/><circle cx="18" cy="29" r="4" fill="#c2d695"/><circle cx="25" cy="23" r="4" fill="#c2d695"/><circle cx="32" cy="17" r="4" fill="#c2d695"/></symbol>
+      <symbol id="food-berries" viewBox="0 0 48 48"><path d="M24 18c-2-8 2-12 9-13 1 7-2 11-9 13ZM23 18c-6-5-11-4-14 0 5 4 10 4 15 1" fill="#719273"/><circle cx="17" cy="28" r="9" fill="#80618d"/><circle cx="30" cy="27" r="10" fill="#9b74a3"/><circle cx="24" cy="36" r="8" fill="#654d78"/><circle cx="27" cy="23" r="2.5" fill="#c5a9cc"/></symbol>
+      <symbol id="food-fish" viewBox="0 0 48 48"><path d="M7 25c8-13 21-14 30-5l7-6v22l-7-6c-9 9-22 8-30-5Z" fill="#df9989"/><path d="M13 25c7 4 14 4 21 0" fill="none" stroke="#f6c6b7" stroke-width="2" stroke-linecap="round"/><circle cx="32" cy="23" r="1.8" fill="#674d51"/><path d="M21 16l5-7 5 8" fill="#c97f78"/></symbol>
+      <symbol id="food-broccoli" viewBox="0 0 48 48"><path d="M21 27h8l5 14H16Z" fill="#8cab72"/><circle cx="15" cy="22" r="9" fill="#668d68"/><circle cx="25" cy="15" r="11" fill="#779d73"/><circle cx="34" cy="23" r="9" fill="#5f835f"/><circle cx="24" cy="25" r="10" fill="#6f956c"/></symbol>
+      <symbol id="food-quinoa" viewBox="0 0 48 48"><path d="M6 23h36c-3 13-9 18-18 18S9 36 6 23Z" fill="#c6a4c5"/><path d="M10 23c3-9 10-13 15-13s12 4 14 13" fill="#eee0b9"/><g fill="#b79862"><circle cx="16" cy="20" r="2"/><circle cx="22" cy="15" r="2"/><circle cx="29" cy="19" r="2"/><circle cx="34" cy="22" r="2"/><circle cx="23" cy="23" r="2"/></g><path d="M14 17c-1-6 2-10 6-12 3 5 2 9-2 13M29 15c1-5 5-7 9-6 0 5-3 8-8 9" fill="#789779"/></symbol>
+      <symbol id="food-potato" viewBox="0 0 48 48"><path d="M10 34C3 25 14 8 27 7c12-1 18 11 12 22-6 12-22 14-29 5Z" fill="#dca66f"/><path d="M15 31c8-1 16-7 19-16" fill="none" stroke="#f2c58f" stroke-width="3" stroke-linecap="round"/><circle cx="15" cy="21" r="1.5" fill="#a97855"/><circle cx="29" cy="31" r="1.5" fill="#a97855"/></symbol>
+      <symbol id="food-seeds" viewBox="0 0 48 48"><path d="M12 40C19 29 25 18 34 7" fill="none" stroke="#6f8966" stroke-width="3" stroke-linecap="round"/><path d="M20 28C10 28 7 23 8 17c8-1 13 3 14 10M26 20c-2-8 2-13 8-15 4 7 1 13-6 17M17 34c-7 1-11-2-12-7 6-3 11-1 14 5" fill="#91aa78"/></symbol>
+    </defs>
+  </svg>
+
+  <main class="comparison">
+    <div class="switcher" role="tablist" aria-label="Kies een ontwerp">
+      <button role="tab" aria-selected="true" aria-controls="design-1" id="tab-1" data-design="1"><span>Ontwerp 01</span><strong>Fase-focus</strong></button>
+      <button role="tab" aria-selected="false" aria-controls="design-2" id="tab-2" data-design="2"><span>Ontwerp 02</span><strong>Voedingsatlas</strong></button>
+      <button role="tab" aria-selected="false" aria-controls="design-3" id="tab-3" data-design="3"><span>Ontwerp 03</span><strong>Slimme keuzes</strong></button>
+    </div>
+
+    <!-- ONTWERP 1 -->
+    <section class="design active" id="design-1" role="tabpanel" aria-labelledby="tab-1">
+      <div class="phone one">
+        <div class="screen">
+          <header class="topbar">
+            <div class="round-button"><svg><use href="#i-user"/></svg></div>
+            <div class="date">24 november</div>
+            <div class="round-button"><svg><use href="#i-info"/></svg></div>
+          </header>
+          <div class="phase-pill">Ovulatiefase · dag 13</div>
+          <h1>Voeding die met je <em>meebeweegt.</em></h1>
+          <p class="intro">Je energie piekt. Dit helpt je lichaam om die energie goed te gebruiken.</p>
+
+          <section class="focus-card">
+            <div class="eyebrow">Focus van deze fase</div>
+            <h2>Geef je actieve dag volwaardige brandstof.</h2>
+            <p>Denk aan kleur, voldoende eiwit en een goede maaltijd rond je work-out.</p>
+            <div class="focus-orbit"></div>
+          </section>
+
+          <div class="section-head"><h2>Wat helpt nu?</h2><small>Voeding → waarom → bron</small></div>
+          <section class="nutrient-list">
+            <article class="nutrient-row">
+              <div class="nutrient-icon">AO</div>
+              <div class="nutrient-copy"><h3>Antioxidanten</h3><p>Ondersteunen herstel bij hoge activiteit.</p><div class="sources">Bosbessen · paprika · tomaten</div></div>
+              <span class="arrow">›</span>
+            </article>
+            <article class="nutrient-row">
+              <div class="nutrient-icon">Ω3</div>
+              <div class="nutrient-copy"><h3>Omega-3</h3><p>Helpt je lichaam herstellen na inspanning.</p><div class="sources">Zalm · walnoten · lijnzaad</div></div>
+              <span class="arrow">›</span>
+            </article>
+            <article class="nutrient-row">
+              <div class="nutrient-icon">Vz</div>
+              <div class="nutrient-copy"><h3>Vezels</h3><p>Houden je spijsvertering stabiel.</p><div class="sources">Quinoa · broccoli · havermout</div></div>
+              <span class="arrow">›</span>
+            </article>
+          </section>
+
+          <div class="section-head"><h2>Snel iets lekkers</h2><small>Past bij deze fase</small></div>
+          <section class="quick-grid">
+            <article class="quick-item"><div class="food-dot"><svg class="food-svg"><use href="#food-smoothie"/></svg></div><h3>Groene smoothie bowl</h3><p>Ontbijt · 10 min</p></article>
+            <article class="quick-item"><div class="food-dot"><svg class="food-svg"><use href="#food-salad"/></svg></div><h3>Tonijnsalade met ei</h3><p>Lunch · 15 min</p></article>
+            <article class="quick-item"><div class="food-dot"><svg class="food-svg"><use href="#food-peas"/></svg></div><h3>Edamame boontjes</h3><p>Snack · 5 min</p></article>
+          </section>
+        </div>
+        <nav class="bottom-nav" aria-label="Navigatie ontwerp 1">
+          <div class="nav-item"><svg><use href="#i-home"/></svg>Vandaag</div><div class="nav-item"><svg><use href="#i-people"/></svg>Community</div><div class="nav-item"><svg><use href="#i-move"/></svg>Beweging</div><div class="nav-item selected"><svg><use href="#i-food"/></svg>Voeding</div><div class="nav-item"><svg><use href="#i-guide"/></svg>Gids</div>
+        </nav>
+      </div>
+    </section>
+
+    <!-- ONTWERP 2 -->
+    <section class="design" id="design-2" role="tabpanel" aria-labelledby="tab-2" hidden>
+      <div class="phone two">
+        <div class="screen">
+          <header class="topbar">
+            <div class="round-button"><svg><use href="#i-user"/></svg></div>
+            <div class="date">Jouw voedingsatlas</div>
+            <div class="round-button"><svg><use href="#i-info"/></svg></div>
+          </header>
+          <div class="title-line">
+            <h1>Eet met je <span>cyclus mee.</span></h1>
+            <div class="phase-pill">Ovulatie</div>
+          </div>
+
+          <section class="atlas-hero" aria-label="Een kleurrijke voedingskom">
+            <div class="bowl">
+              <svg viewBox="0 0 220 220" aria-hidden="true">
+                <path d="M35 123c8-49 43-78 84-75 38 3 65 31 69 75-37 25-113 27-153 0Z" fill="#faf5e9"/>
+                <path d="M52 111c8-33 24-50 52-58-2 30-14 55-36 73Z" fill="#6c9872"/>
+                <path d="M66 104c-3-25 4-41 20-51 9 20 6 41-8 60Z" fill="#9cbb7f"/>
+                <path d="M117 57c25 2 43 16 52 42-24 3-43-5-57-24Z" fill="#7fa477"/>
+                <path d="M118 111c14-20 32-26 53-18-4 25-19 38-45 39Z" fill="#e8b65e"/>
+                <circle cx="132" cy="122" r="10" fill="#775682"/><circle cx="151" cy="119" r="9" fill="#98709d"/><circle cx="145" cy="137" r="10" fill="#644a75"/>
+                <path d="M74 128c7-15 20-21 36-17 9 2 15 8 20 18-16 15-40 15-56-1Z" fill="#e89581"/>
+                <path d="M79 124c14 8 29 8 44 0" fill="none" stroke="#f7c0ae" stroke-width="3" stroke-linecap="round"/>
+                <g fill="#d8c491"><circle cx="98" cy="89" r="5"/><circle cx="110" cy="82" r="5"/><circle cx="118" cy="94" r="5"/><circle cx="104" cy="100" r="5"/><circle cx="90" cy="101" r="5"/></g>
+                <path d="M42 130c18 56 45 69 70 69s54-14 70-69c-37 17-104 17-140 0Z" fill="#fff" stroke="#e5ddd0" stroke-width="2"/>
+                <path d="M70 160c23 15 58 15 82-1" fill="none" stroke="#eee7dc" stroke-width="3" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span class="orbit-label a">Antioxidanten</span><span class="orbit-label b">Omega-3</span><span class="orbit-label c">Vezels</span>
+            <p class="atlas-caption">Kleur op je bord is je startpunt. Tik op een voedingsstof en ontdek direct wat je kunt eten.</p>
+          </section>
+
+          <div class="atlas-tabs"><span>Menstruatie</span><span>Follikel</span><span class="active">Ovulatie</span><span>Luteaal</span></div>
+          <div class="atlas-heading"><h2>Wat zit waar in?</h2><span>3 om te onthouden</span></div>
+          <section class="ingredient-cards">
+            <article class="ingredient-card"><span class="ingredient-number">01</span><h3>Antioxidanten</h3><p>Voor herstel en bescherming.</p><span class="big-food">🫐</span><small>Bosbessen · paprika<br/>tomaten · groene thee</small></article>
+            <article class="ingredient-card"><span class="ingredient-number">02</span><h3>Omega-3</h3><p>Vetten die helpen herstellen.</p><span class="big-food">🐟</span><small>Zalm · lijnzaad</small></article>
+            <article class="ingredient-card"><span class="ingredient-number">03</span><h3>Vezels</h3><p>Voor een stabiele spijsvertering.</p><span class="big-food">🥦</span><small>Quinoa · broccoli</small></article>
+          </section>
+          <article class="recipe-strip"><div class="food-dot">🥘</div><div><div class="eyebrow">Maak het vanavond</div><h3>Rijke quinoa bowl met kikkererwten</h3><p>Vezels · plantaardig eiwit · 20 min</p></div><span class="arrow">›</span></article>
+        </div>
+        <nav class="bottom-nav" aria-label="Navigatie ontwerp 2">
+          <div class="nav-item"><svg><use href="#i-home"/></svg>Vandaag</div><div class="nav-item"><svg><use href="#i-people"/></svg>Community</div><div class="nav-item"><svg><use href="#i-move"/></svg>Beweging</div><div class="nav-item selected"><svg><use href="#i-food"/></svg>Voeding</div><div class="nav-item"><svg><use href="#i-guide"/></svg>Gids</div>
+        </nav>
+      </div>
+    </section>
+
+    <!-- ONTWERP 3 -->
+    <section class="design" id="design-3" role="tabpanel" aria-labelledby="tab-3" hidden>
+      <div class="phone three">
+        <div class="screen">
+          <header class="topbar">
+            <div class="round-button"><svg><use href="#i-user"/></svg></div>
+            <div class="date">24 november</div>
+            <div class="round-button"><svg><use href="#i-info"/></svg></div>
+          </header>
+          <section class="lesson-hero">
+            <div class="phase-pill">Ovulatiefase · dag 13</div>
+            <h1>Veel energie?<br/><span>Zet iets goeds op je bord.</span></h1>
+            <p>Geen dieet of dagdoel. Gewoon drie handige keuzes die passen bij waar je lichaam nu aan toe is.</p>
+            <div class="lesson-progress"><i></i><i></i><i></i><small>1 minuut lezen</small></div>
+          </section>
+
+          <div class="three-content">
+            <section class="builder">
+              <div class="builder-head"><h2>Bouw je maaltijd</h2><span>Simpel startpunt</span></div>
+              <div class="builder-grid">
+                <article class="builder-part"><div class="food-dot">🍠</div><div><h3>1. Brandstof</h3><p>Aardappel, rijst<br/>of volkoren pasta</p></div></article>
+                <article class="builder-part"><div class="food-dot">🐟</div><div><h3>2. Eiwit</h3><p>Vis, ei, kip<br/>of kikkererwten</p></div></article>
+                <article class="builder-part"><div class="food-dot">🫐</div><div><h3>3. Kleur</h3><p>Bessen, paprika<br/>of broccoli</p></div></article>
+                <article class="builder-part"><div class="food-dot">🌱</div><div><h3>4. Goede vetten</h3><p>Walnoot, lijnzaad<br/>of olijfolie</p></div></article>
+              </div>
+            </section>
+
+            <section class="learn-head"><h2>Kort leren, direct gebruiken</h2><p>Open alleen wat je interessant vindt.</p></section>
+            <section>
+              <article class="lesson-card"><div class="lesson-index">01</div><div><h3>Waarom nu extra kleur?</h3><p>Antioxidanten ondersteunen je herstel.</p></div><span class="plus">+</span></article>
+              <article class="lesson-card"><div class="lesson-index">02</div><div><h3>Eten rond je work-out</h3><p>Een eiwitrijke maaltijd met koolhydraten helpt.</p></div><span class="plus">+</span></article>
+              <article class="lesson-card"><div class="lesson-index">03</div><div><h3>Snelle fase-snack</h3><p>Edamame: klaar in 5 min, met eiwit en vezels.</p></div><span class="plus">›</span></article>
+            </section>
+            <p class="tiny-tip">Geen voedingsstoffen onthouden? Onthoud dan: brandstof + eiwit + kleur.</p>
+          </div>
+        </div>
+        <nav class="bottom-nav" aria-label="Navigatie ontwerp 3">
+          <div class="nav-item"><svg><use href="#i-home"/></svg>Vandaag</div><div class="nav-item"><svg><use href="#i-people"/></svg>Community</div><div class="nav-item"><svg><use href="#i-move"/></svg>Beweging</div><div class="nav-item selected"><svg><use href="#i-food"/></svg>Voeding</div><div class="nav-item"><svg><use href="#i-guide"/></svg>Gids</div>
+        </nav>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const tabs = [...document.querySelectorAll('[data-design]')];
+    const designs = [...document.querySelectorAll('.design')];
+    function selectDesign(number) {
+      tabs.forEach(tab => {
+        const selected = tab.dataset.design === String(number);
+        tab.setAttribute('aria-selected', selected);
+        tab.tabIndex = selected ? 0 : -1;
+      });
+      designs.forEach((design, index) => {
+        const selected = index === Number(number) - 1;
+        design.classList.toggle('active', selected);
+        design.hidden = !selected;
+      });
+    }
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => selectDesign(tab.dataset.design));
+      tab.addEventListener('keydown', event => {
+        if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+        event.preventDefault();
+        const next = event.key === 'ArrowRight' ? (index + 1) % tabs.length : (index + tabs.length - 1) % tabs.length;
+        selectDesign(tabs[next].dataset.design);
+        tabs[next].focus();
+      });
+    });
+  </script>
+</body>
+</html>
