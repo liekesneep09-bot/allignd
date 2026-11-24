@@ -22,7 +22,7 @@ window.onunhandledrejection = function (event) {
 // PWA Service Worker is managed by vite-plugin-pwa
 
 // Staging bookmarks open the demo with its sample cycle day and requested tab.
-if (import.meta.env.DEV && /^#(?:eten|voeding|beweging)-dag-(?:[1-9]|1[0-9]|2[0-8])$/.test(window.location.hash)) {
+if (import.meta.env.DEV && /^#(?:eten|voeding|beweging|cyclus)-dag-(?:[1-9]|1[0-9]|2[0-8])$/.test(window.location.hash)) {
     window.location.replace('./preview.html' + window.location.search + window.location.hash)
 } else {
     ReactDOM.createRoot(document.getElementById('root')).render(
