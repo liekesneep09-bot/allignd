@@ -12,14 +12,11 @@
 .phase-food h1 em { color: var(--phase-dark); font-style: normal; }
 .phase-food .intro { max-width: 290px; margin-top: 10px; color: #6f6571; font-size: 12px; line-height: 1.5; }
 .phase-food .phase-pill { margin-bottom: 12px; background: rgba(255,255,255,.65); color: var(--phase-dark); }
-.phase-food .focus-card { position: relative; min-height: 132px; margin-top: 20px; padding: 20px; overflow: hidden; border-radius: 26px; background: var(--phase-deep); color: #fff; }
+.phase-food .focus-card { position: relative; min-height: 168px; margin-top: 20px; padding: 20px max(41%, 102px) 20px 20px; overflow: hidden; border-radius: 26px; background: var(--phase-deep); color: #fff; }
 .phase-food .focus-card .eyebrow { color: #dec9df; }
 .phase-food .focus-card h2 { position: relative; z-index: 1; max-width: 210px; margin-top: 8px; color: #fff; font-size: 20px; line-height: 1.18; letter-spacing: -.03em; }
 .phase-food .focus-card p { position: relative; z-index: 1; max-width: 210px; margin-top: 7px; color: #e9dcea; font-size: 11px; line-height: 1.45; }
-.phase-food .focus-orbit { position: absolute; right: -25px; top: -28px; width: 160px; height: 160px; border: 1px solid rgba(255,255,255,.17); border-radius: 50%; }
-.phase-food .focus-orbit::before, .focus-orbit::after { content: ""; position: absolute; border-radius: 50%; }
-.phase-food .focus-orbit::before { inset: 21px; border: 1px solid rgba(255,255,255,.15); }
-.phase-food .focus-orbit::after { width: 65px; height: 65px; left: 20px; bottom: 4px; background: #d9b6db; box-shadow: 52px 38px 0 #9fd0b0, 20px 83px 0 #f0c661; }
+.phase-food .focus-portrait { position: absolute; right: 0; bottom: 0; width: 40%; height: calc(100% - 8px); object-fit: contain; object-position: right bottom; pointer-events: none; }
 .phase-food .section-head { display: flex; align-items: end; justify-content: space-between; margin: 24px 1px 11px; }
 .phase-food .section-head h2 { font-size: 17px; letter-spacing: -.025em; }
 .phase-food .section-head small { color: var(--muted); font-size: 9px; }

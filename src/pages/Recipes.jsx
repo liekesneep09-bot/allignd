@@ -6,6 +6,7 @@ import { getRecipeContent } from '../data/recipeContent'
 import { getPhaseContent } from '../data/phases'
 import { IconPlus } from '../components/Icons'
 import { getLocalDateStr } from '../utils/date'
+import pokeBowlPortrait from '../assets/voeding-pokebowl.webp'
 import './Recipes.css'
 
 const focus = {
@@ -230,7 +231,7 @@ export default function Recipes({ onNavigate }) {
                     <div className="eyebrow">{en ? 'Focus for this phase' : 'Focus van deze fase'}</div>
                     <h2>{focus[currentPhase][en ? 1 : 0]}</h2>
                     <p>{phaseRecipes.focusPoints.slice(0, 2).join(' · ')}</p>
-                    <div className="focus-orbit" aria-hidden="true" />
+                    <img className="focus-portrait" src={pokeBowlPortrait} alt="" width="480" height="540" />
                 </section>
                 <div className="section-head"><h2>{en ? 'What helps now?' : 'Wat helpt nu?'}</h2></div>
                 <section className="nutrient-list">
