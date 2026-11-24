@@ -14,3 +14,18 @@ export const cycleLessons = {
         luteal: ['The days after ovulation', 'After ovulation, the follicle that released the egg produces progesterone. This prepares the lining of your womb for a possible pregnancy. If pregnancy does not occur, hormone levels fall again.', 'In the days before your period you may notice breast tenderness, bloating or changes in mood. Your experience can vary from month to month.', 'When do symptoms start and ease? Brief check-ins across at least two cycles can help you recognise a recurring pattern.']
     }
 }
+
+export const cycleQuestions = {
+    nl: {
+        menstrual: ['Waarom voel ik kramp ook in mijn rug?', 'Als je baarmoeder samentrekt om slijmvlies af te stoten, kan de pijn uitstralen naar je onderrug of bovenbenen. Dat kan al beginnen vóór het bloedverlies. Bespreek het met je huisarts als de pijn je dagelijkse activiteiten belemmert.'],
+        follicular: ['Waarom verandert mijn afscheiding?', 'Terwijl je oestrogeenspiegel stijgt, verandert ook het slijm dat je baarmoederhals maakt. Richting de eisprong kan het natter, gladder en rekbaarder worden. Misschien valt het je op bij het afvegen.'],
+        ovulatory: ['Valt de eisprong altijd op dag 14?', 'De eisprong valt vaak zo’n 10 tot 16 dagen vóór de volgende menstruatie. Daardoor kan hij bij een langere cyclus later vallen. De app schat die periode met kalendergegevens. Aan een kalenderdag alleen kun je niet zien of er een eicel is vrijgekomen.'],
+        luteal: ['Hoe herken ik terugkerende klachten?', 'Let ook op wanneer je je weer beter voelt. Bij PMS ontstaan klachten in de dagen of weken vóór de menstruatie en nemen ze vaak af zodra de menstruatie begint. Noteer beide momenten, zodat je ze over een paar cycli kunt vergelijken.']
+    },
+    en: {
+        menstrual: ['Why can I feel cramps in my back?', 'When your womb contracts to shed its lining, pain can spread to your lower back or thighs. This can start before bleeding begins. Speak to your GP if pain gets in the way of everyday activities.'],
+        follicular: ['Why does discharge change?', 'As oestrogen rises, the mucus made by your cervix changes. It may feel wetter, more slippery and stretchy as ovulation approaches. You might notice it when you wipe.'],
+        ovulatory: ['Does ovulation always happen on day 14?', 'Ovulation often happens about 10 to 16 days before the next period. In a longer cycle it may happen later. The app estimates this window from calendar dates. A date alone cannot confirm that an egg was released.'],
+        luteal: ['How can I spot recurring symptoms?', 'Notice when you start feeling better too. PMS symptoms occur in the days or weeks before a period and often ease as it begins. Record both moments so you can compare them across cycles.']
+    }
+}

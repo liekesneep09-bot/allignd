@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef } from 'react'
 import { useUser } from '../context/UserContext'
-import { cycleLessons } from '../data/cycleLessons'
+import { cycleLessons, cycleQuestions } from '../data/cycleLessons'
 import './PhaseGuide.css'
 import { useLanguage } from '../context/LanguageContext'
 import { getLocalDateStr } from '../utils/date'
@@ -95,6 +95,7 @@ export default function PhaseGuide({ onNavigate }) {
     const datedPhase = isViewingToday && user?.cycleStart ? currentPhase : activeCycleInfo?.phase
     const guidePhase = explorePhase || datedPhase || PHASES.MENSTRUAL
     const guideDay = isViewingToday ? currentDay : activeCycleInfo?.day
+    const [question, answer] = cycleQuestions[en ? 'en' : 'nl'][guidePhase]
     const [headline, body, signals, pattern] = cycleLessons[en ? 'en' : 'nl'][guidePhase]
     const activeSymptoms = user?.symptomLogs?.find(l => l.date === activeDateStr)?.symptoms || []
 
@@ -146,12 +147,19 @@ export default function PhaseGuide({ onNavigate }) {
             </article>
             <section className="cycle-notes">
                 <h2>{en ? 'What you might notice' : 'Wat kun je merken?'}</h2><p>{signals}</p>
+                <details key={question}><summary>{question}</summary><p>{answer}</p></details>
                 <details key={guidePhase}><summary>{en ? 'Recognise your own pattern' : 'Herken je eigen patroon'}</summary><p>{pattern}</p></details>
             </section>
             {activeDateStr <= todayStr && <div className="cycle-check">
                 <button onClick={() => setShowCheckIn(true)}>{t('cycle.log_checkin')} · {isViewingToday ? t('calendar.today') : formatDateLabel(activeDateStr)}</button>
                 {activeSymptoms.length > 0 && <p>{activeSymptoms.map(id => t('checkin.symptoms.' + id)).join(' · ')}</p>}
             </div>}
+            <details className="cycle-learning">
+                <summary>{en ? 'What does the app learn from my entries?' : 'Wat leert de app van mijn registraties?'}</summary>
+                <p><strong>{en ? 'Period dates. ' : 'Menstruatiedata. '}</strong>{en ? 'At first the calendar uses your set cycle length. Once you log consecutive period starts, the time between them helps estimate your next period. With several cycles, recent ones carry more weight.' : 'Eerst gebruikt de kalender je ingestelde cycluslengte. Zodra je opeenvolgende menstruaties hebt vastgelegd, helpt de tijd tussen de startdatums om je volgende menstruatie te schatten. Bij meerdere cycli tellen recente cycli zwaarder mee.'}</p>
+                <p><strong>{en ? 'Symptoms. ' : 'Symptomen. '}</strong>{en ? 'Insights shows how often you recorded each symptom in each estimated phase. Check-ins help you spot patterns. They do not change the predicted dates.' : 'In Inzichten zie je hoe vaak je een symptoom hebt ingevuld per geschatte fase. Zo kun je zelf patronen herkennen. Je check-ins veranderen de voorspelde datums niet.'}</p>
+                <button onClick={() => onNavigate('progress')}>{en ? 'View my insights' : 'Bekijk mijn inzichten'} ›</button>
+            </details>
             {/* 1. CALENDAR BLOCK */}
             <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
                 {/* Header */}
@@ -258,7 +266,7 @@ export default function PhaseGuide({ onNavigate }) {
                                         : (tintColor ? withAlpha(tintColor, 0.14) : 'transparent'),
                                     color: isPeriod
                                         ? '#333333'
-                                        : (isPredicted ? 'var(--color-primary)' : (tintColor ? tintColor : 'var(--color-text)')),
+                                        : (isPredicted ? 'var(--phase-menstrual-text)' : (cycleInfo?.phase ? phaseTextColor(cycleInfo.phase) : 'var(--color-text)')),
                                     // Border: predicted > today > selected
                                     border: isPredicted
                                         ? '2px dashed var(--color-primary)'
