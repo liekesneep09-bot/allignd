@@ -24,3 +24,13 @@
 .energy-calendar h2 { margin-top: 0; }
 .energy-calendar .energy-controls { margin: 12px 0 6px; }
 .energy-calendar button { background: var(--soft); }
+.movement-hero { position:relative; overflow:hidden; background:var(--accent); color:white; border-radius:24px; padding:14px 38% 14px 16px; min-height:124px; }
+.movement-hero img { position:absolute; bottom:0; right:0; width:38%; height:calc(100% - 4px); object-fit:contain; object-position:right bottom; }
+.energy-check .movement-hero h1 { color:white; font-size:1.5rem; margin:4px 0 6px; }
+.energy-check .movement-hero :is(small,p) { color:white; font-size:.82rem; }
+.movement-examples { display:block; margin-top:7px; color:var(--accent); font-size:.86rem; }
+.movement-goal { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.movement-goal select { max-width:70%; color:var(--accent); background:white; padding:8px; border:1px solid var(--color-border); border-radius:14px; }
+.movement-energy { border:0; border-bottom:1px solid var(--soft); margin:14px 0; padding:0 0 12px; }
+.movement-energy legend { font-weight:600; margin-bottom:7px; }
+.movement-energy button:not([aria-pressed=true]) { background:var(--soft); }

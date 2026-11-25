@@ -2,8 +2,10 @@ import React, { useState } from 'react'
 import { useUser } from '../context/UserContext'
 import { useLanguage } from '../context/LanguageContext'
 import { getPhaseContent } from '../data/phases'
-import { phaseIdeas, sessions, englishIdeas } from '../data/movementIdeas'
+import { movementPhases, movementForms } from '../data/movementIdeas'
 import { getLocalDateStr } from '../utils/date'
+import { getFitnessContent } from '../data/fitnessContent'
+import portrait from '../assets/beweging-halter.webp'
 import './Fitness.css'
 
 export default function Fitness() {
@@ -16,10 +18,16 @@ export default function Fitness() {
     const [movementError, setMovementError] = useState(null)
     const todayStr = getLocalDateStr(new Date())
     const todayStatus = user.movementLogs?.find(log => log.date === todayStr)?.status
-    const phase = phaseIdeas[currentPhase] ? currentPhase : browsePhase
-    const data = en ? englishIdeas[phase] : phaseIdeas[phase]
-    const workouts = en ? data.sessions : sessions[phase]
-    const [duration, title, cue] = data.ideas[energy]
+    const phase = movementPhases[currentPhase] ? currentPhase : browsePhase
+    const data = movementPhases[phase]
+    const forms = movementForms[en ? 'en' : 'nl']
+    const goals = getFitnessContent(language).goals
+    const [sessionGoal, setSessionGoal] = useState(null)
+    const goal = sessionGoal || (goals[user.goal] ? user.goal : 'maintain')
+    const suggestedForm = ['gain_muscle', 'recomp'].includes(goal) ? 'strength'
+        : data.forms.find(id => ['walk', 'cardio', 'dance'].includes(id))
+    const suggestion = forms[suggestedForm]
+    const [duration, title, cue] = suggestion.sessions[energy]
     const phaseName = key => getPhaseContent(language, key).name
     const energyLabels = en ? ['Low', 'Medium', 'High'] : ['Weinig', 'Gemiddeld', 'Veel']
 
@@ -44,23 +52,34 @@ export default function Fitness() {
         }}>
             <div className="energy-inner">
                 <header><strong>{en ? 'Movement' : 'Bewegen'}</strong>
-                    {phaseIdeas[currentPhase] ? <span>{phaseName(phase)}</span> :
+                    {movementPhases[currentPhase] ? <span>{phaseName(phase)}</span> :
                         <select value={phase} onChange={e => setBrowsePhase(e.target.value)} aria-label={en ? 'Explore a phase' : 'Bekijk fase'}>
-                            {Object.keys(phaseIdeas).map(key => <option key={key} value={key}>{phaseName(key)}</option>)}
+                            {Object.keys(movementPhases).map(key => <option key={key} value={key}>{phaseName(key)}</option>)}
                         </select>}
                 </header>
-                <h1>{en ? 'How much energy ' : 'Hoeveel energie '}<em>{en ? 'do you have today?' : 'heb je vandaag?'}</em></h1>
-                <p>{data.lesson}</p>
-                <div className="energy-picker">
-                    <div className="energy-dial" aria-hidden="true"><i style={{ transform: `rotate(${[25, 90, 155][energy]}deg)` }} /></div>
-                    <div className="energy-controls" role="group" aria-label={en ? 'Energy today' : 'Energie vandaag'}>
-                        {energyLabels.map((label, i) => <button key={label} aria-pressed={energy === i} onClick={() => setEnergy(i)}>{label}</button>)}
-                    </div>
-                </div>
-                <h2>{en ? 'An idea for today' : 'Een idee voor vandaag'}</h2>
-                <article aria-live="polite"><small>{en ? 'Try' : 'Bijvoorbeeld'} {duration}</small><h3>{title}</h3><p>{cue}</p></article>
-                <h2>{en ? 'More to try' : 'Meer om te proberen'}</h2><p>{data.more}</p>
-                {workouts.map(([name, instructions]) => <details key={name}><summary>{name}</summary><p>{instructions}</p></details>)}
+                <section className="movement-hero">
+                    <small>{phaseName(phase)}</small>
+                    <h1>{data.title[en ? 1 : 0]}</h1><p>{data.lesson[en ? 1 : 0]}</p>
+                    <img src={portrait} alt="" width="538" height="732" />
+                </section>
+                <h2>{en ? 'Movement in this phase' : 'Bewegen in deze fase'}</h2>
+                {data.forms.map(id => <details name="movement" key={phase + id}>
+                    <summary>{forms[id].name}</summary><p>{forms[id].description}</p>
+                    <strong className="movement-examples">{forms[id].examples}</strong>
+                </details>)}
+                <h2>{en ? 'What fits today?' : 'Wat past vandaag?'}</h2>
+                <article>
+                    <label className="movement-goal">{en ? 'My goal' : 'Mijn doel'}
+                        <select value={goal} onChange={event => setSessionGoal(event.target.value)}>
+                            {Object.entries(goals).map(([id,label]) => <option key={id} value={id}>{label}</option>)}
+                        </select>
+                    </label>
+                    <fieldset className="movement-energy"><legend>{en ? 'How much energy do you have?' : 'Hoeveel energie heb je?'}</legend>
+                        <div className="energy-controls">{energyLabels.map((label, i) =>
+                            <button key={label} aria-pressed={energy === i} onClick={() => setEnergy(i)}>{label}</button>)}</div>
+                    </fieldset>
+                    <div aria-live="polite"><small>{suggestion.name} · ca. {duration}</small><h3>{title}</h3><p>{cue}</p></div>
+                </article>
                 <section className="energy-calendar">
                     <h2>{en ? 'Your calendar' : 'Jouw kalender'}</h2><p>{en ? 'How would you like to record today?' : 'Hoe wil je vandaag onthouden?'}</p>
                     <div className="energy-controls">{['moved', 'rest'].map(status =>
@@ -71,7 +90,7 @@ export default function Fitness() {
                     {movementError && <p role="alert">{movementError}</p>}
                 </section>
                 <details><summary>{en ? 'Sources for this phase' : 'Bronnen bij deze fase'}</summary>
-                    <p><a href={phaseIdeas[phase].source[1]} target="_blank" rel="noreferrer">{en ? data.source : data.source[0]}</a></p>
+                    <p><a href={data.source[1]} target="_blank" rel="noreferrer">{en ? (phase === 'menstrual' ? 'Cochrane' : 'NHS') : data.source[0]}</a></p>
                     <p><a href="https://doi.org/10.1007/s40279-020-01319-3" target="_blank" rel="noreferrer">{en ? 'Review · Cycle and exercise performance' : 'Overzichtsstudie · Cyclus en sportprestatie'}</a></p>
                 </details>
             </div>

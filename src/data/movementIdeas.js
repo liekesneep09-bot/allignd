@@ -1,127 +1,317 @@
-export const phaseIdeas = {
-  menstrual: {
-    lesson: 'Tijdens je menstruatie kun je last hebben van kramp. Misschien doet een ommetje je goed, misschien heb je juist zin in je gewone training.',
-    more: 'Probeer de eerste minuten rustig uit wat lekker voelt. Je kunt altijd een stukje toevoegen of eerder afronden.',
-    source: ['Cochrane · Bewegen bij menstruatiepijn', 'https://doi.org/10.1002/14651858.CD004142.pub4'],
-    ideas: [
-      ['5 min · thuis', 'Even loslopen', 'Loop rustig door de kamer. Voelt rust fijner, dan mag je het hierbij laten.'],
-      ['15 min · buiten', 'Een rondje dichtbij', 'Kies een korte route dicht bij huis, zodat je bij kramp makkelijk kunt omkeren.'],
-      ['20 min · op je eigen plek', 'Je vertrouwde training', 'Begin met je gebruikelijke warming-up. Voelt die goed, ga dan door op je gewone tempo.']
+export const movementPhases = {
+  "menstrual": {
+    "title": [
+      "Kies je tempo bij de start.",
+      "Find your starting pace."
+    ],
+    "lesson": [
+      "Heb je kramp, kies dan iets wat je makkelijk kunt inkorten. Voel je je goed? Je vertrouwde training kan ook.",
+      "If you have cramps, choose something easy to shorten. Feeling good? Your usual workout is an option too."
+    ],
+    "forms": [
+      "mobility",
+      "walk",
+      "strength"
+    ],
+    "source": [
+      "Cochrane · Bewegen bij menstruatiepijn",
+      "https://doi.org/10.1002/14651858.CD004142.pub4"
     ]
   },
-  follicular: {
-    lesson: 'Na je menstruatie stijgt je oestrogeenspiegel meestal richting de eisprong. Heb je zin om je training weer op te pakken, begin dan met iets bekends.',
-    more: 'Een bekende route of oefening geeft houvast. Voelt die vandaag makkelijk, dan kun je spelen met tempo of gewicht.',
-    source: ['NHS · Hoe werkt de menstruatiecyclus?', 'https://www.nhs.uk/conditions/periods/fertility-in-the-menstrual-cycle/'],
-    ideas: [
-      ['5 min · buiten', 'Een frisse start', 'Wandel tot het einde van de straat en terug. Voel onderweg of je nog wat verder wilt.'],
-      ['15 min · op de fiets', 'Pak je fiets weer eens', 'Kies een bekende route. Zo kun je rustig uitproberen welk tempo vandaag lekker rijdt.'],
-      ['20 min · thuis of in de gym', 'Pak je krachtroutine op', 'Begin met een bekende oefening. Kies je gewicht op basis van hoe de eerste set voelt.']
+  "follicular": {
+    "title": [
+      "Vind je ritme weer.",
+      "Find your rhythm again."
+    ],
+    "lesson": [
+      "Na je menstruatie stijgt je oestrogeen meestal richting de eisprong. Een bekende oefening helpt je voelen welke belasting vandaag past.",
+      "Oestrogen usually rises towards ovulation. A familiar exercise can help you find a comfortable effort today."
+    ],
+    "forms": [
+      "strength",
+      "cardio",
+      "dance"
+    ],
+    "source": [
+      "NHS · Hoe werkt de menstruatiecyclus?",
+      "https://www.nhs.uk/conditions/periods/fertility-in-the-menstrual-cycle/"
     ]
   },
-  ovulatory: {
-    lesson: 'Veel vrouwen merken weinig van hun eisprong. Sommige voelen kort een steek aan één kant van de onderbuik. Wat zou vandaag fijn zijn voor jou?',
-    more: 'Zin in een uitdaging? Kies iets waar je plezier in hebt. Met een rustige warming-up voel je welk tempo vandaag past.',
-    source: ['NHS · Pijn rond de eisprong', 'https://www.nhs.uk/symptoms/ovulation-pain/'],
-    ideas: [
-      ['5 min · thuis', 'Rustig in beweging', 'Loop even rond op je eigen tempo. Voelt bewegen onprettig, neem dan rust.'],
-      ['15 min · buiten', 'Wandelen op gevoel', 'Begin op je gemak en versnel als dat lekker voelt.'],
-      ['20 min · thuis', 'Dans op je favorieten', 'Zet een paar fijne nummers op. Kies zelf hoe groot en snel je beweegt.']
+  "ovulatory": {
+    "title": [
+      "Waar heb je zin in?",
+      "What sounds good today?"
+    ],
+    "lesson": [
+      "Veel vrouwen merken weinig van de eisprong. Kies een activiteit die je leuk vindt en gebruik je warming-up om je tempo te vinden.",
+      "Many people barely notice ovulation. Pick an activity you enjoy and use the warm-up to find your pace."
+    ],
+    "forms": [
+      "dance",
+      "strength",
+      "walk"
+    ],
+    "source": [
+      "NHS · Pijn rond de eisprong",
+      "https://www.nhs.uk/symptoms/ovulation-pain/"
     ]
   },
-  luteal: {
-    lesson: 'In de dagen voor je menstruatie kun je wat sneller moe zijn. Op zo’n dag kan het fijn zijn om je ritme vast te houden met een training die je al kent.',
-    more: 'Een rondje op gelijkmatig tempo of een vertrouwde pilatesles kan fijn zijn als je zin hebt in regelmaat. Voel je je sterk, dan past je gebruikelijke krachttraining hier ook.',
-    source: ['NHS · Premenstruele klachten', 'https://www.nhs.uk/conditions/pre-menstrual-syndrome/'],
-    ideas: [
-      ['5 min · thuis', 'Een korte beweegpauze', 'Sta even op en maak een rondje door het huis. Ook een klein moment past in je dag.'],
-      ['15 min · buiten', 'Wandelen na de lunch', 'Koppel je rondje aan de lunch. Kies een afstand die ook op een drukkere dag haalbaar voelt.'],
-      ['20 min · buiten', 'Een vlotte fietstocht', 'Voel je je energiek? Kies een route waar je graag fietst en rijd in je vertrouwde tempo.']
+  "luteal": {
+    "title": [
+      "Houd je eigen ritme.",
+      "Keep your own rhythm."
+    ],
+    "lesson": [
+      "Voor je menstruatie kun je sneller moe zijn. Een vertrouwde sessie kan dan fijn voelen. Heb je veel energie? Ga gerust voor je gewone training.",
+      "You may tire more easily before your period. A familiar session can feel good. If you feel energetic, follow your usual routine."
+    ],
+    "forms": [
+      "pilates",
+      "cardio",
+      "strength"
+    ],
+    "source": [
+      "NHS · Premenstruele klachten",
+      "https://www.nhs.uk/conditions/pre-menstrual-syndrome/"
     ]
   }
-};
-export const sessions = {
-  menstrual: [
-    ['Rustige mobiliteit', 'Begin zittend met schouderrollen. Kom rustig staan en draai je heupen in kleine cirkels. Kies de beweging die het prettigst voelt.'],
-    ['Wandeling met een korte lus', 'Loop vijf minuten van huis en keer om. Heb je nog zin, voeg dan een tweede lus toe.'],
-    ['Je gewone krachttraining', 'Warm op met een lichte set van een bekende oefening. Kies daarna het gewicht dat vandaag prettig aanvoelt.']
-  ],
-  follicular: [
-    ['Kracht opbouwen', 'Kies twee oefeningen die je kent, zoals een squat en een roeibeweging. Begin licht en probeer een extra herhaling als je techniek goed blijft.'],
-    ['Fietsen met tempowissels', 'Fiets eerst rustig in. Kies onderweg een kort stukje om te versnellen en trap daarna ontspannen uit.'],
-    ['Een nieuwe danspas', 'Kies één nummer. Oefen een pas langzaam en voeg de muziek toe zodra de beweging vertrouwd voelt.']
-  ],
-  ovulatory: [
-    ['Dans op muziek', 'Begin met een rustig nummer. Kies daarna een favoriet waarop je vanzelf wat groter wilt bewegen.'],
-    ['Kracht met aandacht', 'Kies een vertrouwde oefening en warm op met een lichte set. Neem tussen de sets genoeg tijd om weer op adem te komen.'],
-    ['Een rondje hardlopen', 'Wandel eerst een paar minuten. Wissel daarna rustig joggen en wandelen af, of loop door als je al gewend bent om te rennen.']
-  ],
-  luteal: [
-    ['Pilates op de mat', 'Begin op handen en knieën. Strek rustig één been naar achteren en wissel van kant. Als dat goed voelt, voeg je de tegenovergestelde arm toe.'],
-    ['Cardio op gelijkmatig tempo', 'Kies wandelen, fietsen of de crosstrainer. Zoek een tempo waarop je nog kunt praten en houd dat aan zolang het prettig voelt.'],
-    ['Een vertrouwde krachtsessie', 'Kies twee favoriete oefeningen. Heb je minder energie, houd het bij één set van elk. Voel je je sterk, volg dan je gewone schema.']
-  ]
-};
+}
 
-export const englishIdeas = {
-  menstrual: {
-    lesson: 'You might have cramps during your period. A short walk may feel good, or you might feel ready for your usual workout.',
-    more: 'Start gently and give yourself a few minutes to see how you feel.',
-    source: 'Cochrane · Exercise for period pain',
-    ideas: [
-      ['5 min · at home', 'Stretch your legs', 'Walk around the room. Take a break whenever you like.'],
-      ['15 min · outdoors', 'A loop close to home', 'Choose a short route so you can head home if cramps bother you.'],
-      ['20 min · your usual spot', 'Your familiar workout', 'Start with your usual warm-up. Carry on if it feels comfortable.']
-    ],
-    sessions: [
-      ['Gentle mobility', 'Roll your shoulders while seated, then stand and circle your hips slowly.'],
-      ['A short walking loop', 'Walk for five minutes and turn back. Add another loop if you feel like it.'],
-      ['Your strength routine', 'Start with a light set of a familiar exercise and choose a comfortable weight.']
-    ]
+export const movementForms = {
+  "nl": {
+    "strength": {
+      "name": "Vertrouwde krachttraining",
+      "description": "Kies bekende oefeningen. Zo voel je tijdens je eerste set of je het gewicht of het aantal sets wilt aanpassen.",
+      "examples": "Squat · Roeibeweging · Heupbrug",
+      "sessions": [
+        [
+          "8 min",
+          "Eén rustige ronde",
+          "Begin met rustig lopen. Doe één comfortabele set squats en één set heupbruggen."
+        ],
+        [
+          "18 min",
+          "Twee vertrouwde oefeningen",
+          "Warm rustig op. Doe twee sets van een squat en een roeibeweging met je gebruikelijke weerstand. Rust tussen de sets."
+        ],
+        [
+          "30 min",
+          "Je gewone krachtsessie",
+          "Warm op en volg je vertrouwde schema. Kies het gewicht op basis van je eerste set."
+        ]
+      ]
+    },
+    "pilates": {
+      "name": "Pilates",
+      "description": "Een rustige reeks op de mat is fijn als je aandacht wilt geven aan controle en ademhaling.",
+      "examples": "Bird dog · Bekkenkanteling · Heupbrug",
+      "sessions": [
+        [
+          "5 min",
+          "Een moment op de mat",
+          "Kantel je bekken rustig terwijl je op je rug ligt. Voeg een paar heupbruggen toe."
+        ],
+        [
+          "12 min",
+          "Een rustige matserie",
+          "Wissel bekkenkantelingen en heupbruggen af. Eindig op handen en knieën en strek om beurten één been."
+        ],
+        [
+          "20 min",
+          "Je favoriete pilatesreeks",
+          "Begin met bekkenkantelingen. Bouw op naar bird dogs en heupbruggen en herhaal de reeks op je eigen tempo."
+        ]
+      ]
+    },
+    "cardio": {
+      "name": "Cardio op gelijkmatig tempo",
+      "description": "Kies dit als je lekker wilt doorbewegen zonder steeds te versnellen.",
+      "examples": "Loopband · Stairmaster · Crosstrainer · Hometrainer",
+      "sessions": [
+        [
+          "6 min",
+          "Rustig op de crosstrainer",
+          "Start met weinig weerstand en beweeg een paar minuten op een comfortabel tempo."
+        ],
+        [
+          "15 min",
+          "Loopband op praattempo",
+          "Wandel eerst rustig op de loopband. Kies daarna een tempo of lichte helling waarbij je nog kunt praten."
+        ],
+        [
+          "25 min",
+          "Een sessie op de stairmaster",
+          "Begin op een lage stand. Zoek een gelijkmatig stapritme en schakel terug als je ademhaling te snel gaat."
+        ]
+      ]
+    },
+    "walk": {
+      "name": "Wandelen",
+      "description": "Een korte lus maakt het makkelijk om onderweg te kiezen of je verder wilt.",
+      "examples": "Ommetje · Parkronde · Stevig wandelen",
+      "sessions": [
+        [
+          "5 min",
+          "Een frisse neus",
+          "Loop tot het einde van je straat en terug."
+        ],
+        [
+          "15 min",
+          "Een rondje dichtbij",
+          "Kies een vertrouwde route en loop in een prettig ritme."
+        ],
+        [
+          "25 min",
+          "Een stevige wandeling",
+          "Begin op je gemak. Wandel het middenstuk vlot en eindig rustig."
+        ]
+      ]
+    },
+    "mobility": {
+      "name": "Rustige mobiliteit",
+      "description": "Kleine bewegingen kun je makkelijk aanpassen aan wat prettig voelt.",
+      "examples": "Schouderrollen · Heupcirkels · Rug bewegen",
+      "sessions": [
+        [
+          "4 min",
+          "Even losmaken",
+          "Rol je schouders en draai je heupen in kleine cirkels."
+        ],
+        [
+          "8 min",
+          "Van schouders tot heupen",
+          "Wissel schouderrollen, heupcirkels en rustig buigen en strekken van je rug af."
+        ],
+        [
+          "12 min",
+          "Een vloeiende reeks",
+          "Maak je schouders en heupen los. Herhaal je favoriete bewegingen in een rustig ritme."
+        ]
+      ]
+    },
+    "dance": {
+      "name": "Dans",
+      "description": "Met muziek kies je zelf hoe lang en hoe intensief je beweegt.",
+      "examples": "Vrij dansen · Danspas oefenen · Danswork-out",
+      "sessions": [
+        [
+          "4 min",
+          "Eén favoriet nummer",
+          "Zet een liedje op en stap rustig mee."
+        ],
+        [
+          "12 min",
+          "Een paar nummers voor jezelf",
+          "Begin met een rustig nummer en beweeg daarna mee op je favoriete muziek."
+        ],
+        [
+          "20 min",
+          "Een korte danssessie",
+          "Begin rustig, bouw op met een paar vlotte nummers en eindig met een langzamer lied."
+        ]
+      ]
+    }
   },
-  follicular: {
-    lesson: 'After your period, oestrogen usually rises towards ovulation. If you feel like getting back to training, start with something familiar.',
-    more: 'A familiar exercise gives you a starting point. If it feels easy today, try adjusting the pace or weight.',
-    source: 'NHS · The menstrual cycle',
-    ideas: [
-      ['5 min · outdoors', 'A fresh start', 'Walk to the end of the street. See if you feel like going further.'],
-      ['15 min · cycling', 'Get back on your bike', 'Ride a familiar route and find a comfortable pace.'],
-      ['20 min · home or gym', 'Return to your strength routine', 'Start with a familiar exercise and let the first set guide your choice of weight.']
-    ],
-    sessions: [
-      ['Build strength', 'Choose two familiar exercises. Start light and try one extra repetition if your form feels steady.'],
-      ['Vary your cycling pace', 'Warm up gently. Pick a short stretch to speed up, then pedal easily again.'],
-      ['Learn a dance step', 'Try one step slowly and add music once it feels familiar.']
-    ]
-  },
-  ovulatory: {
-    lesson: 'Many people barely notice ovulation. Some feel a brief twinge on one side of the lower abdomen. What would feel good today?',
-    more: 'If you fancy a challenge, pick something you enjoy. An easy warm-up can help you find your pace.',
-    source: 'NHS · Ovulation pain',
-    ideas: [
-      ['5 min · at home', 'Move gently', 'Walk around at your own pace. Take a break if moving feels uncomfortable.'],
-      ['15 min · outdoors', 'Walk by feel', 'Start easy and pick up the pace if it feels good.'],
-      ['20 min · at home', 'Dance to your favourites', 'Put on a few songs and move as freely as you like.']
-    ],
-    sessions: [
-      ['Dance to music', 'Start with a slow song, then choose a favourite that makes you want to move.'],
-      ['Mindful strength training', 'Warm up with a light set of a familiar exercise. Catch your breath between sets.'],
-      ['Go for a jog', 'Walk for a few minutes, then alternate walking and jogging or continue at your usual running pace.']
-    ]
-  },
-  luteal: {
-    lesson: 'In the days before your period, you may tire more easily. A familiar workout can help you keep your rhythm.',
-    more: 'A steady ride or a familiar Pilates session may feel right today. If you feel strong, your usual strength session is also an option.',
-    source: 'NHS · Premenstrual syndrome',
-    ideas: [
-      ['5 min · at home', 'A movement break', 'Get up and walk around the house. A short break counts too.'],
-      ['15 min · outdoors', 'A lunchtime walk', 'Pair a walk with lunch and choose a distance that fits your day.'],
-      ['20 min · outdoors', 'A brisk bike ride', 'Feeling energetic? Choose a favourite route and ride at your usual pace.']
-    ],
-    sessions: [
-      ['Mat Pilates', 'Start on hands and knees. Extend one leg at a time, then add the opposite arm if comfortable.'],
-      ['Steady cardio', 'Walk, cycle or use a cross trainer at a pace where you can still talk.'],
-      ['A familiar strength session', 'Pick two favourite exercises. Try one set of each on a lower-energy day or follow your usual routine.']
-    ]
+  "en": {
+    "strength": {
+      "name": "Familiar strength training",
+      "description": "Start with a familiar exercise and use the first set to choose your weight.",
+      "examples": "Squat · Row · Glute bridge",
+      "sessions": [
+        [
+          "8 min",
+          "One easy round",
+          "Warm up with a short walk. Try a comfortable set of squats and one set of glute bridges."
+        ],
+        [
+          "18 min",
+          "Two familiar exercises",
+          "Warm up, then try two sets of squats and rows. Rest between sets."
+        ],
+        [
+          "30 min",
+          "Your usual strength session",
+          "Warm up and follow your usual programme. Let the first set guide the weight."
+        ]
+      ]
+    },
+    "pilates": {
+      "name": "Pilates",
+      "description": "A mat sequence lets you focus on control and breathing.",
+      "examples": "Bird dog · Pelvic tilt · Glute bridge",
+      "sessions": []
+    },
+    "cardio": {
+      "name": "Steady cardio",
+      "description": "Choose a comfortable pace you can maintain.",
+      "examples": "Treadmill · Stair climber · Elliptical · Exercise bike",
+      "sessions": [
+        [
+          "6 min",
+          "Easy elliptical",
+          "Start with low resistance and move at a comfortable pace."
+        ],
+        [
+          "15 min",
+          "Treadmill walk",
+          "Start slowly. Choose a pace or gentle incline that still lets you talk."
+        ],
+        [
+          "25 min",
+          "Stair climber session",
+          "Start on a low setting. Find a steady rhythm and reduce the level if needed."
+        ]
+      ]
+    },
+    "walk": {
+      "name": "Walking",
+      "description": "A short loop makes it easy to adjust your distance.",
+      "examples": "Short walk · Park loop · Brisk walk",
+      "sessions": [
+        [
+          "5 min",
+          "Fresh air",
+          "Walk to the end of your street and back."
+        ],
+        [
+          "15 min",
+          "A local loop",
+          "Pick a familiar route and a comfortable pace."
+        ],
+        [
+          "25 min",
+          "A brisk walk",
+          "Start easy, walk briskly in the middle and slow down to finish."
+        ]
+      ]
+    },
+    "mobility": {
+      "name": "Gentle mobility",
+      "description": "Keep the movements small and comfortable.",
+      "examples": "Shoulder rolls · Hip circles · Back stretches",
+      "sessions": []
+    },
+    "dance": {
+      "name": "Dance",
+      "description": "Pick the music and set your own intensity.",
+      "examples": "Freestyle · Dance steps · Dance workout",
+      "sessions": [
+        [
+          "4 min",
+          "One favourite song",
+          "Put on a song and step to the beat."
+        ],
+        [
+          "12 min",
+          "A few songs to yourself",
+          "Start with a slow track and move to your favourite music."
+        ],
+        [
+          "20 min",
+          "A short dance session",
+          "Build up gradually with faster songs, then finish with a slower track."
+        ]
+      ]
+    }
   }
 }
