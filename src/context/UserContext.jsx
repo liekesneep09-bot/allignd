@@ -1030,7 +1030,7 @@ export function UserProvider({ children, previewProfile = null, previewOnboarded
         foodLogs: [...(prev.foodLogs || []), newLog]
       }))
 
-      if (previewProfile) return
+      if (previewProfile) return newLog
 
       // 2. Persist to DB
       try {
@@ -1061,7 +1061,7 @@ export function UserProvider({ children, previewProfile = null, previewOnboarded
         }))
         throw e
       }
-      return
+      return newLog
     }
 
     // Handle regular food (foodId + grams)
